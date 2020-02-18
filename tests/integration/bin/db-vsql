@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+>&2 echo "Checking connection to ${DB_HOST:?} on port ${DB_PORT:?}"
+nc -z "${DB_HOST:?}" "${DB_PORT:?}" >/dev/null 2>&1 || echo "Could not connect to database"
+
+>&2 echo "Connecting to database ${DB_DATABASE?} on ${DB_HOST:?}:${DB_PORT:?} as ${DB_USERNAME?}"
+
+if [ ! -t 0 ]
+then
+  # not operating through terminal, so go into 'running a script mode'
+
+  # -q: Don't output welcome message
+  # -P footer: Disable footer
+  # -A: Don't pad out entries for screen alignment
+  # -F ,: comma-separated (but does not encode values, so don't rely on this for arbitrary data!)
+  # -q: Drop the welcome message
+  # -v ON_ERROR_STOP=1: Stop script and exit with an error if there's a syntax or execution error somewhere.
+
+  VSQL_OPTIONS="-P footer -A -F , -q -v ON_ERROR_STOP=1"
+fi
+
+# shellcheck disable=SC2086
+vsql ${VSQL_OPTIONS} \
+     -h "${DB_HOST:?}" -U "${DB_USERNAME:?}" -p "${DB_PORT:?}" -w "${DB_PASSWORD}" \
+     2> >(grep -Eiv 'license|NOTICE 2001|ACTION IS REQUIRED|urrent raw data size' >&2)
+#    ^ line above filters out license issues from stderr!

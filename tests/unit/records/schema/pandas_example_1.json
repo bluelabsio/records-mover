@@ -1,0 +1,353 @@
+{
+  "schema": "bltypes/v1",
+  "fields": {
+    "num": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "unique": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "dataframe/pandas",
+          "pd_df_dtype": {
+            "alignment": 8,
+            "byteorder": "=",
+            "descr": [
+              [
+                "",
+                "<i8"
+              ]
+            ],
+            "flags": 0,
+            "isalignedstruct": false,
+            "isnative": true,
+            "kind": "i",
+            "name": "int64",
+            "ndim": 0,
+            "num": 7,
+            "str": "<i8"
+          },
+          "pd_df_ftype": "int64:dense",
+          "pd_df_coltype": "series"
+        }
+      },
+      "index": 1
+    },
+    "str": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "unique": false
+      },
+      "statistics": {
+        "rows_sampled": 1,
+        "total_rows": 1,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "dataframe/pandas",
+          "pd_df_dtype": {
+            "alignment": 8,
+            "byteorder": "|",
+            "descr": [
+              [
+                "",
+                "|O"
+              ]
+            ],
+            "flags": 63,
+            "isalignedstruct": false,
+            "isnative": true,
+            "kind": "O",
+            "name": "object",
+            "ndim": 0,
+            "num": 17,
+            "str": "|O"
+          },
+          "pd_df_ftype": "object:dense",
+          "pd_df_coltype": "series"
+        }
+      },
+      "index": 2
+    },
+    "date": {
+      "type": "date",
+      "constraints": {
+        "required": false,
+        "unique": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "dataframe/pandas",
+          "pd_df_dtype": {
+            "alignment": 8,
+            "byteorder": "|",
+            "descr": [
+              [
+                "",
+                "|O"
+              ]
+            ],
+            "flags": 63,
+            "isalignedstruct": false,
+            "isnative": true,
+            "kind": "O",
+            "name": "object",
+            "ndim": 0,
+            "num": 17,
+            "str": "|O"
+          },
+          "pd_df_ftype": "object:dense",
+          "pd_df_coltype": "series"
+        }
+      },
+      "index": 3
+    },
+    "time": {
+      "type": "time",
+      "constraints": {
+        "required": false,
+        "unique": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "dataframe/pandas",
+          "pd_df_dtype": {
+            "alignment": 8,
+            "byteorder": "|",
+            "descr": [
+              [
+                "",
+                "|O"
+              ]
+            ],
+            "flags": 63,
+            "isalignedstruct": false,
+            "isnative": true,
+            "kind": "O",
+            "name": "object",
+            "ndim": 0,
+            "num": 17,
+            "str": "|O"
+          },
+          "pd_df_ftype": "object:dense",
+          "pd_df_coltype": "series"
+        }
+      },
+      "index": 4
+    },
+    "timestamp": {
+      "type": "datetime",
+      "constraints": {
+        "required": false,
+        "unique": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "dataframe/pandas",
+          "pd_df_dtype": {
+            "alignment": 8,
+            "byteorder": "=",
+            "descr": [
+              [
+                "",
+                "<M8[ns]"
+              ]
+            ],
+            "flags": 0,
+            "isalignedstruct": false,
+            "isnative": true,
+            "kind": "M",
+            "name": "datetime64[ns]",
+            "ndim": 0,
+            "num": 21,
+            "str": "<M8[ns]"
+          },
+          "pd_df_ftype": "datetime64[ns]:dense",
+          "pd_df_coltype": "series"
+        }
+      },
+      "index": 5
+    },
+    "timestamptz": {
+      "type": "datetimetz",
+      "constraints": {
+        "required": false,
+        "unique": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "dataframe/pandas",
+          "pd_df_dtype": {
+            "base": {
+              "alignment": 8,
+              "byteorder": "=",
+              "descr": [
+                [
+                  "",
+                  "<M8[ns]"
+                ]
+              ],
+              "flags": 0,
+              "isalignedstruct": false,
+              "isnative": true,
+              "kind": "M",
+              "name": "datetime64[ns]",
+              "ndim": 0,
+              "num": 21,
+              "str": "<M8[ns]"
+            },
+            "isbuiltin": 0,
+            "itemsize": 8,
+            "na_value": null,
+            "names": null,
+            "shape": [],
+            "subdtype": null,
+            "tz": {
+              "zone": "UTC"
+            }
+          },
+          "pd_df_ftype": "datetime64[ns, UTC]:dense",
+          "pd_df_coltype": "series"
+        }
+      },
+      "index": 6
+    }
+  },
+  "known_representations": {
+    "origin": {
+      "type": "dataframe/pandas",
+      "pd_df_dtypes": {
+        "num": {
+          "alignment": 8,
+          "byteorder": "=",
+          "descr": [
+            [
+              "",
+              "<i8"
+            ]
+          ],
+          "flags": 0,
+          "isalignedstruct": false,
+          "isnative": true,
+          "kind": "i",
+          "name": "int64",
+          "ndim": 0,
+          "num": 7,
+          "str": "<i8"
+        },
+        "str": {
+          "alignment": 8,
+          "byteorder": "|",
+          "descr": [
+            [
+              "",
+              "|O"
+            ]
+          ],
+          "flags": 63,
+          "isalignedstruct": false,
+          "isnative": true,
+          "kind": "O",
+          "name": "object",
+          "ndim": 0,
+          "num": 17,
+          "str": "|O"
+        },
+        "date": {
+          "alignment": 8,
+          "byteorder": "|",
+          "descr": [
+            [
+              "",
+              "|O"
+            ]
+          ],
+          "flags": 63,
+          "isalignedstruct": false,
+          "isnative": true,
+          "kind": "O",
+          "name": "object",
+          "ndim": 0,
+          "num": 17,
+          "str": "|O"
+        },
+        "time": {
+          "alignment": 8,
+          "byteorder": "|",
+          "descr": [
+            [
+              "",
+              "|O"
+            ]
+          ],
+          "flags": 63,
+          "isalignedstruct": false,
+          "isnative": true,
+          "kind": "O",
+          "name": "object",
+          "ndim": 0,
+          "num": 17,
+          "str": "|O"
+        },
+        "timestamp": {
+          "alignment": 8,
+          "byteorder": "=",
+          "descr": [
+            [
+              "",
+              "<M8[ns]"
+            ]
+          ],
+          "flags": 0,
+          "isalignedstruct": false,
+          "isnative": true,
+          "kind": "M",
+          "name": "datetime64[ns]",
+          "ndim": 0,
+          "num": 21,
+          "str": "<M8[ns]"
+        },
+        "timestamptz": {
+          "base": {
+            "alignment": 8,
+            "byteorder": "=",
+            "descr": [
+              [
+                "",
+                "<M8[ns]"
+              ]
+            ],
+            "flags": 0,
+            "isalignedstruct": false,
+            "isnative": true,
+            "kind": "M",
+            "name": "datetime64[ns]",
+            "ndim": 0,
+            "num": 21,
+            "str": "<M8[ns]"
+          },
+          "isbuiltin": 0,
+          "itemsize": 8,
+          "na_value": null,
+          "names": null,
+          "shape": [],
+          "subdtype": null,
+          "tz": {
+            "zone": "UTC"
+          }
+        }
+      },
+      "pd_df_ftypes": {
+        "num": "int64:dense",
+        "str": "object:dense",
+        "date": "object:dense",
+        "time": "object:dense",
+        "timestamp": "datetime64[ns]:dense",
+        "timestamptz": "datetime64[ns, UTC]:dense"
+      }
+    }
+  }
+}

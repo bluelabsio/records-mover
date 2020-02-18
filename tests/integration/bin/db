@@ -1,0 +1,53 @@
+#!/bin/bash -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+set -o pipefail
+
+#
+# This can be used in three different ways:
+#
+if [ $# == 0 ]
+then
+  # no arguments - just let with-db give an error message
+  "${DIR:?}/with-db"
+elif [ $# == 1 ]
+then
+  #
+  # interactive, `db db-name` - brings up an native interactive terminal
+  #   $1 - database name
+  #
+  DB_NAME=${1}
+  shift
+  "${DIR:?}/with-db" "${DB_NAME:?}" "${DIR:?}/db-connect" "$@"
+else
+  #
+  # non-interactive, as a script!
+  #
+  if [ -f "${1:?}" ]
+  then
+    #
+    # as a script with header of '#!/usr/bin/env db', passed the database name and optional additional arguments
+    #   $1   - filename of .sql script
+    #   $2   - database name provided by user as first argument
+    #   $3.. - arguments passed to script by user
+    #
+    FILENAME=${1:?filename}
+    shift
+    DB_NAME=${1:?database name}
+    shift
+  else
+    #
+    # as a script with header of '#!/usr/bin/env db db-name`, optionally passed arguments
+    #
+    DB_NAME=${1}
+    shift
+    FILENAME=${1}
+    shift
+  fi
+
+  eval "$(db-facts "${DB_NAME:?}")"
+
+  "${DIR:?}/arg-to-stdin" "${FILENAME:?}" template -n "${FILENAME:?}" -- "${@}" | \
+    "${DIR:?}/with-db" "${DB_NAME:?}" "${DIR:?}/db-connect"
+fi

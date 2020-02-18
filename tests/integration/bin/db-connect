@@ -1,0 +1,20 @@
+#!/bin/bash -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [ "${DB_PROTOCOL:?}" == vertica ]
+then
+  ${CONNECT_PROXY} "${DIR:?}/db-vsql"
+elif [ "${DB_PROTOCOL:?}" == postgres ]
+then
+  ${CONNECT_PROXY} "${DIR:?}/db-psql"
+elif [ "${DB_PROTOCOL:?}" == mysql ]
+then
+  ${CONNECT_PROXY} "${DIR:?}/db-mysql"
+elif [ "${DB_PROTOCOL:?}" == bigquery ]
+then
+  ${CONNECT_PROXY} "${DIR:?}/db-bigquery"
+else
+  >&2 echo "Teach this script about DB_PROTOCOL ${DB_PROTOCOL:?}"
+  exit 1
+fi

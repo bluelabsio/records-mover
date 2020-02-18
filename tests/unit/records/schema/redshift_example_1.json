@@ -1,0 +1,1521 @@
+{
+  "schema": "bltypes/v1",
+  "fields": {
+    "numeric": {
+      "type": "decimal",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "NUMERIC(2, 1) ENCODE lzo",
+          "col_type": "NUMERIC(2, 1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "NUMERIC(2, 1) ENCODE lzo",
+          "col_type": "NUMERIC(2, 1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "NUMERIC(2, 1)",
+          "col_type": "NUMERIC(2, 1)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "NUMERIC(2, 1)",
+          "col_type": "NUMERIC(2, 1)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "NUMERIC(2, 1)",
+          "col_type": "NUMERIC(2, 1)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "NUMERIC(2, 1)",
+          "col_type": "NUMERIC(2, 1)"
+        }
+      },
+      "index": 1
+    },
+    "decimal": {
+      "type": "decimal",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "NUMERIC(2, 1) ENCODE lzo",
+          "col_type": "NUMERIC(2, 1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "NUMERIC(2, 1) ENCODE lzo",
+          "col_type": "NUMERIC(2, 1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "NUMERIC(2, 1)",
+          "col_type": "NUMERIC(2, 1)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "NUMERIC(2, 1)",
+          "col_type": "NUMERIC(2, 1)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "NUMERIC(2, 1)",
+          "col_type": "NUMERIC(2, 1)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "NUMERIC(2, 1)",
+          "col_type": "NUMERIC(2, 1)"
+        }
+      },
+      "index": 2
+    },
+    "smallint": {
+      "type": "integer",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "SMALLINT ENCODE lzo",
+          "col_type": "SMALLINT",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "SMALLINT ENCODE lzo",
+          "col_type": "SMALLINT",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "SMALLINT",
+          "col_type": "SMALLINT"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "SMALLINT",
+          "col_type": "SMALLINT"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "SMALLINT",
+          "col_type": "SMALLINT"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "SMALLINT",
+          "col_type": "SMALLINT"
+        }
+      },
+      "index": 3
+    },
+    "int2": {
+      "type": "integer",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "SMALLINT ENCODE lzo",
+          "col_type": "SMALLINT",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "SMALLINT ENCODE lzo",
+          "col_type": "SMALLINT",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "SMALLINT",
+          "col_type": "SMALLINT"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "SMALLINT",
+          "col_type": "SMALLINT"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "SMALLINT",
+          "col_type": "SMALLINT"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "SMALLINT",
+          "col_type": "SMALLINT"
+        }
+      },
+      "index": 4
+    },
+    "bigint": {
+      "type": "integer",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "BIGINT ENCODE lzo",
+          "col_type": "BIGINT",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "BIGINT ENCODE lzo",
+          "col_type": "BIGINT",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "BIGINT",
+          "col_type": "BIGINT"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "BIGINT",
+          "col_type": "BIGINT"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "BIGINT",
+          "col_type": "BIGINT"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "BIGINT",
+          "col_type": "BIGINT"
+        }
+      },
+      "index": 5
+    },
+    "int8": {
+      "type": "integer",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "BIGINT ENCODE lzo",
+          "col_type": "BIGINT",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "BIGINT ENCODE lzo",
+          "col_type": "BIGINT",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "BIGINT",
+          "col_type": "BIGINT"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "BIGINT",
+          "col_type": "BIGINT"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "BIGINT",
+          "col_type": "BIGINT"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "BIGINT",
+          "col_type": "BIGINT"
+        }
+      },
+      "index": 6
+    },
+    "integer": {
+      "type": "integer",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "INTEGER ENCODE lzo",
+          "col_type": "INTEGER",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "INTEGER ENCODE lzo",
+          "col_type": "INTEGER",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        }
+      },
+      "index": 7
+    },
+    "int": {
+      "type": "integer",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "INTEGER ENCODE lzo",
+          "col_type": "INTEGER",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "INTEGER ENCODE lzo",
+          "col_type": "INTEGER",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        }
+      },
+      "index": 8
+    },
+    "int4": {
+      "type": "integer",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "INTEGER ENCODE lzo",
+          "col_type": "INTEGER",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "INTEGER ENCODE lzo",
+          "col_type": "INTEGER",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        }
+      },
+      "index": 9
+    },
+    "real": {
+      "type": "decimal",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        }
+      },
+      "index": 10
+    },
+    "float4": {
+      "type": "decimal",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        }
+      },
+      "index": 11
+    },
+    "double": {
+      "type": "decimal",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        }
+      },
+      "index": 12
+    },
+    "float8": {
+      "type": "decimal",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        }
+      },
+      "index": 13
+    },
+    "float": {
+      "type": "decimal",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        }
+      },
+      "index": 14
+    },
+    "bool": {
+      "type": "boolean",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "BOOLEAN",
+          "col_type": "BOOLEAN"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "BOOLEAN",
+          "col_type": "BOOLEAN"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "BOOLEAN",
+          "col_type": "BOOLEAN"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "BOOLEAN",
+          "col_type": "BOOLEAN"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "BOOLEAN",
+          "col_type": "BOOLEAN"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "BOOL",
+          "col_type": "BOOL"
+        }
+      },
+      "index": 15
+    },
+    "boolean": {
+      "type": "boolean",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "BOOLEAN",
+          "col_type": "BOOLEAN"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "BOOLEAN",
+          "col_type": "BOOLEAN"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "BOOLEAN",
+          "col_type": "BOOLEAN"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "BOOLEAN",
+          "col_type": "BOOLEAN"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "BOOLEAN",
+          "col_type": "BOOLEAN"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "BOOL",
+          "col_type": "BOOL"
+        }
+      },
+      "index": 16
+    },
+    "char": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "CHAR(1) ENCODE lzo",
+          "col_type": "CHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "CHAR(1) ENCODE lzo",
+          "col_type": "CHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        }
+      },
+      "index": 17
+    },
+    "character": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "CHAR(1) ENCODE lzo",
+          "col_type": "CHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "CHAR(1) ENCODE lzo",
+          "col_type": "CHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        }
+      },
+      "index": 18
+    },
+    "nchar": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "CHAR(1) ENCODE lzo",
+          "col_type": "CHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "CHAR(1) ENCODE lzo",
+          "col_type": "CHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        }
+      },
+      "index": 19
+    },
+    "bpchar": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "CHAR(1) ENCODE lzo",
+          "col_type": "CHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "CHAR(1) ENCODE lzo",
+          "col_type": "CHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "CHAR(1)",
+          "col_type": "CHAR(1)"
+        }
+      },
+      "index": 20
+    },
+    "num": {
+      "type": "integer",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "INTEGER ENCODE lzo",
+          "col_type": "INTEGER",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "INTEGER ENCODE lzo",
+          "col_type": "INTEGER",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "INTEGER",
+          "col_type": "INTEGER"
+        }
+      },
+      "index": 21
+    },
+    "numstr": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        }
+      },
+      "index": 22
+    },
+    "str": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        }
+      },
+      "index": 23
+    },
+    "varchar": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        }
+      },
+      "index": 24
+    },
+    "character_varying": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        }
+      },
+      "index": 25
+    },
+    "nvarchar": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        }
+      },
+      "index": 26
+    },
+    "text": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        }
+      },
+      "index": 27
+    },
+    "comma": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(1) ENCODE lzo",
+          "col_type": "VARCHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(1) ENCODE lzo",
+          "col_type": "VARCHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "VARCHAR(1)",
+          "col_type": "VARCHAR(1)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "VARCHAR(1)",
+          "col_type": "VARCHAR(1)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "VARCHAR(1)",
+          "col_type": "VARCHAR(1)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "VARCHAR(1)",
+          "col_type": "VARCHAR(1)"
+        }
+      },
+      "index": 28
+    },
+    "doublequote": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(1) ENCODE lzo",
+          "col_type": "VARCHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(1) ENCODE lzo",
+          "col_type": "VARCHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "VARCHAR(1)",
+          "col_type": "VARCHAR(1)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "VARCHAR(1)",
+          "col_type": "VARCHAR(1)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "VARCHAR(1)",
+          "col_type": "VARCHAR(1)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "VARCHAR(1)",
+          "col_type": "VARCHAR(1)"
+        }
+      },
+      "index": 29
+    },
+    "quotecommaquote": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "VARCHAR(3)",
+          "col_type": "VARCHAR(3)"
+        }
+      },
+      "index": 30
+    },
+    "newlinestr": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 111
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(111) ENCODE lzo",
+          "col_type": "VARCHAR(111)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(111) ENCODE lzo",
+          "col_type": "VARCHAR(111)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "VARCHAR(111)",
+          "col_type": "VARCHAR(111)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "VARCHAR(111)",
+          "col_type": "VARCHAR(111)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "VARCHAR(111)",
+          "col_type": "VARCHAR(111)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "VARCHAR(111)",
+          "col_type": "VARCHAR(111)"
+        }
+      },
+      "index": 31
+    },
+    "date": {
+      "type": "date",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "DATE ENCODE lzo",
+          "col_type": "DATE",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "DATE ENCODE lzo",
+          "col_type": "DATE",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "DATE",
+          "col_type": "DATE"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "DATE",
+          "col_type": "DATE"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "DATE",
+          "col_type": "DATE"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "DATE",
+          "col_type": "DATE"
+        }
+      },
+      "index": 32
+    },
+    "time": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 8
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(8) ENCODE lzo",
+          "col_type": "VARCHAR(8)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(8) ENCODE lzo",
+          "col_type": "VARCHAR(8)",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "VARCHAR(8)",
+          "col_type": "VARCHAR(8)"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "VARCHAR(8)",
+          "col_type": "VARCHAR(8)"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "VARCHAR(8)",
+          "col_type": "VARCHAR(8)"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "VARCHAR(8)",
+          "col_type": "VARCHAR(8)"
+        }
+      },
+      "index": 33
+    },
+    "timestamp": {
+      "type": "datetime",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "TIMESTAMP WITHOUT TIME ZONE ENCODE lzo",
+          "col_type": "TIMESTAMP WITHOUT TIME ZONE",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "TIMESTAMP WITHOUT TIME ZONE ENCODE lzo",
+          "col_type": "TIMESTAMP WITHOUT TIME ZONE",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "TIMESTAMP WITHOUT TIME ZONE",
+          "col_type": "TIMESTAMP WITHOUT TIME ZONE"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "TIMESTAMP WITHOUT TIME ZONE",
+          "col_type": "TIMESTAMP WITHOUT TIME ZONE"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "TIMESTAMP",
+          "col_type": "TIMESTAMP"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "TIMESTAMP NULL",
+          "col_type": "TIMESTAMP",
+          "col_modifiers": "NULL"
+        }
+      },
+      "index": 34
+    },
+    "timestamp_without_time_zone": {
+      "type": "datetime",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "TIMESTAMP WITHOUT TIME ZONE ENCODE lzo",
+          "col_type": "TIMESTAMP WITHOUT TIME ZONE",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "TIMESTAMP WITHOUT TIME ZONE ENCODE lzo",
+          "col_type": "TIMESTAMP WITHOUT TIME ZONE",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "TIMESTAMP WITHOUT TIME ZONE",
+          "col_type": "TIMESTAMP WITHOUT TIME ZONE"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "TIMESTAMP WITHOUT TIME ZONE",
+          "col_type": "TIMESTAMP WITHOUT TIME ZONE"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "TIMESTAMP",
+          "col_type": "TIMESTAMP"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "TIMESTAMP NULL",
+          "col_type": "TIMESTAMP",
+          "col_modifiers": "NULL"
+        }
+      },
+      "index": 35
+    },
+    "timestamptz": {
+      "type": "datetimetz",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "TIMESTAMP WITH TIME ZONE ENCODE lzo",
+          "col_type": "TIMESTAMP WITH TIME ZONE",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "TIMESTAMP WITH TIME ZONE ENCODE lzo",
+          "col_type": "TIMESTAMP WITH TIME ZONE",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "TIMESTAMP WITH TIME ZONE",
+          "col_type": "TIMESTAMP WITH TIME ZONE"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "TIMESTAMP WITH TIME ZONE",
+          "col_type": "TIMESTAMP WITH TIME ZONE"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "TIMESTAMP",
+          "col_type": "TIMESTAMP"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "TIMESTAMP NULL",
+          "col_type": "TIMESTAMP",
+          "col_modifiers": "NULL"
+        }
+      },
+      "index": 36
+    },
+    "timestamp_with_time_zone": {
+      "type": "datetimetz",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "TIMESTAMP WITH TIME ZONE ENCODE lzo",
+          "col_type": "TIMESTAMP WITH TIME ZONE",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "redshift": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "TIMESTAMP WITH TIME ZONE ENCODE lzo",
+          "col_type": "TIMESTAMP WITH TIME ZONE",
+          "col_modifiers": "ENCODE lzo"
+        },
+        "vertica": {
+          "rep_type": "sql/vertica",
+          "col_ddl": "TIMESTAMP WITH TIME ZONE",
+          "col_type": "TIMESTAMP WITH TIME ZONE"
+        },
+        "postgres": {
+          "rep_type": "sql/postgresql",
+          "col_ddl": "TIMESTAMP WITH TIME ZONE",
+          "col_type": "TIMESTAMP WITH TIME ZONE"
+        },
+        "bigquery": {
+          "rep_type": "sql/bigquery",
+          "col_ddl": "TIMESTAMP",
+          "col_type": "TIMESTAMP"
+        },
+        "mysql": {
+          "rep_type": "sql/mysql",
+          "col_ddl": "TIMESTAMP NULL",
+          "col_type": "TIMESTAMP",
+          "col_modifiers": "NULL"
+        }
+      },
+      "index": 37
+    }
+  },
+  "known_representations": {
+    "origin": {
+      "type": "sql/redshift",
+      "table_ddl": "CREATE TABLE IF NOT EXISTS \"vbroz\".\"multitest\"\n(\n\t\"numeric\" NUMERIC(2,1)   ENCODE lzo\n\t,\"decimal\" NUMERIC(2,1)   ENCODE lzo\n\t,\"smallint\" SMALLINT   ENCODE lzo\n\t,\"int2\" SMALLINT   ENCODE lzo\n\t,\"bigint\" BIGINT   ENCODE lzo\n\t,\"int8\" BIGINT   ENCODE lzo\n\t,\"integer\" INTEGER   ENCODE lzo\n\t,\"int\" INTEGER   ENCODE lzo\n\t,\"int4\" INTEGER   ENCODE lzo\n\t,\"real\" REAL   \n\t,\"float4\" REAL   \n\t,\"double\" DOUBLE PRECISION   \n\t,\"float8\" DOUBLE PRECISION   \n\t,\"float\" DOUBLE PRECISION   \n\t,\"bool\" BOOLEAN   \n\t,\"boolean\" BOOLEAN   \n\t,\"char\" CHAR(1)   ENCODE lzo\n\t,\"character\" CHAR(1)   ENCODE lzo\n\t,\"nchar\" CHAR(1)   ENCODE lzo\n\t,\"bpchar\" CHAR(1)   ENCODE lzo\n\t,\"num\" INTEGER   ENCODE lzo\n\t,\"numstr\" VARCHAR(3)   ENCODE lzo\n\t,\"str\" VARCHAR(3)   ENCODE lzo\n\t,\"varchar\" VARCHAR(3)   ENCODE lzo\n\t,\"character_varying\" VARCHAR(3)   ENCODE lzo\n\t,\"nvarchar\" VARCHAR(3)   ENCODE lzo\n\t,\"text\" VARCHAR(3)   ENCODE lzo\n\t,\"comma\" VARCHAR(1)   ENCODE lzo\n\t,\"doublequote\" VARCHAR(1)   ENCODE lzo\n\t,\"quotecommaquote\" VARCHAR(3)   ENCODE lzo\n\t,\"newlinestr\" VARCHAR(111)   ENCODE lzo\n\t,\"date\" DATE   ENCODE lzo\n\t,\"time\" VARCHAR(8)   ENCODE lzo\n\t,\"timestamp\" TIMESTAMP WITHOUT TIME ZONE   ENCODE lzo\n\t,\"timestamp_without_time_zone\" TIMESTAMP WITHOUT TIME ZONE   ENCODE lzo\n\t,\"timestamptz\" TIMESTAMP WITH TIME ZONE   ENCODE lzo\n\t,\"timestamp_with_time_zone\" TIMESTAMP WITH TIME ZONE   ENCODE lzo\n)\nDISTSTYLE EVEN\n;"
+    },
+    "redshift": {
+      "type": "sql/redshift",
+      "table_ddl": "\nCREATE TABLE vbroz.multitest (\n\tnumeric NUMERIC(2, 1) ENCODE lzo, \n\tdecimal NUMERIC(2, 1) ENCODE lzo, \n\tsmallint SMALLINT ENCODE lzo, \n\tint2 SMALLINT ENCODE lzo, \n\tbigint BIGINT ENCODE lzo, \n\tint8 BIGINT ENCODE lzo, \n\tinteger INTEGER ENCODE lzo, \n\tint INTEGER ENCODE lzo, \n\tint4 INTEGER ENCODE lzo, \n\treal REAL, \n\tfloat4 REAL, \n\tdouble DOUBLE PRECISION, \n\tfloat8 DOUBLE PRECISION, \n\tfloat DOUBLE PRECISION, \n\tbool BOOLEAN, \n\tboolean BOOLEAN, \n\tchar CHAR(1) ENCODE lzo, \n\tcharacter CHAR(1) ENCODE lzo, \n\tnchar CHAR(1) ENCODE lzo, \n\tbpchar CHAR(1) ENCODE lzo, \n\tnum INTEGER ENCODE lzo, \n\tnumstr VARCHAR(3) ENCODE lzo, \n\tstr VARCHAR(3) ENCODE lzo, \n\tvarchar VARCHAR(3) ENCODE lzo, \n\tcharacter_varying VARCHAR(3) ENCODE lzo, \n\tnvarchar VARCHAR(3) ENCODE lzo, \n\ttext VARCHAR(3) ENCODE lzo, \n\tcomma VARCHAR(1) ENCODE lzo, \n\tdoublequote VARCHAR(1) ENCODE lzo, \n\tquotecommaquote VARCHAR(3) ENCODE lzo, \n\tnewlinestr VARCHAR(111) ENCODE lzo, \n\tdate DATE ENCODE lzo, \n\ttime VARCHAR(8) ENCODE lzo, \n\t\"timestamp\" TIMESTAMP WITHOUT TIME ZONE ENCODE lzo, \n\ttimestamp_without_time_zone TIMESTAMP WITHOUT TIME ZONE ENCODE lzo, \n\ttimestamptz TIMESTAMP WITH TIME ZONE ENCODE lzo, \n\ttimestamp_with_time_zone TIMESTAMP WITH TIME ZONE ENCODE lzo\n) DISTSTYLE EVEN\n\n"
+    },
+    "vertica": {
+      "type": "sql/vertica",
+      "table_ddl": "\nCREATE TABLE vbroz.multitest (\n\tnumeric NUMERIC(2, 1), \n\tdecimal NUMERIC(2, 1), \n\tsmallint SMALLINT, \n\tint2 SMALLINT, \n\tbigint BIGINT, \n\tint8 BIGINT, \n\tinteger INTEGER, \n\tint INTEGER, \n\tint4 INTEGER, \n\treal REAL, \n\tfloat4 REAL, \n\tdouble DOUBLE PRECISION, \n\tfloat8 DOUBLE PRECISION, \n\tfloat DOUBLE PRECISION, \n\tbool BOOLEAN, \n\tboolean BOOLEAN, \n\tchar CHAR(1), \n\tcharacter CHAR(1), \n\tnchar CHAR(1), \n\tbpchar CHAR(1), \n\tnum INTEGER, \n\tnumstr VARCHAR(3), \n\tstr VARCHAR(3), \n\tvarchar VARCHAR(3), \n\tcharacter_varying VARCHAR(3), \n\tnvarchar VARCHAR(3), \n\ttext VARCHAR(3), \n\tcomma VARCHAR(1), \n\tdoublequote VARCHAR(1), \n\tquotecommaquote VARCHAR(3), \n\tnewlinestr VARCHAR(111), \n\tdate DATE, \n\ttime VARCHAR(8), \n\ttimestamp TIMESTAMP WITHOUT TIME ZONE, \n\ttimestamp_without_time_zone TIMESTAMP WITHOUT TIME ZONE, \n\ttimestamptz TIMESTAMP WITH TIME ZONE, \n\ttimestamp_with_time_zone TIMESTAMP WITH TIME ZONE\n)\n\n"
+    },
+    "postgres": {
+      "type": "sql/postgresql",
+      "table_ddl": "\nCREATE TABLE vbroz.multitest (\n\tnumeric NUMERIC(2, 1), \n\tdecimal NUMERIC(2, 1), \n\tsmallint SMALLINT, \n\tint2 SMALLINT, \n\tbigint BIGINT, \n\tint8 BIGINT, \n\tinteger INTEGER, \n\tint INTEGER, \n\tint4 INTEGER, \n\treal REAL, \n\tfloat4 REAL, \n\tdouble DOUBLE PRECISION, \n\tfloat8 DOUBLE PRECISION, \n\tfloat DOUBLE PRECISION, \n\tbool BOOLEAN, \n\tboolean BOOLEAN, \n\tchar CHAR(1), \n\tcharacter CHAR(1), \n\tnchar CHAR(1), \n\tbpchar CHAR(1), \n\tnum INTEGER, \n\tnumstr VARCHAR(3), \n\tstr VARCHAR(3), \n\tvarchar VARCHAR(3), \n\tcharacter_varying VARCHAR(3), \n\tnvarchar VARCHAR(3), \n\ttext VARCHAR(3), \n\tcomma VARCHAR(1), \n\tdoublequote VARCHAR(1), \n\tquotecommaquote VARCHAR(3), \n\tnewlinestr VARCHAR(111), \n\tdate DATE, \n\ttime VARCHAR(8), \n\ttimestamp TIMESTAMP WITHOUT TIME ZONE, \n\ttimestamp_without_time_zone TIMESTAMP WITHOUT TIME ZONE, \n\ttimestamptz TIMESTAMP WITH TIME ZONE, \n\ttimestamp_with_time_zone TIMESTAMP WITH TIME ZONE\n)\n\n"
+    },
+    "bigquery": {
+      "type": "sql/bigquery"
+    },
+    "mysql": {
+      "type": "sql/mysql"
+    }
+  }
+}

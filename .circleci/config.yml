@@ -1,0 +1,460 @@
+version: 2.1
+
+quality_gem_version: &quality_gem_version python-37
+
+orbs:
+  quality: bluelabs/quality@0.0.2
+
+commands:
+  installvenv:
+    description: "Installs dependencies in venv if needed"
+    parameters:
+      python_version:
+        type: string
+      pandas_version:
+        type: string
+    steps:
+      - restore_cache:
+          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+      - run:
+          name: Install python deps in venv
+          command: |
+            if [ -f venv/bin/activate ]
+            then
+              . venv/bin/activate
+            else
+              python -m venv venv
+              . venv/bin/activate
+              pip install --extra-index-url "${ARTIFACTORY_PYPI_INDEX_URL}" \
+                --progress-bar=off -r requirements.txt -e '.[movercli]'
+            fi
+            # venv/ dir doesn't seem to save enough info to keep the
+            # '-e .[movercli]' installation.
+            pip install --progress-bar=off 'pandas<<parameters.pandas_version>>' -e '.[movercli]'
+      - save_cache:
+          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          paths:
+            - "venv"
+
+jobs:
+  test:
+    parameters:
+      python_version:
+        type: string
+        description: "Version of python to test against"
+      pandas_version:
+        type: string
+        description: "Version of pandas to test against"
+      coverage:
+        type: boolean
+        # The python and pandas versions can affect the mypy and test
+        # coverage in subtle ways - coverage enforcement should be set
+        # only on the combination which matches local development.
+        default: false
+        description: "Enforce coverage not slipping"
+    docker:
+      - image: circleci/python:<<parameters.python_version>>
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            # Bluelabs Butler Key
+            - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
+      - installvenv:
+          python_version: <<parameters.python_version>>
+          pandas_version: <<parameters.pandas_version>>
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            make citest
+            if [ "<<parameters.coverage>>" == true ]
+            then
+              make cicoverage
+            fi
+      - run:
+          when: always
+          name: Archive coverage report
+          command: |
+            tar -czvf cover.tar.gz cover
+      - run:
+          name: Typecheck
+          command: |
+            . venv/bin/activate
+            make typecheck
+            if [ "<<parameters.coverage>>" == true ]
+            then
+              make citypecoverage
+            fi
+      - run:
+          when: always
+          name: Archive type coverage report
+          command: |
+            tar -czvf typecover.tar.gz typecover
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
+      - store_artifacts:
+          path: cover.tar.gz
+      - store_artifacts:
+          path: typecover.tar.gz
+
+  integration_test_with_dbs:
+    parameters:
+      python_version:
+        type: string
+        description: "Version of python to test against"
+      command:
+        type: string
+        description: "Command to run in joblib venv"
+    docker:
+      - image: circleci/python:<<parameters.python_version>>
+      - image: jbfavre/vertica:8.1.1-16_centos-7
+        environment:
+          DATABASE_NAME: docker
+      - image: postgres:latest
+        environment:
+          POSTGRES_PASSWORD: 'hunter2'
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            # Bluelabs Butler Key
+            - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
+      - installvenv:
+          python_version: <<parameters.python_version>>
+          pandas_version: '<1'
+      - run:
+          name: Install gcloud
+          command: |
+            # Add the Cloud SDK distribution URI as a package source
+            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
+            # Import the Google Cloud Platform public key
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+
+            # Update the package list and install the Cloud SDK
+            sudo apt-get update -y && sudo apt-get install -y google-cloud-sdk
+      - run:
+          name: Symlink gzcat
+          command: |
+            # macOS' zcat doesn't handle gzip, so we install gzcat
+            # specifically in deps.sh, but Ubuntu's zcat does, so we
+            # just need to symlink.  Hurray!
+            sudo ln -s /bin/zcat /bin/gzcat
+      - run:
+          name: Install vsql
+          command: |
+            curl -O https://www.vertica.com/client_drivers/8.1.x/8.1.1-13/vertica-client-8.1.1-13.x86_64.tar.gz
+            tar zxvf vertica-client-8.1.1-13.x86_64.tar.gz opt/vertica/bin/vsql --strip-components=3
+            sudo mv ./vsql /usr/local/bin
+      - run:
+          name: Install psql
+          command: |
+            sudo apt-get update -y && sudo apt-get install -y postgresql-client
+      - run:
+          name: Wait for vertica
+          command: |
+            # Bail out trying after 30 seconds
+            end=$((SECONDS+30))
+            echo "Starting at second ${SECONDS:?} - ending at ${end:?}"
+            while ! vsql -h 127.0.0.1 -U dbadmin -c 'select 1;' && [[ "${SECONDS:?}" -lt "${end:?}" ]]
+            do
+              echo "Waiting for vertica..."
+              sleep 5
+            done
+            vsql -h 127.0.0.1 -U dbadmin -c 'select 1;'
+      - run:
+          name: Run tests
+          command: "<<parameters.command>>"
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
+
+  integration_test:
+    parameters:
+      python_version:
+        type: string
+        description: "Version of python to test against"
+      pandas_version:
+        type: string
+        default: '>=1'
+      db_name:
+        type: string
+        description: "Database to run inside"
+    docker:
+      - image: circleci/python:<<parameters.python_version>>
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            # Bluelabs Butler Key
+            - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
+      - installvenv:
+          python_version: <<parameters.python_version>>
+          pandas_version: <<parameters.pandas_version>>
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export PY_JOB_CONTEXT=env
+            mkdir -p test-reports/itest
+            cd tests/integration/records/single_db
+            with-db <<parameters.db_name>> nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
+
+  deploy:
+    parameters:
+      python_version:
+        type: string
+        description: "Version of python to test against"
+        default: '3.6'
+    docker:
+      - image: circleci/python:<<parameters.python_version>>
+    steps:
+      - checkout
+      - installvenv:
+          python_version: <<parameters.python_version>>
+          pandas_version: '<1'
+      - run:
+          name: verify git tag vs. version
+          command: |
+            . venv/bin/activate
+            python3 setup.py verify
+      - run:
+          name: init .pypirc
+          command: |
+            cat >> $HOME/.pypirc \<<EOF
+            [distutils]
+            index-servers =
+                local
+
+            [local]
+            repository: https://bluelabs.jfrog.io/bluelabs/api/pypi/pypi-local
+            username: $ARTIFACTORY_USER
+            password: $ARTIFACTORY_PASSWORD
+            EOF
+      - run:
+          name: create packages
+          command: |
+            . venv/bin/activate
+            make package
+      - run:
+          name: upload to pypi
+          command: |
+            . venv/bin/activate
+            twine upload -r local dist/*
+
+workflows:
+  version: 2
+  quality:
+    jobs:
+      - quality/check-quality-job:
+          custom_rakefile: Rakefile.quality
+          image_tag: *quality_gem_version
+  test:
+    jobs:
+      # We try to test against all non-end-of-life Python versions:
+      #
+      # https://devguide.python.org/devcycle/#end-of-life-branches
+      #
+      # That said, Python 3.5 and before don't support type
+      # annotations on variables, which we use, so right now Python
+      # 3.6 is the current minimum version tested against.
+      #
+      # https://app.asana.com/0/1128138765527694/1161072974798065
+      - test:
+          name: test-3.6
+          python_version: "3.6"
+          pandas_version: "<1"
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.7
+          python_version: "3.7"
+          pandas_version: ">=1"
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.8
+          python_version: "3.8"
+          pandas_version: ">=1"
+          coverage: true
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: vertica-no-s3-itest
+          python_version: "3.6"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export PY_JOB_CONTEXT=env
+            mkdir -p test-reports/itest
+            cd tests/integration/records/single_db
+            unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
+            with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: postgres-itest
+          python_version: "3.6"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export PY_JOB_CONTEXT=env
+            mkdir -p test-reports/itest
+            cd tests/integration/records/single_db
+            with-db dockerized-postgres nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: vertica-s3-itest
+          python_version: "3.6"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export PY_JOB_CONTEXT=env
+            mkdir -p test-reports/itest
+            cd tests/integration/records/single_db
+            with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: cli-1-itest
+          python_version: "3.6"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export PY_JOB_CONTEXT=env
+            mkdir -p test-reports/itest
+            cd tests/integration/cli
+            with-db dockerized-vertica ./cli-tests.sh ci_1
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: cli-2-itest
+          python_version: "3.6"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export PY_JOB_CONTEXT=env
+            mkdir -p test-reports/itest
+            cd tests/integration/cli
+            with-db dockerized-vertica ./cli-tests.sh ci_2
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: cli-3-itest
+          python_version: "3.6"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export PY_JOB_CONTEXT=env
+            mkdir -p test-reports/itest
+            cd tests/integration/cli
+            with-db dockerized-vertica ./cli-tests.sh ci_3
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test:
+          name: redshift-itest
+          python_version: "3.6"
+          db_name: demo-itest
+          requires:
+            - test-3.8
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test:
+          name: redshift-itest-old-pandas
+          python_version: "3.6"
+          pandas_version: "<1"
+          db_name: demo-itest
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test:
+          name: bigquery-itest
+          python_version: "3.6"
+          db_name: bltoolsdevbq-bq_itest
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: tbl2tbl-itest
+          python_version: "3.6"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export PY_JOB_CONTEXT=env
+            mkdir -p test-reports/itest
+            cd tests/integration
+            python3 -m records.multi_db.test_records_table2table
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - deploy:
+          context: Artifactory
+          requires:
+            - test-3.6
+            - test-3.7
+            - test-3.8
+            - tbl2tbl-itest
+            - bigquery-itest
+            - redshift-itest
+            - redshift-itest-old-pandas
+            - postgres-itest
+            - cli-1-itest
+            - cli-2-itest
+            - cli-3-itest
+            - vertica-s3-itest
+            - vertica-no-s3-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+            branches:
+              ignore: /.*/

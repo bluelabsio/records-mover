@@ -1,0 +1,41 @@
+---
+dbs:
+  bltoolsdevbq-bq_itest:
+    jinja_context_name:
+      - env
+      - base64
+    exports:
+      type: bigquery
+      protocol: bigquery
+      bq_account: bq_itest
+      bq_service_account_json: "{{ env('GCP_SERVICE_ACCOUNT_JSON_BASE64') | b64decode }}"
+      bq_default_project_id: 'bluelabs-tools-dev'
+      bq_default_dataset_id: 'bq_itest'
+  dockerized-vertica:
+    exports:
+      host: 127.0.0.1
+      port: 5433
+      database: docker
+      type: vertica
+      protocol: vertica
+      user: dbadmin
+      password: ""
+  dockerized-postgres:
+    exports:
+      host: 127.0.0.1
+      port: 5432
+      database: postgres
+      type: postgres
+      protocol: postgres
+      user: postgres
+      password: hunter2
+  demo-itest:
+    jinja_context_name: env
+    exports:
+      host: "{{ env('ITEST_REDSHIFT_HOST') }}"
+      port: "{{ env('ITEST_REDSHIFT_PORT') }}"
+      database: "{{ env('ITEST_REDSHIFT_DATABASE') }}"
+      type: redshift
+      protocol: postgres
+      user: "{{ env('ITEST_REDSHIFT_USER') }}"
+      password: "{{ env('ITEST_REDSHIFT_PASSWORD') }}"

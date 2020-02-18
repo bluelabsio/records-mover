@@ -1,0 +1,4 @@
+# Used by with-db, which is used by db CLI, which is used by
+# table2table/table2table-tests.sh
+
+true

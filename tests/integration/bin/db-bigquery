@@ -1,0 +1,49 @@
+#!/bin/bash -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+set +e
+unset VIRTUAL_ENV
+set -e
+
+bq_args=()
+
+if [ -z "${BQ_SERVICE_ACCOUNT_JSON}" ]
+then
+  gcloud config set account "${BQ_ACCOUNT:?}"
+else
+  gcloud auth activate-service-account --key-file <(echo "${BQ_SERVICE_ACCOUNT_JSON:?}")
+fi
+
+# The only way to get 'bq shell' to use BigQuery's "Standard SQL" is
+# to configure a bigqueryrc file.
+#
+# If you want to set your own .bigqueryrc settings, set BIGQUERYRC to
+# point to your file, but you'll probably want to steal the settings
+# in the one below as a base.
+if [ -z "${BIGQUERYRC}" ]
+then
+  BIGQUERYRC="${DIR:?}/../etc/bigqueryrc"
+  export BIGQUERYRC
+fi
+
+if [ ! -z "${BQ_DEFAULT_PROJECT_ID}" ]
+then
+  bq_args+=( "--project_id=${BQ_DEFAULT_PROJECT_ID:?}" )
+fi
+
+if [ ! -z "${BQ_DEFAULT_DATASET_ID}" ]
+then
+  bq_args+=( "--dataset_id=${BQ_DEFAULT_DATASET_ID:?}" )
+fi
+
+
+# Is stdin a tty?  (i.e., are we interactive?)
+if [ -t 0 ]
+then
+  bq shell "${bq_args[@]}"
+else
+  # not operating through terminal, so go into 'running a script mode'
+
+  bq query --format=csv "${bq_args[@]}"
+fi

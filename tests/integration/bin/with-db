@@ -1,0 +1,50 @@
+#!/bin/bash -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+"${DIR:?}"/ensure-lpass-active
+
+VALID_DB_NAMES='{seiu,redshift,everytown,...}, {seiu,redshift,everytown,...}-dbadmin, {seiu,redshift,everytown, ...}-username, bluehq-{job,cred,user,...}, singularity, cms{-prod,-test,-impl}{-dbadmin,}'
+
+DB_NAME=${1}
+
+if [ -z "${DB_NAME}" ]
+then
+  >&2 echo "provide database name as first arg (valid: ${VALID_DB_NAMES:?}"
+  exit 1
+fi
+
+eval "$(db-facts "${DB_NAME:?}")"
+
+if [ n"${DB_PROTOCOL}" == n ]
+then
+  >&2 echo "Could not understand ${DB_NAME:?}.  (valid: ${VALID_DB_NAMES:?})"
+  exit 1
+fi
+
+if [ "${CONNECTION_TYPE:?}" == direct ]
+then
+  CONNECT_PROXY=""
+elif [ "${CONNECTION_TYPE:?}" == bluehq ]
+then
+  LOCAL_DB_PORT=$(free-port)
+  REMOTE_DB_PORT=${DB_PORT:?}
+  DB_PORT=${LOCAL_DB_PORT:?}
+
+  export DB_PORT
+  export REMOTE_DB_HOST=${DB_HOST:?}
+  export DB_HOST
+  DB_HOST=localhost
+
+  CONNECT_PROXY="bluehq-with-tunnelled-port ${LOCAL_DB_PORT:?} ${REMOTE_DB_HOST:?} ${REMOTE_DB_PORT:?}"
+  export CONNECT_PROXY
+else
+  >&2 echo "Teach this script about CONNECTION_TYPE ${CONNECTION_TYPE:?}"
+  exit 1
+fi
+
+shift
+
+# It's OK if CONNECT_PROXY is empty, so:
+# shellcheck disable=SC2086
+exec ${CONNECT_PROXY} "$@"

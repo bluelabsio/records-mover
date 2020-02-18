@@ -1,0 +1,41 @@
+import unittest
+from unittest.mock import patch, Mock
+from records_mover.db.factory import db_driver
+
+
+class TestFactory(unittest.TestCase):
+    @patch('records_mover.db.factory.VerticaDBDriver')
+    def test_db_driver_vertica(self,
+                               mock_VerticaDBDriver):
+        mock_db = Mock(name='db')
+        mock_engine = mock_db.engine
+        mock_engine.name = 'vertica'
+        out = db_driver(mock_db)
+        self.assertEqual(out, mock_VerticaDBDriver.return_value)
+
+    @patch('records_mover.db.factory.RedshiftDBDriver')
+    def test_db_driver_redshift(self,
+                                mock_RedshiftDBDriver):
+        mock_db = Mock(name='db')
+        mock_engine = mock_db.engine
+        mock_engine.name = 'redshift'
+        out = db_driver(mock_db)
+        self.assertEqual(out, mock_RedshiftDBDriver.return_value)
+
+    @patch('records_mover.db.factory.BigQueryDBDriver')
+    def test_db_driver_bigquery(self,
+                                mock_BigQueryDBDriver):
+        mock_db = Mock(name='db')
+        mock_engine = mock_db.engine
+        mock_engine.name = 'bigquery'
+        out = db_driver(mock_db)
+        self.assertEqual(out, mock_BigQueryDBDriver.return_value)
+
+    @patch('records_mover.db.factory.DBDriver')
+    def test_db_driver_other(self,
+                             mock_DBDriver):
+        mock_db = Mock(name='db')
+        mock_engine = mock_db.engine
+        mock_engine.name = 'somaskdfaksjf'
+        out = db_driver(mock_db)
+        self.assertEqual(out, mock_DBDriver.return_value)

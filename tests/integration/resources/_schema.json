@@ -1,0 +1,67 @@
+{
+  "schema": "bltypes/v1",
+  "fields": {
+    "num": {
+      "type": "integer",
+      "index": 1
+    },
+    "numstr": {
+      "type": "string",
+      "index": 1,
+      "constraints": {
+        "max_length_bytes": 3
+      }
+    },
+    "str": {
+      "type": "string",
+      "index": 3,
+      "constraints": {
+        "max_length_bytes": 3
+      }
+    },
+    "comma": {
+      "type": "string",
+      "index": 4,
+      "constraints": {
+        "max_length_bytes": 1
+      }
+    },
+    "doublequote": {
+      "type": "string",
+      "index": 5,
+      "constraints": {
+        "max_length_bytes": 1
+      }
+    },
+    "quotecommaquote": {
+      "type": "string",
+      "index": 6,
+      "constraints": {
+        "max_length_bytes": 3
+      }
+    },
+    "newlinestr": {
+      "type": "string",
+      "index": 7,
+      "constraints": {
+        "max_length_bytes": 111
+      }
+    },
+    "date": {
+      "type": "date",
+      "index": 8
+    },
+    "time": {
+      "type": "time",
+      "index": 9
+    },
+    "timestamp": {
+      "type": "datetime",
+      "index": 10
+    },
+    "timestamptz": {
+      "type": "datetimetz",
+      "index": 11
+    }
+  }
+}
