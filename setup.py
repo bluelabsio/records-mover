@@ -64,7 +64,7 @@ setup(name='records-mover',
           # 'pyodbc',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
-          'bluelabs-db-facts>=4,<5',
+          'db-facts>=2.15.3,<3',
           'odictliteral',
           # we rely on exception types from smart_open,
           # which seem to change in feature releases
