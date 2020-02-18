@@ -50,7 +50,7 @@ clear_tables() {
 }
 
 clear_sheets() {
-  mover csv2gsheet empty.csv "${target_spreadsheet_id:?}" "${target_sheet_name:?}" "${gcp_creds_name:?}"
+  mvrec csv2gsheet empty.csv "${target_spreadsheet_id:?}" "${target_sheet_name:?}" "${gcp_creds_name:?}"
 
 }
 
@@ -116,12 +116,12 @@ assert_target_csv_url_is_valid() {
 
 
 assert_target_table_is_valid() {
-  mover table2recordsdir --target.variant=bluelabs "${target_schema_name}" "${target_table_name}" "${target_recordsdir_url}"
+  mvrec table2recordsdir --target.variant=bluelabs "${target_schema_name}" "${target_table_name}" "${target_recordsdir_url}"
   assert_target_recordsdir_is_valid
 }
 
 assert_target_gsheet_is_valid() {
-  mover gsheet2recordsdir --source.out_of_band_column_headers="a" "${target_spreadsheet_id}" "${target_sheet_name}" "${gcp_creds_name}" "${target_recordsdir_url}"
+  mvrec gsheet2recordsdir --source.out_of_band_column_headers="a" "${target_spreadsheet_id}" "${target_sheet_name}" "${gcp_creds_name}" "${target_recordsdir_url}"
   assert_target_recordsdir_is_valid
 }
 
