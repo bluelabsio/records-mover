@@ -1,0 +1,37 @@
+verticadb:
+  image: jbfavre/vertica:8.1.1-16_centos-7
+  ports:
+    - 5433
+postgresdb:
+  # https://hub.docker.com/_/postgres
+  image: postgres:latest
+  ports:
+    - 5432
+joblib:
+  image: bluelabs-joblib-python:${BUILD_TAG}
+  links:
+    - verticadb:verticadb
+    - postgresdb:postgresdb
+  volumes:
+    - ../..:/usr/src/app
+  environment:
+    - DB_HOST
+    - DB_PORT
+    - DB_DATABASE
+    - DB_USERNAME
+    - DB_PASSWORD
+    - DB_TYPE
+    - DB_PROTOCOL
+    - BQ_ACCOUNT
+    - BQ_DEFAULT_DATASET_ID
+    - BQ_DEFAULT_PROJECT_ID
+    - LASTPASS_PASSWORD
+    - LASTPASS_USER
+    - SCRATCH_S3_URL
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - AWS_SESSION_TOKEN
+    - PY_JOB_CONTEXT=itest
+    # /usr/local/bin has the real python3 that we want (not the
+    # ancient version in /usr/bin), so we'll put that first in PATH
+    - PATH=/usr/local/bin:/usr/src/app/tests/integration/bin:/opt/vertica/bin:/bin:/usr/bin:/sbin/:/usr/sbin:/usr/local/sbin

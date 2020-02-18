@@ -1,0 +1,153 @@
+{
+  "schema": "bltypes/v1",
+  "fields": {
+    "int8": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "min": "-128",
+        "max": "127"
+      },
+      "index": 1
+    },
+    "int16": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "min": "-32768",
+        "max": "32767"
+      },
+      "index": 2
+    },
+    "int32": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "min": "-2147483648",
+        "max": "2147483647"
+      },
+      "index": 3
+    },
+    "int64": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "min": "-9223372036854775808",
+        "max": "9223372036854775807"
+      },
+      "index": 4
+    },
+    "ubyte": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "min": "0",
+        "max": "255"
+      },
+      "index": 5
+    },
+    "uint8": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "min": "0",
+        "max": "255"
+      },
+      "index": 6
+    },
+    "uint16": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "min": "0",
+        "max": "65535"
+      },
+      "index": 7
+    },
+    "uint32": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "min": "0",
+        "max": "4294967295"
+      },
+      "index": 8
+    },
+    "uint64": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "min": "0",
+        "max": "18446744073709551615"
+      }
+    },
+    "float16": {
+      "type": "decimal",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "fp_total_bits": 16,
+        "fp_significand_bits": 11
+      }
+    },
+    "float32": {
+      "type": "decimal",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "fp_total_bits": 32,
+        "fp_significand_bits": 23
+      }
+    },
+    "float64": {
+      "type": "decimal",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "fp_total_bits": 64,
+        "fp_significand_bits": 53
+      },
+      "index": 12
+    },
+    "float128": {
+      "type": "decimal",
+      "constraints": {
+        "required": false,
+        "unique": false,
+        "fp_total_bits": 80,
+        "fp_significand_bits": 64
+      },
+      "index": 13
+    },
+    "fixed_6_2": {
+        "type": "decimal",
+        "constraints": {
+            "fixed_precision": 6,
+            "fixed_scale": 2
+        }
+    },
+    "fixed_38_9": {
+        "type": "decimal",
+        "constraints": {
+            "fixed_precision": 38,
+            "fixed_scale": 9
+        }
+    },
+    "fixed_100_4": {
+      "type": "decimal",
+      "constraints": {
+        "fixed_precision": 100,
+        "fixed_scale": 4
+      }
+    }
+  }
+}

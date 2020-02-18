@@ -1,0 +1,35 @@
+---
+dbs:
+  dockerized-vertica:
+    exports:
+      host: verticadb
+      port: 5433
+      database: docker
+      type: vertica
+      protocol: vertica
+      user: dbadmin
+      password: ""
+  dockerized-postgres:
+    exports:
+      host: postgresdb
+      port: 5432
+      database: postgres
+      type: postgres
+      protocol: postgres
+      user: postgres
+      password: hunter2
+  bltoolsdevbq-bq_itest:
+    jinja_context_name: standard
+    exports:
+      type: bigquery
+      protocol: bigquery
+      bq_account: bq_itest
+      bq_service_account_json: "{{ lpass_field('bq_itest Google Service Account', 'notes') }}"
+      bq_default_project_id: 'bluelabs-tools-dev'
+      bq_default_dataset_id: 'bq_itest'
+  demo-itest:
+    db_connect_method: lpass
+    lastpass_entry: 'itest Demo redshift'
+db_connect_method:
+  lpass:
+    pull_lastpass_from: "{{ lastpass_entry }}"

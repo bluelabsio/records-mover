@@ -1,0 +1,75 @@
+#!/bin/bash -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+>&2 echo "Connecting to database ${DB_DATABASE?} on ${DB_HOST:?}:${DB_PORT:?} as ${DB_USERNAME?}"
+nc -z "${DB_HOST:?}" "${DB_PORT:?}" >/dev/null 2>&1 || echo "Could not connect to database"
+
+# Is stdin a tty?  (i.e., are we interactive?)
+if [ -t 0 ]
+then
+  "${DIR:?}/pg-psql-help"
+else
+  # not operating through terminal, so go into 'running a script mode'
+
+  # stop scripts if they encounter an error.
+  ERROR_STOP_ARGS="-v ON_ERROR_STOP=1"
+
+  # output as less-than-perfect CSV
+
+  #   -F, --field-separator=STRING
+  OUTPUT_ARGS='-F,'
+  DB_QUIET=t
+fi
+
+if [ f${DB_QUIET} = f ]
+then
+  QUIET_ARG=
+else
+  QUIET_ARG=-qA
+fi
+
+# Uncomment these or set them in your environment to use a fancy
+# interactive client that does some level of command completion.
+#
+# Limitations on the current version (0.20.1)
+#  * Redshift support is weak--doesn't look like table completion works.
+#  * Doesn't pay attention to TERM env variable, so doesn't work well when run in Emacs M-x shell
+#  * Doesn't support piping scripts to it
+#
+# See:
+#   https://github.com/dbcli/pgcli/issues/282
+#
+# DB_CLIENT=pgcli
+
+: "${PG_CLIENT:=psql}" # set this to 'pgcli' if you want a fancy client with quirks
+
+# shellcheck disable=SC2086
+export PGPASSWORD="${DB_PASSWORD}"
+
+
+db() {
+  # various *_ARGS vars should be expanded below
+  # shellcheck disable=SC2086
+  ${PG_CLIENT:?} \
+    ${QUIET_ARG} \
+    ${ERROR_STOP_ARGS} \
+    ${OUTPUT_ARGS} \
+    -h "${DB_HOST:?}" \
+    -U "${DB_USERNAME:?}" \
+    -d "${DB_DATABASE:?}" \
+    -p "${DB_PORT:?}"
+}
+
+if [ f${DB_QUIET} = f ]
+then
+  db
+else
+  removeRowCounts() {
+    grep -v "^(.*)$"
+  }
+  set +o pipefail
+  set +e
+  db | removeRowCounts
+  exit "${PIPESTATUS[0]}"
+fi

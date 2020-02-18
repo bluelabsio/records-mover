@@ -1,0 +1,317 @@
+#!/usr/bin/env python3
+
+from contextlib import contextmanager
+import argparse
+import subprocess
+from typing import List, Dict
+import sys
+import yaml
+import os
+from tempfile import NamedTemporaryFile
+
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+inside_docker_db_facts_local_path =\
+    f'{script_dir}/tests/integration/inside-docker-dbfacts.yml'
+
+itest_volumes = {
+    inside_docker_db_facts_local_path: '/root/.dbfacts.yml',
+}
+
+
+@contextmanager
+def dockerized_dbs():
+    docker_compose_start()
+    try:
+        yield
+    finally:
+        docker_compose(["stop"])
+
+
+@contextmanager
+def set_circleci_scratch_bucket():
+    # https://stackoverflow.com/questions/2059482/python-temporarily-modify-the-current-processs-environment
+    _environ = dict(os.environ)
+    os.environ['SCRATCH_S3_URL'] = 's3://circleci-scratch/'
+    try:
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(_environ)
+
+
+@contextmanager
+def local_dockerized_dbfacts():
+    """
+    To connect to docker-compose from outside of Docker, we need to
+    ask docker-compose what port it mapped things to.
+    """
+    # https://stackoverflow.com/questions/2059482/python-temporarily-modify-the-current-processs-environment
+    _environ = dict(os.environ)
+    try:
+        with NamedTemporaryFile() as f:
+            vertica_port =\
+                subprocess.check_output([
+                    './itest-dc', 'port', 'verticadb', '5433'
+                ]).decode('utf8').rstrip().split(':')[1]
+            postgres_port =\
+                subprocess.check_output([
+                    './itest-dc', 'port', 'postgresdb', '5432'
+                ]).decode('utf8').rstrip().split(':')[1]
+            db_facts = {
+                'dbs': {
+                    'dockerized-vertica': {
+                        'exports': {
+                            'host': 'localhost',
+                            'port': vertica_port,
+                            'database': 'docker',
+                            'type': 'vertica',
+                            'protocol': 'vertica',
+                            'user': 'dbadmin',
+                            'password': "",
+                        }
+                    },
+                    'dockerized-postgres': {
+                        'exports': {
+                            'host': 'localhost',
+                            'port': postgres_port,
+                            'database': 'postgres',
+                            'type': 'postgres',
+                            'protocol': 'postgres',
+                            'user': 'postgres',
+                            'password': 'hunter2',
+                        }
+                    }
+                }
+            }
+            yaml_output = yaml.dump(db_facts)
+            f.write(yaml_output.encode('utf8'))
+            f.flush()
+            os.environ['DB_FACTS_PATH'] = f.name
+            yield
+    finally:
+        os.environ.clear()
+        os.environ.update(_environ)
+
+
+def docker_build() -> None:
+    subprocess.check_call("make docker",
+                          shell=True)
+
+
+def docker_compose(args: List[str],
+                   prefixes: List[str] = []) -> None:
+    subprocess.check_call(prefixes + [f"{script_dir}/itest-dc"] + args)
+
+
+def docker_compose_run(cmd: List[str],
+                       volumes: Dict[str, str] = itest_volumes,
+                       prefixes: List[str] = [],
+                       cwd: str = "/usr/src/app") -> None:
+    volumes_args = []
+    for local_path, docker_path in volumes.items():
+        volumes_args.append('-v')
+        volumes_args.append(f"{local_path}:{docker_path}")
+    docker_compose(["run", "--rm", "--workdir", cwd] + volumes_args + ["joblib"] + cmd,
+                   prefixes=prefixes)
+
+
+def docker_compose_shell() -> None:
+    docker_compose_run(["/bin/sh"])
+
+
+def docker_compose_start() -> None:
+    print("Running docker_compose start verticadb postgresdb...", file=sys.stderr)
+    docker_compose(["up", "--no-start"])
+    docker_compose(["start", "verticadb", "postgresdb"])
+    docker_compose_run(['./wait-for-vertica.sh'])
+    print("Verified Vertica is up and listening", file=sys.stderr)
+    docker_compose_run(['./wait-for-postgres.sh'])
+    print("Verified Postgres is up and listening", file=sys.stderr)
+
+
+def run_test(args, target, parser):
+    print(f"Executing {target} test", file=sys.stderr)
+
+    if (target == 'build'):
+        if (args.docker):
+            docker_build()
+        else:
+            print(f"Nothing to build (did you intend to use --docker?)", file=sys.stderr)
+    elif (target == 'up'):
+        if (args.docker):
+            docker_compose(["up", "--no-start"])
+        else:
+            print(f"Nothing to bring up (did you intend to use --docker?)", file=sys.stderr)
+    elif (target == 'down'):
+        if (args.docker):
+            docker_compose(["down"])
+        else:
+            print(f"Nothing to bring down (did you intend to use --docker?)", file=sys.stderr)
+    elif (target == 'ps'):
+        if (args.docker):
+            docker_compose(["ps"])
+        else:
+            print(f"Nothing to list (did you intend to use --docker?)", file=sys.stderr)
+    elif (target == 'shell'):
+        if (args.docker):
+            docker_compose_shell()
+        else:
+            with dockerized_dbs(), local_dockerized_dbfacts():
+                subprocess.check_call(["/bin/bash"])
+    elif (target == 'cli'):
+        with dockerized_dbs(), set_circleci_scratch_bucket():
+            if (args.docker):
+                docker_compose_run(["with-db", "dockerized-vertica",
+                                    "./cli-tests.sh"],
+                                   prefixes=["with-aws-creds", "circleci"],
+                                   cwd="/usr/src/app/tests/integration/cli")
+            else:
+                with local_dockerized_dbfacts():
+                    subprocess.check_call(["with-db", "dockerized-vertica",
+                                           "with-aws-creds", "circleci",
+                                           "./cli-tests.sh"],
+                                          cwd="tests/integration/cli")
+    elif (target == 'vertica-no-s3'):
+        with dockerized_dbs():
+            if (args.docker):
+                docker_compose_run(['with-db', 'dockerized-vertica',
+                                    'nosetests', '--xunit-file=nosetests.xml', '.'],
+                                   cwd="/usr/src/app/tests/integration/records/single_db")
+
+            else:
+                with local_dockerized_dbfacts():
+                    subprocess.check_call(['with-db', 'dockerized-vertica',
+                                           'nosetests', '--xunit-file=nosetests.xml', '.'],
+                                          cwd="tests/integration/records/single_db")
+    elif (target == 'vertica-s3'):
+        with dockerized_dbs(), set_circleci_scratch_bucket():
+            if (args.docker):
+                docker_compose_run(['with-db', 'dockerized-vertica',
+                                    'nosetests', '--xunit-file=nosetests.xml', '.'],
+                                   prefixes=["with-aws-creds", "circleci"],
+                                   cwd="/usr/src/app/tests/integration/records/single_db")
+            else:
+                with local_dockerized_dbfacts():
+                    subprocess.check_call(["with-db", "dockerized-vertica",
+                                           "with-aws-creds", "circleci",
+                                           "nosetests", "--xunit-file=nosetests.xml", "."],
+                                          cwd="tests/integration/records/single_db")
+    elif (target == 'postgres'):
+        with dockerized_dbs():
+            if (args.docker):
+                docker_compose_run(['with-db', 'dockerized-postgres',
+                                    'nosetests', '--xunit-file=nosetests.xml', '.'],
+                                   prefixes=["with-aws-creds", "circleci"],
+                                   cwd="/usr/src/app/tests/integration/records/single_db")
+            else:
+                with local_dockerized_dbfacts():
+                    subprocess.check_call(["with-db", "dockerized-postgres",
+                                           "nosetests", "--xunit-file=nosetests.xml", "."],
+                                          cwd="tests/integration/records/single_db")
+    elif (target == 'redshift'):
+        with set_circleci_scratch_bucket():
+            if (args.docker):
+                docker_compose_run(['with-db', 'demo-itest',
+                                    'nosetests', '--xunit-file=nosetests.xml', '.'],
+                                   prefixes=["with-aws-creds", "circleci"],
+                                   cwd="/usr/src/app/tests/integration/records/single_db")
+            else:
+                subprocess.check_call(['with-db', 'demo-itest',
+                                       "with-aws-creds", "circleci",
+                                       'nosetests', '--xunit-file=nosetests.xml', '.'],
+                                      cwd="tests/integration/records/single_db")
+    elif (target == 'bigquery'):
+        if (args.docker):
+            docker_compose_run(['with-db', 'bltoolsdevbq-bq_itest',
+                                'nosetests', '--xunit-file=nosetests.xml', '.'],
+                               cwd="/usr/src/app/tests/integration/records/single_db")
+        else:
+            subprocess.check_call(['with-db', 'bltoolsdevbq-bq_itest',
+                                   'nosetests', '--xunit-file=nosetests.xml', '.'],
+                                  cwd="tests/integration/records/single_db")
+    elif (target == 'table2table'):
+        with set_circleci_scratch_bucket(), dockerized_dbs():
+            if (args.docker):
+                docker_compose_run(['python3', '-m',
+                                    'records.multi_db.test_records_table2table'],
+                                   prefixes=["with-aws-creds", "circleci"],
+                                   cwd="/usr/src/app/tests/integration")
+            else:
+                with local_dockerized_dbfacts():
+                    subprocess.check_call(["with-aws-creds", "circleci",
+                                           'python3', '-m',
+                                           'records.multi_db.test_records_table2table'],
+                                          cwd="tests/integration")
+    else:
+        parser.print_help()
+        sys.exit(1)
+
+
+def main():
+    tests = {
+        'cli': 'Run bash-based multi-source/target copy tests',
+        'postgres': 'Run load/unload suite against Dockerized PostgreSQL',
+        'vertica-s3': 'Run load/unload suite against Dockerized Vertica, using S3',
+        'vertica-no-s3': 'Run load/unload suite against Dockerized Vertica, using streams',
+        'redshift': 'Run load/unload suite against BlueLabs Demo Redshift',
+        'bigquery': 'Run load/unload suite against BlueLabs BigQuery',
+        'table2table': 'Run Python-based cross-database copy tests',
+    }
+
+    other_targets = {
+        'all': 'Run all of the above tests',
+        'build': 'Rebuild the Docker image used in --docker testing',
+        'up': 'Bring up the docker-compose environment',
+        'down': 'Bring down the docker-compose environment',
+        'shell': 'Run a shell environment inside the docker-compose joblib container',
+        'ps': 'Show currently running docker-compose containers',
+    }
+
+    epilog = "The following targets are supported:\n\n" + "\n\n".join([
+        f"  {key}: {value}"
+        for key, value in
+        {**tests, **other_targets}.items()
+    ])
+    parser = argparse.ArgumentParser(description='Run bluelabs-joblib integration tests',
+                                     formatter_class=argparse.RawTextHelpFormatter,
+                                     epilog=epilog)
+    parser.add_argument('--docker', action="store_true", default=False,
+                        help='Run mover itself from within Docker')
+
+    parser.add_argument('targets',
+                        nargs='+',
+                        choices=list(tests.keys()) + list(other_targets.keys()),
+                        help='Action to take/test to run')
+
+    args = parser.parse_args()
+
+    # Unset any existing scratch bucket, as it should be set
+    # explicitly here or not used entirely, depending on the test:
+    if 'SCRATCH_S3_URL' in os.environ:
+        del os.environ['SCRATCH_S3_URL']
+
+    targets_lists = [
+        [target] if target != 'all'
+        else tests.keys()
+        for target in args.targets
+    ]
+
+    def flatten(list_of_lists):
+        return [
+            item
+            for items in list_of_lists
+            for item in items
+        ]
+
+    targets = flatten(targets_lists)
+
+    print(f"Integration test targets: {' '.join(targets)}", file=sys.stderr)
+
+    for target in targets:
+        run_test(args, target, parser)
+
+
+if __name__ == "__main__":
+    main()
