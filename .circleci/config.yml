@@ -106,7 +106,7 @@ jobs:
         description: "Version of python to test against"
       command:
         type: string
-        description: "Command to run in joblib venv"
+        description: "Command to run in records-mover venv"
     docker:
       - image: circleci/python:<<parameters.python_version>>
       - image: jbfavre/vertica:8.1.1-16_centos-7
