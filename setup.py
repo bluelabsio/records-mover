@@ -45,7 +45,7 @@ setup(name='records-mover',
           # Three annoying things:
           #
           # 1. The version of sqlalchemy-vertica-python published in
-          #    pipy exports Table objects with the columns in some
+          #    PyPI exports Table objects with the columns in some
           #    arbitrary order because it's missing an ORDER BY clause.
           # 2. The upstream source is no longer accepting PRs:
           # 3. Since the upstream source for the vertica-python-based
