@@ -27,7 +27,8 @@ exec(open(os.path.join(dir_path, 'records_mover', 'version.py')).read())
 
 setup(name='records-mover',
       version=__version__, # read right above  # noqa
-      description='BlueLabs Job Library for Python',
+      description=('Library and CLI to move relational data from one place to another - '
+                   'DBs/CSV/gsheets/dataframes/...'),
       author='Vince Broz',
       author_email='vince.broz@bluelabs.com',
       packages=find_packages(),

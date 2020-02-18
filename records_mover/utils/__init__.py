@@ -4,23 +4,6 @@ import warnings
 import functools
 
 
-def filenames_from_local_directory(directory: str) -> List[str]:
-    files: List[str] = []
-    for dirpath, dirnames, filenames in os.walk(directory):
-        files += [
-            "{0}/{1}".format(dirpath[len(directory):], filename)[1:]  # Strips leading /
-            for filename in filenames
-        ]
-    return files
-
-
-def idempotent_path(path: str) -> str:
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-    return path
-
-
 T = TypeVar('T')
 
 
