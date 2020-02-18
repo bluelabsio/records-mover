@@ -6,7 +6,7 @@ from .job.mover import run_records_mover_job
 from ..utils.json_schema import method_signature_to_json_schema
 from .processing_instructions import ProcessingInstructions
 from records_mover.cli.job_config_schema_as_args_parser import (JobConfigSchemaAsArgsParser,
-                                                                  arguments_output_to_config)
+                                                                arguments_output_to_config)
 from typing import Callable, Dict, Any
 from ..types import JsonSchema, JobConfig
 from ..version import __version__
