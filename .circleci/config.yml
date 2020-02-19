@@ -25,8 +25,7 @@ commands:
             else
               python -m venv venv
               . venv/bin/activate
-              pip install --extra-index-url "${ARTIFACTORY_PYPI_INDEX_URL}" \
-                --progress-bar=off -r requirements.txt -e '.[movercli]'
+              pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
             fi
             # venv/ dir doesn't seem to save enough info to keep the
             # '-e .[movercli]' installation.
@@ -107,7 +106,7 @@ jobs:
         description: "Version of python to test against"
       command:
         type: string
-        description: "Command to run in joblib venv"
+        description: "Command to run in records-mover venv"
     docker:
       - image: circleci/python:<<parameters.python_version>>
       - image: jbfavre/vertica:8.1.1-16_centos-7
@@ -234,12 +233,11 @@ jobs:
             cat >> $HOME/.pypirc \<<EOF
             [distutils]
             index-servers =
-                local
+                pypi
 
-            [local]
-            repository: https://bluelabs.jfrog.io/bluelabs/api/pypi/pypi-local
-            username: $ARTIFACTORY_USER
-            password: $ARTIFACTORY_PASSWORD
+            [pypi]
+            username: $PYPI_USER
+            password: $PYPI_PASSWORD
             EOF
       - run:
           name: create packages
@@ -250,7 +248,7 @@ jobs:
           name: upload to pypi
           command: |
             . venv/bin/activate
-            twine upload -r local dist/*
+            twine upload -r pypi dist/*
 
 workflows:
   version: 2
@@ -438,7 +436,7 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - deploy:
-          context: Artifactory
+          context: PyPI
           requires:
             - test-3.6
             - test-3.7
