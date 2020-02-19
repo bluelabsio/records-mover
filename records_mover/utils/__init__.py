@@ -1,4 +1,3 @@
-import os
 from typing import List, TypeVar, MutableSet, Union
 import warnings
 import functools
