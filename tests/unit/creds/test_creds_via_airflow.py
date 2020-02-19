@@ -34,4 +34,31 @@ class TestCredsViaAirflow(unittest.TestCase):
             'user': mock_conn.login
         }
         self.assertEqual(expected_db_facts, out)
+
+    @patch('airflow.hooks.BaseHook')
+    def test_db_facts_bigquery_serviceaccount(self, mock_BaseHook):
+        mock_db_creds_name = Mock(name='db_creds_name')
+        mock_conn = mock_BaseHook.get_connection.return_value
+        mock_conn.type = 'google_cloud_platform'
+        mock_conn.schema = None
+        mock_conn.host = None
+        mock_conn.port = None
+        mock_conn.password = None
+        mock_conn.login = None
+        mock_conn.extra_dejson = {
+            'type': 'bigquery',
+            'bq_default_dataset_id': 'mydataset',
+            'protocol': 'bigquery',
+            'extra__google_cloud_platform__keyfile_dict': 'big json block',
+            'extra__google_cloud_platform__project': 'myproject',
+        }
+        out = self.creds_via_airflow.db_facts(mock_db_creds_name)
+        mock_BaseHook.get_connection.assert_called_with(mock_db_creds_name)
+        expected_db_facts = {
+            'bq_default_dataset_id': 'mydataset',
+            'bq_default_project_id': 'myproject',
+            'bq_service_account_json': 'big json block',
+            'protocol': 'bigquery',
+            'type': 'bigquery',
+        }
         self.assertEqual(expected_db_facts, out)
