@@ -33,6 +33,5 @@ class TestCredsViaAirflow(unittest.TestCase):
             'type': 'jsontype',
             'user': mock_conn.login
         }
-        mock_conn.extra_dejson.get.assert_called_with('type',
-                                                      mock_conn.conn_type.lower.return_value)
+        self.assertEqual(expected_db_facts, out)
         self.assertEqual(expected_db_facts, out)
