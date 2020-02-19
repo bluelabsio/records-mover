@@ -55,4 +55,4 @@ package:
 	python3 setup.py sdist bdist_wheel
 
 docker:
-	DOCKER_BUILDKIT=1 docker build --progress=plain -t bluelabs-joblib-python --secret id=pipconf,src=/Library/Application\ Support/pip/pip.conf .
+	DOCKER_BUILDKIT=1 docker build --progress=plain -t records-mover --secret id=pipconf,src=/Library/Application\ Support/pip/pip.conf .

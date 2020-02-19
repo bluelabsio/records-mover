@@ -7,8 +7,8 @@ postgresdb:
   image: postgres:latest
   ports:
     - 5432
-joblib:
-  image: bluelabs-joblib-python:${BUILD_TAG}
+records_mover:
+  image: records_mover:${BUILD_TAG}
   links:
     - verticadb:verticadb
     - postgresdb:postgresdb

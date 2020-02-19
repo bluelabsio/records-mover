@@ -36,7 +36,7 @@ class BaseJobContext(metaclass=ABCMeta):
         self._default_aws_creds_name = default_aws_creds_name
         # we must instantiate the temp dir alone and save it to self, otherwise
         # it will be garbage collected and the dir will be deleted
-        self.temp_dir_obj = tempfile.TemporaryDirectory(prefix='joblib_base_job_context')
+        self.temp_dir_obj = tempfile.TemporaryDirectory(prefix='records_mover_base_job_context')
         self.temp_dir = self.temp_dir_obj.name + '/'
         self._scratch_s3_url_value = scratch_s3_url
         self._config_json_schema = config_json_schema

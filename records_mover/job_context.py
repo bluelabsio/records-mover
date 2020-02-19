@@ -62,7 +62,8 @@ def __get_job_context(name: str,
         jc_class = EnvJobContext
     elif job_context_type is not None:
         raise ValueError("Valid job context types: cli, airflow, docker-itest, env - "
-                         f"consider upgrading joblib if you're looking for {job_context_type}.")
+                         "consider upgrading records-mover if you're looking for "
+                         f"{job_context_type}.")
     elif 'AIRFLOW__CORE__EXECUTOR' in os.environ:
         # Guess based on an env variable sometimes set by Airflow
         jc_class = AirflowJobContext
