@@ -1,5 +1,5 @@
 from records_mover.utils.json_schema import (method_signature_to_json_schema,
-                                               JsonParameter, JsonSchemaDocument)
+                                             JsonParameter, JsonSchemaDocument)
 import unittest
 from collections import OrderedDict
 from typing import Optional, Iterable, List, Callable

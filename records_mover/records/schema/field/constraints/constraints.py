@@ -3,9 +3,9 @@ import sqlalchemy
 import numpy as np
 from typing import Optional, cast, TYPE_CHECKING
 from records_mover.utils.limits import (FLOAT16_SIGNIFICAND_BITS,
-                                          FLOAT32_SIGNIFICAND_BITS,
-                                          FLOAT64_SIGNIFICAND_BITS,
-                                          FLOAT80_SIGNIFICAND_BITS)
+                                        FLOAT32_SIGNIFICAND_BITS,
+                                        FLOAT64_SIGNIFICAND_BITS,
+                                        FLOAT80_SIGNIFICAND_BITS)
 if TYPE_CHECKING:
     from records_mover.db import DBDriver  # noqa
     from mypy_extensions import TypedDict

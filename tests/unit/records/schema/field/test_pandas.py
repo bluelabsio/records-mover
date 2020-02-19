@@ -2,8 +2,8 @@ import unittest
 from mock import Mock, patch
 from pandas import Series
 from records_mover.records.schema.field.pandas import (field_from_index,
-                                                         field_from_series,
-                                                         refine_field_from_series)
+                                                       field_from_series,
+                                                       refine_field_from_series)
 
 
 class TestPandas(unittest.TestCase):
