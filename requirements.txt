@@ -49,7 +49,6 @@ google_auth_httplib2
 google-api-python-client>=1.5.0,<1.6.0
 oauth2client>=2.0.2,<2.1.0
 PyOpenSSL
-db_facts>=2.14.0,<3
 typing_inspect
 # sqlalchemy-vertica-python==0.4.5
 sqlalchemy-stubs>=0.3
