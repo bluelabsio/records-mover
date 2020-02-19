@@ -12,7 +12,7 @@ from ..purge_old_test_tables import purge_old_tables
 
 # Note: you're gonna see some of this in the detailed test logging:
 
-# /Users/vincebroz/src/bluehq-joblib-python/records_mover/records/s3_records.py:127:
+# /Users/vincebroz/src/records-mover/records_mover/records/s3_records.py:127:
 # ResourceWarning: unclosed <ssl.SSLSocket fd=10,
 # family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6,
 # laddr=('***REMOVED***', 53084), raddr=('***REMOVED***', 443)>

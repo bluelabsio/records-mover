@@ -49,7 +49,8 @@ class RecordsSchemaFieldRepresentation(metaclass=ABCMeta):
                 pd_df_ftype=pandas_data.get('pd_df_ftype'),
                 pd_df_coltype=pandas_data['pd_df_coltype'])
         else:
-            logger.warning(f"I don't understand type {data['rep_type']}--consider upgrading joblib")
+            logger.warning(f"I don't understand type {data['rep_type']}--"
+                           "consider upgrading records-mover")
             return None
 
     @staticmethod
