@@ -69,5 +69,4 @@ target/
 
 # Build package cache
 .mypy_cache
-bluelabs-joblib-python
 *.bak
