@@ -97,7 +97,7 @@ SELECT
 
 ## Copy table to another database
 
-e.g. with `mover table2table`
+e.g. with `mvrec table2table`
 
 ## Verify results in new database
 
