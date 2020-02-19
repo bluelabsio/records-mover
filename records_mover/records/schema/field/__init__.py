@@ -258,7 +258,7 @@ class RecordsSchemaField:
         representations = {}
         field_type = data['type']
         if field_type not in RECORDS_FIELD_TYPES:
-            logger.warning(f"Unknown field_type ({field_type})--consider upgrading joblib")
+            logger.warning(f"Unknown field_type ({field_type})--consider upgrading records-mover")
         for rep_name, rep_data in data.get('representations', {}).items():
             field_representation = RecordsSchemaFieldRepresentation.from_data(rep_data)
             if field_representation is not None:

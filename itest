@@ -113,7 +113,7 @@ def docker_compose_run(cmd: List[str],
     for local_path, docker_path in volumes.items():
         volumes_args.append('-v')
         volumes_args.append(f"{local_path}:{docker_path}")
-    docker_compose(["run", "--rm", "--workdir", cwd] + volumes_args + ["joblib"] + cmd,
+    docker_compose(["run", "--rm", "--workdir", cwd] + volumes_args + ["records_mover"] + cmd,
                    prefixes=prefixes)
 
 
@@ -265,7 +265,7 @@ def main():
         'build': 'Rebuild the Docker image used in --docker testing',
         'up': 'Bring up the docker-compose environment',
         'down': 'Bring down the docker-compose environment',
-        'shell': 'Run a shell environment inside the docker-compose joblib container',
+        'shell': 'Run a shell environment inside the docker-compose records_mover container',
         'ps': 'Show currently running docker-compose containers',
     }
 
@@ -274,7 +274,7 @@ def main():
         for key, value in
         {**tests, **other_targets}.items()
     ])
-    parser = argparse.ArgumentParser(description='Run bluelabs-joblib integration tests',
+    parser = argparse.ArgumentParser(description='Run records-mover integration tests',
                                      formatter_class=argparse.RawTextHelpFormatter,
                                      epilog=epilog)
     parser.add_argument('--docker', action="store_true", default=False,
