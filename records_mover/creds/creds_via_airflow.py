@@ -25,6 +25,7 @@ class CredsViaAirflow(BaseCreds):
             if value is not None:
                 out[key] = value  # type: ignore
 
+        add('host', conn.host)
         add('port', conn.port)
         add('database', conn.schema)
         add('user', conn.login)
