@@ -64,7 +64,7 @@ class TestJobContextChoices(unittest.TestCase):
                 pass
         self.assertEqual(str(r.exception),
                          'Valid job context types: cli, airflow, docker-itest, env - '
-                         "consider upgrading joblib if you're looking for bogus.")
+                         "consider upgrading records-mover if you're looking for bogus.")
 
     def test_select_airflow_job_context_by_parameter(self,
                                                      mock_set_temp_dir,
@@ -89,4 +89,4 @@ class TestJobContextChoices(unittest.TestCase):
                 self.assertEqual(injected_job_context, mock_CLIJobContext.return_value)
         self.assertEqual(str(r.exception),
                          "Valid job context types: cli, airflow, docker-itest, env - "
-                         "consider upgrading joblib if you're looking for bogus.")
+                         "consider upgrading records-mover if you're looking for bogus.")

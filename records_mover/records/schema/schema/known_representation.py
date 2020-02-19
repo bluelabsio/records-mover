@@ -40,7 +40,7 @@ class RecordsSchemaKnownRepresentation(metaclass=ABCMeta):
                 pd_df_ftypes=pandas_data.get('pd_df_ftypes'))
         else:
             logger.warning(f"Unknown known-representation type ({data['type']})--"
-                           "consider upgrading joblib")
+                           "consider upgrading records-mover")
             return None
 
     @staticmethod
