@@ -4,7 +4,7 @@ from mock import Mock, MagicMock, patch
 import numpy as np
 import pandas as pd
 from records_mover.records.schema.schema.pandas import (schema_from_dataframe,
-                                                          refine_schema_from_dataframe)
+                                                        refine_schema_from_dataframe)
 from records_mover.records.processing_instructions import ProcessingInstructions
 from records_mover.records.schema import RecordsSchema
 

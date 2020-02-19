@@ -7,8 +7,8 @@ from records_mover.records.sources.dataframes import DataframesRecordsSource
 from records_mover.records.sources.fileobjs import FileobjsSource
 from records_mover.records.sources.base import (SupportsMoveToRecordsDirectory)
 from records_mover.records.targets.base import (SupportsMoveFromRecordsDirectory,
-                                                  SupportsMoveFromDataframes,
-                                                  MightSupportMoveFromFileobjsSource)
+                                                SupportsMoveFromDataframes,
+                                                MightSupportMoveFromFileobjsSource)
 import records_mover.records.targets.base as targets
 import records_mover.records.sources.base as sources
 
