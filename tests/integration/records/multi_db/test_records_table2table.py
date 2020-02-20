@@ -4,6 +4,7 @@ from records_mover.records.existing_table_handling import ExistingTableHandling
 import logging
 import time
 import unittest
+import os
 from ..records_database_fixture import RecordsDatabaseFixture
 from ..table_validator import RecordsTableValidator
 from ..purge_old_test_tables import purge_old_tables
@@ -11,8 +12,9 @@ from ..purge_old_test_tables import purge_old_tables
 logger = logging.getLogger(__name__)
 
 CURRENT_EPOCH = int(time.time())
+BUILD_NUM = os.environ.get("CIRCLE_BUILD_NUM", "local")
 TARGET_TABLE_NAME_PREFIX = "itest_target"
-TARGET_TABLE_NAME = f'{TARGET_TABLE_NAME_PREFIX}_{CURRENT_EPOCH}'
+TARGET_TABLE_NAME = f'{TARGET_TABLE_NAME_PREFIX}_{BUILD_NUM}_{CURRENT_EPOCH}'
 
 DB_TYPES = ['vertica', 'redshift', 'bigquery', 'postgres']
 
@@ -61,7 +63,7 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
         target_engine = job_context.get_db_engine(target_dbname)
         source_schema_name = schema_name(source_dbname)
         target_schema_name = schema_name(target_dbname)
-        source_table_name = f'itest_source'
+        source_table_name = f'itest_source_{BUILD_NUM}_{CURRENT_EPOCH}'
         records_database_fixture = RecordsDatabaseFixture(source_engine,
                                                           source_schema_name,
                                                           source_table_name)
