@@ -12,11 +12,6 @@ gsheet_dependencies = [
     'PyOpenSSL'
 ]
 
-SQL_ALCHEMY_VERTICA_PYTHON_URL = (
-    'git+https://github.com/vinceatbluelabs/'
-    'sqlalchemy-vertica-python.git@columns_in_order#egg=sqlalchemy-vertica-python-0.4.5'
-)
-
 __version__: str
 # Read in and set version variable without the overhead/requirements
 # of the rest of the package.
@@ -39,30 +34,14 @@ setup(name='records-mover',
           'boto>=2,<3', 'boto3',
           'jsonschema', 'timeout_decorator', 'awscli',
           'PyYAML', 'psycopg2',
-          # https://github.com/LocusEnergy/sqlalchemy-vertica-python/issues/36
-          # https://github.com/vertica/vertica-python/issues/280
-          'vertica-python<0.9.2',
-          # 'vertica-sqlalchemy>=0.14.3,<0.15.0',
-          # Three annoying things:
-          #
-          # 1. The version of sqlalchemy-vertica-python published in
-          #    PyPI exports Table objects with the columns in some
-          #    arbitrary order because it's missing an ORDER BY clause.
-          # 2. The upstream source is no longer accepting PRs:
-          # 3. Since the upstream source for the vertica-python-based
-          #    sqlalchemy driver is a fork of the vertica-odbc-based
-          #    sqlalchemy driver, and we've already forked that one into
-          #    the bluelabsio org, we can't fork the vertica-python-based
-          #    sqlalchemy driver there. Thus it's under vinceatbluelabs
-          #    instead of bluelabsio.
-          #
-          # https://github.com/LocusEnergy/sqlalchemy-vertica-python/pull/37
-          'sqlalchemy-vertica-python @ ' + SQL_ALCHEMY_VERTICA_PYTHON_URL,
-          # 0.7.7 introduced support for Parquet in UNLOAD
+          # sqlalchemy-vertica-python 0.5 introduced a bugfix allowing
+          # vertica-python>=0.9.2 to work
+          'sqlalchemy-vertica-python>=0.5,<0.6'
+          # sqlalchemy-redshift 0.7.7 introduced support for Parquet
+          # in UNLOAD
           'sqlalchemy-redshift>=0.7.7',
           'pybigquery',
           'sqlalchemy',
-          # 'pyodbc',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
           'db-facts>=2.15.3,<3',
