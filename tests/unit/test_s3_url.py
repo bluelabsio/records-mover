@@ -1,4 +1,4 @@
-from records_mover.s3_url import S3Url
+from records_mover.url.s3.s3_url import S3Url
 import unittest
 from mock import Mock, patch
 
