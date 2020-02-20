@@ -59,28 +59,28 @@ url2recordsdir() {
   assert_target_recordsdir_is_valid
 }
 
-csv2table() {
-  mvrec csv2table "${source_csv_path:?}" "${target_schema_name:?}" "${target_table_name:?}"
+file2table() {
+  mvrec file2table "${source_csv_path:?}" "${target_schema_name:?}" "${target_table_name:?}"
   assert_target_table_is_valid
 }
 
-csv2gsheet() {
-  mvrec csv2gsheet "${source_csv_path:?}" "${target_spreadsheet_id:?}" "${target_sheet_name:?}" "${gcp_creds_name:?}"
+file2gsheet() {
+  mvrec file2gsheet "${source_csv_path:?}" "${target_spreadsheet_id:?}" "${target_sheet_name:?}" "${gcp_creds_name:?}"
   assert_target_gsheet_is_valid
 }
 
-csv2recordsdir() {
-  mvrec csv2recordsdir "${source_csv_path:?}" "${target_recordsdir_url:?}"
+file2recordsdir() {
+  mvrec file2recordsdir "${source_csv_path:?}" "${target_recordsdir_url:?}"
   assert_target_recordsdir_is_valid
 }
 
-csv2url() {
-  mvrec csv2url "${source_csv_path:?}" "${target_csv_url:?}"
+file2url() {
+  mvrec file2url "${source_csv_path:?}" "${target_csv_url:?}"
   assert_target_csv_url_is_valid
 }
 
-csv2csv() {
-  mvrec csv2csv "${source_csv_path:?}" "${target_csv_path:?}"
+file2file() {
+  mvrec file2file "${source_csv_path:?}" "${target_csv_path:?}"
   assert_target_csv_is_valid
 }
 
@@ -90,8 +90,8 @@ table2url() {
 }
 
 
-table2csv() {
-  mvrec table2csv "${source_schema_name:?}" "${source_table_name:?}" "${target_csv_path:?}"
+table2file() {
+  mvrec table2file "${source_schema_name:?}" "${source_table_name:?}" "${target_csv_path:?}"
   assert_target_csv_is_valid
 }
 
@@ -100,8 +100,8 @@ gsheet2url() {
   assert_target_csv_url_is_valid
 }
 
-gsheet2csv() {
-  mvrec gsheet2csv "${source_spreadsheet_id:?}" "${source_sheet_name:?}" "${gcp_creds_name:?}" "${target_csv_path:?}"
+gsheet2file() {
+  mvrec gsheet2file "${source_spreadsheet_id:?}" "${source_sheet_name:?}" "${gcp_creds_name:?}" "${target_csv_path:?}"
   assert_target_csv_is_valid
 }
 
@@ -110,8 +110,8 @@ recordsdir2url() {
   assert_target_csv_url_is_valid
 }
 
-recordsdir2csv() {
-  mvrec recordsdir2csv "${source_recordsdir_url:?}" "${target_csv_path:?}"
+recordsdir2file() {
+  mvrec recordsdir2file "${source_recordsdir_url:?}" "${target_csv_path:?}"
   assert_target_csv_is_valid
 }
 
@@ -120,7 +120,7 @@ url2url() {
   assert_target_csv_url_is_valid
 }
 
-url2csv() {
-  mvrec url2csv "${source_csv_url:?}" "${target_csv_path:?}"
+url2file() {
+  mvrec url2file "${source_csv_url:?}" "${target_csv_path:?}"
   assert_target_csv_is_valid
 }
