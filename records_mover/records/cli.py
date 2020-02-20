@@ -54,14 +54,14 @@ def main() -> None:
         'gsheet': 'google_sheet',
         'recordsdir': 'directory_from_url',
         'url': 'data_url',
-        'csv': 'local_file'
+        'file': 'local_file'
     }
     target_method_name_by_cli_name = {
         'gsheet': 'google_sheet',
         'table': 'table',
         'recordsdir': 'directory_from_url',
         'url': 'data_url',
-        'csv': 'local_file',
+        'file': 'local_file',
         'spectrum': 'spectrum',
     }
     sources = source_method_name_by_cli_name.keys()
