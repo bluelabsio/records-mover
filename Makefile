@@ -43,6 +43,9 @@ quality-flake8:
 quality-punchlist:
 	make QUALITY_TOOL=punchlist quality
 
+quality-mdl:
+	make QUALITY_TOOL=mdl quality
+
 # to run a single item, you can do: make QUALITY_TOOL=bigfiles quality
 quality:
 	@quality_gem_version=$$(python -c 'import yaml; print(yaml.safe_load(open(".circleci/config.yml","r"))["quality_gem_version"])'); \
