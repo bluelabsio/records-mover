@@ -34,9 +34,10 @@ setup(name='records-mover',
           'boto>=2,<3', 'boto3',
           'jsonschema', 'timeout_decorator', 'awscli',
           'PyYAML', 'psycopg2',
-          # sqlalchemy-vertica-python 0.5 introduced a bugfix allowing
-          # vertica-python>=0.9.2 to work
-          'sqlalchemy-vertica-python>=0.5,<0.6',
+          # sqlalchemy-vertica-python 0.5.5 introduced
+          # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
+          # which fixed a bug pulling schema information from Vertica
+          'sqlalchemy-vertica-python>=0.5.5,<0.6',
           # sqlalchemy-redshift 0.7.7 introduced support for Parquet
           # in UNLOAD
           'sqlalchemy-redshift>=0.7.7',
