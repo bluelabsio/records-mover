@@ -36,7 +36,7 @@ setup(name='records-mover',
           'PyYAML', 'psycopg2',
           # sqlalchemy-vertica-python 0.5 introduced a bugfix allowing
           # vertica-python>=0.9.2 to work
-          'sqlalchemy-vertica-python>=0.5,<0.6'
+          'sqlalchemy-vertica-python>=0.5,<0.6',
           # sqlalchemy-redshift 0.7.7 introduced support for Parquet
           # in UNLOAD
           'sqlalchemy-redshift>=0.7.7',
