@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+
+import subprocess
+import os
+import sys
+
+build_tag = 'latest'
+
+
+subprocess.check_call("ensure-lpass-active")
+lastpass_user = subprocess.check_output("lpass show --username 'Jenkins LastPass'",
+                                        shell=True).decode().rstrip()
+os.environ['LASTPASS_USER'] = lastpass_user
+lastpass_password = subprocess.check_output("lpass show --password 'Jenkins LastPass'",
+                                            shell=True).decode().rstrip()
+os.environ['LASTPASS_PASSWORD'] = lastpass_password
+os.environ['BUILD_TAG'] = build_tag
+
+args = ["docker-compose"] + sys.argv[1:]
+subprocess.check_call(args,
+                      cwd="tests/integration")
