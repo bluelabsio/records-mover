@@ -50,7 +50,7 @@ clear_tables() {
 }
 
 clear_sheets() {
-  mvrec csv2gsheet empty.csv "${target_spreadsheet_id:?}" "${target_sheet_name:?}" "${gcp_creds_name:?}"
+  mvrec file2gsheet empty.csv "${target_spreadsheet_id:?}" "${target_sheet_name:?}" "${gcp_creds_name:?}"
 
 }
 
@@ -132,7 +132,7 @@ one_time_setup
 test_type=${1-all}
 
 first_third_sources="table"
-second_third_sources="gsheet csv"
+second_third_sources="gsheet file"
 third_third_sources="recordsdir url"
 
 if [ "${test_type}" == ci_1 ]
@@ -154,7 +154,7 @@ fi
 
 for source in ${sources}
 do
-  for target in csv table gsheet recordsdir url
+  for target in file table gsheet recordsdir url
   do
     setup
     eval "${source}2${target}"
