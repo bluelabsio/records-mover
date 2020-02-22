@@ -23,14 +23,21 @@ __version__: str
 #
 # https://milkr.io/kfei/5-common-patterns-to-version-your-Python-package/5
 dir_path = os.path.dirname(os.path.realpath(__file__))
-exec(open(os.path.join(dir_path, 'records_mover', 'version.py')).read())
+with open(os.path.join(dir_path, 'records_mover', 'version.py') as f:
+    exec(f.read())
+
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(name='records-mover',
       version=__version__, # read right above  # noqa
       description=('Library and CLI to move relational data from one place to another - '
                    'DBs/CSV/gsheets/dataframes/...'),
+      long_description=long_description,
+      download_url=f'https://github.com/bluelabsio/records-mover/tarball/{VERSION}',
       author='Vince Broz',
-      author_email='vince.broz@bluelabs.com',
+      author_email='opensource@bluelabs.com',
       packages=find_packages(),
       package_data={
           'records_mover': ['py.typed']
@@ -88,4 +95,15 @@ setup(name='records-mover',
           'coverage_ratchet': TestCoverageRatchetCommand,
           'mypy_ratchet': MypyCoverageRatchetCommand,
           'verify': VerifyVersionCommand,
-      })
+      },
+      license='Apache Software License',
+      classifiers=[
+          'Development Status :: 4 - Beta',
+          'Intended Audience :: Developers',
+          'Topic :: Database :: Front-Ends',
+          'License :: OSI Approved :: Apache Software License',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8',
+      ])
