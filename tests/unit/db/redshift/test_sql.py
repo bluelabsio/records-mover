@@ -1,8 +1,6 @@
 import unittest
 import sqlalchemy
 from records_mover.db.redshift.sql import schema_sql_from_admin_views
-from records_mover.db.redshift.unloader import RedshiftUnloader
-from records_mover.records.records_format import DelimitedRecordsFormat
 from mock import patch, Mock
 
 
