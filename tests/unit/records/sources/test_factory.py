@@ -14,13 +14,9 @@ class TestFactory(unittest.TestCase):
     @patch('records_mover.records.sources.dataframes.DataframesRecordsSource')
     def test_dataframe(self, mock_DataframesRecordsSource):
         mock_df = Mock(name='df')
-        mock_schema_name = Mock(name='schema_name')
-        mock_table_name = Mock(name='table_name')
-        mock_db_engine = Mock(name='db_engine')
         mock_processing_instructions = Mock(name='processing_instructions')
         with self.records_sources.\
-                dataframe(df=mock_df, schema_name=mock_schema_name,
-                          table_name=mock_table_name, db_engine=mock_db_engine,
+                dataframe(df=mock_df,
                           processing_instructions=mock_processing_instructions) as df:
             mock_DataframesRecordsSource.\
                 assert_called_with(dfs=ANY,
@@ -48,10 +44,8 @@ class TestFactory(unittest.TestCase):
                       mock_FileobjsSource):
         mock_input_url = 'foo://host/path'
         mock_records_format = Mock(name='records_format')
-        mock_schema_sql = Mock(name='schema_sql')
         with self.records_sources.data_url(input_url=mock_input_url,
-                                           records_format=mock_records_format,
-                                           schema_sql=mock_schema_sql) as out:
+                                           records_format=mock_records_format) as out:
             self.assertEqual(type(out),
                              DataUrlRecordsSource)
 
@@ -96,8 +90,6 @@ class TestFactory(unittest.TestCase):
                         mock_os):
         mock_filename = Mock(name='filename')
         mock_records_format = Mock(name='record_format')
-        mock_schema_sql = Mock(name='schema_sql')
         with self.records_sources.local_file(filename=mock_filename,
-                                             records_format=mock_records_format,
-                                             schema_sql=mock_schema_sql) as out:
+                                             records_format=mock_records_format) as out:
             self.assertEqual(type(out), DataUrlRecordsSource)
