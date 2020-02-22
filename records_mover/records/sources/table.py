@@ -1,7 +1,6 @@
 from typing import Optional
 from .base import (SupportsMoveToRecordsDirectory,
                    SupportsToDataframesSource)
-from .dataframes import DataframesRecordsSource
 from ...db.quoting import quote_schema_and_table
 from ...db import DBDriver
 from ..records_directory import RecordsDirectory
@@ -10,14 +9,14 @@ from ..records_format import BaseRecordsFormat
 from ..unload_plan import RecordsUnloadPlan
 from ..results import MoveResult
 from sqlalchemy.engine import Engine
-from pandas import DataFrame
-import pandas
 from contextlib import contextmanager
-from typing import Iterator, List
 from ..schema import RecordsSchema
 from ...url.resolver import UrlResolver
 import logging
-
+from typing import Iterator, List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from .dataframes import DataframesRecordsSource
+    from pandas import DataFrame
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +44,10 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
     @contextmanager
     def to_dataframes_source(self,
                              processing_instructions: ProcessingInstructions) -> \
-            Iterator[DataframesRecordsSource]:
+            Iterator['DataframesRecordsSource']:
+        from .dataframes import DataframesRecordsSource
+        import pandas
+
         db = self.driver.db
         records_schema = self.pull_records_schema()
 
@@ -61,7 +63,7 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         logger.info(f"Exporting in chunks of up to {chunksize} rows by {num_columns} columns")
 
         quoted_table = quote_schema_and_table(db, self.schema_name, self.table_name)
-        chunks: Iterator[DataFrame] = \
+        chunks: Iterator['DataFrame'] = \
             pandas.read_sql(f"SELECT * FROM {quoted_table}",
                             con=db,
                             chunksize=chunksize)
@@ -71,7 +73,7 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
 
     def with_cast_dataframe_types(self,
                                   records_schema,
-                                  dfs: Iterator[DataFrame]) -> Iterator[DataFrame]:
+                                  dfs: Iterator['DataFrame']) -> Iterator['DataFrame']:
         for df in dfs:
             yield records_schema.cast_dataframe_types(df)
 

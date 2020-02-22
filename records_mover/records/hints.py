@@ -1,10 +1,12 @@
-from typing import Iterable, List, IO, Optional
-from pandas.io.parsers import TextFileReader
 import chardet
 from . import RecordsHints, BootstrappingRecordsHints
 from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
+from typing import Iterable, List, IO, Optional, TYPE_CHECKING
+if TYPE_CHECKING:
+    from pandas.io.parsers import TextFileReader
+
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +64,7 @@ hint_compression_from_pandas = {
 }
 
 
-def csv_hints_from_reader(reader: TextFileReader) -> RecordsHints:
+def csv_hints_from_reader(reader: 'TextFileReader') -> RecordsHints:
     header = reader._engine.header
     quotechar = reader._engine.data.dialect.quotechar
     delimiter = reader._engine.data.dialect.delimiter
