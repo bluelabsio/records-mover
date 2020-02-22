@@ -15,7 +15,7 @@ class CLIJobContext(BaseJobContext):
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
                  config_json_schema: Optional[JsonSchema],
-                 scratch_s3_url=None,
+                 scratch_s3_url: Optional[str] = None,
                  args: Sequence[str]=sys.argv[1:]) -> None:
         super().__init__(name=name,
                          default_db_creds_name=default_db_creds_name,
