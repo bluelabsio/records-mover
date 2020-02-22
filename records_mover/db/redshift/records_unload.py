@@ -27,28 +27,51 @@ def redshift_unload_options(unhandled_hints: Set[str],
         redshift_options['escape'] = True
     elif hints['escape'] is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'escape', hints)
+
     quiet_remove(unhandled_hints, 'escape')
-    redshift_options['delimiter'] = hints['field-delimiter']
-    quiet_remove(unhandled_hints, 'field-delimiter')
+
     if hints['record-terminator'] == "\n":
         # This is Redshift's one and only export format
         pass
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
     quiet_remove(unhandled_hints, 'record-terminator')
-    if hints['quoting'] == 'all':
-        if hints['doublequote'] is not False:
-            cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
-        if hints['quotechar'] != '"':
-            cant_handle_hint(fail_if_cant_handle_hint, 'quotechar', hints)
-        redshift_options['add_quotes'] = True
-    elif hints['quoting'] is None:
-        redshift_options['add_quotes'] = False
+
+    # https://docs.aws.amazon.com/redshift/latest/dg/r_UNLOAD.html
+    #
+    # When CSV, unloads to a text file in CSV format using a comma ( ,
+    # ) character as the delimiter. If a field contains commas, double
+    # quotation marks, newline characters, or carriage returns, then
+    # the field in the unloaded file is enclosed in double quotation
+    # marks. A double quotation mark within a data field is escaped by
+    # an additional double quotation mark.
+    #
+    # The FORMAT and AS keywords are optional. You can't use CSV with
+    # DELIMITER or FIXEDWIDTH.
+    if (hints['field-delimiter'] == ',' and
+       hints['doublequote'] and
+       hints['quotechar'] == '"' and
+       hints['quoting'] == 'minimal'):
+        redshift_options['format'] = Format.csv
+        quiet_remove(unhandled_hints, 'quoting')
+        quiet_remove(unhandled_hints, 'doublequote')
+        quiet_remove(unhandled_hints, 'quotechar')
     else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
-    quiet_remove(unhandled_hints, 'quoting')
-    quiet_remove(unhandled_hints, 'doublequote')
-    quiet_remove(unhandled_hints, 'quotechar')
+        redshift_options['delimiter'] = hints['field-delimiter']
+        quiet_remove(unhandled_hints, 'field-delimiter')
+        if hints['quoting'] == 'all':
+            if hints['doublequote'] is not False:
+                cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
+            if hints['quotechar'] != '"':
+                cant_handle_hint(fail_if_cant_handle_hint, 'quotechar', hints)
+            redshift_options['add_quotes'] = True
+        elif hints['quoting'] is None:
+            redshift_options['add_quotes'] = False
+        else:
+            cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
+        quiet_remove(unhandled_hints, 'quoting')
+        quiet_remove(unhandled_hints, 'doublequote')
+        quiet_remove(unhandled_hints, 'quotechar')
     if hints['compression'] == 'GZIP':
         redshift_options['gzip'] = True
     elif hints['compression'] is None:

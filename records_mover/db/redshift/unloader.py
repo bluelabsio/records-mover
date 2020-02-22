@@ -87,7 +87,11 @@ class RedshiftUnloader(Unloader):
                 return out
 
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
-        return [DelimitedRecordsFormat(variant='bluelabs'), ParquetRecordsFormat()]
+        return [
+            DelimitedRecordsFormat(variant='bluelabs'),
+            DelimitedRecordsFormat(variant='csv'),
+            ParquetRecordsFormat(),
+        ]
 
     def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
         try:
