@@ -15,7 +15,7 @@ commands:
         type: string
     steps:
       - restore_cache:
-          key: deps-v2-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v3-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           command: |
@@ -31,6 +31,7 @@ commands:
                 pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
               else
                 # Use a minimal install
+                pip uninstall -y pandas
                 pip install --progress-bar=off -r requirements.txt -e .
               fi
               pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
@@ -42,10 +43,11 @@ commands:
               pip install --progress-bar=off -e '.[movercli]'
             else
               # Use a minimal install
+              pip uninstall -y pandas
               pip install --progress-bar=off -e .
             fi
       - save_cache:
-          key: deps-v2-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v3-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
 
