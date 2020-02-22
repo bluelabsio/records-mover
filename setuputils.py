@@ -11,7 +11,7 @@ class VerifyVersionCommand(install):
     """Custom command to verify that the git tag matches our version"""
     description = 'verify that the git tag matches our version'
 
-    def run(self):
+    def run(self) -> None:
         from setup import __version__
         tag = os.getenv('CIRCLE_TAG')
         tag_formatted_version = f'v{__version__}'
