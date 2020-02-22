@@ -8,7 +8,7 @@ V = TypeVar('V', bound='BaseDirectoryUrl')
 # Adapted from
 # https://github.com/python/cpython/blob/3.7/Lib/shutil.py
 # but this one returns the size copied
-def blcopyfileobj(fsrc: IO[bytes], fdst: IO[bytes], length=16*1024):
+def blcopyfileobj(fsrc: IO[bytes], fdst: IO[bytes], length: int = 16*1024) -> int:
     """copy data from file-like object fsrc to file-like object fdst"""
     written = 0
     while 1:
@@ -128,7 +128,7 @@ class BaseFileUrl:
 
     def download_fileobj(self, output_fileobj: IO[bytes]) -> None:
         with self.open() as f:
-            return blcopyfileobj(f, output_fileobj)
+            blcopyfileobj(f, output_fileobj)
 
     def store_string(self, contents: str) -> None:
         "Save the specified string to the file."

@@ -48,10 +48,8 @@ class TestFactory(unittest.TestCase):
                       mock_FileobjsSource):
         mock_input_url = 'foo://host/path'
         mock_records_format = Mock(name='records_format')
-        mock_schema_sql = Mock(name='schema_sql')
         with self.records_sources.data_url(input_url=mock_input_url,
-                                           records_format=mock_records_format,
-                                           schema_sql=mock_schema_sql) as out:
+                                           records_format=mock_records_format) as out:
             self.assertEqual(type(out),
                              DataUrlRecordsSource)
 
@@ -96,8 +94,6 @@ class TestFactory(unittest.TestCase):
                         mock_os):
         mock_filename = Mock(name='filename')
         mock_records_format = Mock(name='record_format')
-        mock_schema_sql = Mock(name='schema_sql')
         with self.records_sources.local_file(filename=mock_filename,
-                                             records_format=mock_records_format,
-                                             schema_sql=mock_schema_sql) as out:
+                                             records_format=mock_records_format) as out:
             self.assertEqual(type(out), DataUrlRecordsSource)
