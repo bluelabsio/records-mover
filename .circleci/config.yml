@@ -15,39 +15,29 @@ commands:
         type: string
     steps:
       - restore_cache:
-          key: deps-v3-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v4-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           command: |
             if [ -f venv/bin/activate ]
             then
               . venv/bin/activate
+              # venv/ dir doesn't seem to save enough info to keep the
+              # editable installation
+              pip install --progress-bar=off -e .
             else
               python -m venv venv
               . venv/bin/activate
+              pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
               if [ '<<parameters.pandas_version>>' != '' ]
               then
-                pip install --progress-bar=off 'pandas<<parameters.pandas_version>>'
-                pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
+                pip install --upgrade --progress-bar=off 'pandas<<parameters.pandas_version>>'
               else
-                # Use a minimal install
                 pip uninstall -y pandas
-                pip install --progress-bar=off -r requirements.txt -e .
               fi
-              pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
-            fi
-            # venv/ dir doesn't seem to save enough info to keep the
-            # '-e .[whatever]' installations.
-            if [ '<<parameters.pandas_version>>' != '' ]
-            then
-              pip install --progress-bar=off -e '.[movercli]'
-            else
-              # Use a minimal install
-              pip uninstall -y pandas
-              pip install --progress-bar=off -e .
             fi
       - save_cache:
-          key: deps-v3-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v4-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
 
