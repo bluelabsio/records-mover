@@ -7,7 +7,7 @@ from ....pandas import purge_unnamed_unused_columns
 from .sqlalchemy import schema_from_db_table, schema_to_schema_sql
 from typing import List, Dict, Mapping, IO, Any, TYPE_CHECKING
 from ..field import RecordsSchemaField
-from ...records_format import BaseRecordsFormat
+from ...records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from ...processing_instructions import ProcessingInstructions
 from .known_representation import RecordsSchemaKnownRepresentation
 from ..errors import UnsupportedSchemaError
@@ -103,9 +103,9 @@ class RecordsSchema:
                                     table_name=table_name)
 
     @staticmethod
-    def from_fileobjs(fileobjs: List[IO[bytes]],
-                      records_format: BaseRecordsFormat,
-                      processing_instructions: ProcessingInstructions) -> 'RecordsSchema':
+    def from_delimited_fileobjs(fileobjs: List[IO[bytes]],
+                                records_format: DelimitedRecordsFormat,
+                                processing_instructions: ProcessingInstructions) -> 'RecordsSchema':
         if len(fileobjs) != 1:
             # https://app.asana.com/0/53283930106309/1131698268455054
             raise NotImplementedError('Cannot currently sniff schema from mulitple '
@@ -133,6 +133,17 @@ class RecordsSchema:
             schema.refine_from_dataframe(df,
                                          processing_instructions=processing_instructions)
             return schema
+
+    @staticmethod
+    def from_fileobjs(fileobjs: List[IO[bytes]],
+                      records_format: BaseRecordsFormat,
+                      processing_instructions: ProcessingInstructions) -> 'RecordsSchema':
+        if isinstance(records_format, DelimitedRecordsFormat):
+            return RecordsSchema.from_delimited_fileobjs(fileobjs,
+                                                         records_format,
+                                                         processing_instructions)
+        else:
+            raise NotImplementedError(f"Teach me how to determine records schema from {records_format}")
 
     def refine_from_dataframe(self,
                               df: DataFrame,

@@ -7,13 +7,13 @@ import io
 from ..results import MoveResult
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
 import pandas as pd
-from ..hints import sniff_hints_from_fileobjs
 from .. import BootstrappingRecordsHints
 from ..processing_instructions import ProcessingInstructions
 from ...records.hints import complain_on_unhandled_hints
 from ..csv_streamer import python_encoding_from_hint
 from ..schema import RecordsSchema
 from ..pandas import pandas_read_csv_options
+from ..format_sniff import sniff_records_format_from_fileobjs
 import logging
 from typing import Mapping, IO, Optional, Iterator, List, Any, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -50,19 +50,8 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
             Iterator['FileobjsSource']:
         try:
             if records_format is None:
-                if initial_hints is None:
-                    initial_hints = {}
-                logger.info(f"Determining records format with initial_hints={initial_hints}")
-                inferred_hints =\
-                    sniff_hints_from_fileobjs(list(target_names_to_input_fileobjs.values()),
-                                              initial_hints=initial_hints)
-                # 'csv' isn't the most precise variant or fastest
-                # variant to read, but given it's the default for Excel
-                # and Google Sheets, it's the most common on import.  So,
-                # if the specific variant isn't specified by the user,
-                # let's assume 'csv'.
-                records_format = DelimitedRecordsFormat(variant='csv',
-                                                        hints=inferred_hints)
+                records_format = sniff_records_format_from_fileobjs(initial_hints,
+                                                                    target_names_to_input_fileobjs)
             if records_schema is None:
                 records_schema =\
                     RecordsSchema.from_fileobjs(list(target_names_to_input_fileobjs.values()),

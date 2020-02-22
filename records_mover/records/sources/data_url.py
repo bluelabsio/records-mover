@@ -2,7 +2,7 @@ from .fileobjs import FileobjsSource
 from urllib.parse import urlparse
 from .base import SupportsToFileobjsSource
 from contextlib import contextmanager
-from ..compression import sniff_compression_from_url
+from ..compression import sniff_compression_from_pathname
 from ..processing_instructions import ProcessingInstructions
 from ...url.resolver import UrlResolver
 from ..records_format import BaseRecordsFormat
@@ -10,6 +10,7 @@ from ..schema import RecordsSchema
 from .. import BootstrappingRecordsHints
 import logging
 from typing import Optional, Iterator
+
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,9 @@ class DataUrlRecordsSource(SupportsToFileobjsSource):
         if 'compression' not in self.initial_hints:
             # if we end up sniffing hints, we can start out assuming
             # compression type based on the filename.
-            self.initial_hints['compression'] = sniff_compression_from_url(self.input_url)
+            urlobj = urlparse(self.input_url)
+            pathname = urlobj.path
+            self.initial_hints['compression'] = sniff_compression_from_pathname(pathname)
 
     @contextmanager
     def to_fileobjs_source(self,

@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 from ..results import MoveResult
 from ..records_directory import RecordsDirectory
 from .base import (SupportsMoveFromDataframes,
@@ -6,11 +7,12 @@ from .base import (SupportsMoveFromDataframes,
                    SupportsMoveFromRecordsDirectory)
 from ..processing_instructions import ProcessingInstructions
 from ...url.base import BaseFileUrl
-from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
-from ..compression import sniff_compression_from_url
+from ..records_format import BaseRecordsFormat
 from .fileobj import FileobjTarget
 from ..sources.dataframes import DataframesRecordsSource
 from typing import Optional, List, TYPE_CHECKING
+from records_mover.records.format_sniff import sniff_records_format_from_pathname
+
 if TYPE_CHECKING:
     from pandas import DataFrame  # noqa
 
@@ -22,15 +24,10 @@ class DataUrlTarget(SupportsMoveFromDataframes,
                  output_loc: BaseFileUrl,
                  records_format: Optional[BaseRecordsFormat]) -> None:
         if records_format is None:
-            # if we have been given free rein on format, don't
-            # surprise the user by writing a compression they're not
-            # expecting.
-            compression = sniff_compression_from_url(output_loc.url)
-            inferred_hints = {
-                'compression': compression
-            }
-            records_format = DelimitedRecordsFormat().alter_hints(inferred_hints)
-
+            urlobj = urlparse(output_loc.url)
+            pathname = urlobj.path
+            records_format = sniff_records_format_from_pathname(pathname,
+                                                                'bluelabs')  # TODO: Is this right?
         self.records_format = records_format
         self.output_loc = output_loc
 
