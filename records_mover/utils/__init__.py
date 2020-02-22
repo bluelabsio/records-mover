@@ -42,7 +42,7 @@ def beta(func):
     def new_func(*args, **kwargs):
         warnings.simplefilter('always', BetaWarning)  # turn off filter
         warnings.warn("Call to beta function {} - "
-                      "interface may change in the future!.".format(func.__name__),
+                      "interface may change in the future!".format(func.__name__),
                       category=BetaWarning,
                       stacklevel=2)
         warnings.simplefilter('default', BetaWarning)  # reset filter

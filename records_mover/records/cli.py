@@ -73,8 +73,7 @@ def main() -> None:
     pi_config_schema =\
         method_signature_to_json_schema(ProcessingInstructions.__init__,
                                         special_handling={},
-                                        # deprecated and moved to table target
-                                        parameters_to_ignore=['self', 'existing_table_handling'])
+                                        parameters_to_ignore=['self'])
     JobConfigSchemaAsArgsParser(config_json_schema=pi_config_schema,
                                 argument_parser=parser).configure_arg_parser()
 
