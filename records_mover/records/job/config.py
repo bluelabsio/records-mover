@@ -51,11 +51,8 @@ class ConfigToArgs:
         del kwargs[param_name]
 
     def fill_in_spectrum_base_url(self, kwargs: Dict[str, Any]) -> None:
-        if 'db_name' not in kwargs:
-            db_facts = self.job_context.get_default_db_facts()
-        else:
-            db_name = kwargs['db_name']
-            db_facts = self.job_context.creds.db_facts(db_name)
+        db_name = kwargs['db_name']
+        db_facts = self.job_context.creds.db_facts(db_name)
         schema_name = kwargs['schema_name']
         key = f"redshift_spectrum_base_url_{schema_name}"
         if key not in db_facts:
@@ -74,10 +71,7 @@ class ConfigToArgs:
         del kwargs['existing_table']
 
     def fill_in_db_engine(self, kwargs: Dict[str, Any]) -> None:
-        if 'db_name' not in kwargs:
-            kwargs['db_engine'] = self.job_context.get_default_db_engine()
-        else:
-            kwargs['db_engine'] = self.job_context.get_db_engine(kwargs['db_name'])
+        kwargs['db_engine'] = self.job_context.get_db_engine(kwargs['db_name'])
 
     def fill_in_records_format(self, kwargs: Dict[str, Any]) -> None:
         if kwargs['variant'] is not None:
