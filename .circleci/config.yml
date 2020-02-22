@@ -25,11 +25,25 @@ commands:
             else
               python -m venv venv
               . venv/bin/activate
+              if [ '<<parameters.pandas_version>>' != '' ]
+              then
+                pip install --progress-bar=off 'pandas<<parameters.pandas_version>>'
+                pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
+              else
+                # Use a minimal install
+                pip install --progress-bar=off -r requirements.txt -e .
+              fi
               pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
             fi
             # venv/ dir doesn't seem to save enough info to keep the
-            # '-e .[movercli]' installation.
-            pip install --progress-bar=off 'pandas<<parameters.pandas_version>>' -e '.[movercli]'
+            # '-e .[whatever]' installations.
+            if [ '<<parameters.pandas_version>>' != '' ]
+            then
+              pip install --progress-bar=off -e '.[movercli]'
+            else
+              # Use a minimal install
+              pip install --progress-bar=off -e .
+            fi
       - save_cache:
           key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
@@ -411,6 +425,16 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
+          name: redshift-itest-no-pandas
+          python_version: "3.6"
+          pandas_version: ""
+          db_name: demo-itest
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test:
           name: bigquery-itest
           python_version: "3.6"
           db_name: bltoolsdevbq-bq_itest
@@ -445,6 +469,7 @@ workflows:
             - bigquery-itest
             - redshift-itest
             - redshift-itest-old-pandas
+            - redshift-itest-no-pandas
             - postgres-itest
             - cli-1-itest
             - cli-2-itest
