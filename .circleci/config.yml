@@ -15,7 +15,7 @@ commands:
         type: string
     steps:
       - restore_cache:
-          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v2-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           command: |
@@ -45,7 +45,7 @@ commands:
               pip install --progress-bar=off -e .
             fi
       - save_cache:
-          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v2-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
 
