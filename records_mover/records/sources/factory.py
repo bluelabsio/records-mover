@@ -1,4 +1,3 @@
-from ..deprecated import warn_deprecated
 import pathlib
 from contextlib import contextmanager
 from sqlalchemy.engine import Engine
@@ -52,25 +51,17 @@ class RecordsSources(object):
     @contextmanager
     def dataframe(self,
                   df: 'DataFrame',
-                  schema_name: Optional[str]=None,
-                  table_name: Optional[str]=None,
-                  db_engine: Optional[Engine]=None,
                   processing_instructions: ProcessingInstructions=
                   ProcessingInstructions(),
                   records_schema: Optional[RecordsSchema]=None,
                   include_index: bool=False) -> Iterator['DataframesRecordsSource']:
         """
         :param df: Pandas dataframe to move data from.
-        :param schema_name: Obsolete - not used.
-        :param table_name: Obsolete - not used.
-        :param db_engine: Obsolete - not used.
         :param processing_instructions: Instructions used during creation of the schema SQL.
         :param records_schema: Description of the column names and types of the records.
         :param include_index: If true, the Pandas dataframe index column will be included in
         the move.
         """
-
-        warn_deprecated(schema_name=schema_name, table_name=table_name, db_engine=db_engine)
         from .dataframes import DataframesRecordsSource  # noqa
         yield DataframesRecordsSource(dfs=[df],
                                       records_schema=records_schema,
