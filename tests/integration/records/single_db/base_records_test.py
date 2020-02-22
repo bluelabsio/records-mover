@@ -96,6 +96,8 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
     def has_pandas(self):
         try:
             import pandas  # noqa
+            logger.info("Just imported pandas")
             return True
         except ModuleNotFoundError:
+            logger.info("Could not find pandas")
             return False
