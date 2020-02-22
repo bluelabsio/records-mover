@@ -1,3 +1,4 @@
+from ..deprecated import warn_deprecated
 import pathlib
 from contextlib import contextmanager
 from sqlalchemy.engine import Engine
@@ -51,6 +52,9 @@ class RecordsSources(object):
     @contextmanager
     def dataframe(self,
                   df: 'DataFrame',
+                  schema_name: Optional[str]=None,
+                  table_name: Optional[str]=None,
+                  db_engine: Optional[Engine]=None,
                   processing_instructions: ProcessingInstructions=
                   ProcessingInstructions(),
                   records_schema: Optional[RecordsSchema]=None,
@@ -62,6 +66,8 @@ class RecordsSources(object):
         :param include_index: If true, the Pandas dataframe index column will be included in
         the move.
         """
+
+        warn_deprecated(schema_name=schema_name, table_name=table_name, db_engine=db_engine)
         from .dataframes import DataframesRecordsSource  # noqa
         yield DataframesRecordsSource(dfs=[df],
                                       records_schema=records_schema,
