@@ -61,6 +61,9 @@ class RecordsSources(object):
                   include_index: bool=False) -> Iterator['DataframesRecordsSource']:
         """
         :param df: Pandas dataframe to move data from.
+        :param schema_name: Obsolete - not used.
+        :param table_name: Obsolete - not used.
+        :param db_engine: Obsolete - not used.
         :param processing_instructions: Instructions used during creation of the schema SQL.
         :param records_schema: Description of the column names and types of the records.
         :param include_index: If true, the Pandas dataframe index column will be included in
