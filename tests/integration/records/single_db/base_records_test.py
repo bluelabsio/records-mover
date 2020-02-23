@@ -43,8 +43,7 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
             "type": "object",
             "properties": {}
         }
-        self.job_context = CLIJobContext(name='test_integration',
-                                         config_json_schema=job_config_schema,
+        self.job_context = CLIJobContext(config_json_schema=job_config_schema,
                                          default_db_creds_name=None,
                                          default_aws_creds_name=None,
                                          args=[])
