@@ -116,21 +116,21 @@ class TestCLIJobContext(unittest.TestCase):
                                                mock_boto3,
                                                mock_UrlResolver,
                                                mock_db_driver):
+        mock_subprocess.check_output.return_value = b"s3://chrisp-scratch/"
         context = CLIJobContext('name',
                                 creds=CredsViaLastPass(),
                                 config_json_schema=test_config_schema,
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,
                                 args=args)
-        mock_subprocess.check_output.return_value = b"s3://chrisp-scratch/"
         mock_db = Mock(name='db')
 
         driver = context.db_driver(mock_db)
+        mock_url_resolver = mock_UrlResolver.return_value
+        mock_url_resolver.directory_url.assert_called_with('s3://chrisp-scratch/')
 
         mock_session = mock_boto3.session.Session.return_value
         mock_boto3.session.Session.assert_called_with()
-        mock_url_resolver = mock_UrlResolver.return_value
-        mock_url_resolver.directory_url.assert_called_with('s3://chrisp-scratch/')
         mock_UrlResolver.assert_called_with(boto3_session=mock_session)
         mock_directory_url = mock_UrlResolver.return_value.directory_url
         mock_db_driver.assert_called_with(db=mock_db,

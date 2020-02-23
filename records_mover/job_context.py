@@ -54,6 +54,11 @@ def __get_job_context(name: str,
     log_levels.set_levels(name)
     jc_class: Type[BaseJobContext]
     creds: BaseCreds
+
+    if scratch_s3_url is None:
+        if "SCRATCH_S3_URL" in os.environ:
+            scratch_s3_url = os.environ["SCRATCH_S3_URL"]
+
     if job_context_type == 'airflow':
         jc_class = BaseJobContext
         creds = CredsViaAirflow()

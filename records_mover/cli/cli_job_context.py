@@ -24,22 +24,17 @@ class CLIJobContext(BaseJobContext):
                          default_aws_creds_name=default_aws_creds_name,
                          config_json_schema=config_json_schema,
                          scratch_s3_url=scratch_s3_url)
+        if self._scratch_s3_url is None:
+            # check_output() is typed as returning Any in typeshed
+            # - depends on encoding argument...
+            try:
+                self._scratch_s3_url: Optional[str] =\
+                    subprocess.check_output("scratch-s3-url").decode('ASCII').rstrip()
+            except FileNotFoundError:
+                self._scratch_s3_url = None
         if self._config_json_schema is not None:
             self.request_config =\
                 JobConfigSchemaAsArgsParser.from_description(self._config_json_schema,
                                                              name).parse(args)
         else:
             self.request_config = {}
-
-    @property
-    def _scratch_s3_url(self) -> Optional[str]:
-        if super()._scratch_s3_url is None:
-            # check_output() is typed as returning Any in typeshed
-            # - depends on encoding argument...
-            try:
-                self._scratch_s3_url_value: Optional[str] =\
-                    subprocess.check_output("scratch-s3-url").decode('ASCII').rstrip()
-            except FileNotFoundError:
-                self._scratch_s3_url_value = None
-
-        return self._scratch_s3_url_value

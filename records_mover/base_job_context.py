@@ -38,7 +38,11 @@ class BaseJobContext():
         # it will be garbage collected and the dir will be deleted
         self.temp_dir_obj = tempfile.TemporaryDirectory(prefix='records_mover_base_job_context')
         self.temp_dir = self.temp_dir_obj.name + '/'
-        self._scratch_s3_url_value = scratch_s3_url
+        if scratch_s3_url is not None:
+            if not scratch_s3_url.endswith('/'):
+                raise ValueError("Please provide a directory name - "
+                                 f"URL should end with '/': {scratch_s3_url}")
+        self._scratch_s3_url = scratch_s3_url
         self._config_json_schema = config_json_schema
         self.url_resolver = UrlResolver(boto3_session=self._boto3_session())
         self.creds = creds
@@ -97,17 +101,6 @@ class BaseJobContext():
                          RequestConfig) -> None:
         if config_json_schema is not None:
             jsonschema.validate(request_config, config_json_schema)
-
-    @property
-    def _scratch_s3_url(self) -> Optional[str]:
-        if self._scratch_s3_url_value is None:
-            if "SCRATCH_S3_URL" in os.environ:
-                self._scratch_s3_url_value = os.environ["SCRATCH_S3_URL"]
-        if self._scratch_s3_url_value is not None:
-            if not self._scratch_s3_url_value.endswith('/'):
-                raise ValueError("Please provide a directory name - "
-                                 f"URL should end with '/': {self._scratch_s3_url_value}")
-        return self._scratch_s3_url_value
 
     @property
     def request_config(self) -> RequestConfig:
