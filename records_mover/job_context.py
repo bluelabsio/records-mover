@@ -10,7 +10,7 @@ import os
 def get_job_context(default_db_creds_name: Optional[str]=None,
                     default_aws_creds_name: Optional[str]=None,
                     scratch_s3_url: Optional[str]=None,
-                    config_json_schema: JsonSchema=None,
+                    config_json_schema: Optional[JsonSchema]=None,
                     job_context_type: Optional[str]=None) -> BaseJobContext:
     if job_context_type is None:
         job_context_type = os.environ.get('PY_JOB_CONTEXT')
