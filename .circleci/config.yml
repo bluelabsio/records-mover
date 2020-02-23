@@ -421,8 +421,8 @@ workflows:
           python_version: "3.6"
           pandas_version: ""
           db_name: demo-itest
-#          requires: # TODO reenable
-#            - redshift-itest
+          requires:
+            - redshift-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
