@@ -2,8 +2,7 @@ import sys
 import unittest
 import logging
 import time
-from records_mover.cli.cli_job_context import CLIJobContext
-from records_mover.creds.creds_via_env import CredsViaEnv
+from records_mover.job_context import pull_job_context
 from sqlalchemy import MetaData
 from sqlalchemy.schema import Table
 import os
@@ -44,12 +43,11 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
             "type": "object",
             "properties": {}
         }
-        self.job_context = CLIJobContext(name='test_integration',
-                                         creds=CredsViaEnv(),
-                                         config_json_schema=job_config_schema,
-                                         default_db_creds_name=None,
-                                         default_aws_creds_name=None,
-                                         args=[])
+        self.job_context = pull_job_context(name='test_integration',
+                                            job_context_type='env',
+                                            config_json_schema=job_config_schema,
+                                            default_db_creds_name=None,
+                                            default_aws_creds_name=None)
         self.engine = self.job_context.get_default_db_engine()
         self.driver = self.job_context.db_driver(self.engine)
         if self.engine.name == 'bigquery':
