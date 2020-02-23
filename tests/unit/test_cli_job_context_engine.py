@@ -13,8 +13,7 @@ from mock import patch
 class TestCLIJobContextEngine(unittest.TestCase):
     @patch('records_mover.base_job_context.db_engine')
     def test_get_default_db_engine(self, mock_db_engine):
-        context = CLIJobContext('name',
-                                creds=CredsViaLastPass(),
+        context = CLIJobContext(creds=CredsViaLastPass(),
                                 config_json_schema=test_config_schema,
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,

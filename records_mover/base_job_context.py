@@ -7,7 +7,6 @@ import boto3
 from .records.records import Records
 from .db import db_driver, DBDriver
 from .url.base import BaseFileUrl, BaseDirectoryUrl
-import logging
 import sqlalchemy
 from typing import Dict, Any, Union, Optional
 from .types import JsonSchema
@@ -22,33 +21,19 @@ RequestConfig = Dict[str, Any]
 class BaseJobContext():
     __request_config: RequestConfig
     _scratch_s3_url_value: Optional[str]
-    temp_dir: str
 
     def __init__(self,
-                 name: str,
                  creds: BaseCreds,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
                  config_json_schema: Optional[JsonSchema],
                  scratch_s3_url: Optional[str] = None) -> None:
-        self.logger = logging.getLogger(name + '.__job__')
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
-        # we must instantiate the temp dir alone and save it to self, otherwise
-        # it will be garbage collected and the dir will be deleted
-        self.temp_dir_obj = tempfile.TemporaryDirectory(prefix='records_mover_base_job_context')
-        self.temp_dir = self.temp_dir_obj.name + '/'
-        if scratch_s3_url is not None:
-            if not scratch_s3_url.endswith('/'):
-                raise ValueError("Please provide a directory name - "
-                                 f"URL should end with '/': {scratch_s3_url}")
-        self._scratch_s3_url = scratch_s3_url
+        self._scratch_s3_url_value = scratch_s3_url
         self._config_json_schema = config_json_schema
         self.url_resolver = UrlResolver(boto3_session=self._boto3_session())
         self.creds = creds
-
-    def cleanup(self) -> None:
-        self.temp_dir_obj.cleanup()
 
     def get_default_db_engine(self) -> Engine:
         if self._default_db_creds_name is None:
@@ -62,7 +47,9 @@ class BaseJobContext():
         else:
             return self.creds.db_facts(self._default_db_creds_name)
 
-    def get_db_engine(self, db_creds_name: str, creds_provider: Optional[BaseCreds]=None) -> Engine:
+    def get_db_engine(self,
+                      db_creds_name: str,
+                      creds_provider: Optional[BaseCreds] = None) -> Engine:
         if creds_provider is None:
             creds_provider = self.creds
         db_facts = creds_provider.db_facts(db_creds_name)
@@ -92,8 +79,7 @@ class BaseJobContext():
     @property
     def records(self) -> Records:
         return Records(db_driver=self.db_driver,
-                       url_resolver=self.url_resolver,
-                       logger=self.logger)
+                       url_resolver=self.url_resolver)
 
     def _validate_config(self,
                          config_json_schema: JsonSchema,

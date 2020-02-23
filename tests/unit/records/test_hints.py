@@ -73,7 +73,6 @@ class TestHints(unittest.TestCase):
                     initial_hints['encoding'] = test_details['initial']
                 out = sniff_hints_from_fileobjs(fileobjs=fileobjs,
                                                 initial_hints=initial_hints)
-            # mypy somehow doesn't know about assertDictContainsSubset()
             self.assertDictContainsSubset({
                 'compression': None,
                 'encoding': test_details['hint'],

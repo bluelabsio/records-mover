@@ -2,7 +2,7 @@ import sys
 import unittest
 import logging
 import time
-from records_mover.job_context import pull_job_context
+from records_mover.job_context import get_job_context
 from sqlalchemy import MetaData
 from sqlalchemy.schema import Table
 import os
@@ -43,11 +43,10 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
             "type": "object",
             "properties": {}
         }
-        self.job_context = pull_job_context(name='test_integration',
-                                            job_context_type='env',
-                                            config_json_schema=job_config_schema,
-                                            default_db_creds_name=None,
-                                            default_aws_creds_name=None)
+        self.job_context = get_job_context(job_context_type='env',
+                                           config_json_schema=job_config_schema,
+                                           default_db_creds_name=None,
+                                           default_aws_creds_name=None)
         self.engine = self.job_context.get_default_db_engine()
         self.driver = self.job_context.db_driver(self.engine)
         if self.engine.name == 'bigquery':
@@ -71,7 +70,6 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         self.records = self.job_context.records
 
     def tearDown(self):
-        self.job_context.cleanup()
         self.job_context = None
         self.fixture.tear_down()
 

@@ -10,7 +10,7 @@ from ...records.records_format import BaseRecordsFormat
 from contextlib import contextmanager
 from sqlalchemy.schema import Table, Column
 import logging
-from typing import Iterator, Optional, IO, Union, List, Tuple
+from typing import Iterator, Optional, IO, Union, List, Tuple, Type
 from ...url.resolver import UrlResolver
 from ...url.base import BaseDirectoryUrl
 from ...records.unload_plan import RecordsUnloadPlan
@@ -113,7 +113,7 @@ class VerticaDBDriver(DBDriver):
     def can_load_from_fileobjs(self) -> bool:
         return True
 
-    def load_failure_exception(self):
+    def load_failure_exception(self) -> Type[Exception]:
         return vertica_python.errors.CopyRejected
 
     def table(self,
