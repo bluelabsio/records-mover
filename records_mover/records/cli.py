@@ -5,6 +5,8 @@ from .job.schema import method_to_json_schema
 from .job.mover import run_records_mover_job
 from ..utils.json_schema import method_signature_to_json_schema
 from .processing_instructions import ProcessingInstructions
+from records_mover.cli import cli_logging
+from records_mover import log_levels
 from records_mover.cli.job_config_schema_as_args_parser import (JobConfigSchemaAsArgsParser,
                                                                 arguments_output_to_config)
 from typing import Callable, Dict, Any
@@ -99,4 +101,6 @@ def main() -> None:
     if func is None:
         parser.print_help()
     else:
+        log_levels.set_levels(name)
+        cli_logging.basic_config()
         func(raw_config)

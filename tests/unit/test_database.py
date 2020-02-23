@@ -17,8 +17,7 @@ class TestDatabase(unittest.TestCase):
         'DB_DATABASE': 'analytics',
     })
     def test_database_local_env(self, mock_create_engine):
-        context = CLIJobContext('name',
-                                default_db_creds_name=None,
+        context = CLIJobContext(default_db_creds_name=None,
                                 default_aws_creds_name=None,
                                 config_json_schema=None)
         db_facts = {
@@ -43,8 +42,7 @@ class TestDatabase(unittest.TestCase):
     })
     @patch('records_mover.db.connect.sa')
     def test_database_local_env_bigquery(self, mock_sa):
-        context = CLIJobContext('name',
-                                default_db_creds_name=None,
+        context = CLIJobContext(default_db_creds_name=None,
                                 default_aws_creds_name=None,
                                 config_json_schema=None)
         db_engine(context)

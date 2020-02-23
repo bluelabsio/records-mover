@@ -8,15 +8,13 @@ class AirflowJobContext(BaseJobContext):
     __creds_via_airflow_value: Optional[CredsViaAirflow] = None
 
     def __init__(self,
-                 name: str,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
                  config_json_schema: Optional[JsonSchema],
                  scratch_s3_url: Optional[str] = None) -> None:
         if default_aws_creds_name is None:
             default_aws_creds_name = 'aws_default'
-        super().__init__(name=name,
-                         default_db_creds_name=default_db_creds_name,
+        super().__init__(default_db_creds_name=default_db_creds_name,
                          default_aws_creds_name=default_aws_creds_name,
                          scratch_s3_url=scratch_s3_url,
                          config_json_schema=config_json_schema)

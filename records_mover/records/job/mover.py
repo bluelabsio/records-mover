@@ -4,6 +4,9 @@ from ..processing_instructions import ProcessingInstructions
 from ..results import MoveResult
 from ...types import JobConfig
 from .config import config_to_args
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def run_records_mover_job(source_method_name: str,
@@ -14,9 +17,7 @@ def run_records_mover_job(source_method_name: str,
     try:
         source_method = getattr(job_context.records.sources, source_method_name)
         target_method = getattr(job_context.records.targets, target_method_name)
-        job_context.logger.info('Starting...')
-        logger = job_context.logger
-        logger.debug("Initialized class!")
+        logger.info('Starting...')
         records = job_context.records
 
         source_kwargs = config_to_args(config=config['source'],
@@ -35,5 +36,5 @@ def run_records_mover_job(source_method_name: str,
         target = target_method(**target_kwargs)
         return records.move(source, target, processing_instructions)
     except Exception as e:
-        job_context.logger.error(e)
+        logger.error(e)
         raise

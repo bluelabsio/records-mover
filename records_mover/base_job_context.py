@@ -7,7 +7,6 @@ import boto3
 from .records.records import Records
 from .db import db_driver, DBDriver
 from .url.base import BaseFileUrl, BaseDirectoryUrl
-import logging
 import sqlalchemy
 from typing import Dict, Any, Union, Optional
 from .types import JsonSchema
@@ -24,12 +23,10 @@ class BaseJobContext(metaclass=ABCMeta):
     _scratch_s3_url_value: Optional[str]
 
     def __init__(self,
-                 name: str,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
                  config_json_schema: Optional[JsonSchema],
                  scratch_s3_url: Optional[str] = None) -> None:
-        self.logger = logging.getLogger(name + '.__job__')
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
         self._scratch_s3_url_value = scratch_s3_url
@@ -84,8 +81,7 @@ class BaseJobContext(metaclass=ABCMeta):
     @property
     def records(self) -> Records:
         return Records(db_driver=self.db_driver,
-                       url_resolver=self.url_resolver,
-                       logger=self.logger)
+                       url_resolver=self.url_resolver)
 
     def _validate_config(self,
                          config_json_schema: JsonSchema,

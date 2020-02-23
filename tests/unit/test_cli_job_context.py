@@ -48,20 +48,11 @@ args = [
     'AWS_ACCESS_KEY_ID': 'aws access key',
 })
 class TestCLIJobContext(unittest.TestCase):
-    def test_logger_set(self):
-        context = CLIJobContext('name',
-                                default_db_creds_name=None,
-                                default_aws_creds_name=None,
-                                config_json_schema=None)
-        assert context.logger is not None
-
     def test_args_parsed(self):
-        context = CLIJobContext('name',
-                                config_json_schema=test_config_schema,
+        context = CLIJobContext(config_json_schema=test_config_schema,
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,
                                 args=args)
-        assert context.logger is not None
 
         config = context.request_config
         self.assertEqual(config, {
@@ -85,8 +76,7 @@ class TestCLIJobContext(unittest.TestCase):
                                                   mock_boto3,
                                                   mock_UrlResolver,
                                                   mock_db_driver):
-        context = CLIJobContext('name',
-                                config_json_schema=test_config_schema,
+        context = CLIJobContext(config_json_schema=test_config_schema,
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,
                                 args=args)
@@ -112,8 +102,7 @@ class TestCLIJobContext(unittest.TestCase):
                                                mock_boto3,
                                                mock_UrlResolver,
                                                mock_db_driver):
-        context = CLIJobContext('name',
-                                config_json_schema=test_config_schema,
+        context = CLIJobContext(config_json_schema=test_config_schema,
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,
                                 args=args)
@@ -136,8 +125,7 @@ class TestCLIJobContext(unittest.TestCase):
 
     @patch('records_mover.cli.cli_job_context.CredsViaLastPass')
     def test_creds(self, mock_CredsViaLastPass):
-        context = CLIJobContext('name',
-                                default_db_creds_name=None,
+        context = CLIJobContext(default_db_creds_name=None,
                                 default_aws_creds_name=None,
                                 config_json_schema=test_config_schema,
                                 args=args)
@@ -148,8 +136,7 @@ class TestCLIJobContext(unittest.TestCase):
     def test_get_default_db_engine_from_name(self,
                                              mock_CredsViaLastPass,
                                              mock_engine_from_db_facts):
-        context = CLIJobContext('name',
-                                default_db_creds_name='foo',
+        context = CLIJobContext(default_db_creds_name='foo',
                                 default_aws_creds_name=None,
                                 config_json_schema=test_config_schema,
                                 args=args)

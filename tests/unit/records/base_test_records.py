@@ -29,5 +29,4 @@ class BaseTestRecords(unittest.TestCase):
             return self.mock_db_driver
 
         self.records = Records(db_driver=fake_db_driver,
-                               url_resolver=self.mock_url_resolver,
-                               logger=self.mock_logger)
+                               url_resolver=self.mock_url_resolver)
