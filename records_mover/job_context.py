@@ -3,7 +3,7 @@ from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
 from records_mover.creds.base_creds import BaseCreds
 from .cli.cli_job_context import CLIJobContext
-from .base_job_context import BaseJobContext, JsonSchema
+from .base_job_context import BaseJobContext
 from typing import Optional, Type
 import os
 
@@ -11,7 +11,6 @@ import os
 def get_job_context(default_db_creds_name: Optional[str]=None,
                     default_aws_creds_name: Optional[str]=None,
                     scratch_s3_url: Optional[str]=None,
-                    config_json_schema: Optional[JsonSchema]=None,
                     job_context_type: Optional[str]=None) -> BaseJobContext:
     if job_context_type is None:
         job_context_type = os.environ.get('PY_JOB_CONTEXT')
@@ -51,7 +50,6 @@ def get_job_context(default_db_creds_name: Optional[str]=None,
         creds = CredsViaLastPass()
 
     return jc_class(creds=creds,
-                    config_json_schema=config_json_schema,
                     default_db_creds_name=default_db_creds_name,
                     default_aws_creds_name=default_aws_creds_name,
                     scratch_s3_url=scratch_s3_url)

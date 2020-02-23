@@ -39,12 +39,7 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         os.environ['PY_JOB_CONTEXT'] = 'itest'
 
         self.resources_dir = os.path.dirname(os.path.abspath(__file__)) + '/../../resources'
-        job_config_schema = {
-            "type": "object",
-            "properties": {}
-        }
         self.job_context = get_job_context(job_context_type='env',
-                                           config_json_schema=job_config_schema,
                                            default_db_creds_name=None,
                                            default_aws_creds_name=None)
         self.engine = self.job_context.get_default_db_engine()
