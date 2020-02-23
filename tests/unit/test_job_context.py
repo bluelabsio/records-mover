@@ -6,7 +6,7 @@ class TestJobContext(unittest.TestCase):
     def mock_job_context(self):
         from records_mover import job_context
 
-        return job_context.get_job_context('dummy_job')
+        return job_context.get_job_context()
 
     @patch('records_mover.base_job_context.engine_from_db_facts')
     def test_get_db_engine(self,

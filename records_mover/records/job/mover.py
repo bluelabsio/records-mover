@@ -13,7 +13,7 @@ def run_records_mover_job(source_method_name: str,
                           target_method_name: str,
                           job_name: str,
                           config: JobConfig) -> MoveResult:
-    job_context = get_job_context(job_name)
+    job_context = get_job_context()
     try:
         source_method = getattr(job_context.records.sources, source_method_name)
         target_method = getattr(job_context.records.targets, target_method_name)

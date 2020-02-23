@@ -18,7 +18,7 @@ def is_old(table_name: str) -> bool:
 
 def purge_old_tables(schema_name: str, table_name_prefix: str,
                      db_name: Optional[str] = None) -> None:
-    job_context: BaseJobContext = get_job_context(__name__)
+    job_context: BaseJobContext = get_job_context()
     if db_name is None:
         db_engine = job_context.get_default_db_engine()
     else:

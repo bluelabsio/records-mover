@@ -72,7 +72,7 @@ def find_old_test_sheets(service: SheetsService,
 
 def purge_old_test_sheets(cred_name: str,
                           spreadsheet_id: str) -> None:
-    job_context: BaseJobContext = get_job_context(__name__)
+    job_context: BaseJobContext = get_job_context()
 
     creds = job_context.creds
 

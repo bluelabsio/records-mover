@@ -54,7 +54,7 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
                              db_name=db_name)
 
     def move_and_verify(self, source_dbname, target_dbname, variant_used_internally):
-        job_context = get_job_context('itest')
+        job_context = get_job_context()
         records = job_context.records
         targets = records.targets
         sources = records.sources

@@ -8,7 +8,7 @@ class TestJobContextChoices(unittest.TestCase):
     def mock_job_context(self, **kwargs):
         from records_mover import job_context
 
-        return job_context.get_job_context('dummy_job', **kwargs)
+        return job_context.get_job_context(**kwargs)
 
     @patch.dict('os.environ', {
         'AIRFLOW__CORE__EXECUTOR': 'whoop',
