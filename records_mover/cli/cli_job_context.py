@@ -1,6 +1,6 @@
 import sys
 import subprocess
-from ..base_job_context import BaseJobContext, JsonSchema
+from ..base_job_context import BaseJobContext
 from .job_config_schema_as_args_parser import JobConfigSchemaAsArgsParser
 from typing import Optional, Sequence
 from ..creds.base_creds import BaseCreds
@@ -14,20 +14,11 @@ class CLIJobContext(BaseJobContext):
                  name: str,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
-                 config_json_schema: Optional[JsonSchema],
-                 scratch_s3_url: Optional[str] = None,
-                 args: Sequence[str]=sys.argv[1:]) -> None:
+                 scratch_s3_url: Optional[str] = None) -> None:
         super().__init__(name=name,
                          default_db_creds_name=default_db_creds_name,
                          default_aws_creds_name=default_aws_creds_name,
-                         config_json_schema=config_json_schema,
                          scratch_s3_url=scratch_s3_url)
-        if self._config_json_schema is not None:
-            self.request_config =\
-                JobConfigSchemaAsArgsParser.from_description(self._config_json_schema,
-                                                             name).parse(args)
-        else:
-            self.request_config = {}
         self.__creds_via_lastpass_value = None
 
     @property
