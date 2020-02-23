@@ -1,5 +1,4 @@
 from abc import abstractproperty, ABCMeta
-import tempfile
 import os
 from .database import db_engine, db_facts_from_env
 from sqlalchemy.engine import Engine
@@ -7,7 +6,6 @@ import boto3
 from .records.records import Records
 from .db import db_driver, DBDriver
 from .url.base import BaseFileUrl, BaseDirectoryUrl
-import logging
 import sqlalchemy
 from typing import Union, Optional
 from .creds.base_creds import BaseCreds
@@ -18,25 +16,15 @@ from db_facts.db_facts_types import DBFacts
 
 class BaseJobContext(metaclass=ABCMeta):
     _scratch_s3_url_value: Optional[str]
-    temp_dir: str
 
     def __init__(self,
-                 name: str,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
                  scratch_s3_url: Optional[str] = None) -> None:
-        self.logger = logging.getLogger(name + '.__job__')
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
-        # we must instantiate the temp dir alone and save it to self, otherwise
-        # it will be garbage collected and the dir will be deleted
-        self.temp_dir_obj = tempfile.TemporaryDirectory(prefix='records_mover_base_job_context')
-        self.temp_dir = self.temp_dir_obj.name + '/'
         self._scratch_s3_url_value = scratch_s3_url
         self.url_resolver = UrlResolver(boto3_session=self._boto3_session())
-
-    def cleanup(self) -> None:
-        self.temp_dir_obj.cleanup()
 
     @abstractproperty
     def creds(self) -> BaseCreds:
@@ -54,7 +42,9 @@ class BaseJobContext(metaclass=ABCMeta):
         else:
             return self.creds.db_facts(self._default_db_creds_name)
 
-    def get_db_engine(self, db_creds_name: str, creds_provider: Optional[BaseCreds]=None) -> Engine:
+    def get_db_engine(self,
+                      db_creds_name: str,
+                      creds_provider: Optional[BaseCreds] = None) -> Engine:
         if creds_provider is None:
             creds_provider = self.creds
         db_facts = creds_provider.db_facts(db_creds_name)
@@ -84,8 +74,7 @@ class BaseJobContext(metaclass=ABCMeta):
     @property
     def records(self) -> Records:
         return Records(db_driver=self.db_driver,
-                       url_resolver=self.url_resolver,
-                       logger=self.logger)
+                       url_resolver=self.url_resolver)
 
     @property
     def _scratch_s3_url(self) -> Optional[str]:

@@ -1,8 +1,6 @@
-import sys
 import subprocess
 from ..base_job_context import BaseJobContext
-from .job_config_schema_as_args_parser import JobConfigSchemaAsArgsParser
-from typing import Optional, Sequence
+from typing import Optional
 from ..creds.base_creds import BaseCreds
 from ..creds.creds_via_lastpass import CredsViaLastPass
 
@@ -11,12 +9,10 @@ class CLIJobContext(BaseJobContext):
     __creds_via_lastpass_value: Optional[CredsViaLastPass]
 
     def __init__(self,
-                 name: str,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
                  scratch_s3_url: Optional[str] = None) -> None:
-        super().__init__(name=name,
-                         default_db_creds_name=default_db_creds_name,
+        super().__init__(default_db_creds_name=default_db_creds_name,
                          default_aws_creds_name=default_aws_creds_name,
                          scratch_s3_url=scratch_s3_url)
         self.__creds_via_lastpass_value = None

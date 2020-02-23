@@ -9,12 +9,6 @@ from mock import patch, Mock
     'AWS_ACCESS_KEY_ID': 'aws access key',
 })
 class TestCLIJobContext(unittest.TestCase):
-    def test_logger_set(self):
-        context = CLIJobContext('name',
-                                default_db_creds_name=None,
-                                default_aws_creds_name=None)
-        assert context.logger is not None
-
     @patch('records_mover.base_job_context.db_driver')
     @patch('records_mover.base_job_context.UrlResolver')
     @patch('records_mover.base_job_context.boto3')
@@ -25,8 +19,7 @@ class TestCLIJobContext(unittest.TestCase):
                                                   mock_boto3,
                                                   mock_UrlResolver,
                                                   mock_db_driver):
-        context = CLIJobContext('name',
-                                default_db_creds_name=None,
+        context = CLIJobContext(default_db_creds_name=None,
                                 default_aws_creds_name=None)
         mock_db = Mock(name='db')
         driver = context.db_driver(mock_db)
@@ -50,8 +43,7 @@ class TestCLIJobContext(unittest.TestCase):
                                                mock_boto3,
                                                mock_UrlResolver,
                                                mock_db_driver):
-        context = CLIJobContext('name',
-                                default_db_creds_name=None,
+        context = CLIJobContext(default_db_creds_name=None,
                                 default_aws_creds_name=None)
         mock_subprocess.check_output.return_value = b"s3://chrisp-scratch/"
         mock_db = Mock(name='db')
@@ -72,8 +64,7 @@ class TestCLIJobContext(unittest.TestCase):
 
     @patch('records_mover.cli.cli_job_context.CredsViaLastPass')
     def test_creds(self, mock_CredsViaLastPass):
-        context = CLIJobContext('name',
-                                default_db_creds_name=None,
+        context = CLIJobContext(default_db_creds_name=None,
                                 default_aws_creds_name=None)
         self.assertEqual(mock_CredsViaLastPass.return_value, context.creds)
 
@@ -82,8 +73,7 @@ class TestCLIJobContext(unittest.TestCase):
     def test_get_default_db_engine_from_name(self,
                                              mock_CredsViaLastPass,
                                              mock_engine_from_db_facts):
-        context = CLIJobContext('name',
-                                default_db_creds_name='foo',
+        context = CLIJobContext(default_db_creds_name='foo',
                                 default_aws_creds_name=None)
         out = context.get_default_db_engine()
         self.assertEqual(out, mock_engine_from_db_facts.return_value)
