@@ -3,6 +3,7 @@ import unittest
 import logging
 import time
 from records_mover.cli.cli_job_context import CLIJobContext
+from records_mover.creds.creds_via_env import CredsViaEnv
 from sqlalchemy import MetaData
 from sqlalchemy.schema import Table
 import os
@@ -44,6 +45,7 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
             "properties": {}
         }
         self.job_context = CLIJobContext(name='test_integration',
+                                         creds=CredsViaEnv(),
                                          config_json_schema=job_config_schema,
                                          default_db_creds_name=None,
                                          default_aws_creds_name=None,
