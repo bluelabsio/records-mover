@@ -1,5 +1,5 @@
 from records_mover.db.quoting import quote_schema_and_table
-from records_mover.job_context import pull_job_context
+from records_mover.job_context import get_job_context
 from records_mover.records.existing_table_handling import ExistingTableHandling
 import logging
 import time
@@ -54,7 +54,7 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
                              db_name=db_name)
 
     def move_and_verify(self, source_dbname, target_dbname, variant_used_internally):
-        job_context = pull_job_context('itest')
+        job_context = get_job_context('itest')
         records = job_context.records
         targets = records.targets
         sources = records.sources

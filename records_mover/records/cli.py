@@ -16,21 +16,21 @@ def populate_subparser(sub_parser: argparse.ArgumentParser,
                        source_method_name: str,
                        target_method_name: str,
                        subjob_name: str) -> JobConfig:
-    from records_mover.job_context import create_job_context
-    with create_job_context(subjob_name) as bootstrap_job_context:
-        source_method = getattr(bootstrap_job_context.records.sources, source_method_name)
-        target_method = getattr(bootstrap_job_context.records.targets, target_method_name)
-        job_config_schema = {
-            "type": "object",
-            "properties": odict[
-                'source': method_to_json_schema(source_method),  # type: ignore
-                'target': method_to_json_schema(target_method),  # type: ignore
-            ],
-            "required": ["source", "target"],
-        }
-        JobConfigSchemaAsArgsParser(config_json_schema=job_config_schema,
-                                    argument_parser=sub_parser).configure_arg_parser()
-        return job_config_schema
+    from records_mover.job_context import get_job_context
+    bootstrap_job_context = get_job_context(subjob_name)
+    source_method = getattr(bootstrap_job_context.records.sources, source_method_name)
+    target_method = getattr(bootstrap_job_context.records.targets, target_method_name)
+    job_config_schema = {
+        "type": "object",
+        "properties": odict[
+            'source': method_to_json_schema(source_method),  # type: ignore
+            'target': method_to_json_schema(target_method),  # type: ignore
+        ],
+        "required": ["source", "target"],
+    }
+    JobConfigSchemaAsArgsParser(config_json_schema=job_config_schema,
+                                argument_parser=sub_parser).configure_arg_parser()
+    return job_config_schema
 
 
 def make_job_fn(source_method_name: str,

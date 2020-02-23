@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from records_mover.db.quoting import quote_schema_and_table
-from records_mover.job_context import pull_job_context, BaseJobContext
+from records_mover.job_context import get_job_context, BaseJobContext
 from datetime import datetime, timedelta
 from sqlalchemy import inspect
 from typing import Optional
@@ -18,7 +18,7 @@ def is_old(table_name: str) -> bool:
 
 def purge_old_tables(schema_name: str, table_name_prefix: str,
                      db_name: Optional[str] = None) -> None:
-    job_context: BaseJobContext = pull_job_context(__name__)
+    job_context: BaseJobContext = get_job_context(__name__)
     if db_name is None:
         db_engine = job_context.get_default_db_engine()
     else:

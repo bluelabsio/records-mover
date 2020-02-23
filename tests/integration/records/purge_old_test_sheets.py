@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from records_mover.job_context import pull_job_context, BaseJobContext
+from records_mover.job_context import get_job_context, BaseJobContext
 import google_auth_httplib2
 from googleapiclient.errors import HttpError
 from apiclient.discovery import build
@@ -72,7 +72,7 @@ def find_old_test_sheets(service: SheetsService,
 
 def purge_old_test_sheets(cred_name: str,
                           spreadsheet_id: str) -> None:
-    job_context: BaseJobContext = pull_job_context(__name__)
+    job_context: BaseJobContext = get_job_context(__name__)
 
     creds = job_context.creds
 

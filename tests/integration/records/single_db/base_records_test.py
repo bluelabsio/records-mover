@@ -71,7 +71,6 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         self.records = self.job_context.records
 
     def tearDown(self):
-        self.job_context.cleanup()
         self.job_context = None
         self.fixture.tear_down()
 

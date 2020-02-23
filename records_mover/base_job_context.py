@@ -1,5 +1,4 @@
 from abc import abstractproperty, ABCMeta
-import tempfile
 import os
 import jsonschema
 from .database import db_engine, db_facts_from_env
@@ -23,7 +22,6 @@ RequestConfig = Dict[str, Any]
 class BaseJobContext(metaclass=ABCMeta):
     __request_config: RequestConfig
     _scratch_s3_url_value: Optional[str]
-    temp_dir: str
 
     def __init__(self,
                  name: str,
@@ -34,16 +32,9 @@ class BaseJobContext(metaclass=ABCMeta):
         self.logger = logging.getLogger(name + '.__job__')
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
-        # we must instantiate the temp dir alone and save it to self, otherwise
-        # it will be garbage collected and the dir will be deleted
-        self.temp_dir_obj = tempfile.TemporaryDirectory(prefix='records_mover_base_job_context')
-        self.temp_dir = self.temp_dir_obj.name + '/'
         self._scratch_s3_url_value = scratch_s3_url
         self._config_json_schema = config_json_schema
         self.url_resolver = UrlResolver(boto3_session=self._boto3_session())
-
-    def cleanup(self) -> None:
-        self.temp_dir_obj.cleanup()
 
     @abstractproperty
     def creds(self) -> BaseCreds:
@@ -61,7 +52,9 @@ class BaseJobContext(metaclass=ABCMeta):
         else:
             return self.creds.db_facts(self._default_db_creds_name)
 
-    def get_db_engine(self, db_creds_name: str, creds_provider: Optional[BaseCreds]=None) -> Engine:
+    def get_db_engine(self,
+                      db_creds_name: str,
+                      creds_provider: Optional[BaseCreds] = None) -> Engine:
         if creds_provider is None:
             creds_provider = self.creds
         db_facts = creds_provider.db_facts(db_creds_name)
