@@ -81,35 +81,6 @@ class TestCLIJobContext(unittest.TestCase):
     @patch('records_mover.base_job_context.db_driver')
     @patch('records_mover.base_job_context.UrlResolver')
     @patch('records_mover.base_job_context.boto3')
-    @patch.dict('os.environ', {
-        'SCRATCH_S3_URL': 's3://mybucket/',
-    })
-    def test_db_driver_with_overridden_bucket_url(self,
-                                                  mock_boto3,
-                                                  mock_UrlResolver,
-                                                  mock_db_driver):
-        context = CLIJobContext('name',
-                                creds=CredsViaLastPass(),
-                                config_json_schema=test_config_schema,
-                                default_db_creds_name=None,
-                                default_aws_creds_name=None,
-                                args=args)
-        self.assertEqual(context._scratch_s3_url, 's3://mybucket/')
-        mock_db = Mock(name='db')
-        driver = context.db_driver(mock_db)
-        mock_session = mock_boto3.session.Session.return_value
-        mock_boto3.session.Session.assert_called_with()
-        mock_UrlResolver.assert_called_with(boto3_session=mock_session)
-        mock_s3_temp_base_loc = mock_UrlResolver.return_value.directory_url.return_value
-        mock_db_driver.assert_called_with(db=mock_db,
-                                          url_resolver=context.url_resolver,
-                                          s3_temp_base_loc=mock_s3_temp_base_loc)
-        self.assertEqual(mock_db_driver.return_value, driver)
-        mock_UrlResolver.return_value.directory_url.assert_called_with('s3://mybucket/')
-
-    @patch('records_mover.base_job_context.db_driver')
-    @patch('records_mover.base_job_context.UrlResolver')
-    @patch('records_mover.base_job_context.boto3')
     @patch('records_mover.cli.cli_job_context.subprocess')
     @patch.dict('os.environ', {}, clear=True)
     def test_db_driver_with_guessed_bucket_url(self,
