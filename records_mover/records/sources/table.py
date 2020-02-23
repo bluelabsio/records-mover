@@ -15,8 +15,8 @@ from ...url.resolver import UrlResolver
 import logging
 from typing import Iterator, List, TYPE_CHECKING
 if TYPE_CHECKING:
-    from .dataframes import DataframesRecordsSource
-    from pandas import DataFrame
+    from .dataframes import DataframesRecordsSource  # noqa
+    from pandas import DataFrame  # noqa
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
     def to_dataframes_source(self,
                              processing_instructions: ProcessingInstructions) -> \
             Iterator['DataframesRecordsSource']:
-        from .dataframes import DataframesRecordsSource
+        from .dataframes import DataframesRecordsSource  # noqa
         import pandas
 
         db = self.driver.db
