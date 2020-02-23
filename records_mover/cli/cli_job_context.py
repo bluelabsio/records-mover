@@ -2,12 +2,9 @@ import subprocess
 from ..base_job_context import BaseJobContext
 from typing import Optional
 from ..creds.base_creds import BaseCreds
-from ..creds.creds_via_lastpass import CredsViaLastPass
 
 
 class CLIJobContext(BaseJobContext):
-    __creds_via_lastpass_value: Optional[CredsViaLastPass]
-
     def __init__(self,
                  creds: BaseCreds,
                  default_db_creds_name: Optional[str],
