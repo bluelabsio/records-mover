@@ -1,5 +1,4 @@
-from records_mover.cli.cli_job_context import CLIJobContext
-from records_mover.creds.creds_via_lastpass import CredsViaLastPass
+from records_mover.job_context import get_job_context
 import unittest
 from mock import patch, Mock
 
@@ -13,7 +12,7 @@ class TestCLIJobContext(unittest.TestCase):
     @patch('records_mover.base_job_context.db_driver')
     @patch('records_mover.base_job_context.UrlResolver')
     @patch('records_mover.base_job_context.boto3')
-    @patch('records_mover.cli.cli_job_context.subprocess')
+    @patch('records_mover.job_context.subprocess')
     @patch.dict('os.environ', {}, clear=True)
     def test_db_driver_with_guessed_bucket_url(self,
                                                mock_subprocess,
@@ -21,9 +20,9 @@ class TestCLIJobContext(unittest.TestCase):
                                                mock_UrlResolver,
                                                mock_db_driver):
         mock_subprocess.check_output.return_value = b"s3://chrisp-scratch/"
-        context = CLIJobContext(creds=CredsViaLastPass(),
-                                default_db_creds_name=None,
-                                default_aws_creds_name=None)
+        context = get_job_context(job_context_type='cli',
+                                  default_db_creds_name=None,
+                                  default_aws_creds_name=None)
         mock_subprocess.check_output.return_value = b"s3://chrisp-scratch/"
         mock_db = Mock(name='db')
 
@@ -41,19 +40,24 @@ class TestCLIJobContext(unittest.TestCase):
         mock_subprocess.check_output.assert_called_with('scratch-s3-url')
         self.assertEqual(mock_db_driver.return_value, driver)
 
-    def test_creds(self):
-        mock_CredsViaLastPass = Mock(name='CredsViaLastPass')
-        context = CLIJobContext(creds=mock_CredsViaLastPass.return_value,
-                                default_db_creds_name=None,
-                                default_aws_creds_name=None)
+    @patch('records_mover.job_context.CredsViaLastPass')
+    def test_creds(self,
+                   mock_CredsViaLastPass):
+        context = get_job_context(job_context_type='cli',
+                                  default_db_creds_name=None,
+                                  default_aws_creds_name=None)
         self.assertEqual(mock_CredsViaLastPass.return_value, context.creds)
 
+    @patch('records_mover.job_context.CredsViaLastPass')
     @patch('records_mover.base_job_context.engine_from_db_facts')
     def test_get_default_db_engine_from_name(self,
-                                             mock_engine_from_db_facts):
-        mock_CredsViaLastPass = Mock(name='CredsViaLastPass')
-        context = CLIJobContext(creds=mock_CredsViaLastPass.return_value,
-                                default_db_creds_name='foo',
-                                default_aws_creds_name=None)
+                                             mock_engine_from_db_facts,
+                                             mock_CredsViaLastPass):
+        context = get_job_context(job_context_type='cli',
+                                  default_db_creds_name='foo',
+                                  default_aws_creds_name=None)
+        mock_creds = mock_CredsViaLastPass.return_value
         out = context.get_default_db_engine()
         self.assertEqual(out, mock_engine_from_db_facts.return_value)
+        mock_engine_from_db_facts.assert_called_with(mock_creds.db_facts.return_value)
+        mock_creds.db_facts.assert_called_with('foo')

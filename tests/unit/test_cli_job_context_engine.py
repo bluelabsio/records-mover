@@ -1,4 +1,4 @@
-from records_mover.cli.cli_job_context import CLIJobContext
+from records_mover.job_context import get_job_context
 from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 import unittest
 from mock import patch
@@ -12,8 +12,8 @@ from mock import patch
 class TestCLIJobContextEngine(unittest.TestCase):
     @patch('records_mover.base_job_context.db_engine')
     def test_get_default_db_engine(self, mock_db_engine):
-        context = CLIJobContext(creds=CredsViaLastPass(),
-                                default_db_creds_name=None,
-                                default_aws_creds_name=None)
+        context = get_job_context(job_context_type='cli',
+                                  default_db_creds_name=None,
+                                  default_aws_creds_name=None)
         self.assertEqual(mock_db_engine.return_value, context.get_default_db_engine())
         mock_db_engine.assert_called_with(context)
