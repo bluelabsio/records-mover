@@ -104,8 +104,8 @@ class RecordsSchema:
     def from_fileobjs(fileobjs: List[IO[bytes]],
                       records_format: BaseRecordsFormat,
                       processing_instructions: ProcessingInstructions) -> 'RecordsSchema':
-        from ...csv_streamer import stream_csv
-        from ....pandas import purge_unnamed_unused_columns
+        from records_mover.records.csv_streamer import stream_csv
+        from records_mover.pandas import purge_unnamed_unused_columns
 
         if len(fileobjs) != 1:
             # https://app.asana.com/0/53283930106309/1131698268455054
