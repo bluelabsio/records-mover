@@ -21,10 +21,10 @@ citypecoverage: typecoverage
 	@test -z "$$(git status --porcelain metrics/mypy_high_water_mark)"
 
 test:
-	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --nocapture --cover-inclusive
+	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive
 
 citest:
-	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --nocapture --cover-inclusive --xunit-file=test-reports/junit.xml
+	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml
 
 coverage:
 	python setup.py coverage_ratchet

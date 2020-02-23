@@ -1,45 +1,6 @@
 from records_mover.cli.cli_job_context import CLIJobContext
 import unittest
-from odictliteral import odict
 from mock import patch, Mock
-
-test_config_schema = {
-    "type": "object",
-    "properties": odict[
-        'sourceType': {
-            'enum': ['url_file', 'github_file']
-        },
-        'url': {
-            'type': 'string'
-        },
-        'fire_phasers': {
-            'type': 'boolean',
-        },
-        'phaserIntensity': {
-            'type': 'integer',
-            'default': 50
-        },
-        'a': {
-            'type': 'object',
-            'properties': odict[
-                'b': {
-                    'type': 'string',
-                }
-            ]
-        },
-        'outputType': {
-            'enum': ['sql'],
-            'default': 'sql',
-        }
-    ],
-    "required": ["sourceType"]
-}
-args = [
-        '--url', 'http://abc',
-        '--fire_phasers',
-        '--a.b', 'c',
-        'url_file',
-]
 
 
 @patch.dict('os.environ', {
@@ -51,29 +12,8 @@ class TestCLIJobContext(unittest.TestCase):
     def test_logger_set(self):
         context = CLIJobContext('name',
                                 default_db_creds_name=None,
-                                default_aws_creds_name=None,
-                                config_json_schema=None)
+                                default_aws_creds_name=None)
         assert context.logger is not None
-
-    def test_args_parsed(self):
-        context = CLIJobContext('name',
-                                config_json_schema=test_config_schema,
-                                default_db_creds_name=None,
-                                default_aws_creds_name=None,
-                                args=args)
-        assert context.logger is not None
-
-        config = context.request_config
-        self.assertEqual(config, {
-            'fire_phasers': True,
-            'a': {
-                'b': 'c'
-            },
-            'phaserIntensity': 50,
-            'sourceType': 'url_file',
-            'url': 'http://abc',
-            'outputType': 'sql'
-        })
 
     @patch('records_mover.base_job_context.db_driver')
     @patch('records_mover.base_job_context.UrlResolver')
@@ -86,10 +26,8 @@ class TestCLIJobContext(unittest.TestCase):
                                                   mock_UrlResolver,
                                                   mock_db_driver):
         context = CLIJobContext('name',
-                                config_json_schema=test_config_schema,
                                 default_db_creds_name=None,
-                                default_aws_creds_name=None,
-                                args=args)
+                                default_aws_creds_name=None)
         mock_db = Mock(name='db')
         driver = context.db_driver(mock_db)
         mock_session = mock_boto3.session.Session.return_value
@@ -113,10 +51,8 @@ class TestCLIJobContext(unittest.TestCase):
                                                mock_UrlResolver,
                                                mock_db_driver):
         context = CLIJobContext('name',
-                                config_json_schema=test_config_schema,
                                 default_db_creds_name=None,
-                                default_aws_creds_name=None,
-                                args=args)
+                                default_aws_creds_name=None)
         mock_subprocess.check_output.return_value = b"s3://chrisp-scratch/"
         mock_db = Mock(name='db')
 
@@ -138,9 +74,7 @@ class TestCLIJobContext(unittest.TestCase):
     def test_creds(self, mock_CredsViaLastPass):
         context = CLIJobContext('name',
                                 default_db_creds_name=None,
-                                default_aws_creds_name=None,
-                                config_json_schema=test_config_schema,
-                                args=args)
+                                default_aws_creds_name=None)
         self.assertEqual(mock_CredsViaLastPass.return_value, context.creds)
 
     @patch('records_mover.base_job_context.engine_from_db_facts')
@@ -150,8 +84,6 @@ class TestCLIJobContext(unittest.TestCase):
                                              mock_engine_from_db_facts):
         context = CLIJobContext('name',
                                 default_db_creds_name='foo',
-                                default_aws_creds_name=None,
-                                config_json_schema=test_config_schema,
-                                args=args)
+                                default_aws_creds_name=None)
         out = context.get_default_db_engine()
         self.assertEqual(out, mock_engine_from_db_facts.return_value)

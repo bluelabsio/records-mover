@@ -19,8 +19,7 @@ class TestDatabase(unittest.TestCase):
     def test_database_local_env(self, mock_create_engine):
         context = CLIJobContext('name',
                                 default_db_creds_name=None,
-                                default_aws_creds_name=None,
-                                config_json_schema=None)
+                                default_aws_creds_name=None)
         db_facts = {
             "host": "db.host",
             "user": "username",
@@ -45,8 +44,7 @@ class TestDatabase(unittest.TestCase):
     def test_database_local_env_bigquery(self, mock_sa):
         context = CLIJobContext('name',
                                 default_db_creds_name=None,
-                                default_aws_creds_name=None,
-                                config_json_schema=None)
+                                default_aws_creds_name=None)
         db_engine(context)
         mock_sa.engine.create_engine.assert_called_with('bigquery://project_id/dataset_id',
                                                         credentials_info={

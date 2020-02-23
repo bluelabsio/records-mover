@@ -31,6 +31,10 @@ class TestPostgresDBDriver(unittest.TestCase):
         out = self.postgres_db_driver.type_for_integer(-123, 123)
         self.assertEqual(type(out), sqlalchemy.sql.sqltypes.SMALLINT)
 
+    def test_type_for_integer_fits(self):
+        out = self.postgres_db_driver.type_for_integer(-123, 123000)
+        self.assertEqual(type(out), sqlalchemy.sql.sqltypes.INTEGER)
+
     def test_type_for_integer_too_big(self):
         out = self.postgres_db_driver.type_for_integer(-12300000000000000000, 123000000000000000000)
         self.assertEqual(type(out), sqlalchemy.sql.sqltypes.Numeric)
