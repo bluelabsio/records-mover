@@ -1,5 +1,4 @@
 from records_mover.job_context import get_job_context
-from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 import unittest
 from mock import patch
 

@@ -1,7 +1,6 @@
 from records_mover.database import db_engine
 from records_mover.db.connect import create_db_url
 from records_mover.job_context import get_job_context
-from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 
 
 from mock import patch
