@@ -12,12 +12,14 @@ class CLIJobContext(BaseJobContext):
 
     def __init__(self,
                  name: str,
+                 creds: BaseCreds,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
                  config_json_schema: Optional[JsonSchema],
                  scratch_s3_url: Optional[str] = None,
                  args: Sequence[str]=sys.argv[1:]) -> None:
         super().__init__(name=name,
+                         creds=creds,
                          default_db_creds_name=default_db_creds_name,
                          default_aws_creds_name=default_aws_creds_name,
                          config_json_schema=config_json_schema,
@@ -28,17 +30,6 @@ class CLIJobContext(BaseJobContext):
                                                              name).parse(args)
         else:
             self.request_config = {}
-        self.__creds_via_lastpass_value = None
-
-    @property
-    def creds(self) -> BaseCreds:
-        return self.creds_via_lastpass
-
-    @property
-    def creds_via_lastpass(self) -> CredsViaLastPass:
-        if self.__creds_via_lastpass_value is None:
-            self.__creds_via_lastpass_value = CredsViaLastPass()
-        return self.__creds_via_lastpass_value
 
     @property
     def _scratch_s3_url(self) -> Optional[str]:

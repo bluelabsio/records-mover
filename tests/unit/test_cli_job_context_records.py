@@ -1,5 +1,6 @@
 from .test_cli_job_context import test_config_schema, args
 from records_mover.cli.cli_job_context import CLIJobContext
+from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 import unittest
 from mock import patch, ANY
 
@@ -17,6 +18,7 @@ class TestCLIJobContextRecords(unittest.TestCase):
                      mock_Records):
         mock_subprocess.check_output.return_value = 'jdoe'.encode('utf-8')
         context = CLIJobContext('name',
+                                creds=CredsViaLastPass(),
                                 config_json_schema=test_config_schema,
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,
@@ -34,6 +36,7 @@ class TestCLIJobContextRecords(unittest.TestCase):
                                                     mock_Records):
         mock_subprocess.check_output.return_value = 'jdoe'.encode('utf-8')
         context = CLIJobContext('name',
+                                creds=CredsViaLastPass(),
                                 config_json_schema=test_config_schema,
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,

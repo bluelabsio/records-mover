@@ -3,7 +3,7 @@ from mock import patch
 import unittest
 
 
-@patch('records_mover.job_context.AirflowJobContext')
+@patch('records_mover.job_context.BaseJobContext')
 @patch('records_mover.job_context.CLIJobContext')
 @patch('records_mover.job_context.set_temp_dir')
 class TestJobContextChoices(unittest.TestCase):
@@ -20,14 +20,14 @@ class TestJobContextChoices(unittest.TestCase):
     def test_select_airflow_job_context_by_implicit_env_variable(self,
                                                                  mock_set_temp_dir,
                                                                  mock_CLIJobContext,
-                                                                 mock_AirflowJobContext):
+                                                                 mock_BaseJobContext):
         with self.mock_job_context() as injected_job_context:
-            self.assertEqual(injected_job_context, mock_AirflowJobContext.return_value)
+            self.assertEqual(injected_job_context, mock_BaseJobContext.return_value)
 
     def test_select_cli_job_context_by_default(self,
                                                mock_set_temp_dir,
                                                mock_CLIJobContext,
-                                               mock_AirflowJobContext):
+                                               mock_BaseJobContext):
         with self.mock_job_context() as injected_job_context:
             self.assertEqual(injected_job_context, mock_CLIJobContext.return_value)
 
@@ -37,7 +37,7 @@ class TestJobContextChoices(unittest.TestCase):
     def test_select_cli_job_context_by_explicit_env_variable(self,
                                                              mock_set_temp_dir,
                                                              mock_CLIJobContext,
-                                                             mock_AirflowJobContext):
+                                                             mock_BaseJobContext):
         with self.mock_job_context() as injected_job_context:
             self.assertEqual(injected_job_context, mock_CLIJobContext.return_value)
 
@@ -47,9 +47,9 @@ class TestJobContextChoices(unittest.TestCase):
     def test_select_airflow_job_context_by_explicit_env_variable(self,
                                                                  mock_set_temp_dir,
                                                                  mock_CLIJobContext,
-                                                                 mock_AirflowJobContext):
+                                                                 mock_BaseJobContext):
         with self.mock_job_context() as injected_job_context:
-            self.assertEqual(injected_job_context, mock_AirflowJobContext.return_value)
+            self.assertEqual(injected_job_context, mock_BaseJobContext.return_value)
 
     @patch.dict('os.environ', {
         'PY_JOB_CONTEXT': 'bogus',
@@ -57,7 +57,7 @@ class TestJobContextChoices(unittest.TestCase):
     def test_select_invalid_job_context_by_explicit_env_variable(self,
                                                                  mock_set_temp_dir,
                                                                  mock_CLIJobContext,
-                                                                 mock_AirflowJobContext):
+                                                                 mock_BaseJobContext):
         with self.assertRaises(ValueError) as r:
             with self.mock_job_context() as jc:
                 print(f"Got jc: {jc}")
@@ -69,21 +69,21 @@ class TestJobContextChoices(unittest.TestCase):
     def test_select_airflow_job_context_by_parameter(self,
                                                      mock_set_temp_dir,
                                                      mock_CLIJobContext,
-                                                     mock_AirflowJobContext):
+                                                     mock_BaseJobContext):
         with self.mock_job_context(job_context_type='airflow') as injected_job_context:
-            self.assertEqual(injected_job_context, mock_AirflowJobContext.return_value)
+            self.assertEqual(injected_job_context, mock_BaseJobContext.return_value)
 
     def test_select_cli_job_context_by_parameter(self,
                                                  mock_set_temp_dir,
                                                  mock_CLIJobContext,
-                                                 mock_AirflowJobContext):
+                                                 mock_BaseJobContext):
         with self.mock_job_context(job_context_type='cli') as injected_job_context:
             self.assertEqual(injected_job_context, mock_CLIJobContext.return_value)
 
     def test_select_invalid_job_context_by_parameter(self,
                                                      mock_set_temp_dir,
                                                      mock_CLIJobContext,
-                                                     mock_AirflowJobContext):
+                                                     mock_BaseJobContext):
         with self.assertRaises(ValueError) as r:
             with self.mock_job_context(job_context_type='bogus') as injected_job_context:
                 self.assertEqual(injected_job_context, mock_CLIJobContext.return_value)

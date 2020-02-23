@@ -1,4 +1,5 @@
 from records_mover.cli.cli_job_context import CLIJobContext
+from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 import unittest
 from odictliteral import odict
 from mock import patch, Mock
@@ -50,6 +51,7 @@ args = [
 class TestCLIJobContext(unittest.TestCase):
     def test_logger_set(self):
         context = CLIJobContext('name',
+                                creds=CredsViaLastPass(),
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,
                                 config_json_schema=None)
@@ -58,6 +60,7 @@ class TestCLIJobContext(unittest.TestCase):
     def test_args_parsed(self):
         context = CLIJobContext('name',
                                 config_json_schema=test_config_schema,
+                                creds=CredsViaLastPass(),
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,
                                 args=args)
@@ -86,6 +89,7 @@ class TestCLIJobContext(unittest.TestCase):
                                                   mock_UrlResolver,
                                                   mock_db_driver):
         context = CLIJobContext('name',
+                                creds=CredsViaLastPass(),
                                 config_json_schema=test_config_schema,
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,
@@ -113,6 +117,7 @@ class TestCLIJobContext(unittest.TestCase):
                                                mock_UrlResolver,
                                                mock_db_driver):
         context = CLIJobContext('name',
+                                creds=CredsViaLastPass(),
                                 config_json_schema=test_config_schema,
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,
@@ -137,6 +142,7 @@ class TestCLIJobContext(unittest.TestCase):
     @patch('records_mover.cli.cli_job_context.CredsViaLastPass')
     def test_creds(self, mock_CredsViaLastPass):
         context = CLIJobContext('name',
+                                creds=mock_CredsViaLastPass.return_value,
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,
                                 config_json_schema=test_config_schema,
@@ -149,6 +155,7 @@ class TestCLIJobContext(unittest.TestCase):
                                              mock_CredsViaLastPass,
                                              mock_engine_from_db_facts):
         context = CLIJobContext('name',
+                                creds=mock_CredsViaLastPass.return_value,
                                 default_db_creds_name='foo',
                                 default_aws_creds_name=None,
                                 config_json_schema=test_config_schema,

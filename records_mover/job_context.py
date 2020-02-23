@@ -1,11 +1,12 @@
 from contextlib import contextmanager
 
+from records_mover.creds.creds_via_lastpass import CredsViaLastPass
+from records_mover.creds.creds_via_airflow import CredsViaAirflow
+from records_mover.creds.creds_via_env import CredsViaEnv
+from records_mover.creds.base_creds import BaseCreds
 from .cli import cli_logging
 from . import log_levels
 from .cli.cli_job_context import CLIJobContext
-from .itest_job_context import IntegrationTestJobContext
-from .env_job_context import EnvJobContext
-from .airflow.airflow_job_context import AirflowJobContext
 from .temp_dir import set_temp_dir
 from .base_job_context import BaseJobContext, JsonSchema
 import atexit
@@ -52,29 +53,41 @@ def __get_job_context(name: str,
         job_context_type = os.environ.get('PY_JOB_CONTEXT')
     log_levels.set_levels(name)
     jc_class: Type[BaseJobContext]
+    creds: BaseCreds
     if job_context_type == 'airflow':
-        jc_class = AirflowJobContext
+        jc_class = BaseJobContext
+        creds = CredsViaAirflow()
+        if default_aws_creds_name is None:
+            default_aws_creds_name = 'aws_default'
     elif job_context_type == 'cli':
         jc_class = CLIJobContext
+        creds = CredsViaLastPass()
     elif job_context_type == 'itest':
-        jc_class = IntegrationTestJobContext
+        jc_class = BaseJobContext
+        creds = CredsViaLastPass()
     elif job_context_type == 'env':
-        jc_class = EnvJobContext
+        jc_class = BaseJobContext
+        creds = CredsViaEnv()
     elif job_context_type is not None:
         raise ValueError("Valid job context types: cli, airflow, docker-itest, env - "
                          "consider upgrading records-mover if you're looking for "
                          f"{job_context_type}.")
     elif 'AIRFLOW__CORE__EXECUTOR' in os.environ:
         # Guess based on an env variable sometimes set by Airflow
-        jc_class = AirflowJobContext
+        jc_class = BaseJobContext
+        creds = CredsViaAirflow()
+        if default_aws_creds_name is None:
+            default_aws_creds_name = 'aws_default'
     else:
         jc_class = CLIJobContext
+        creds = CredsViaLastPass()
 
-    if jc_class != AirflowJobContext:
+    if job_context_type != 'airflow':
         if use_default_logging:
             cli_logging.basic_config()
 
     return jc_class(name,
+                    creds=creds,
                     config_json_schema=config_json_schema,
                     default_db_creds_name=default_db_creds_name,
                     default_aws_creds_name=default_aws_creds_name,

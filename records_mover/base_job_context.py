@@ -1,4 +1,3 @@
-from abc import abstractproperty, ABCMeta
 import tempfile
 import os
 import jsonschema
@@ -20,13 +19,14 @@ from db_facts.db_facts_types import DBFacts
 RequestConfig = Dict[str, Any]
 
 
-class BaseJobContext(metaclass=ABCMeta):
+class BaseJobContext():
     __request_config: RequestConfig
     _scratch_s3_url_value: Optional[str]
     temp_dir: str
 
     def __init__(self,
                  name: str,
+                 creds: BaseCreds,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
                  config_json_schema: Optional[JsonSchema],
@@ -41,13 +41,10 @@ class BaseJobContext(metaclass=ABCMeta):
         self._scratch_s3_url_value = scratch_s3_url
         self._config_json_schema = config_json_schema
         self.url_resolver = UrlResolver(boto3_session=self._boto3_session())
+        self.creds = creds
 
     def cleanup(self) -> None:
         self.temp_dir_obj.cleanup()
-
-    @abstractproperty
-    def creds(self) -> BaseCreds:
-        raise NotImplementedError
 
     def get_default_db_engine(self) -> Engine:
         if self._default_db_creds_name is None:

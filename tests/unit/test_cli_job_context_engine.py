@@ -1,5 +1,6 @@
 from .test_cli_job_context import test_config_schema, args
 from records_mover.cli.cli_job_context import CLIJobContext
+from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 import unittest
 from mock import patch
 
@@ -13,6 +14,7 @@ class TestCLIJobContextEngine(unittest.TestCase):
     @patch('records_mover.base_job_context.db_engine')
     def test_get_default_db_engine(self, mock_db_engine):
         context = CLIJobContext('name',
+                                creds=CredsViaLastPass(),
                                 config_json_schema=test_config_schema,
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,

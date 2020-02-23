@@ -1,6 +1,8 @@
 from records_mover.database import db_engine
 from records_mover.db.connect import create_db_url
 from records_mover.cli.cli_job_context import CLIJobContext
+from records_mover.creds.creds_via_lastpass import CredsViaLastPass
+
 
 from mock import patch
 import unittest
@@ -18,6 +20,7 @@ class TestDatabase(unittest.TestCase):
     })
     def test_database_local_env(self, mock_create_engine):
         context = CLIJobContext('name',
+                                creds=CredsViaLastPass(),
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,
                                 config_json_schema=None)
@@ -44,6 +47,7 @@ class TestDatabase(unittest.TestCase):
     @patch('records_mover.db.connect.sa')
     def test_database_local_env_bigquery(self, mock_sa):
         context = CLIJobContext('name',
+                                creds=CredsViaLastPass(),
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None,
                                 config_json_schema=None)
