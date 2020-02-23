@@ -41,18 +41,17 @@ class TestCLIJobContext(unittest.TestCase):
         mock_subprocess.check_output.assert_called_with('scratch-s3-url')
         self.assertEqual(mock_db_driver.return_value, driver)
 
-    @patch('records_mover.cli.cli_job_context.CredsViaLastPass')
-    def test_creds(self, mock_CredsViaLastPass):
+    def test_creds(self):
+        mock_CredsViaLastPass = Mock(name='CredsViaLastPass')
         context = CLIJobContext(creds=mock_CredsViaLastPass.return_value,
                                 default_db_creds_name=None,
                                 default_aws_creds_name=None)
         self.assertEqual(mock_CredsViaLastPass.return_value, context.creds)
 
     @patch('records_mover.base_job_context.engine_from_db_facts')
-    @patch('records_mover.cli.cli_job_context.CredsViaLastPass')
     def test_get_default_db_engine_from_name(self,
-                                             mock_CredsViaLastPass,
                                              mock_engine_from_db_facts):
+        mock_CredsViaLastPass = Mock(name='CredsViaLastPass')
         context = CLIJobContext(creds=mock_CredsViaLastPass.return_value,
                                 default_db_creds_name='foo',
                                 default_aws_creds_name=None)
