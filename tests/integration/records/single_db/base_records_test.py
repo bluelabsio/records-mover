@@ -45,8 +45,7 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         }
         self.job_context = CLIJobContext(name='test_integration',
                                          default_db_creds_name=None,
-                                         default_aws_creds_name=None,
-                                         args=[])
+                                         default_aws_creds_name=None)
         self.engine = self.job_context.get_default_db_engine()
         self.driver = self.job_context.db_driver(self.engine)
         if self.engine.name == 'bigquery':
