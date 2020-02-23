@@ -1,6 +1,5 @@
 from abc import abstractproperty, ABCMeta
 import os
-import jsonschema
 from .database import db_engine, db_facts_from_env
 from sqlalchemy.engine import Engine
 import boto3
@@ -8,29 +7,23 @@ from .records.records import Records
 from .db import db_driver, DBDriver
 from .url.base import BaseFileUrl, BaseDirectoryUrl
 import sqlalchemy
-from typing import Dict, Any, Union, Optional
-from .types import JsonSchema
+from typing import Union, Optional
 from .creds.base_creds import BaseCreds
 from .db.connect import engine_from_db_facts
 from .url.resolver import UrlResolver
 from db_facts.db_facts_types import DBFacts
 
-RequestConfig = Dict[str, Any]
-
 
 class BaseJobContext(metaclass=ABCMeta):
-    __request_config: RequestConfig
     _scratch_s3_url_value: Optional[str]
 
     def __init__(self,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
-                 config_json_schema: Optional[JsonSchema],
                  scratch_s3_url: Optional[str] = None) -> None:
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
         self._scratch_s3_url_value = scratch_s3_url
-        self._config_json_schema = config_json_schema
         self.url_resolver = UrlResolver(boto3_session=self._boto3_session())
 
     @abstractproperty
@@ -83,13 +76,6 @@ class BaseJobContext(metaclass=ABCMeta):
         return Records(db_driver=self.db_driver,
                        url_resolver=self.url_resolver)
 
-    def _validate_config(self,
-                         config_json_schema: JsonSchema,
-                         request_config:
-                         RequestConfig) -> None:
-        if config_json_schema is not None:
-            jsonschema.validate(request_config, config_json_schema)
-
     @property
     def _scratch_s3_url(self) -> Optional[str]:
         if self._scratch_s3_url_value is None:
@@ -100,13 +86,3 @@ class BaseJobContext(metaclass=ABCMeta):
                 raise ValueError("Please provide a directory name - "
                                  f"URL should end with '/': {self._scratch_s3_url_value}")
         return self._scratch_s3_url_value
-
-    @property
-    def request_config(self) -> RequestConfig:
-        return self.__request_config
-
-    @request_config.setter
-    def request_config(self, value: RequestConfig) -> None:
-        if self._config_json_schema is not None:
-            self._validate_config(self._config_json_schema, value)
-        self.__request_config = value

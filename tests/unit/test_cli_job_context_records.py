@@ -1,4 +1,3 @@
-from .test_cli_job_context import test_config_schema, args
 from records_mover.cli.cli_job_context import CLIJobContext
 import unittest
 from mock import patch, ANY
@@ -16,10 +15,8 @@ class TestCLIJobContextRecords(unittest.TestCase):
                      mock_subprocess,
                      mock_Records):
         mock_subprocess.check_output.return_value = 'jdoe'.encode('utf-8')
-        context = CLIJobContext(config_json_schema=test_config_schema,
-                                default_db_creds_name=None,
-                                default_aws_creds_name=None,
-                                args=args)
+        context = CLIJobContext(default_db_creds_name=None,
+                                default_aws_creds_name=None)
         self.assertEqual(mock_Records.return_value,
                          context.records)
         mock_Records.assert_called_with(db_driver=ANY,
@@ -32,10 +29,8 @@ class TestCLIJobContextRecords(unittest.TestCase):
                                                     mock_subprocess,
                                                     mock_Records):
         mock_subprocess.check_output.return_value = 'jdoe'.encode('utf-8')
-        context = CLIJobContext(config_json_schema=test_config_schema,
-                                default_db_creds_name=None,
-                                default_aws_creds_name=None,
-                                args=args)
+        context = CLIJobContext(default_db_creds_name=None,
+                                default_aws_creds_name=None)
         self.assertEqual(mock_Records.return_value,
                          context.records)
         mock_Records.assert_called_with(db_driver=ANY, url_resolver=ANY)

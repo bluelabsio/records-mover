@@ -2,7 +2,7 @@ from .cli.cli_job_context import CLIJobContext
 from .itest_job_context import IntegrationTestJobContext
 from .env_job_context import EnvJobContext
 from .airflow.airflow_job_context import AirflowJobContext
-from .base_job_context import BaseJobContext, JsonSchema
+from .base_job_context import BaseJobContext
 from typing import Optional, Type
 import os
 
@@ -10,7 +10,6 @@ import os
 def get_job_context(default_db_creds_name: Optional[str]=None,
                     default_aws_creds_name: Optional[str]=None,
                     scratch_s3_url: Optional[str]=None,
-                    config_json_schema: Optional[JsonSchema]=None,
                     job_context_type: Optional[str]=None) -> BaseJobContext:
     if job_context_type is None:
         job_context_type = os.environ.get('PY_JOB_CONTEXT')
@@ -33,7 +32,6 @@ def get_job_context(default_db_creds_name: Optional[str]=None,
     else:
         jc_class = CLIJobContext
 
-    return jc_class(config_json_schema=config_json_schema,
-                    default_db_creds_name=default_db_creds_name,
+    return jc_class(default_db_creds_name=default_db_creds_name,
                     default_aws_creds_name=default_aws_creds_name,
                     scratch_s3_url=scratch_s3_url)
