@@ -1,9 +1,7 @@
-boto>=2,<3
 # https://github.com/googleapis/google-cloud-python/issues/2990
 setuptools>34.3.0
 wheel
 twine
-boto3
 #
 # awscli seems to artifically limit the max version of PyYAML:
 #
@@ -12,47 +10,19 @@ boto3
 # pip._vendor.pkg_resources.ContextualVersionConflict: (PyYAML 5.2 (/home/circleci/project/venv/lib/python3.6/site-packages), Requirement.parse('PyYAML<5.2,>=3.10; python_version != "2.6" and python_version != "3.3"'), {'awscli'})
 #
 PyYAML<5.2,>3.10
-pep8
 flake8
-pycodestyle
 nose
 nose-progressive
 coverage
-requests
-HTTPretty
 mock
-python-dateutil<2.8.1 # see setup.py for detail
-numpy
 pytz
 pandas<2
-jsonschema
-odictliteral
-timeout_decorator
-awscli
 mypy>=0.730
 lxml # needed by mypy HTML coverage reporting
 pylint
-git+https://github.com/bluelabsio/vertica-sqlalchemy.git@v0.14.3#egg=vertica-sqlalchemy
-git+https://github.com/vinceatbluelabs/sqlalchemy-vertica-python@columns_in_order#egg=sqlalchemy-vertica-python
-jinja2
 apache-airflow>=1.10,<2
-#
-# Airflow relies flask, which as of 2017-07-05 relies on a newish
-# werkzeug but for some reason airflow specifies
-# werkzeug<0.15.0,>=0.14.1.
-#
-# http://mail-archives.apache.org/mod_mbox/airflow-commits/201907.mbox/%3CJIRA.13243287.1562299876000.593905.1562354040642@Atlassian.JIRA%3E
-#
-werkzeug>=0.15
-google
-google_auth_httplib2
-google-api-python-client>=1.5.0,<1.6.0
-oauth2client>=2.0.2,<2.1.0
-PyOpenSSL
-typing_inspect
 # sqlalchemy-vertica-python==0.4.5
 sqlalchemy-stubs>=0.3
-pyarrow
 # this is pre-release, but seems to work!  Let's keep it pinned to a
 # commit until they make a release, just in case they break
 # compatibility.  Feel free to try to update!
