@@ -7,49 +7,122 @@ from typing import Any, Optional
 mod_dict: Any
 TPFLAGS_IS_ABSTRACT: Any
 
+
 def ismodule(object: Any): ...
+
+
 def isclass(object: Any): ...
+
+
 def ismethod(object: Any): ...
+
+
 def ismethoddescriptor(object: Any): ...
+
+
 def isdatadescriptor(object: Any): ...
+
+
 def ismemberdescriptor(object: Any): ...
+
+
 def isgetsetdescriptor(object: Any): ...
+
+
 def isfunction(object: Any): ...
+
+
 def isgeneratorfunction(obj: Any): ...
+
+
 def iscoroutinefunction(obj: Any): ...
+
+
 def isasyncgenfunction(obj: Any): ...
+
+
 def isasyncgen(object: Any): ...
+
+
 def isgenerator(object: Any): ...
+
+
 def iscoroutine(object: Any): ...
+
+
 def isawaitable(object: Any): ...
+
+
 def istraceback(object: Any): ...
+
+
 def isframe(object: Any): ...
+
+
 def iscode(object: Any): ...
+
+
 def isbuiltin(object: Any): ...
+
+
 def isroutine(object: Any): ...
+
+
 def isabstract(object: Any): ...
+
+
 def getmembers(object: Any, predicate: Optional[Any] = ...): ...
+
 
 Attribute = namedtuple('Attribute', 'name kind defining_class object')
 
+
 def classify_class_attrs(cls): ...
+
+
 def getmro(cls): ...
+
+
 def unwrap(func: Any, *, stop: Optional[Any] = ...): ...
+
+
 def indentsize(line: Any): ...
+
+
 def getdoc(object: Any): ...
+
+
 def cleandoc(doc: Any): ...
+
+
 def getfile(object: Any): ...
+
+
 def getmodulename(path: Any): ...
+
+
 def getsourcefile(object: Any): ...
+
+
 def getabsfile(object: Any, _filename: Optional[Any] = ...): ...
+
 
 modulesbyfile: Any
 
-def getmodule(object: Any, _filename: Optional[Any] = ...): ...
+
+def getmodule(object: Any, _filename: Optional[Any] = ...):
+    ...
+
+
 def findsource(object: Any): ...
+
+
 def getcomments(object: Any): ...
 
-class EndOfBlock(Exception): ...
+
+class EndOfBlock(Exception):
+    ...
+
 
 class BlockFinder:
     indent: int = ...
@@ -62,68 +135,148 @@ class BlockFinder:
     def __init__(self) -> None: ...
     def tokeneater(self, type: Any, token: Any, srowcol: Any, erowcol: Any, line: Any) -> None: ...
 
+
 def getblock(lines: Any): ...
+
+
 def getsourcelines(object: Any): ...
+
+
 def getsource(object: Any): ...
+
+
 def walktree(classes: Any, children: Any, parent: Any): ...
+
+
 def getclasstree(classes: Any, unique: bool = ...): ...
+
 
 Arguments = namedtuple('Arguments', 'args, varargs, varkw')
 
+
 def getargs(co: Any): ...
+
 
 ArgSpec = namedtuple('ArgSpec', 'args varargs keywords defaults')
 
+
 def getargspec(func: Any): ...
 
-FullArgSpec = namedtuple('FullArgSpec', 'args, varargs, varkw, defaults, kwonlyargs, kwonlydefaults, annotations')
+
+FullArgSpec = namedtuple('FullArgSpec',
+                         'args, varargs, varkw, defaults, kwonlyargs, kwonlydefaults, annotations')
+
 
 def getfullargspec(func: Any): ...
 
+
 ArgInfo = namedtuple('ArgInfo', 'args varargs keywords locals')
 
+
 def getargvalues(frame: Any): ...
+
+
 def formatannotation(annotation: Any, base_module: Optional[Any] = ...): ...
+
+
 def formatannotationrelativeto(object: Any): ...
-def formatargspec(args: Any, varargs: Optional[Any] = ..., varkw: Optional[Any] = ..., defaults: Optional[Any] = ..., kwonlyargs: Any = ..., kwonlydefaults: Any = ..., annotations: Any = ..., formatarg: Any = ..., formatvarargs: Any = ..., formatvarkw: Any = ..., formatvalue: Any = ..., formatreturns: Any = ..., formatannotation: Any = ...): ...
-def formatargvalues(args: Any, varargs: Any, varkw: Any, locals: Any, formatarg: Any = ..., formatvarargs: Any = ..., formatvarkw: Any = ..., formatvalue: Any = ...): ...
+
+
+def formatargspec(args: Any,
+                  varargs: Optional[Any] = ...,
+                  varkw: Optional[Any] = ...,
+                  defaults: Optional[Any] = ...,
+                  kwonlyargs: Any = ...,
+                  kwonlydefaults: Any = ...,
+                  annotations: Any = ...,
+                  formatarg: Any = ...,
+                  formatvarargs: Any = ...,
+                  formatvarkw: Any = ...,
+                  formatvalue: Any = ...,
+                  formatreturns: Any = ...,
+                  formatannotation: Any = ...): ...
+
+
+def formatargvalues(args: Any,
+                    varargs: Any,
+                    varkw: Any,
+                    locals: Any,
+                    formatarg: Any = ...,
+                    formatvarargs: Any = ...,
+                    formatvarkw: Any = ...,
+                    formatvalue: Any = ...): ...
+
+
 def getcallargs(func: Any, *positional: Any, **named: Any): ...
+
 
 ClosureVars = namedtuple('ClosureVars', 'nonlocals globals builtins unbound')
 
+
 def getclosurevars(func: Any): ...
+
 
 Traceback = namedtuple('Traceback', 'filename lineno function code_context index')
 
+
 def getframeinfo(frame: Any, context: int = ...): ...
+
+
 def getlineno(frame: Any): ...
 
+
 FrameInfo: Any
+
+
 def getouterframes(frame: Any, context: int = ...): ...
+
+
 def getinnerframes(tb: Any, context: int = ...): ...
+
+
 def currentframe(): ...
+
+
 def stack(context: int = ...): ...
+
+
 def trace(context: int = ...): ...
+
+
 def getattr_static(obj: Any, attr: Any, default: Any = ...): ...
+
 
 GEN_CREATED: str
 GEN_RUNNING: str
 GEN_SUSPENDED: str
 GEN_CLOSED: str
 
+
 def getgeneratorstate(generator: Any): ...
+
+
 def getgeneratorlocals(generator: Any): ...
+
 
 CORO_CREATED: str
 CORO_RUNNING: str
 CORO_SUSPENDED: str
 CORO_CLOSED: str
 
+
 def getcoroutinestate(coroutine: Any): ...
+
+
 def getcoroutinelocals(coroutine: Any): ...
 
-class _void: ...
-class _empty: ...
+
+class _void:
+    ...
+
+
+class _empty:
+    ...
+
 
 class _ParameterKind(enum.IntEnum):
     POSITIONAL_ONLY: int = ...
@@ -134,6 +287,7 @@ class _ParameterKind(enum.IntEnum):
     @property
     def description(self): ...
 
+
 class Parameter:
     POSITIONAL_ONLY: Any = ...
     POSITIONAL_OR_KEYWORD: Any = ...
@@ -141,8 +295,18 @@ class Parameter:
     KEYWORD_ONLY: Any = ...
     VAR_KEYWORD: Any = ...
     empty = _empty
-    def __init__(self, name: Any, kind: Any, *, default: Any = ..., annotation: Any = ...) -> None: ...
-    def __reduce__(self): ...
+
+    def __init__(self,
+                 name: Any,
+                 kind: Any,
+                 *,
+                 default: Any = ...,
+                 annotation: Any = ...) -> None:
+        ...
+
+    def __reduce__(self):
+        ...
+
     @property
     def name(self): ...
     @property
@@ -151,9 +315,19 @@ class Parameter:
     def annotation(self): ...
     @property
     def kind(self): ...
-    def replace(self, *, name: Any = ..., kind: Any = ..., annotation: Any = ..., default: Any = ...): ...
+
+    def replace(self,
+                *,
+                name: Any = ...,
+                kind: Any = ...,
+                annotation: Any = ...,
+                default: Any = ...):
+        ...
+
     def __hash__(self) -> Any: ...
+
     def __eq__(self, other: Any) -> Any: ...
+
 
 class BoundArguments:
     arguments: Any = ...
@@ -167,9 +341,17 @@ class BoundArguments:
     def apply_defaults(self) -> None: ...
     def __eq__(self, other: Any) -> Any: ...
 
+
 class Signature:
     empty: Any = ...
-    def __init__(self, parameters: Optional[Any] = ..., *, return_annotation: Any = ..., __validate_parameters__: bool = ...) -> None: ...
+
+    def __init__(self,
+                 parameters: Optional[Any] = ...,
+                 *,
+                 return_annotation: Any = ...,
+                 __validate_parameters__: bool = ...) -> None:
+        ...
+
     @classmethod
     def from_function(cls, func: Any): ...
     @classmethod
@@ -186,5 +368,6 @@ class Signature:
     def bind(self, *args: Any, **kwargs: Any): ...
     def bind_partial(self, *args: Any, **kwargs: Any): ...
     def __reduce__(self): ...
+
 
 def signature(obj: Any, *, follow_wrapped: bool = ...): ...

@@ -1,6 +1,6 @@
 import sqlalchemy
 import logging
-from typing import Callable, Union, Optional
+from typing import Union, Optional
 from sqlalchemy.sql import text
 
 logger = logging.getLogger(__name__)
