@@ -1,7 +1,6 @@
 from abc import abstractproperty, ABCMeta
 import tempfile
 import os
-import jsonschema
 from .database import db_engine, db_facts_from_env
 from sqlalchemy.engine import Engine
 import boto3
@@ -10,18 +9,14 @@ from .db import db_driver, DBDriver
 from .url.base import BaseFileUrl, BaseDirectoryUrl
 import logging
 import sqlalchemy
-from typing import Dict, Any, Union, Optional
-from .types import JsonSchema
+from typing import Union, Optional
 from .creds.base_creds import BaseCreds
 from .db.connect import engine_from_db_facts
 from .url.resolver import UrlResolver
 from db_facts.db_facts_types import DBFacts
 
-RequestConfig = Dict[str, Any]
-
 
 class BaseJobContext(metaclass=ABCMeta):
-    __request_config: RequestConfig
     _scratch_s3_url_value: Optional[str]
     temp_dir: str
 
@@ -29,7 +24,6 @@ class BaseJobContext(metaclass=ABCMeta):
                  name: str,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
-                 config_json_schema: Optional[JsonSchema],
                  scratch_s3_url: Optional[str] = None) -> None:
         self.logger = logging.getLogger(name + '.__job__')
         self._default_db_creds_name = default_db_creds_name
@@ -39,7 +33,6 @@ class BaseJobContext(metaclass=ABCMeta):
         self.temp_dir_obj = tempfile.TemporaryDirectory(prefix='records_mover_base_job_context')
         self.temp_dir = self.temp_dir_obj.name + '/'
         self._scratch_s3_url_value = scratch_s3_url
-        self._config_json_schema = config_json_schema
         self.url_resolver = UrlResolver(boto3_session=self._boto3_session())
 
     def cleanup(self) -> None:
@@ -94,13 +87,6 @@ class BaseJobContext(metaclass=ABCMeta):
                        url_resolver=self.url_resolver,
                        logger=self.logger)
 
-    def _validate_config(self,
-                         config_json_schema: JsonSchema,
-                         request_config:
-                         RequestConfig) -> None:
-        if config_json_schema is not None:
-            jsonschema.validate(request_config, config_json_schema)
-
     @property
     def _scratch_s3_url(self) -> Optional[str]:
         if self._scratch_s3_url_value is None:
@@ -111,13 +97,3 @@ class BaseJobContext(metaclass=ABCMeta):
                 raise ValueError("Please provide a directory name - "
                                  f"URL should end with '/': {self._scratch_s3_url_value}")
         return self._scratch_s3_url_value
-
-    @property
-    def request_config(self) -> RequestConfig:
-        return self.__request_config
-
-    @request_config.setter
-    def request_config(self, value: RequestConfig) -> None:
-        if self._config_json_schema is not None:
-            self._validate_config(self._config_json_schema, value)
-        self.__request_config = value
