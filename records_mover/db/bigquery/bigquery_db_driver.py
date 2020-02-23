@@ -50,7 +50,7 @@ class BigQueryDBDriver(DBDriver):
                                                        load_plan=load_plan,
                                                        fileobj=fileobj)
 
-    def can_load_from_fileobjs(self):
+    def can_load_from_fileobjs(self) -> bool:
         return True
 
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:

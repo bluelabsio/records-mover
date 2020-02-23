@@ -125,7 +125,7 @@ class DBDriver:
         assert variant is not None  # always provided for 'delimited'
         return DelimitedRecordsFormat(variant=variant)
 
-    def can_load_from_fileobjs(self):
+    def can_load_from_fileobjs(self) -> bool:
         return False
 
     def load_from_fileobj(self, schema: str, table: str,
