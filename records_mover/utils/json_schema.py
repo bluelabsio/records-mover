@@ -30,7 +30,7 @@ def is_iterable_type(python_type: PythonType) -> bool:
 
 # copied in until a release is cut:
 #  https://github.com/ilevkivskyi/typing_inspect/blob/master/typing_inspect.py#L119
-def is_optional_type(tp):
+def is_optional_type(tp: PythonType) -> bool:
     """Returns `True` if the type is `type(None)`, or is a direct `Union` to `type(None)`, such as `Optional[T]`.  # noqa
     NOTE: this method inspects nested `Union` arguments but not `TypeVar` definitions (`bound`/`constraint`). So it
     will return `False` if
