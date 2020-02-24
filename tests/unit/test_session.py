@@ -2,7 +2,7 @@ from mock import patch, Mock
 import unittest
 
 
-class TestSesssion(unittest.TestCase):
+class TestSession(unittest.TestCase):
     def mock_session(self):
         from records_mover import session
 
