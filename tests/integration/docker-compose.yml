@@ -29,7 +29,7 @@ records_mover:
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
     - AWS_SESSION_TOKEN
-    - PY_JOB_CONTEXT=itest
+    - RECORDS_MOVER_SESSION_TYPE=itest
     # /usr/local/bin has the real python3 that we want (not the
     # ancient version in /usr/bin), so we'll put that first in PATH
     - PATH=/usr/local/bin:/usr/src/app/tests/integration/bin:/opt/vertica/bin:/bin:/usr/bin:/sbin/:/usr/sbin:/usr/local/sbin

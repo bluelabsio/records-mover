@@ -1,6 +1,7 @@
 from records_mover.database import db_engine
 from records_mover.db.connect import create_db_url
-from records_mover.cli.cli_job_context import CLIJobContext
+from records_mover import Session
+
 
 from mock import patch
 import unittest
@@ -17,8 +18,9 @@ class TestDatabase(unittest.TestCase):
         'DB_DATABASE': 'analytics',
     })
     def test_database_local_env(self, mock_create_engine):
-        context = CLIJobContext(default_db_creds_name=None,
-                                default_aws_creds_name=None)
+        context = Session(session_type='cli',
+                          default_db_creds_name=None,
+                          default_aws_creds_name=None)
         db_facts = {
             "host": "db.host",
             "user": "username",
@@ -41,8 +43,9 @@ class TestDatabase(unittest.TestCase):
     })
     @patch('records_mover.db.connect.sa')
     def test_database_local_env_bigquery(self, mock_sa):
-        context = CLIJobContext(default_db_creds_name=None,
-                                default_aws_creds_name=None)
+        context = Session(session_type='cli',
+                          default_db_creds_name=None,
+                          default_aws_creds_name=None)
         db_engine(context)
         mock_sa.engine.create_engine.assert_called_with('bigquery://project_id/dataset_id',
                                                         credentials_info={

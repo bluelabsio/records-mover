@@ -1,4 +1,4 @@
-from records_mover.cli.cli_job_context import CLIJobContext
+from records_mover import Session
 import unittest
 from mock import patch
 
@@ -8,10 +8,11 @@ from mock import patch
     'AWS_SESSION_TOKEN': 'aws session token',
     'AWS_ACCESS_KEY_ID': 'aws access key',
 })
-class TestCLIJobContextEngine(unittest.TestCase):
-    @patch('records_mover.base_job_context.db_engine')
+class TestCLISessionEngine(unittest.TestCase):
+    @patch('records_mover.session.db_engine')
     def test_get_default_db_engine(self, mock_db_engine):
-        context = CLIJobContext(default_db_creds_name=None,
-                                default_aws_creds_name=None)
+        context = Session(session_type='cli',
+                          default_db_creds_name=None,
+                          default_aws_creds_name=None)
         self.assertEqual(mock_db_engine.return_value, context.get_default_db_engine())
         mock_db_engine.assert_called_with(context)

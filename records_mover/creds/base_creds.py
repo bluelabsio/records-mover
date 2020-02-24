@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 # Kubernetes secrets) in with it.  The current (unfinalized and
 # untested) thought is to use the *_creds_name argument to reflect the
 # Airflow connection name, so a generic job can call
-# job_context.creds.cred_type(some_name_from_its_arguments) and get a
+# session.creds.cred_type(some_name_from_its_arguments) and get a
 # valid cred both on the command line and in Airflow.
 #
 # If this seems to work, we can extend this idea out to Kubernetes

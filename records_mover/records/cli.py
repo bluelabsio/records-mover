@@ -18,10 +18,10 @@ def populate_subparser(sub_parser: argparse.ArgumentParser,
                        source_method_name: str,
                        target_method_name: str,
                        subjob_name: str) -> JobConfig:
-    from records_mover.job_context import get_job_context
-    bootstrap_job_context = get_job_context()
-    source_method = getattr(bootstrap_job_context.records.sources, source_method_name)
-    target_method = getattr(bootstrap_job_context.records.targets, target_method_name)
+    from records_mover import Session
+    bootstrap_session = Session()
+    source_method = getattr(bootstrap_session.records.sources, source_method_name)
+    target_method = getattr(bootstrap_session.records.targets, target_method_name)
     job_config_schema = {
         "type": "object",
         "properties": odict[
