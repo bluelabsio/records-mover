@@ -39,15 +39,8 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         os.environ['PY_JOB_CONTEXT'] = 'itest'
 
         self.resources_dir = os.path.dirname(os.path.abspath(__file__)) + '/../../resources'
-        job_config_schema = {
-            "type": "object",
-            "properties": {}
-        }
-        self.job_context = CLIJobContext(name='test_integration',
-                                         config_json_schema=job_config_schema,
-                                         default_db_creds_name=None,
-                                         default_aws_creds_name=None,
-                                         args=[])
+        self.job_context = CLIJobContext(default_db_creds_name=None,
+                                         default_aws_creds_name=None)
         self.engine = self.job_context.get_default_db_engine()
         self.driver = self.job_context.db_driver(self.engine)
         if self.engine.name == 'bigquery':
@@ -71,7 +64,6 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         self.records = self.job_context.records
 
     def tearDown(self):
-        self.job_context.cleanup()
         self.job_context = None
         self.fixture.tear_down()
 
