@@ -21,8 +21,8 @@ class TestCLISession(unittest.TestCase):
                                                mock_db_driver):
         mock_subprocess.check_output.return_value = b"s3://chrisp-scratch/"
         context = Session(session_type='cli',
-                                  default_db_creds_name=None,
-                                  default_aws_creds_name=None)
+                          default_db_creds_name=None,
+                          default_aws_creds_name=None)
         mock_subprocess.check_output.return_value = b"s3://chrisp-scratch/"
         mock_db = Mock(name='db')
 
@@ -44,8 +44,8 @@ class TestCLISession(unittest.TestCase):
     def test_creds(self,
                    mock_CredsViaLastPass):
         context = Session(session_type='cli',
-                                  default_db_creds_name=None,
-                                  default_aws_creds_name=None)
+                          default_db_creds_name=None,
+                          default_aws_creds_name=None)
         self.assertEqual(mock_CredsViaLastPass.return_value, context.creds)
 
     @patch('records_mover.session.CredsViaLastPass')
@@ -54,8 +54,8 @@ class TestCLISession(unittest.TestCase):
                                              mock_engine_from_db_facts,
                                              mock_CredsViaLastPass):
         context = Session(session_type='cli',
-                                  default_db_creds_name='foo',
-                                  default_aws_creds_name=None)
+                          default_db_creds_name='foo',
+                          default_aws_creds_name=None)
         mock_creds = mock_CredsViaLastPass.return_value
         out = context.get_default_db_engine()
         self.assertEqual(out, mock_engine_from_db_facts.return_value)
