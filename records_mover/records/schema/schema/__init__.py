@@ -1,9 +1,5 @@
-from pandas import DataFrame
 import logging
 import json
-from ...csv_streamer import stream_csv
-from .pandas import schema_from_dataframe, refine_schema_from_dataframe
-from ....pandas import purge_unnamed_unused_columns
 from .sqlalchemy import schema_from_db_table, schema_to_schema_sql
 from typing import List, Dict, Mapping, IO, Any, TYPE_CHECKING
 from ..field import RecordsSchemaField
@@ -12,6 +8,8 @@ from ...processing_instructions import ProcessingInstructions
 from .known_representation import RecordsSchemaKnownRepresentation
 from ..errors import UnsupportedSchemaError
 if TYPE_CHECKING:
+    from pandas import DataFrame
+
     from ....db import DBDriver  # noqa
     from typing_extensions import Literal
 
@@ -106,6 +104,9 @@ class RecordsSchema:
     def from_fileobjs(fileobjs: List[IO[bytes]],
                       records_format: BaseRecordsFormat,
                       processing_instructions: ProcessingInstructions) -> 'RecordsSchema':
+        from records_mover.records.csv_streamer import stream_csv
+        from records_mover.pandas import purge_unnamed_unused_columns
+
         if len(fileobjs) != 1:
             # https://app.asana.com/0/53283930106309/1131698268455054
             raise NotImplementedError('Cannot currently sniff schema from mulitple '
@@ -135,18 +136,19 @@ class RecordsSchema:
             return schema
 
     def refine_from_dataframe(self,
-                              df: DataFrame,
+                              df: 'DataFrame',
                               processing_instructions:
                               ProcessingInstructions = ProcessingInstructions()) -> None:
         """
         Adjust records schema based on facts found from a dataframe.
         """
+        from .pandas import refine_schema_from_dataframe
         return refine_schema_from_dataframe(records_schema=self,
                                             df=df,
                                             processing_instructions=processing_instructions)
 
     def cast_dataframe_types(self,
-                             df: DataFrame) -> DataFrame:
+                             df: 'DataFrame') -> 'DataFrame':
         """
         Returns a new dataframe with types that match what we know from this records schema.
         """
@@ -158,7 +160,7 @@ class RecordsSchema:
 
     def assign_dataframe_names(self,
                                include_index: bool,
-                               df: DataFrame) -> DataFrame:
+                               df: 'DataFrame') -> 'DataFrame':
         """Returns a new dataframe with index/series names that match what we
         know from this records schema.  Useful when we've created a
         dataframe from a file where the headers don't match the exact
@@ -191,14 +193,16 @@ class RecordsSchema:
             return df
 
     @staticmethod
-    def from_dataframe(df: DataFrame,
+    def from_dataframe(df: 'DataFrame',
                        processing_instructions: ProcessingInstructions,
                        include_index: bool) -> 'RecordsSchema':
+        from .pandas import schema_from_dataframe
         return schema_from_dataframe(df=df,
                                      processing_instructions=processing_instructions,
                                      include_index=include_index)
 
-    def to_empty_dataframe(self) -> DataFrame:
+    def to_empty_dataframe(self) -> 'DataFrame':
+        from pandas import DataFrame
         df_data: Dict[str, List[Any]] = {field.name: [] for field in self.fields}
         raw_df = DataFrame(df_data)
         return self.cast_dataframe_types(raw_df)

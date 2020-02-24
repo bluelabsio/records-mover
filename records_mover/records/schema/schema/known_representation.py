@@ -1,12 +1,12 @@
 import logging
 import json
-from pandas import DataFrame
 from ...processing_instructions import ProcessingInstructions
 from abc import ABCMeta, abstractmethod
 from typing import Dict, Any, cast, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from ....db import DBDriver  # noqa
     from mypy_extensions import TypedDict
+    from pandas import DataFrame
 
     class KnownRepresentationDict(TypedDict):
         type: str
@@ -44,7 +44,7 @@ class RecordsSchemaKnownRepresentation(metaclass=ABCMeta):
             return None
 
     @staticmethod
-    def from_dataframe(df: DataFrame,
+    def from_dataframe(df: 'DataFrame',
                        processing_instructions: ProcessingInstructions) ->\
             'RecordsSchemaKnownRepresentation':
         dtypes_json = df.dtypes.to_json()

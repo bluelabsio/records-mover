@@ -84,3 +84,12 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
 
     def has_scratch_bucket(self):
         return os.environ.get('SCRATCH_S3_URL') is not None or self.running_from_laptop()
+
+    def has_pandas(self):
+        try:
+            import pandas  # noqa
+            logger.info("Just imported pandas")
+            return True
+        except ModuleNotFoundError:
+            logger.info("Could not find pandas")
+            return False

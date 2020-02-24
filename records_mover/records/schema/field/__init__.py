@@ -1,6 +1,5 @@
 from sqlalchemy import Column
 from sqlalchemy.types import TypeEngine
-from pandas import Series, Index
 import datetime
 import numpy as np
 from ...processing_instructions import ProcessingInstructions
@@ -27,8 +26,8 @@ from .types import RECORDS_FIELD_TYPES
 from .sqlalchemy import (field_from_sqlalchemy_column,
                          field_to_sqlalchemy_type,
                          field_to_sqlalchemy_column)
-from .pandas import refine_field_from_series, field_from_index, field_from_series
 if TYPE_CHECKING:
+    from pandas import Series, Index
     from records_mover.db import DBDriver  # noqa
     from .types import FieldType
 
@@ -67,9 +66,10 @@ class RecordsSchemaField:
         self.representations = representations
 
     def refine_from_series(self,
-                           series: Series,
+                           series: 'Series',
                            total_rows: int,
                            rows_sampled: int) -> None:
+        from .pandas import refine_field_from_series
         refine_field_from_series(self, series, total_rows, rows_sampled)
 
     @staticmethod
@@ -123,14 +123,16 @@ class RecordsSchemaField:
         return type_mapping.get(specific_type)
 
     @staticmethod
-    def from_index(index: Index,
+    def from_index(index: 'Index',
                    processing_instructions: ProcessingInstructions) -> 'RecordsSchemaField':
+        from .pandas import field_from_index
         return field_from_index(index=index,
                                 processing_instructions=processing_instructions)
 
     @staticmethod
-    def from_series(series: Series,
+    def from_series(series: 'Series',
                     processing_instructions: ProcessingInstructions) -> 'RecordsSchemaField':
+        from .pandas import field_from_series
         return field_from_series(series=series,
                                  processing_instructions=processing_instructions)
 

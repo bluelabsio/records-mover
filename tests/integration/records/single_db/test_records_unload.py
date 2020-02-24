@@ -33,7 +33,20 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
     def test_unload_bigquery_format_without_header_row(self):
         self.unload_and_verify('delimited', 'bigquery', {'header-row': False})
 
+    def requires_pandas(self, format_type, variant, hints):
+        # Return true if the database requires pandas to be able to
+        # export the given format and variant
+        if self.engine.name == 'redshift':
+            if format_type == 'delimited':
+                return (variant in ['csv', 'bigquery', 'vertica'] or
+                        hints.get('header-row', self.variant_has_header(variant)))
+        logger.info(f"Engine {self.engine.name} is OK without pandas for {format_type}/{variant}")
+        return False
+
     def unload_and_verify(self, format_type, variant, hints={}):
+        if (not self.has_pandas()) and self.requires_pandas(format_type, variant, hints):
+            logger.warning("Skipping test as we don't have Pandas to export with.")
+            return
         fixture = RecordsDatabaseFixture(self.engine,
                                          schema_name=self.schema_name,
                                          table_name=self.table_name)
@@ -41,12 +54,6 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
         with tempfile.TemporaryDirectory(prefix='test_records_unload') as tempdir:
             self.unload(variant, tempdir, hints=hints)
             self.verify_records_directory(format_type, variant, tempdir, hints=hints)
-
-    def this_vertica_supports_s3(self):
-        out = self.engine.execute("SELECT lib_name "
-                                  "FROM user_libraries "
-                                  "WHERE lib_name = 'awslib'")
-        return len(list(out.fetchall())) == 1
 
     def unload(self, variant, directory, hints={}):
         records_format = self.records.RecordsFormat(format_type='delimited',

@@ -1,7 +1,6 @@
 import pytz
 import logging
 from .base_records_test import BaseRecordsIntegrationTest
-from pandas import DataFrame
 import datetime
 from odictliteral import odict
 from ..table_validator import RecordsTableValidator
@@ -12,7 +11,14 @@ logger = logging.getLogger(__name__)
 
 class RecordsLoadDataframeIntegrationTest(BaseRecordsIntegrationTest):
     def load_and_verify(self):
+        if not self.has_pandas():
+            logger.warning("Skipping test as we don't have Pandas to save with.")
+            return
+
+        from pandas import DataFrame
+
         us_eastern = pytz.timezone('US/Eastern')
+
         df = DataFrame.from_dict([odict[
             'num': 123,
             'numstr': '123',

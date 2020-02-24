@@ -3,8 +3,8 @@ from mock import patch, Mock
 from records_mover.records.csv_streamer import stream_csv
 
 
-@patch('records_mover.records.csv_streamer.read_csv')
-@patch('records_mover.records.csv_streamer.TextFileReader')
+@patch('pandas.read_csv')
+@patch('pandas.io.parsers.TextFileReader')
 @patch('records_mover.records.csv_streamer.io')
 class TestCsvStreamer(unittest.TestCase):
     def test_stream_csv_no_compression(self,

@@ -5,7 +5,6 @@ from records_mover.records.targets.base import (
     SupportsMoveFromDataframes,
 )
 from sqlalchemy.engine import Engine, Connection
-from typing import Callable, Union, Optional, Dict, List
 from records_mover.records.prep import TablePrep, TargetTableDetails
 from records_mover.records.records_format import BaseRecordsFormat
 from records_mover.db import DBDriver
@@ -14,19 +13,19 @@ from records_mover.records.processing_instructions import ProcessingInstructions
 from records_mover.records.existing_table_handling import ExistingTableHandling
 from records_mover.records.results import MoveResult
 from records_mover.records.sources import SupportsMoveToRecordsDirectory
-from records_mover.records.sources.dataframes import DataframesRecordsSource
 from records_mover.records.sources.fileobjs import FileobjsSource
 from records_mover.records.targets.table.move_from_records_directory import (
     DoMoveFromRecordsDirectory
-)
-from records_mover.records.targets.table.move_from_dataframes_source import (
-    DoMoveFromDataframesSource
 )
 from records_mover.records.targets.table.move_from_fileobjs_source import DoMoveFromFileobjsSource
 from records_mover.records.targets.table.move_from_temp_loc_after_filling_it import (
     DoMoveFromTempLocAfterFillingIt
 )
 import logging
+from typing import Callable, Union, Optional, Dict, List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from records_mover.records.sources.dataframes import DataframesRecordsSource
+
 
 logger = logging.getLogger(__name__)
 
@@ -111,9 +110,13 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
                                                processing_instructions).move()
 
     def move_from_dataframes_source(self,
-                                    dfs_source: DataframesRecordsSource,
+                                    dfs_source: 'DataframesRecordsSource',
                                     processing_instructions:
                                     ProcessingInstructions) -> MoveResult:
+        from records_mover.records.targets.table.move_from_dataframes_source import (
+            DoMoveFromDataframesSource
+        )
+
         return DoMoveFromDataframesSource(self.prep,
                                           self,
                                           self,
