@@ -21,10 +21,10 @@ citypecoverage: typecoverage
 	@test -z "$$(git status --porcelain metrics/mypy_high_water_mark)"
 
 test:
-	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --nocapture --cover-inclusive
+	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive
 
 citest:
-	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --nocapture --cover-inclusive --xunit-file=test-reports/junit.xml
+	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml
 
 coverage:
 	python setup.py coverage_ratchet
@@ -35,7 +35,7 @@ cicoverage: coverage
 	@test -z "$$(git status --porcelain metrics/coverage_high_water_mark)"
 
 flake8:
-	flake8 records_mover tests
+	flake8 --filename='*.py,*.pyi' records_mover tests types
 
 quality-flake8:
 	make QUALITY_TOOL=flake8 quality

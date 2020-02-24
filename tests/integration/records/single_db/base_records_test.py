@@ -2,7 +2,7 @@ import sys
 import unittest
 import logging
 import time
-from records_mover.cli.cli_job_context import CLIJobContext
+from records_mover import Session
 from sqlalchemy import MetaData
 from sqlalchemy.schema import Table
 import os
@@ -36,20 +36,14 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
     def setUp(self):
         # Ensure we're not getting any DWIM behavior out of the CLI
         # job context:
-        os.environ['PY_JOB_CONTEXT'] = 'itest'
+        os.environ['RECORDS_MOVER_SESSION_TYPE'] = 'itest'
 
         self.resources_dir = os.path.dirname(os.path.abspath(__file__)) + '/../../resources'
-        job_config_schema = {
-            "type": "object",
-            "properties": {}
-        }
-        self.job_context = CLIJobContext(name='test_integration',
-                                         config_json_schema=job_config_schema,
-                                         default_db_creds_name=None,
-                                         default_aws_creds_name=None,
-                                         args=[])
-        self.engine = self.job_context.get_default_db_engine()
-        self.driver = self.job_context.db_driver(self.engine)
+        self.session = Session(session_type='env',
+                               default_db_creds_name=None,
+                               default_aws_creds_name=None)
+        self.engine = self.session.get_default_db_engine()
+        self.driver = self.session.db_driver(self.engine)
         if self.engine.name == 'bigquery':
             self.schema_name = 'bq_itest'
             # avoid per-table rate limits
@@ -68,11 +62,10 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         logger.debug("Initialized class!")
 
         self.meta = MetaData()
-        self.records = self.job_context.records
+        self.records = self.session.records
 
     def tearDown(self):
-        self.job_context.cleanup()
-        self.job_context = None
+        self.session = None
         self.fixture.tear_down()
 
     def table(self, schema, table):
@@ -92,3 +85,12 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
 
     def has_scratch_bucket(self):
         return os.environ.get('SCRATCH_S3_URL') is not None or self.running_from_laptop()
+
+    def has_pandas(self):
+        try:
+            import pandas  # noqa
+            logger.info("Just imported pandas")
+            return True
+        except ModuleNotFoundError:
+            logger.info("Could not find pandas")
+            return False

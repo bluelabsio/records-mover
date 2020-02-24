@@ -14,7 +14,7 @@ from ..records.types import RecordsFormatType
 from ..records.records_directory import RecordsDirectory
 from records_mover.db.quoting import quote_group_name, quote_user_name, quote_schema_and_table
 from records_mover.records import RecordsSchema
-from typing import Union, Dict, List, IO, Tuple, Iterator, Optional, TYPE_CHECKING
+from typing import Union, Dict, List, IO, Tuple, Iterator, Optional, Type, TYPE_CHECKING
 if TYPE_CHECKING:
     from typing_extensions import Literal  # noqa
 
@@ -125,7 +125,7 @@ class DBDriver:
         assert variant is not None  # always provided for 'delimited'
         return DelimitedRecordsFormat(variant=variant)
 
-    def can_load_from_fileobjs(self):
+    def can_load_from_fileobjs(self) -> bool:
         return False
 
     def load_from_fileobj(self, schema: str, table: str,
@@ -170,7 +170,7 @@ class DBDriver:
                 perms_sql = f'GRANT {perm_type} ON TABLE {schema_and_table} TO {user_name}'
                 db.execute(perms_sql)
 
-    def load_failure_exception(self):
+    def load_failure_exception(self) -> Type[Exception]:
         return sqlalchemy.exc.InternalError
 
     @contextmanager

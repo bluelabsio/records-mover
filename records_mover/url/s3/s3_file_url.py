@@ -32,7 +32,7 @@ class S3FileUrl(S3BaseUrl, BaseFileUrl):
             return super().upload_fileobj(fileobj, mode=mode)
 
         class _S3ProgressTracker:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.length = 0
                 self._lock = threading.Lock()
 

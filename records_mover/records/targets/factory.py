@@ -26,8 +26,8 @@ class RecordsTargets(object):
     Example use:
 
     .. code-block:: python
-       records = job_context.records
-       db_engine = job_context.get_default_db_engine()
+       records = session.records
+       db_engine = session.get_default_db_engine()
        url = 's3://some-bucket/some-directory/'
        source = records.sources.directory_from_url(url=url)
        target = records.targets.table(schema_name='myschema',

@@ -63,7 +63,7 @@ class TestRecordsSchema(unittest.TestCase):
         self.assertEqual(out, mock_schema_to_schema_sql.return_value)
 
     @patch('records_mover.records.schema.schema.RecordsSchema')
-    @patch('records_mover.records.schema.schema.stream_csv')
+    @patch('records_mover.records.csv_streamer.stream_csv')
     def test_from_fileobjs(self,
                            mock_stream_csv,
                            mock_RecordsSchema):
@@ -102,7 +102,7 @@ class TestRecordsSchema(unittest.TestCase):
         self.assertEqual(out, mock_RecordsSchema.from_dataframe.return_value)
 
     @patch('records_mover.records.schema.schema.RecordsSchema')
-    @patch('records_mover.records.schema.schema.stream_csv')
+    @patch('records_mover.records.csv_streamer.stream_csv')
     def test_from_fileobjs_no_max_inference_rows(self,
                                                  mock_stream_csv,
                                                  mock_RecordsSchema):
@@ -140,7 +140,7 @@ class TestRecordsSchema(unittest.TestCase):
         self.assertEqual(actual_cleaned_up_df_data, expected_cleaned_up_df_data)
         self.assertEqual(out, mock_RecordsSchema.from_dataframe.return_value)
 
-    @patch('records_mover.records.schema.schema.refine_schema_from_dataframe')
+    @patch('records_mover.records.schema.schema.pandas.refine_schema_from_dataframe')
     def test_refine_from_dataframe(self,
                                    mock_refine_schema_from_dataframe):
         mock_fields = Mock(name='fields')

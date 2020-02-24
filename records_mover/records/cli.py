@@ -5,6 +5,8 @@ from .job.schema import method_to_json_schema
 from .job.mover import run_records_mover_job
 from ..utils.json_schema import method_signature_to_json_schema
 from .processing_instructions import ProcessingInstructions
+from records_mover.cli import cli_logging
+from records_mover import log_levels
 from records_mover.cli.job_config_schema_as_args_parser import (JobConfigSchemaAsArgsParser,
                                                                 arguments_output_to_config)
 from typing import Callable, Dict, Any
@@ -16,21 +18,21 @@ def populate_subparser(sub_parser: argparse.ArgumentParser,
                        source_method_name: str,
                        target_method_name: str,
                        subjob_name: str) -> JobConfig:
-    from records_mover.job_context import create_job_context
-    with create_job_context(subjob_name) as bootstrap_job_context:
-        source_method = getattr(bootstrap_job_context.records.sources, source_method_name)
-        target_method = getattr(bootstrap_job_context.records.targets, target_method_name)
-        job_config_schema = {
-            "type": "object",
-            "properties": odict[
-                'source': method_to_json_schema(source_method),  # type: ignore
-                'target': method_to_json_schema(target_method),  # type: ignore
-            ],
-            "required": ["source", "target"],
-        }
-        JobConfigSchemaAsArgsParser(config_json_schema=job_config_schema,
-                                    argument_parser=sub_parser).configure_arg_parser()
-        return job_config_schema
+    from records_mover import Session
+    bootstrap_session = Session()
+    source_method = getattr(bootstrap_session.records.sources, source_method_name)
+    target_method = getattr(bootstrap_session.records.targets, target_method_name)
+    job_config_schema = {
+        "type": "object",
+        "properties": odict[
+            'source': method_to_json_schema(source_method),  # type: ignore
+            'target': method_to_json_schema(target_method),  # type: ignore
+        ],
+        "required": ["source", "target"],
+    }
+    JobConfigSchemaAsArgsParser(config_json_schema=job_config_schema,
+                                argument_parser=sub_parser).configure_arg_parser()
+    return job_config_schema
 
 
 def make_job_fn(source_method_name: str,
@@ -73,8 +75,7 @@ def main() -> None:
     pi_config_schema =\
         method_signature_to_json_schema(ProcessingInstructions.__init__,
                                         special_handling={},
-                                        # deprecated and moved to table target
-                                        parameters_to_ignore=['self', 'existing_table_handling'])
+                                        parameters_to_ignore=['self'])
     JobConfigSchemaAsArgsParser(config_json_schema=pi_config_schema,
                                 argument_parser=parser).configure_arg_parser()
 
@@ -100,4 +101,6 @@ def main() -> None:
     if func is None:
         parser.print_help()
     else:
+        log_levels.set_levels(name)
+        cli_logging.basic_config()
         func(raw_config)

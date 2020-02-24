@@ -34,8 +34,8 @@ class RecordsSources(object):
     Example use:
 
     .. code-block:: python
-       records = job_context.records
-       db_engine = job_context.get_default_db_engine()
+       records = session.records
+       db_engine = session.get_default_db_engine()
        url = 's3://some-bucket/some-directory/'
        source = records.sources.directory_from_url(url=url)
        target = records.targets.table(schema_name='myschema',
@@ -103,21 +103,18 @@ class RecordsSources(object):
     def fileobjs(self,
                  target_names_to_input_fileobjs: Mapping[str, IO[bytes]],
                  records_format: Optional[BaseRecordsFormat]=None,
-                 schema_sql: Optional[str]=None,
                  initial_hints: Optional[BootstrappingRecordsHints]=None,
                  records_schema: Optional[RecordsSchema]=None)\
             -> Iterator[Union[UninferredFileobjsRecordsSource, FileobjsSource]]:
         """
         :param target_names_to_input_fileobjs: Filenames mapping to streams of data file.
         :param records_format: Description of the format of the data files.
-        :param schema_sql: Obsolete - not used.
         :param initial_hints: If records_format is not provided, the format of the file
         will be determined automatically.  If that effort fails, you can help it out by
         providing the 'compression', 'quoting', 'header-row', 'field-delimiter', 'encoding', and
         'escape' hints (or the appropriate subsets) in this dictionary.
         :param records_schema: Description of the column names and types of the records.
         """
-        warn_deprecated(schema_sql=schema_sql)
         if records_schema is None or records_format is None:
             yield UninferredFileobjsRecordsSource(
                 target_names_to_input_fileobjs=target_names_to_input_fileobjs,
@@ -134,7 +131,6 @@ class RecordsSources(object):
     def data_url(self,
                  input_url: str,
                  records_format: Optional[BaseRecordsFormat]=None,
-                 schema_sql: Optional[str]=None,
                  initial_hints: Optional[BootstrappingRecordsHints]=None,
                  records_schema: Optional[RecordsSchema]=None)\
             -> Iterator[DataUrlRecordsSource]:
@@ -142,14 +138,12 @@ class RecordsSources(object):
         :param input_url: Location of the data file.  Must be a URL format understood by the
         records_mover.url library.
         :param records_format: Description of the format of the data files.
-        :param schema_sql: Obsolete - not used.
         :param initial_hints: If records_format is not provided, the format of the file
         will be determined automatically.  If that effort fails, you can help it out by
         providing the 'compression', 'quoting', 'header-row', 'field-delimiter', 'encoding', and
         'escape' hints (or the appropriate subsets) in this dictionary.
         :param records_schema: Description of the column names and types of the records.
         """
-        warn_deprecated(schema_sql=schema_sql)
         yield DataUrlRecordsSource(input_url=input_url,
                                    url_resolver=self.url_resolver,
                                    records_format=records_format,
@@ -201,21 +195,18 @@ class RecordsSources(object):
     def local_file(self,
                    filename: str,
                    records_format: Optional[BaseRecordsFormat]=None,
-                   schema_sql: Optional[str]=None,
                    initial_hints: Optional[BootstrappingRecordsHints]=None,
                    records_schema: Optional[RecordsSchema]=None)\
             -> Iterator[DataUrlRecordsSource]:
         """
         :param filename: File path (relative or absolute) of the data file to load.
         :param records_format: Description of the format of the data files.
-        :param schema_sql: Obsolete - not used.
         :param initial_hints: If records_format is not provided, the format of the file
         will be determined automatically.  If that effort fails, you can help it out by
         providing the 'compression', 'quoting', 'header-row', 'field-delimiter', 'encoding', and
         'escape' hints (or the appropriate subsets) in this dictionary.
         :param records_schema: Description of the column names and types of the records.
         """
-        warn_deprecated(schema_sql=schema_sql)
         url = pathlib.Path(filename).resolve().as_uri()
         with self.data_url(input_url=url,
                            records_format=records_format,

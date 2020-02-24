@@ -5,36 +5,6 @@ from records_mover.creds import lpass
 
 class TestLPass(unittest.TestCase):
     @patch('records_mover.creds.lpass.check_output')
-    def test_lpass_show_notes(self, mock_check_output):
-        lpass.lpass_show('my_name', 'notes')
-        mock_check_output.\
-            assert_called_with(['lpass', 'show', '--notes', 'my_name'])
-
-    @patch('records_mover.creds.lpass.check_output')
-    def test_lpass_show_username(self, mock_check_output):
-        lpass.lpass_show('my_name', 'username')
-        mock_check_output.\
-            assert_called_with(['lpass', 'show', '--username', 'my_name'])
-
-    @patch('records_mover.creds.lpass.check_output')
-    def test_lpass_show_password(self, mock_check_output):
-        lpass.lpass_show('my_name', 'password')
-        mock_check_output.\
-            assert_called_with(['lpass', 'show', '--password', 'my_name'])
-
-    @patch('records_mover.creds.lpass.check_output')
-    def test_lpass_show_url(self, mock_check_output):
-        lpass.lpass_show('my_name', 'url')
-        mock_check_output.\
-            assert_called_with(['lpass', 'show', '--url', 'my_name'])
-
-    @patch('records_mover.creds.lpass.check_output')
-    def test_lpass_show_field1(self, mock_check_output):
-        lpass.lpass_show('my_name', 'field1')
-        mock_check_output.\
-            assert_called_with(['lpass', 'show', '--field=field1', 'my_name'])
-
-    @patch('records_mover.creds.lpass.check_output')
     def test_lpass_field_notes(self, mock_check_output):
         mock_check_output.return_value = "fakenotes\n".encode("utf-8")
         out = lpass.lpass_field('my_name', 'notes')

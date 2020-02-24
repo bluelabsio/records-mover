@@ -1,23 +1,25 @@
 import itertools
 from .base import SupportsToFileobjsSource
-from pandas import DataFrame
 from ..processing_instructions import ProcessingInstructions
 from ..pandas import pandas_to_csv_options
 from ..schema import RecordsSchema
 from contextlib import contextmanager
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
-from typing import Iterator, Iterable, Optional, Union, Dict, IO, Callable
 from .fileobjs import FileobjsSource  # noqa
 from tempfile import NamedTemporaryFile
 from ..hints import complain_on_unhandled_hints
 import logging
+from typing import Iterator, Iterable, Optional, Union, Dict, IO, Callable, TYPE_CHECKING
+if TYPE_CHECKING:
+    from pandas import DataFrame
+
 
 logger = logging.getLogger(__name__)
 
 
 class DataframesRecordsSource(SupportsToFileobjsSource):
     def __init__(self,
-                 dfs: Iterable[DataFrame],
+                 dfs: Iterable['DataFrame'],
                  processing_instructions: ProcessingInstructions=ProcessingInstructions(),
                  records_schema: Optional[RecordsSchema]=None,
                  include_index: bool=False) -> None:
@@ -40,7 +42,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
 
         return DelimitedRecordsFormat()
 
-    def peek(self) -> DataFrame:
+    def peek(self) -> 'DataFrame':
         # https://stackoverflow.com/a/2425347/9795956
         dfs_iter = iter(self.dfs)
         first_df = next(dfs_iter)
@@ -59,7 +61,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
     def serialize_dfs(self,
                       processing_instructions: ProcessingInstructions,
                       records_format: BaseRecordsFormat,
-                      save_df: Callable[[DataFrame, str], None])\
+                      save_df: Callable[['DataFrame', str], None])\
             -> Iterator[FileobjsSource]:
         records_schema = self.initial_records_schema(processing_instructions)
 
@@ -94,7 +96,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
                 if not fileobj.closed:
                     fileobj.close()
 
-    def schema_from_df(self, df: DataFrame,
+    def schema_from_df(self, df: 'DataFrame',
                        processing_instructions: ProcessingInstructions) -> RecordsSchema:
         records_schema = RecordsSchema.from_dataframe(df,
                                                       self.processing_instructions,
@@ -127,7 +129,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
             complain_on_unhandled_hints(self.processing_instructions.fail_if_dont_understand,
                                         unhandled_hints, records_format.hints)
 
-            def save_df(df: DataFrame, output_filename: str) -> None:
+            def save_df(df: 'DataFrame', output_filename: str) -> None:
                 df.to_csv(path_or_buf=output_filename,
                           index=self.include_index,
                           **options)
@@ -139,7 +141,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
                 'coerce_timestamps': None
             }
 
-            def save_df(df: DataFrame, output_filename: str) -> None:
+            def save_df(df: 'DataFrame', output_filename: str) -> None:
                 logger.info(f"Writing Parquet file to {output_filename}")
                 # Note that this doesn't specify partitioning as of yet -
                 # https://app.asana.com/0/1128138765527694/1126615025514407

@@ -21,15 +21,25 @@ class TestPostgresDBDriver(unittest.TestCase):
             self.assertEqual(min_int, expected_min_int)
             self.assertEqual(max_int, expected_max_int)
 
-    def test_fp_constraints(self):
+    def test_fp_constraints_double(self):
         db_col_type = sqlalchemy.dialects.postgresql.base.DOUBLE_PRECISION()
         total_bits, significand_bits = self.postgres_db_driver.fp_constraints(db_col_type)
         self.assertEqual(total_bits, 64)
         self.assertEqual(significand_bits, 53)
 
+    def test_fp_constraints_real(self):
+        db_col_type = sqlalchemy.dialects.postgresql.base.REAL()
+        total_bits, significand_bits = self.postgres_db_driver.fp_constraints(db_col_type)
+        self.assertEqual(total_bits, 32)
+        self.assertEqual(significand_bits, 23)
+
     def test_type_for_smallint_fits(self):
         out = self.postgres_db_driver.type_for_integer(-123, 123)
         self.assertEqual(type(out), sqlalchemy.sql.sqltypes.SMALLINT)
+
+    def test_type_for_integer_fits(self):
+        out = self.postgres_db_driver.type_for_integer(-123, 123000)
+        self.assertEqual(type(out), sqlalchemy.sql.sqltypes.INTEGER)
 
     def test_type_for_integer_too_big(self):
         out = self.postgres_db_driver.type_for_integer(-12300000000000000000, 123000000000000000000)

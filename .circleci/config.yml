@@ -22,14 +22,20 @@ commands:
             if [ -f venv/bin/activate ]
             then
               . venv/bin/activate
+              # venv/ dir doesn't seem to save enough info to keep the
+              # editable installation
+              pip install --progress-bar=off -e .
             else
               python -m venv venv
               . venv/bin/activate
               pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
+              if [ '<<parameters.pandas_version>>' != '' ]
+              then
+                pip install --upgrade --progress-bar=off 'pandas<<parameters.pandas_version>>'
+              else
+                pip uninstall -y pandas
+              fi
             fi
-            # venv/ dir doesn't seem to save enough info to keep the
-            # '-e .[movercli]' installation.
-            pip install --progress-bar=off 'pandas<<parameters.pandas_version>>' -e '.[movercli]'
       - save_cache:
           key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
@@ -200,7 +206,7 @@ jobs:
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export PY_JOB_CONTEXT=env
+            export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
             with-db <<parameters.db_name>> nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
@@ -301,7 +307,7 @@ workflows:
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export PY_JOB_CONTEXT=env
+            export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
             unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
@@ -318,7 +324,7 @@ workflows:
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export PY_JOB_CONTEXT=env
+            export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
             with-db dockerized-postgres nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
@@ -334,7 +340,7 @@ workflows:
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export PY_JOB_CONTEXT=env
+            export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
             with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
@@ -350,7 +356,7 @@ workflows:
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export PY_JOB_CONTEXT=env
+            export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/cli
             with-db dockerized-vertica ./cli-tests.sh ci_1
@@ -366,7 +372,7 @@ workflows:
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export PY_JOB_CONTEXT=env
+            export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/cli
             with-db dockerized-vertica ./cli-tests.sh ci_2
@@ -382,7 +388,7 @@ workflows:
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export PY_JOB_CONTEXT=env
+            export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/cli
             with-db dockerized-vertica ./cli-tests.sh ci_3
@@ -411,6 +417,16 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
+          name: redshift-itest-no-pandas
+          python_version: "3.6"
+          pandas_version: ""
+          db_name: demo-itest
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test:
           name: bigquery-itest
           python_version: "3.6"
           db_name: bltoolsdevbq-bq_itest
@@ -426,7 +442,7 @@ workflows:
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export PY_JOB_CONTEXT=env
+            export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration
             python3 -m records.multi_db.test_records_table2table
@@ -445,6 +461,7 @@ workflows:
             - bigquery-itest
             - redshift-itest
             - redshift-itest-old-pandas
+            - redshift-itest-no-pandas
             - postgres-itest
             - cli-1-itest
             - cli-2-itest
