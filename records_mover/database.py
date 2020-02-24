@@ -5,7 +5,7 @@ from db_facts.db_facts_types import DBFacts
 from typing import Dict, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     # http://mypy.readthedocs.io/en/latest/common_issues.html#import-cycles
-    from .base_job_context import BaseJobContext  # noqa
+    from . import Session  # noqa
 
 
 def db_facts_from_env() -> DBFacts:
@@ -42,6 +42,6 @@ def db_facts_from_env() -> DBFacts:
     return db_facts  # type: ignore
 
 
-def db_engine(job_context: 'BaseJobContext') -> Engine:
+def db_engine(session: 'Session') -> Engine:
     db_facts = db_facts_from_env()
     return engine_from_db_facts(db_facts)

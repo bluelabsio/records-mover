@@ -1,7 +1,7 @@
 """Create and run jobs to convert between different sources and targets"""
 import inspect
 from typing import Any, Dict, List, Callable
-from records_mover.base_job_context import BaseJobContext
+from records_mover import Session
 from ..records_format import DelimitedRecordsFormat
 from ..existing_table_handling import ExistingTableHandling
 from .hints import SUPPORTED_HINT_LOOKUP
@@ -13,10 +13,10 @@ class ConfigToArgs:
     def __init__(self,
                  config: JobConfig,
                  method: Callable[..., Any],
-                 job_context: BaseJobContext):
+                 session: Session):
         self.config = config
         self.method = method
-        self.job_context = job_context
+        self.session = session
 
     def all_arg_names(self, fn: Callable[..., Any]) -> List[str]:
         return [param_name
@@ -52,10 +52,10 @@ class ConfigToArgs:
 
     def fill_in_spectrum_base_url(self, kwargs: Dict[str, Any]) -> None:
         if 'db_name' not in kwargs:
-            db_facts = self.job_context.get_default_db_facts()
+            db_facts = self.session.get_default_db_facts()
         else:
             db_name = kwargs['db_name']
-            db_facts = self.job_context.creds.db_facts(db_name)
+            db_facts = self.session.creds.db_facts(db_name)
         schema_name = kwargs['schema_name']
         key = f"redshift_spectrum_base_url_{schema_name}"
         if key not in db_facts:
@@ -65,7 +65,7 @@ class ConfigToArgs:
 
     def fill_in_google_cloud_creds(self, kwargs: Dict[str, Any]) -> None:
         kwargs['google_cloud_creds'] =\
-            self.job_context.creds.google_sheets(self.config['gcp_creds_name'])
+            self.session.creds.google_sheets(self.config['gcp_creds_name'])
         del kwargs['gcp_creds_name']
 
     def fill_in_existing_table_handling(self, kwargs: Dict[str, Any]) -> None:
@@ -75,9 +75,9 @@ class ConfigToArgs:
 
     def fill_in_db_engine(self, kwargs: Dict[str, Any]) -> None:
         if 'db_name' not in kwargs:
-            kwargs['db_engine'] = self.job_context.get_default_db_engine()
+            kwargs['db_engine'] = self.session.get_default_db_engine()
         else:
-            kwargs['db_engine'] = self.job_context.get_db_engine(kwargs['db_name'])
+            kwargs['db_engine'] = self.session.get_db_engine(kwargs['db_name'])
 
     def fill_in_records_format(self, kwargs: Dict[str, Any]) -> None:
         if kwargs['variant'] is not None:
@@ -143,5 +143,5 @@ class ConfigToArgs:
 
 def config_to_args(config: JobConfig,
                    method: Callable[..., Any],
-                   job_context: BaseJobContext) -> Dict[str, Any]:
-    return ConfigToArgs(config, method, job_context).to_args()
+                   session: Session) -> Dict[str, Any]:
+    return ConfigToArgs(config, method, session).to_args()

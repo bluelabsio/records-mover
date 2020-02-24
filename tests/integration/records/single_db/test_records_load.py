@@ -88,7 +88,7 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
 
     @contextmanager
     def s3_url_source(self, filename, records_format, records_schema):
-        base_dir = self.job_context.directory_url(self.job_context._scratch_s3_url)
+        base_dir = self.session.directory_url(self.session._scratch_s3_url)
 
         with base_dir.temporary_directory() as temp_dir_loc:
             file_loc = temp_dir_loc.file_in_this_directory('foo.gz')

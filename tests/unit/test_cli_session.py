@@ -1,4 +1,4 @@
-from records_mover.job_context import get_job_context
+from records_mover import Session
 import unittest
 from mock import patch, Mock
 
@@ -8,11 +8,11 @@ from mock import patch, Mock
     'AWS_SESSION_TOKEN': 'aws session token',
     'AWS_ACCESS_KEY_ID': 'aws access key',
 })
-class TestCLIJobContext(unittest.TestCase):
-    @patch('records_mover.base_job_context.db_driver')
-    @patch('records_mover.base_job_context.UrlResolver')
-    @patch('records_mover.base_job_context.boto3')
-    @patch('records_mover.job_context.subprocess')
+class TestCLISession(unittest.TestCase):
+    @patch('records_mover.session.db_driver')
+    @patch('records_mover.session.UrlResolver')
+    @patch('records_mover.session.boto3')
+    @patch('records_mover.session.subprocess')
     @patch.dict('os.environ', {}, clear=True)
     def test_db_driver_with_guessed_bucket_url(self,
                                                mock_subprocess,
@@ -20,7 +20,7 @@ class TestCLIJobContext(unittest.TestCase):
                                                mock_UrlResolver,
                                                mock_db_driver):
         mock_subprocess.check_output.return_value = b"s3://chrisp-scratch/"
-        context = get_job_context(job_context_type='cli',
+        context = Session(session_type='cli',
                                   default_db_creds_name=None,
                                   default_aws_creds_name=None)
         mock_subprocess.check_output.return_value = b"s3://chrisp-scratch/"
@@ -40,20 +40,20 @@ class TestCLIJobContext(unittest.TestCase):
         mock_subprocess.check_output.assert_called_with('scratch-s3-url')
         self.assertEqual(mock_db_driver.return_value, driver)
 
-    @patch('records_mover.job_context.CredsViaLastPass')
+    @patch('records_mover.session.CredsViaLastPass')
     def test_creds(self,
                    mock_CredsViaLastPass):
-        context = get_job_context(job_context_type='cli',
+        context = Session(session_type='cli',
                                   default_db_creds_name=None,
                                   default_aws_creds_name=None)
         self.assertEqual(mock_CredsViaLastPass.return_value, context.creds)
 
-    @patch('records_mover.job_context.CredsViaLastPass')
-    @patch('records_mover.base_job_context.engine_from_db_facts')
+    @patch('records_mover.session.CredsViaLastPass')
+    @patch('records_mover.session.engine_from_db_facts')
     def test_get_default_db_engine_from_name(self,
                                              mock_engine_from_db_facts,
                                              mock_CredsViaLastPass):
-        context = get_job_context(job_context_type='cli',
+        context = Session(session_type='cli',
                                   default_db_creds_name='foo',
                                   default_aws_creds_name=None)
         mock_creds = mock_CredsViaLastPass.return_value

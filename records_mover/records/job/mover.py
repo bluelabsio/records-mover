@@ -1,5 +1,5 @@
 """Create and run jobs to convert between different sources and targets"""
-from records_mover.job_context import get_job_context
+from records_mover import Session
 from ..processing_instructions import ProcessingInstructions
 from ..results import MoveResult
 from ...types import JobConfig
@@ -13,23 +13,23 @@ def run_records_mover_job(source_method_name: str,
                           target_method_name: str,
                           job_name: str,
                           config: JobConfig) -> MoveResult:
-    job_context = get_job_context()
+    session = Session()
     try:
-        source_method = getattr(job_context.records.sources, source_method_name)
-        target_method = getattr(job_context.records.targets, target_method_name)
+        source_method = getattr(session.records.sources, source_method_name)
+        target_method = getattr(session.records.targets, target_method_name)
         logger.info('Starting...')
-        records = job_context.records
+        records = session.records
 
         source_kwargs = config_to_args(config=config['source'],
                                        method=source_method,
-                                       job_context=job_context)
+                                       session=session)
         target_kwargs = config_to_args(config=config['target'],
                                        method=target_method,
-                                       job_context=job_context)
+                                       session=session)
         pi_config = {k: config[k] for k in config if k not in ['source', 'target', 'func']}
         pi_kwargs = config_to_args(pi_config,
                                    method=ProcessingInstructions,
-                                   job_context=job_context)
+                                   session=session)
         processing_instructions = ProcessingInstructions(**pi_kwargs)
 
         source = source_method(**source_kwargs)

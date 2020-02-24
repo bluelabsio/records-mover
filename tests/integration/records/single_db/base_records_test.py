@@ -2,7 +2,7 @@ import sys
 import unittest
 import logging
 import time
-from records_mover.job_context import get_job_context
+from records_mover import Session
 from sqlalchemy import MetaData
 from sqlalchemy.schema import Table
 import os
@@ -36,14 +36,14 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
     def setUp(self):
         # Ensure we're not getting any DWIM behavior out of the CLI
         # job context:
-        os.environ['PY_JOB_CONTEXT'] = 'itest'
+        os.environ['RECORDS_MOVER_SESSION_TYPE'] = 'itest'
 
         self.resources_dir = os.path.dirname(os.path.abspath(__file__)) + '/../../resources'
-        self.job_context = get_job_context(job_context_type='env',
-                                           default_db_creds_name=None,
-                                           default_aws_creds_name=None)
-        self.engine = self.job_context.get_default_db_engine()
-        self.driver = self.job_context.db_driver(self.engine)
+        self.session = Session(session_type='env',
+                               default_db_creds_name=None,
+                               default_aws_creds_name=None)
+        self.engine = self.session.get_default_db_engine()
+        self.driver = self.session.db_driver(self.engine)
         if self.engine.name == 'bigquery':
             self.schema_name = 'bq_itest'
             # avoid per-table rate limits
@@ -62,10 +62,10 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         logger.debug("Initialized class!")
 
         self.meta = MetaData()
-        self.records = self.job_context.records
+        self.records = self.session.records
 
     def tearDown(self):
-        self.job_context = None
+        self.session = None
         self.fixture.tear_down()
 
     def table(self, schema, table):
