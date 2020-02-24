@@ -8,7 +8,7 @@ from mock import patch
     'AWS_SESSION_TOKEN': 'aws session token',
     'AWS_ACCESS_KEY_ID': 'aws access key',
 })
-class TestCLISesssionEngine(unittest.TestCase):
+class TestCLISessionEngine(unittest.TestCase):
     @patch('records_mover.session.db_engine')
     def test_get_default_db_engine(self, mock_db_engine):
         context = Session(session_type='cli',
