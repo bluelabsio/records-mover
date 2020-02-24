@@ -1,7 +1,7 @@
 from mock import patch
 import unittest
 
-# TODO: Walk through and confirm each of these test cases
+
 @patch('records_mover.session.CredsViaLastPass')
 @patch('records_mover.session.CredsViaAirflow')
 class TestSessionChoices(unittest.TestCase):
