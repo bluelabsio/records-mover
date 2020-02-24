@@ -7,7 +7,7 @@ import numpy as np
 class TestField(unittest.TestCase):
     maxDiff = None
 
-    @patch('records_mover.records.schema.field.refine_field_from_series')
+    @patch('records_mover.records.schema.field.pandas.refine_field_from_series')
     def test_refine_from_series(self, mock_refine_field_from_series):
         mock_name = Mock(name='name')
         mock_field_type = Mock(name='field_type')
@@ -35,7 +35,7 @@ class TestField(unittest.TestCase):
     def test_is_more_specific_type_false(self):
         self.assertFalse(RecordsSchemaField.is_more_specific_type('string', 'integer'))
 
-    @patch('records_mover.records.schema.field.field_from_index')
+    @patch('records_mover.records.schema.field.pandas.field_from_index')
     def test_from_index(self, mock_field_from_index):
         mock_index = Mock(name='index')
         mock_processing_instructions = Mock(name='processing_instructions')

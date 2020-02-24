@@ -1,10 +1,10 @@
 import csv
 import io
 from contextlib import contextmanager
-from pandas import read_csv
-from pandas.io.parsers import TextFileReader
-from typing import Union, IO, Optional, Iterator
 from records_mover.records import BootstrappingRecordsHints
+from typing import Union, IO, Optional, Iterator, TYPE_CHECKING
+if TYPE_CHECKING:
+    from pandas.io.parsers import TextFileReader  # noqa
 
 
 pandas_compression_from_hint = {
@@ -40,10 +40,12 @@ python_encoding_from_hint = {
 @contextmanager
 def stream_csv(filepath_or_buffer: Union[str, IO[bytes]],
                hints: BootstrappingRecordsHints)\
-               -> Iterator[TextFileReader]:
+               -> Iterator['TextFileReader']:
     """Returns a context manager that can be used to generate a full or
     partial dataframe from a CSV.  If partial, it will not read the
     entire CSV file into memory."""
+
+    from pandas import read_csv
 
     header_row = hints.get('header-row')
     header: Union[str, int, None]

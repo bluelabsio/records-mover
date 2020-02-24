@@ -4,14 +4,13 @@ from tempfile import NamedTemporaryFile
 from .base import SupportsMoveFromDataframes
 from ..results import MoveResult
 from ..processing_instructions import ProcessingInstructions
-from ..pandas import pandas_to_csv_options
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from ..hints import complain_on_unhandled_hints
 import logging
-from ..sources.dataframes import DataframesRecordsSource
 from typing import IO, Union, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas import DataFrame  # noqa
+    from ..sources.dataframes import DataframesRecordsSource
 
 logger = logging.getLogger(__name__)
 
@@ -24,9 +23,11 @@ class FileobjTarget(SupportsMoveFromDataframes):
         self.records_format = records_format
 
     def move_from_dataframes_source(self,
-                                    dfs_source: DataframesRecordsSource,
+                                    dfs_source: 'DataframesRecordsSource',
                                     processing_instructions:
                                     ProcessingInstructions) -> MoveResult:
+        from ..pandas import pandas_to_csv_options
+
         if not isinstance(self.records_format, DelimitedRecordsFormat):
             raise NotImplementedError("Teach me to export from dataframe to "
                                       f"{self.records_format.format_type}")

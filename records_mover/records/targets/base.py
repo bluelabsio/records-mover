@@ -6,9 +6,9 @@ from ..sources import SupportsMoveToRecordsDirectory
 from ..results import MoveResult
 from typing import Optional, List, TYPE_CHECKING
 from ..sources.fileobjs import FileobjsSource
-from ..sources.dataframes import DataframesRecordsSource
 if TYPE_CHECKING:
     from pandas import DataFrame  # noqa
+    from ..sources.dataframes import DataframesRecordsSource
 
 
 class RecordsTarget(metaclass=ABCMeta):
@@ -146,7 +146,7 @@ class SupportsMoveFromTempLocAfterFillingIt(NegotiatesRecordsFormat, metaclass=A
 class SupportsMoveFromDataframes(RecordsTarget, metaclass=ABCMeta):
     @abstractmethod
     def move_from_dataframes_source(self,
-                                    dfs_source: DataframesRecordsSource,
+                                    dfs_source: 'DataframesRecordsSource',
                                     processing_instructions:
                                     ProcessingInstructions) -> MoveResult:
         """

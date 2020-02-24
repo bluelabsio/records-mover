@@ -17,12 +17,12 @@ class TestTableRecordsSource(unittest.TestCase):
                                driver=self.mock_driver,
                                url_resolver=self.mock_url_resolver)
 
-    @patch('records_mover.records.sources.table.DataframesRecordsSource')
+    @patch('records_mover.records.sources.dataframes.DataframesRecordsSource')
     @patch('records_mover.records.sources.table.RecordsSchema')
     @patch('records_mover.records.sources.table.quote_schema_and_table')
-    @patch('records_mover.records.sources.table.pandas')
+    @patch('pandas.read_sql')
     def test_to_dataframes_source(self,
-                                  mock_pandas,
+                                  mock_read_sql,
                                   mock_quote_schema_and_table,
                                   mock_RecordsSchema,
                                   mock_DataframesRecordsSource):
@@ -42,9 +42,9 @@ class TestTableRecordsSource(unittest.TestCase):
             mock_RecordsSchema.from_db_table.assert_called_with(self.mock_schema_name,
                                                                 self.mock_table_name,
                                                                 driver=self.mock_driver)
-            mock_pandas.read_sql.assert_called_with(f"SELECT * FROM {mock_quoted_table}",
-                                                    chunksize=2000000,
-                                                    con=mock_db)
+            mock_read_sql.assert_called_with(f"SELECT * FROM {mock_quoted_table}",
+                                             chunksize=2000000,
+                                             con=mock_db)
             mock_DataframesRecordsSource.\
                 assert_called_with(dfs=ANY,
                                    processing_instructions=mock_processing_instructions,

@@ -119,10 +119,10 @@ class TestFileobjsSource(unittest.TestCase):
                                 records_format=mock_records_format)
         self.assertEqual(str(source), 'FileobjsSource(mumble)')
 
-    @patch('records_mover.records.sources.fileobjs.pandas_read_csv_options')
+    @patch('records_mover.records.pandas.pandas_read_csv_options')
     @patch('records_mover.records.sources.fileobjs.io')
-    @patch('records_mover.records.sources.fileobjs.pd')
-    def test_to_dataframes_source(self, mock_pd, mock_io, mock_pandas_read_csv_options):
+    @patch('pandas.read_csv')
+    def test_to_dataframes_source(self, mock_read_csv, mock_io, mock_pandas_read_csv_options):
         def read_csv_options(records_format, unhandled_hints, processing_instructions):
             unhandled_hints.clear()
             return {}
@@ -141,7 +141,7 @@ class TestFileobjsSource(unittest.TestCase):
             'name': mock_fileobj
         }
         mock_processing_instructions = Mock(name='processing_instructions')
-        mock_reader = mock_pd.read_csv.return_value
+        mock_reader = mock_read_csv.return_value
         mock_dfs = mock_reader
         source = FileobjsSource(target_names_to_input_fileobjs=mock_target_names_to_input_fileobjs,
                                 records_schema=mock_records_schema,

@@ -9,10 +9,10 @@ from ...url.base import BaseFileUrl
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from ..compression import sniff_compression_from_url
 from .fileobj import FileobjTarget
-from ..sources.dataframes import DataframesRecordsSource
 from typing import Optional, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas import DataFrame  # noqa
+    from ..sources.dataframes import DataframesRecordsSource
 
 
 class DataUrlTarget(SupportsMoveFromDataframes,
@@ -35,7 +35,7 @@ class DataUrlTarget(SupportsMoveFromDataframes,
         self.output_loc = output_loc
 
     def move_from_dataframes_source(self,
-                                    dfs_source: DataframesRecordsSource,
+                                    dfs_source: 'DataframesRecordsSource',
                                     processing_instructions:
                                     ProcessingInstructions) -> MoveResult:
         with self.output_loc.open(mode='wb') as fileobj:

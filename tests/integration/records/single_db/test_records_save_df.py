@@ -3,7 +3,6 @@ import logging
 from .base_records_test import BaseRecordsIntegrationTest
 from ..directory_validator import RecordsDirectoryValidator
 from records_mover.records.schema import RecordsSchema
-from pandas import DataFrame
 import tempfile
 import pathlib
 import datetime
@@ -15,6 +14,12 @@ logger = logging.getLogger(__name__)
 
 class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
     def save_and_verify(self, records_format, processing_instructions=None):
+        if not self.has_pandas():
+            logger.warning("Skipping test as we don't have Pandas to save with.")
+            return
+
+        from pandas import DataFrame
+
         if processing_instructions is None:
             processing_instructions = self.records.ProcessingInstructions()
         us_eastern = pytz.timezone('US/Eastern')

@@ -6,14 +6,12 @@ from ...utils.concat_files import ConcatFiles
 import io
 from ..results import MoveResult
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
-import pandas as pd
 from ..hints import sniff_hints_from_fileobjs
 from .. import BootstrappingRecordsHints
 from ..processing_instructions import ProcessingInstructions
 from ...records.hints import complain_on_unhandled_hints
 from ..csv_streamer import python_encoding_from_hint
 from ..schema import RecordsSchema
-from ..pandas import pandas_read_csv_options
 import logging
 from typing import Mapping, IO, Optional, Iterator, List, Any, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -107,7 +105,9 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
     def to_dataframes_source(self,
                              processing_instructions: ProcessingInstructions) \
             -> Iterator['DataframesRecordsSource']:
+        import pandas as pd
         from .dataframes import DataframesRecordsSource  # noqa
+        from ..pandas import pandas_read_csv_options
 
         """Convert current source to a DataframeSource and present it in a context manager"""
         if not isinstance(self.records_format, DelimitedRecordsFormat):
