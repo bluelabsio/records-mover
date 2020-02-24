@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-import pandas
 from sqlalchemy.schema import CreateColumn
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy import Column
@@ -11,6 +10,7 @@ from typing import Optional, Dict, Union, Any, cast, TYPE_CHECKING
 if TYPE_CHECKING:
     from typing_extensions import Literal
     from mypy_extensions import TypedDict
+    import pandas
 
     class FieldRepresentationDict(TypedDict):
         rep_type: str
@@ -54,7 +54,9 @@ class RecordsSchemaFieldRepresentation(metaclass=ABCMeta):
             return None
 
     @staticmethod
-    def from_series(series: pandas.Series) -> 'RecordsSchemaFieldRepresentation':
+    def from_series(series: 'pandas.Series') -> 'RecordsSchemaFieldRepresentation':
+        import pandas
+
         dtype_json_str = pandas.io.json.dumps(series.dtype)
         dtype_numpy_rep = json.loads(dtype_json_str)
         ftype = getattr(series, 'ftype', None)
@@ -63,7 +65,7 @@ class RecordsSchemaFieldRepresentation(metaclass=ABCMeta):
                                                       pd_df_ftype=ftype)
 
     @staticmethod
-    def from_index(index: pandas.Index) -> 'RecordsSchemaFieldRepresentation':
+    def from_index(index: 'pandas.Index') -> 'RecordsSchemaFieldRepresentation':
         dtype_json_str = pandas.io.json.dumps(index.dtype)
         dtype_numpy_rep = json.loads(dtype_json_str)
         return RecordsSchemaPandasFieldRepresentation(pd_df_coltype='index',

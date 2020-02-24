@@ -7,7 +7,6 @@ from .. import RecordsHints
 from contextlib import contextmanager
 from typing import Iterator, Optional
 from ..processing_instructions import ProcessingInstructions
-from .dataframes import DataframesRecordsSource  # noqa
 from ..records_format import BaseRecordsFormat
 from ...url.resolver import UrlResolver
 

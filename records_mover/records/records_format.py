@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class ParquetRecordsFormat(BaseRecordsFormat):
-    def __init__(self):
+    def __init__(self) -> None:
         self.format_type = 'parquet'
 
     def __str__(self) -> str:

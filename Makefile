@@ -35,7 +35,7 @@ cicoverage: coverage
 	@test -z "$$(git status --porcelain metrics/coverage_high_water_mark)"
 
 flake8:
-	flake8 records_mover tests
+	flake8 --filename='*.py,*.pyi' records_mover tests types
 
 quality-flake8:
 	make QUALITY_TOOL=flake8 quality
