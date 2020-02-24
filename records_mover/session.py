@@ -41,7 +41,12 @@ def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
 
     if session_type == 'cli':
         try:
-            # TODO: Why do we assume this for other users?
+            #
+            # https://app.asana.com/0/1128138765527694/1163219515343393
+            #
+            # This method of configuration needs to be replaced with
+            # something more conventional and documented.
+            #
             return subprocess.check_output("scratch-s3-url").decode('ASCII').rstrip()
         except FileNotFoundError:
             pass
@@ -58,10 +63,16 @@ def _infer_creds(session_type: str) -> BaseCreds:
     if session_type == 'airflow':
         return CredsViaAirflow()
     elif session_type == 'cli':
-        # TODO: Why do we assume this for other users?
+        #
+        # https://app.asana.com/0/1128138765527694/1163219515343393
+        #
+        # Most people don't use LastPass; other secrets managements
+        # should be supported and configurable at the system- and
+        # user- level.
+        #
         return CredsViaLastPass()
     elif session_type == 'itest':
-        return CredsViaLastPass()
+        return CredsViaEnv()
     elif session_type == 'env':
         return CredsViaEnv()
     elif session_type is not None:
