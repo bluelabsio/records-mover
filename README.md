@@ -41,6 +41,15 @@ configured using
 
 Example Python library use:
 
+First, install records_mover.  We'll also use Pandas, so we'll install
+that, too:
+
+```sh
+pip3 install records_mover pandas
+```
+
+Now we can run this code:
+
 ```python
 #!/usr/bin/env python3
 
