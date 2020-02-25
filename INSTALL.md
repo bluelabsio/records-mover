@@ -3,15 +3,17 @@
 You can install records-mover with the following 'extras':
 
 * `pip3 install records-mover` - Install minimal version, not
-  including Pandas (needed only for local data copy) or psycopg2
-  (needed for Redshift or PostgreSQL connections).
+  including `pandas` (needed only for local data copy), `psycopg2`
+  (needed for Redshift or PostgreSQL connections) or `pyarrow` (needed
+  for local Parquet manipulation).
 * `pip3 install records-mover[gsheets]` - Minimal install plus API
   libraries to access Google Sheets.
 * `pip3 install records-mover[mover-cli]` - Install everything and
   make assumptions compatible with using mvrec on the command line.
-  Installs `pandas` as well as `psycopg2-binary` and `pyarrow` for
-  local Parquet support.  Don't use if you plan on using the library
-  because of the `psycopg2-binary` risk below.
+  Installs `pandas`, `psycopg2-binary` and `pyarrow`.
+
+  Don't use this extra if you plan on using the library because of the
+  `psycopg2-binary` risk below.
 
 ## Why this is complicated
 
@@ -52,4 +54,7 @@ install 'records-mover[movercli]` and it just uses `psycopg2-binary`.
 ## pyarrow
 
 `pyarrow` is a Python wrapper around the Apache Arrow native library.
-It's used by records mover to manipulate Parquet files locally.
+It's used by records mover to manipulate Parquet files locally.  The
+Apache Arrow native library can require build tools to install and is
+large; if you don't need to deal with Parquet files in the local
+environment you can work without it.
