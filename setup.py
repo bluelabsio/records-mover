@@ -40,7 +40,7 @@ setup(name='records-mover',
       install_requires=[
           'boto>=2,<3', 'boto3',
           'jsonschema', 'timeout_decorator', 'awscli',
-          'PyYAML', 'psycopg2',
+          'PyYAML',
           # sqlalchemy-vertica-python 0.5.5 introduced
           # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
           # which fixed a bug pulling schema information from Vertica
