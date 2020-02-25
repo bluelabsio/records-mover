@@ -20,7 +20,7 @@ You can install records-mover with the following 'extras':
 Records mover relies on a number of external libraries.  Here are some
 things to keep in mind when using `pip install`:
 
-## pandas
+### pandas
 
 Only when installing with `pip3 install 'records-mover[movercli]'`
 will you get pandas installed by default.
@@ -29,7 +29,7 @@ Pandas a large dependency which is needed in cases where we need to
 process data locally.  If you are using cloud-native import/export
 functionality only, you shouldn't need it and can avoid the bloat.
 
-## psycopg2
+### psycopg2
 
 psycopg2 is a library used for access to both Redshift and PostgreSQL databases.
 
@@ -51,7 +51,7 @@ result:
 If you are using the mvrec command line only, you can use `pip3
 install 'records-mover[movercli]` and it just uses `psycopg2-binary`.
 
-## pyarrow
+### pyarrow
 
 `pyarrow` is a Python wrapper around the Apache Arrow native library.
 It's used by records mover to manipulate Parquet files locally.  The
