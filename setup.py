@@ -66,7 +66,7 @@ setup(name='records-mover',
           'gsheets': gsheet_dependencies,
           'movercli': gsheet_dependencies + ['typing_inspect',
                                              'docstring_parser',
-                                             'psycopg2-binary'
+                                             'psycopg2-binary',
                                              'pandas<2',
                                              'pyarrow'],
       },
