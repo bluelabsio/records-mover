@@ -94,9 +94,9 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
                        RecordsFormat(format_type='delimited',
                                      variant=preferred_records_format[self.engine.name]),
                        records_schema=records_schema)
-        target = self.records.targets.table(self.schema_name,
-                                            self.table_name,
-                                            self.engine)
+        target = self.records.targets.table(schema_name=self.schema_name,
+                                            table_name=self.table_name,
+                                            db_engine=self.engine)
         out = self.records.move(source, target, processing_instructions)
         self.assertIn(out.move_count, [0, None])
         self.validate_table()
