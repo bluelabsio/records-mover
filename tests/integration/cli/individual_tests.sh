@@ -1,20 +1,20 @@
 table2table() {
-  mvrec table2table "${source_schema_name:?}" "${source_table_name:?}" "${target_schema_name:?}" "${target_table_name:?}"
+  mvrec table2table "${source_db_name:?}" "${source_schema_name:?}" "${source_table_name:?}" "${target_db_name:?}" "${target_schema_name:?}" "${target_table_name:?}"
   assert_target_table_is_valid
 }
 
 table2gsheet() {
-  mvrec table2gsheet "${source_schema_name:?}" "${source_table_name:?}" "${target_spreadsheet_id:?}" "${target_sheet_name:?}" "${gcp_creds_name:?}"
+  mvrec table2gsheet "${source_db_name:?}" "${source_schema_name:?}" "${source_table_name:?}" "${target_spreadsheet_id:?}" "${target_sheet_name:?}" "${gcp_creds_name:?}"
   assert_target_gsheet_is_valid
 }
 
 table2recordsdir() {
-  mvrec table2recordsdir --target.variant=bluelabs "${source_schema_name:?}" "${source_table_name:?}" "${target_recordsdir_url:?}"
+  mvrec table2recordsdir --target.variant=bluelabs "${source_db_name:?}" "${source_schema_name:?}" "${source_table_name:?}" "${target_recordsdir_url:?}"
   assert_target_recordsdir_is_valid
 }
 
 gsheet2table() {
-  mvrec gsheet2table "${source_spreadsheet_id:?}" "${source_sheet_name:?}" "${gcp_creds_name:?}" "${target_schema_name:?}" "${target_table_name:?}"
+  mvrec gsheet2table "${source_spreadsheet_id:?}" "${source_sheet_name:?}" "${gcp_creds_name:?}" "${target_db_name:?}" "${target_schema_name:?}" "${target_table_name:?}"
   assert_target_table_is_valid
 }
 
@@ -29,7 +29,7 @@ gsheet2recordsdir() {
 }
 
 recordsdir2table() {
-  mvrec recordsdir2table "${source_recordsdir_url:?}" "${target_schema_name:?}" "${target_table_name:?}"
+  mvrec recordsdir2table "${source_recordsdir_url:?}" "${target_db_name:?}" "${target_schema_name:?}" "${target_table_name:?}"
   assert_target_table_is_valid
 }
 
@@ -45,7 +45,7 @@ recordsdir2recordsdir() {
 }
 
 url2table() {
-  mvrec url2table "${source_csv_url:?}" "${target_schema_name:?}" "${target_table_name:?}"
+  mvrec url2table "${source_csv_url:?}" "${target_db_name:?}" "${target_schema_name:?}" "${target_table_name:?}"
   assert_target_table_is_valid
 }
 
@@ -60,7 +60,7 @@ url2recordsdir() {
 }
 
 file2table() {
-  mvrec file2table "${source_csv_path:?}" "${target_schema_name:?}" "${target_table_name:?}"
+  mvrec file2table "${source_csv_path:?}" "${target_db_name:?}" "${target_schema_name:?}" "${target_table_name:?}"
   assert_target_table_is_valid
 }
 
@@ -85,13 +85,13 @@ file2file() {
 }
 
 table2url() {
-  mvrec table2url "${source_schema_name:?}" "${source_table_name:?}" "${target_csv_url:?}"
+  mvrec table2url "${source_db_name:?}" "${source_schema_name:?}" "${source_table_name:?}" "${target_csv_url:?}"
   assert_target_csv_url_is_valid
 }
 
 
 table2file() {
-  mvrec table2file "${source_schema_name:?}" "${source_table_name:?}" "${target_csv_path:?}"
+  mvrec table2file "${source_db_name:?}" "${source_schema_name:?}" "${source_table_name:?}" "${target_csv_path:?}"
   assert_target_csv_is_valid
 }
 

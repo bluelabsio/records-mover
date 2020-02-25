@@ -311,7 +311,7 @@ workflows:
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
             unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
-            with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+            nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
           requires:
             - redshift-itest
           filters:
@@ -343,7 +343,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+            nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
           requires:
             - redshift-itest
           filters:
@@ -359,7 +359,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/cli
-            with-db dockerized-vertica ./cli-tests.sh ci_1
+            ./cli-tests.sh ci_1
           requires:
             - redshift-itest
           filters:
@@ -375,7 +375,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/cli
-            with-db dockerized-vertica ./cli-tests.sh ci_2
+            ./cli-tests.sh ci_2
           requires:
             - redshift-itest
           filters:
@@ -391,7 +391,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/cli
-            with-db dockerized-vertica ./cli-tests.sh ci_3
+            ./cli-tests.sh ci_3
           requires:
             - redshift-itest
           filters:

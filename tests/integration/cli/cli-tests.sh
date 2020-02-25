@@ -8,11 +8,13 @@ records_schema_json_schema="${DIR}/../records/records_schema_v1_schema.json"
 
 current_epoch=$(date +%s)
 
-source_schema_name=${DB_USERNAME}
+source_db_name=dockerized-vertica
+source_schema_name=dbadmin
 source_table_name=test_cli_source_table
 source_schema_and_table=${source_schema_name}.${source_table_name}
 
-target_schema_name=${DB_USERNAME}
+target_db_name=dockerized-vertica
+target_schema_name=dbadmin
 target_table_name_prefix=test_cli_target_table
 
 # add CIRCLE_BUILD_NUM as a salt for uniqueness if it's available
