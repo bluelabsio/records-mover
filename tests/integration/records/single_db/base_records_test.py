@@ -15,7 +15,7 @@ from ..purge_old_test_tables import purge_old_tables
 # /Users/vincebroz/src/records-mover/records_mover/records/s3_records.py:127:
 # ResourceWarning: unclosed <ssl.SSLSocket fd=10,
 # family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6,
-# laddr=('***REMOVED***', 53084), raddr=('***REMOVED***', 443)>
+# laddr=('REDACTED', 53084), raddr=('REDACTED', 443)>
 
 # Reason seems to be here: https://github.com/boto/boto3/issues/454#issuecomment-324782994
 
