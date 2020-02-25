@@ -8,11 +8,13 @@ records_schema_json_schema="${DIR}/../records/records_schema_v1_schema.json"
 
 current_epoch=$(date +%s)
 
-source_schema_name=${DB_USERNAME}
+source_db_name=dockerized-vertica
+source_schema_name=dbadmin
 source_table_name=test_cli_source_table
 source_schema_and_table=${source_schema_name}.${source_table_name}
 
-target_schema_name=${DB_USERNAME}
+target_db_name=dockerized-vertica
+target_schema_name=dbadmin
 target_table_name_prefix=test_cli_target_table
 
 # add CIRCLE_BUILD_NUM as a salt for uniqueness if it's available
@@ -46,7 +48,7 @@ clear_target_csv() {
 }
 
 clear_tables() {
-  db-connect <<< "DROP TABLE IF EXISTS ${target_schema_and_table};"
+  db "${target_db_name:?}" <<< "DROP TABLE IF EXISTS ${target_schema_and_table};"
 }
 
 clear_sheets() {
@@ -59,8 +61,8 @@ clear_rdir() {
 }
 
 one_time_setup() {
-  db-connect <<< "CREATE SCHEMA IF NOT EXISTS ${source_schema_name};" || true
-  db-connect <<< "CREATE SCHEMA IF NOT EXISTS ${target_schema_name};" || true
+  db "${source_db_name:?}" <<< "CREATE SCHEMA IF NOT EXISTS ${source_schema_name};" || true
+  db "${target_db_name:?}" <<< "CREATE SCHEMA IF NOT EXISTS ${target_schema_name};" || true
   # generate manifest of source_rdir with correct paths
   data_file="${source_recordsdir_path}/data.csv.gz"
   echo '{"entries": [{"url": "file://'"${data_file}"'", "mandatory": true}]}' > "${source_recordsdir_path}/_manifest"
@@ -77,7 +79,7 @@ setup() {
   # You can't do 'create table if not exists as select' in Redshift 🤦
   #
   # https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_AS.html
-  db-connect <<< "CREATE TABLE  ${source_schema_and_table} AS SELECT 1 as a;" || true
+  db "${source_db_name:?}" <<< "CREATE TABLE  ${source_schema_and_table} AS SELECT 1 as a;" || true
   echo "done with setup"
 }
 
@@ -116,7 +118,7 @@ assert_target_csv_url_is_valid() {
 
 
 assert_target_table_is_valid() {
-  mvrec table2recordsdir --target.variant=bluelabs "${target_schema_name}" "${target_table_name}" "${target_recordsdir_url}"
+  mvrec table2recordsdir --target.variant=bluelabs "${target_db_name:?}" "${target_schema_name}" "${target_table_name}" "${target_recordsdir_url}"
   assert_target_recordsdir_is_valid
 }
 

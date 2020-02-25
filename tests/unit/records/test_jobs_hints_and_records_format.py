@@ -37,7 +37,9 @@ class TestJobsHintsAndRecordsFormat(unittest.TestCase):
                 'compression': 'GZIP',
                 'quoting': 'all',
             },
-            'target': {}
+            'target': {
+                'db_name': 'foo',
+            }
         }
         out = run_records_mover_job(source_method_name='mysource',
                                     target_method_name='mytarget',
@@ -77,7 +79,9 @@ class TestJobsHintsAndRecordsFormat(unittest.TestCase):
                 'compression': 'GZIP',
                 'quoting': 'all',
             },
-            'target': {}
+            'target': {
+                'db_name': 'foo'
+            }
         }
         out = run_records_mover_job(source_method_name='mysource',
                                     target_method_name='mytarget',
@@ -112,7 +116,9 @@ class TestJobsHintsAndRecordsFormat(unittest.TestCase):
             'source': {
                 'variant': 'vertica',
             },
-            'target': {}
+            'target': {
+                'db_name': 'foo'
+            },
         }
         out = run_records_mover_job(source_method_name='mysource',
                                     target_method_name='mytarget',
@@ -154,7 +160,9 @@ class TestJobsHintsAndRecordsFormat(unittest.TestCase):
                 'compression': 'GZIP',
                 'quoting': 'all',
             ],
-            'target': {}
+            'target': {
+                'db_name': 'foo'
+            },
         }
         out = run_records_mover_job(source_method_name='mysource',
                                     target_method_name='mytarget',
@@ -196,7 +204,9 @@ class TestJobsHintsAndRecordsFormat(unittest.TestCase):
                 'quoting': 'all',
                 'variant': 'vertica',
             ],
-            'target': {}
+            'target': {
+                'db_name': 'foo'
+            },
         }
         out = run_records_mover_job(source_method_name='mysource',
                                     target_method_name='mytarget',
@@ -234,7 +244,9 @@ class TestJobsHintsAndRecordsFormat(unittest.TestCase):
                 'compression': 'GZIP',
                 'quoting': 'all',
             },
-            'target': {}
+            'target': {
+                'db_name': 'foo'
+            },
         }
         out = run_records_mover_job(source_method_name='mysource',
                                     target_method_name='mytarget',

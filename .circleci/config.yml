@@ -359,7 +359,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/cli
-            with-db dockerized-vertica ./cli-tests.sh ci_1
+            ./cli-tests.sh ci_1
           requires:
             - redshift-itest
           filters:
@@ -375,7 +375,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/cli
-            with-db dockerized-vertica ./cli-tests.sh ci_2
+            ./cli-tests.sh ci_2
           requires:
             - redshift-itest
           filters:
@@ -391,7 +391,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/cli
-            with-db dockerized-vertica ./cli-tests.sh ci_3
+            ./cli-tests.sh ci_3
           requires:
             - redshift-itest
           filters:

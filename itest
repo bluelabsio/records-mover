@@ -163,14 +163,12 @@ def run_test(args, target, parser):
     elif (target == 'cli'):
         with dockerized_dbs(), set_circleci_scratch_bucket():
             if (args.docker):
-                docker_compose_run(["with-db", "dockerized-vertica",
-                                    "./cli-tests.sh"],
+                docker_compose_run(["./cli-tests.sh"],
                                    prefixes=["with-aws-creds", "circleci"],
                                    cwd="/usr/src/app/tests/integration/cli")
             else:
                 with local_dockerized_dbfacts():
-                    subprocess.check_call(["with-db", "dockerized-vertica",
-                                           "with-aws-creds", "circleci",
+                    subprocess.check_call(["with-aws-creds", "circleci",
                                            "./cli-tests.sh"],
                                           cwd="tests/integration/cli")
     elif (target == 'vertica-no-s3'):

@@ -152,13 +152,13 @@ class RecordsSources(object):
 
     @contextmanager
     def table(self,
+              db_engine: Engine,
               schema_name: str,
-              table_name: str,
-              db_engine: Engine) -> Iterator['TableRecordsSource']:
+              table_name: str) -> Iterator['TableRecordsSource']:
         """
+        :param db_engine: Database engine to pull data from.
         :param schema_name: Schema name of a table to get data from.
         :param table_name: Table name of a table to get data from.
-        :param db_engine: Database engine to pull data from.
         """
         from .table import TableRecordsSource  # noqa
         yield TableRecordsSource(schema_name=schema_name,

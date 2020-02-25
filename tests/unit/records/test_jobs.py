@@ -15,47 +15,6 @@ class TestJobs(unittest.TestCase):
         mock_target = Mock(name='target')
 
         @contextmanager
-        def mysource(a: int, google_cloud_creds, existing_table):
-            self.assertEqual(a, 1)
-            self.assertEqual(google_cloud_creds, mock_session.creds.google_sheets.return_value)
-            yield mock_source
-
-        @contextmanager
-        def mytarget(b: int, db_engine):
-            assert b == 2
-            self.assertEqual(db_engine, mock_session.get_default_db_engine.return_value)
-            yield mock_target
-
-        mock_job_name = Mock(name='job_name')
-        mock_session = mock_Session.return_value
-        mock_records = mock_session.records
-        mock_records.sources.mysource = mysource
-        mock_records.targets.mytarget = mytarget
-        config = {
-            'fail_if_dont_understand': False,
-            'source': {
-                'a': 1,
-                'gcp_creds_name': 'mygcpcreds',
-                'existing_table': 'blah',
-            },
-            'target': {
-                'b': 2,
-            }
-        }
-        out = run_records_mover_job(source_method_name='mysource',
-                                    target_method_name='mytarget',
-                                    job_name=mock_job_name,
-                                    config=config)
-        mock_records.move.assert_called()
-        self.assertEqual(out, mock_records.move.return_value)
-
-    @patch('records_mover.records.job.mover.Session')
-    def test_run_records_mover_job_2(self,
-                                     mock_Session):
-        mock_source = Mock(name='source')
-        mock_target = Mock(name='target')
-
-        @contextmanager
         def mysource(a: int,
                      schema_name: str,
                      google_cloud_creds,

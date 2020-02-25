@@ -60,9 +60,9 @@ class RecordsTargets(object):
 
     @contextmanager
     def table(self,
+              db_engine: Engine,
               schema_name: str,
               table_name: str,
-              db_engine: Engine,
               existing_table_handling: ExistingTableHandling=
               ExistingTableHandling.DELETE_AND_OVERWRITE,
               drop_and_recreate_on_load_error: bool=False,
@@ -70,11 +70,11 @@ class RecordsTargets(object):
               add_group_perms_for: Optional[Dict[str, List[str]]]=None) -> \
             Iterator['TableRecordsTarget']:
         """
+        :param db_engine: Database engine to write data to.
+
         :param schema_name: Schema name of a table to write data to.
 
         :param table_name: Table name of a table to write data to.
-
-        :param db_engine: Database engine to write data to.
 
         :param existing_table_handling: When loading into a database
         table, controls how any existing table found will be handled.
