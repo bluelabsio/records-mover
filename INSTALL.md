@@ -8,7 +8,7 @@ You can install records-mover with the following 'extras':
   for local Parquet manipulation).
 * `pip3 install records-mover[gsheets]` - Minimal install plus API
   libraries to access Google Sheets.
-* `pip3 install records-mover[mover-cli]` - Install everything and
+* `pip3 install records-mover[movercli]` - Install everything and
   make assumptions compatible with using mvrec on the command line.
   Installs `pandas`, `psycopg2-binary` and `pyarrow`.
 
