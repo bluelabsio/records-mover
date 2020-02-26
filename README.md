@@ -62,14 +62,14 @@ records = session.records
 
 # This is a SQLAlchemy database engine.
 #
-# You can instead call job_context.get_db_engine('cred name').
+# You can instead call session.get_db_engine('cred name').
 #
 # On your laptop, 'cred name' is the same thing passed to dbcli (mapping to something in LastPass).
 #
 # In Airflow, 'cred name' maps to the connection ID in the admin Connnections UI.
 #
 # Or you can build your own and pass it in!
-db_engine = job_context.get_default_db_engine()
+db_engine = session.get_default_db_engine()
 
 df = DataFrame.from_dict([{'a': 1}]) # or make your own!
 
