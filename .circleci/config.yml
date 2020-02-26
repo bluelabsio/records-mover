@@ -24,7 +24,7 @@ commands:
               . venv/bin/activate
               # venv/ dir doesn't seem to save enough info to keep the
               # editable installation
-              pip install --progress-bar=off -e .
+              pip install --progress-bar=off -e '.[movercli]'
             else
               python -m venv venv
               . venv/bin/activate

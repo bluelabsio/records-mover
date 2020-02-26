@@ -2,14 +2,6 @@
 setuptools>34.3.0
 wheel
 twine
-#
-# awscli seems to artifically limit the max version of PyYAML:
-#
-# https://github.com/aws/aws-cli/pull/4403/files
-#
-# pip._vendor.pkg_resources.ContextualVersionConflict: (PyYAML 5.2 (/home/circleci/project/venv/lib/python3.6/site-packages), Requirement.parse('PyYAML<5.2,>=3.10; python_version != "2.6" and python_version != "3.3"'), {'awscli'})
-#
-PyYAML<5.2,>3.10
 flake8
 nose
 nose-progressive

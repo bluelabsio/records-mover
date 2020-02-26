@@ -39,8 +39,19 @@ setup(name='records-mover',
       },
       install_requires=[
           'boto>=2,<3', 'boto3',
-          'jsonschema', 'timeout_decorator', 'awscli',
-          'PyYAML', 'psycopg2',
+          'jsonschema', 'timeout_decorator',
+          'awscli>=1,<2',
+          # awscli pins PyYAML below 5.3 so they can maintain support
+          # for old versions of Python.  This can cause issues at
+          # run-time if we don't constrain things here as well, as a
+          # newer version seems to sneak in:
+          #
+          # pkg_resources.ContextualVersionConflict:
+          #   (PyYAML 5.3 (.../lib/python3.7/site-packages),
+          #     Requirement.parse('PyYAML<5.3,>=3.10'), {'awscli'})
+          #
+          # https://github.com/aws/aws-cli/blob/develop/setup.py
+          'PyYAML<5.3',
           # sqlalchemy-vertica-python 0.5.5 introduced
           # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
           # which fixed a bug pulling schema information from Vertica
@@ -64,7 +75,9 @@ setup(name='records-mover',
       ],
       extras_require={
           'gsheets': gsheet_dependencies,
-          'movercli': gsheet_dependencies + ['typing_inspect', 'docstring_parser',
+          'movercli': gsheet_dependencies + ['typing_inspect',
+                                             'docstring_parser',
+                                             'psycopg2-binary',
                                              'pandas<2',
                                              'pyarrow'],
       },
