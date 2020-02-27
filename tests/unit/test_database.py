@@ -35,7 +35,7 @@ class TestDatabase(unittest.TestCase):
     })
     @patch('records_mover.db.connect.sa')
     def test_database_local_env_bigquery(self, mock_sa):
-        expected_db_facts =  {
+        expected_db_facts = {
             'bq_default_dataset_id': 'dataset_id',
             'bq_default_project_id': 'project_id',
             'bq_service_account_json': '{"client_email": "blah"}',
