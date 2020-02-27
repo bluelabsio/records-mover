@@ -3,6 +3,8 @@ import unittest
 from mock import patch, Mock
 
 
+@patch('records_mover.session.os')
+@patch('records_mover.session.subprocess')
 @patch.dict('os.environ', {
     'AWS_SECRET_ACCESS_KEY': 'aws secret key',
     'AWS_SESSION_TOKEN': 'aws session token',
@@ -12,13 +14,13 @@ class TestCLISession(unittest.TestCase):
     @patch('records_mover.session.db_driver')
     @patch('records_mover.session.UrlResolver')
     @patch('records_mover.session.boto3')
-    @patch('records_mover.session.subprocess')
     @patch.dict('os.environ', {}, clear=True)
     def test_db_driver_with_guessed_bucket_url(self,
-                                               mock_subprocess,
                                                mock_boto3,
                                                mock_UrlResolver,
-                                               mock_db_driver):
+                                               mock_db_driver,
+                                               mock_subprocess,
+                                               mock_os):
         mock_subprocess.check_output.return_value = b"s3://chrisp-scratch/"
         context = Session(session_type='cli',
                           default_db_creds_name=None,
@@ -42,7 +44,9 @@ class TestCLISession(unittest.TestCase):
 
     @patch('records_mover.session.CredsViaLastPass')
     def test_creds(self,
-                   mock_CredsViaLastPass):
+                   mock_CredsViaLastPass,
+                   mock_subprocess,
+                   mock_os):
         context = Session(session_type='cli',
                           default_db_creds_name=None,
                           default_aws_creds_name=None)
@@ -52,7 +56,9 @@ class TestCLISession(unittest.TestCase):
     @patch('records_mover.session.engine_from_db_facts')
     def test_get_default_db_engine_from_name(self,
                                              mock_engine_from_db_facts,
-                                             mock_CredsViaLastPass):
+                                             mock_CredsViaLastPass,
+                                             mock_subprocess,
+                                             mock_os):
         context = Session(session_type='cli',
                           default_db_creds_name='foo',
                           default_aws_creds_name=None)

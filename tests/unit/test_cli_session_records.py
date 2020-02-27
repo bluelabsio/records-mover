@@ -3,6 +3,7 @@ import unittest
 from mock import patch, ANY
 
 
+@patch('records_mover.session.subprocess')
 @patch.dict('os.environ', {
     'AWS_SECRET_ACCESS_KEY': 'aws secret key',
     'AWS_SESSION_TOKEN': 'aws session token',
@@ -10,10 +11,9 @@ from mock import patch, ANY
 })
 class TestCLISessionRecords(unittest.TestCase):
     @patch('records_mover.session.Records')
-    @patch('records_mover.session.subprocess')
     def test_records(self,
-                     mock_subprocess,
-                     mock_Records):
+                     mock_Records,
+                     mock_subprocess):
         mock_subprocess.check_output.return_value = 'jdoe'.encode('utf-8')
         context = Session(session_type='cli',
                           default_db_creds_name=None,
@@ -24,11 +24,10 @@ class TestCLISessionRecords(unittest.TestCase):
                                         url_resolver=ANY)
 
     @patch('records_mover.session.Records')
-    @patch('records_mover.session.subprocess')
     @patch.dict('os.environ', {'SCRATCH_S3_URL': 's3://different-scratch-bucket/'})
     def test_records_with_overridden_scratch_bucket(self,
-                                                    mock_subprocess,
-                                                    mock_Records):
+                                                    mock_Records,
+                                                    mock_subprocess):
         mock_subprocess.check_output.return_value = 'jdoe'.encode('utf-8')
         context = Session(session_type='cli',
                           default_db_creds_name=None,
