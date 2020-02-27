@@ -40,8 +40,3 @@ def db_facts_from_env() -> DBFacts:
         if None in db_facts.values():
             raise NotImplementedError("Please run with with-db or set DB_* environment variables")
     return db_facts  # type: ignore
-
-
-def db_engine(session: 'Session') -> Engine:
-    db_facts = db_facts_from_env()
-    return engine_from_db_facts(db_facts)
