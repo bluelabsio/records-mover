@@ -1,6 +1,4 @@
 import os
-from sqlalchemy.engine import Engine
-from records_mover.db.connect import engine_from_db_facts
 from db_facts.db_facts_types import DBFacts
 from typing import Dict, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
