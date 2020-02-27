@@ -101,7 +101,7 @@ jobs:
       - store_artifacts:
           path: test-reports
       - store_artifacts:
-          path: cover.tar.gz
+          path: cover # .tar.gz  # TODO
       - store_artifacts:
           path: typecover.tar.gz
 
