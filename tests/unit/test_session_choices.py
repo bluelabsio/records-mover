@@ -2,6 +2,7 @@ from mock import patch
 import unittest
 
 
+@patch('records_mover.session.subprocess')
 @patch('records_mover.session.CredsViaLastPass')
 @patch('records_mover.session.CredsViaAirflow')
 class TestSessionChoices(unittest.TestCase):
@@ -15,7 +16,8 @@ class TestSessionChoices(unittest.TestCase):
     })
     def test_select_airflow_session_by_implicit_env_variable(self,
                                                              mock_CredsViaAirflow,
-                                                             mock_CredsViaLastPass):
+                                                             mock_CredsViaLastPass,
+                                                             mock_subprocess):
         session = self.mock_session()
         self.assertEqual(session._default_aws_creds_name, 'aws_default')
         self.assertIsNone(session._default_db_creds_name)
@@ -24,7 +26,8 @@ class TestSessionChoices(unittest.TestCase):
 
     def test_select_cli_session_by_default(self,
                                            mock_CredsViaAirflow,
-                                           mock_CredsViaLastPass):
+                                           mock_CredsViaLastPass,
+                                           mock_subprocess):
         session = self.mock_session()
         self.assertIsNone(session._default_aws_creds_name)
         self.assertIsNone(session._default_db_creds_name)
@@ -36,7 +39,8 @@ class TestSessionChoices(unittest.TestCase):
     })
     def test_select_cli_session_by_explicit_env_variable(self,
                                                          mock_CredsViaAirflow,
-                                                         mock_CredsViaLastPass):
+                                                         mock_CredsViaLastPass,
+                                                         mock_subprocess):
         session = self.mock_session()
         self.assertIsNone(session._default_aws_creds_name)
         self.assertIsNone(session._default_db_creds_name)
@@ -48,7 +52,8 @@ class TestSessionChoices(unittest.TestCase):
     })
     def test_select_airflow_session_by_explicit_env_variable(self,
                                                              mock_CredsViaAirflow,
-                                                             mock_CredsViaLastPass):
+                                                             mock_CredsViaLastPass,
+                                                             mock_subprocess):
         session = self.mock_session()
         self.assertEqual(session._default_aws_creds_name, 'aws_default')
         self.assertIsNone(session._default_db_creds_name)
@@ -60,7 +65,8 @@ class TestSessionChoices(unittest.TestCase):
     })
     def test_select_invalid_session_by_explicit_env_variable(self,
                                                              mock_CredsViaAirflow,
-                                                             mock_CredsViaLastPass):
+                                                             mock_CredsViaLastPass,
+                                                             mock_subprocess):
         with self.assertRaises(ValueError) as r:
             session = self.mock_session()
             print(f"Got session: {session}")
@@ -70,7 +76,8 @@ class TestSessionChoices(unittest.TestCase):
 
     def test_select_airflow_session_by_parameter(self,
                                                  mock_CredsViaAirflow,
-                                                 mock_CredsViaLastPass):
+                                                 mock_CredsViaLastPass,
+                                                 mock_subprocess):
         session = self.mock_session(session_type='airflow')
         self.assertEqual(session._default_aws_creds_name, 'aws_default')
         self.assertIsNone(session._default_db_creds_name)
@@ -79,7 +86,8 @@ class TestSessionChoices(unittest.TestCase):
 
     def test_select_cli_session_by_parameter(self,
                                              mock_CredsViaAirflow,
-                                             mock_CredsViaLastPass):
+                                             mock_CredsViaLastPass,
+                                             mock_subprocess):
         session = self.mock_session(session_type='cli')
         self.assertIsNone(session._default_aws_creds_name)
         self.assertIsNone(session._default_db_creds_name)
@@ -88,7 +96,8 @@ class TestSessionChoices(unittest.TestCase):
 
     def test_select_invalid_session_by_parameter(self,
                                                  mock_CredsViaAirflow,
-                                                 mock_CredsViaLastPass):
+                                                 mock_CredsViaLastPass,
+                                                 mock_subprocess):
         with self.assertRaises(ValueError) as r:
             self.mock_session(session_type='bogus')
         self.assertEqual(str(r.exception),

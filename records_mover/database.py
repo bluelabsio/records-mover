@@ -1,6 +1,4 @@
 import os
-from sqlalchemy.engine import Engine
-from records_mover.db.connect import engine_from_db_facts
 from db_facts.db_facts_types import DBFacts
 from typing import Dict, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -40,8 +38,3 @@ def db_facts_from_env() -> DBFacts:
         if None in db_facts.values():
             raise NotImplementedError("Please run with with-db or set DB_* environment variables")
     return db_facts  # type: ignore
-
-
-def db_engine(session: 'Session') -> Engine:
-    db_facts = db_facts_from_env()
-    return engine_from_db_facts(db_facts)

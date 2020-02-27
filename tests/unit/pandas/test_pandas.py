@@ -19,8 +19,8 @@ class TestPandas(unittest.TestCase):
             {'abc': 1, 'foo': {'bar': 5, 'baz': {'bing': 'bazzle'}}}
         ]
 
-        self.assertEquals(pandas.dataframe_to_nested_dicts(mock_dataframe),
-                          expected_dicts)
+        self.assertEqual(pandas.dataframe_to_nested_dicts(mock_dataframe),
+                         expected_dicts)
 
     def test_dataframe_to_nested_dicts_snake_to_camel(self):
         data = np.array([(1, 5, 'bazzle', 'whatevs')],
@@ -42,9 +42,9 @@ class TestPandas(unittest.TestCase):
             },
         ]
 
-        self.assertEquals(pandas.dataframe_to_nested_dicts(mock_dataframe,
-                                                           to_camel=True),
-                          expected_dicts)
+        self.assertEqual(pandas.dataframe_to_nested_dicts(mock_dataframe,
+                                                          to_camel=True),
+                         expected_dicts)
 
     def test_json_dumps(self):
         data = [
@@ -57,7 +57,7 @@ class TestPandas(unittest.TestCase):
             {}
         ]
         expected_json = '["a", 1, 1.5, 1, 1.5, [1, 2, 3], {}]'
-        self.assertEquals(pandas.json_dumps(data), expected_json)
+        self.assertEqual(pandas.json_dumps(data), expected_json)
 
     def test_json_dumps_object_not_handled(self):
         class MyNewClass:

@@ -1,4 +1,4 @@
-from .database import db_engine, db_facts_from_env
+from .database import db_facts_from_env
 from sqlalchemy.engine import Engine
 import boto3
 from .records.records import Records
@@ -115,7 +115,8 @@ class Session():
 
     def get_default_db_engine(self) -> Engine:
         if self._default_db_creds_name is None:
-            return db_engine(self)
+            db_facts = db_facts_from_env()
+            return engine_from_db_facts(db_facts)
         else:
             return self.get_db_engine(self._default_db_creds_name)
 

@@ -52,7 +52,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
         self.add_hints_from_variant(provided_hints=hints,
                                     processing_instructions=processing_instructions)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, DelimitedRecordsFormat):
             return (self.format_type == other.format_type and
                     self.variant == other.variant and
@@ -71,7 +71,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
                                       hints=self.hints)
 
     def base_hints_from_variant(self,
-                                fail_if_dont_understand=True) -> RecordsHints:
+                                fail_if_dont_understand: bool = True) -> RecordsHints:
         hint_defaults: RecordsHints = {
             'header-row': False,
             'field-delimiter': ',',
