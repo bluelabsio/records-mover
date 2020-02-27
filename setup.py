@@ -30,6 +30,7 @@ setup(name='records-mover',
       description=('Library and CLI to move relational data from one place to another - '
                    'DBs/CSV/gsheets/dataframes/...'),
       long_description=long_description,
+      long_description_content_type="text/markdown",
       download_url=f'https://github.com/bluelabsio/records-mover/tarball/{__version__}',  # noqa
       author='Vince Broz',
       author_email='opensource@bluelabs.com',
