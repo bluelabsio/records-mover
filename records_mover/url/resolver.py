@@ -1,9 +1,10 @@
 from .base import BaseFileUrl, BaseDirectoryUrl
 from . import FileUrl, DirectoryUrl
+from typing import Any
 
 
 class UrlResolver:
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         self.kwargs = kwargs
 
     def file_url(self, url: str) -> BaseFileUrl:
