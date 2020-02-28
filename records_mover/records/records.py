@@ -1,4 +1,3 @@
-from typing import Callable, Optional, Union
 from sqlalchemy import MetaData
 from sqlalchemy.engine import Engine, Connection
 from .processing_instructions import ProcessingInstructions
@@ -8,18 +7,41 @@ from .unload_plan import RecordsUnloadPlan
 from .records_format import RecordsFormat
 from ..db import DBDriver, LoadError
 from ..url.resolver import UrlResolver
+from enum import Enum
 from .mover import move
 from .types import RecordsFormatType
 from .sources import RecordsSources
 from .targets import RecordsTargets
+from typing import Callable, Optional, Union, TYPE_CHECKING
+if TYPE_CHECKING:
+    from records_mover import Session  # noqa
+
 
 logger = logging.getLogger(__name__)
 
 
+class PleaseInfer(Enum):
+    # This is a mypy-friendly way of doing a singleton object:
+    #
+    # https://github.com/python/typing/issues/236
+    token = 1
+
+
 class Records:
     def __init__(self,
-                 db_driver: Callable[[Union[Engine, Connection]], DBDriver],
-                 url_resolver: UrlResolver) -> None:
+                 db_driver: Union[Callable[[Union[Engine, Connection]], DBDriver],
+                                  PleaseInfer] = PleaseInfer.token,
+                 url_resolver: Union[UrlResolver, PleaseInfer] = PleaseInfer.token,
+                 session: Union['Session', PleaseInfer] = PleaseInfer.token) -> None:
+        if db_driver is PleaseInfer.token or url_resolver is PleaseInfer.token:
+            if session is PleaseInfer.token:
+                from records_mover import Session  # noqa
+
+                session = Session()
+            if db_driver is PleaseInfer.token:
+                db_driver = session.db_driver
+            if url_resolver is PleaseInfer.token:
+                url_resolver = session.url_resolver
         self.meta = MetaData()
         self.db_driver = db_driver
         self.url_resolver = url_resolver
