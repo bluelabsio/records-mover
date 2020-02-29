@@ -14,7 +14,7 @@ then
   exit 1
 fi
 
-eval "$(db-facts "${DB_NAME:?}")"
+eval "$(db-facts sh "${DB_NAME:?}")"
 
 if [ n"${DB_PROTOCOL}" == n ]
 then
