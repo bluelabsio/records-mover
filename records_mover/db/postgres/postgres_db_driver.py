@@ -1,13 +1,18 @@
 import sqlalchemy
 import logging
-from ...utils.limits import (INT16_MIN, INT16_MAX,
-                             INT32_MIN, INT32_MAX,
-                             INT64_MIN, INT64_MAX,
-                             FLOAT32_SIGNIFICAND_BITS,
-                             FLOAT64_SIGNIFICAND_BITS,
-                             num_digits)
+from records_mover.url.resolver import UrlResolver
+from records_mover.records.records_format import BaseRecordsFormat
+from records_mover.records.records_directory import RecordsDirectory
+from records_mover.records.load_plan import RecordsLoadPlan
+from records_mover.utils.limits import (INT16_MIN, INT16_MAX,
+                                        INT32_MIN, INT32_MAX,
+                                        INT64_MIN, INT64_MAX,
+                                        FLOAT32_SIGNIFICAND_BITS,
+                                        FLOAT64_SIGNIFICAND_BITS,
+                                        num_digits)
 from ..driver import DBDriver
-from typing import Optional, Tuple, Union
+from .loader import PostgresLoader
+from typing import Optional, Tuple, Union, List
 
 
 logger = logging.getLogger(__name__)
@@ -16,8 +21,12 @@ logger = logging.getLogger(__name__)
 class PostgresDBDriver(DBDriver):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
+                 url_resolver: UrlResolver,
                  **kwargs) -> None:
         super().__init__(db)
+        self._postgres_loader = PostgresLoader(url_resolver=url_resolver,
+                                               meta=self.meta,
+                                               db=self.db)
 
     # https://www.postgresql.org/docs/10/datatype-numeric.html
     def integer_limits(self,
@@ -70,3 +79,19 @@ class PostgresDBDriver(DBDriver):
             return sqlalchemy.sql.sqltypes.Float(precision=FLOAT64_SIGNIFICAND_BITS)
         return super().type_for_floating_point(fp_total_bits=fp_total_bits,
                                                fp_significand_bits=fp_significand_bits)
+
+    def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
+        return self._postgres_loader.can_load_this_format(source_records_format)
+
+    def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
+        return self._postgres_loader.known_supported_records_formats_for_load()
+
+    def load(self,
+             schema: str,
+             table: str,
+             load_plan: RecordsLoadPlan,
+             directory: RecordsDirectory) -> int:
+        return self._postgres_loader.load(schema=schema,
+                                          table=table,
+                                          load_plan=load_plan,
+                                          directory=directory)
