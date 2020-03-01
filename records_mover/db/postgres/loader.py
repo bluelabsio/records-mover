@@ -38,6 +38,7 @@ class PostgresLoader:
         processing_instructions = load_plan.processing_instructions
         unhandled_hints = set(records_format.hints.keys())
         postgres_options = postgres_copy_options(unhandled_hints, load_plan)
+        logger.info(f"PostgreSQL load options: {postgres_options}")
         complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
                                     unhandled_hints,
                                     records_format.hints)
