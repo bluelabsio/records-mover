@@ -55,6 +55,7 @@ Now we can run this code:
 
 # Pull in the job lib library - be sure to run the pip install above first!
 from records_mover import Session
+from records_mover.records import move
 from pandas import DataFrame
 
 session = Session()
@@ -64,7 +65,8 @@ records = session.records
 #
 # You can instead call session.get_db_engine('cred name').
 #
-# On your laptop, 'cred name' is the same thing passed to dbcli (mapping to something in LastPass).
+# On your laptop, 'cred name' is the same thing passed to dbcli (mapping to
+# something in your db-facts config).
 #
 # In Airflow, 'cred name' maps to the connection ID in the admin Connnections UI.
 #
@@ -77,7 +79,7 @@ source = records.sources.dataframe(df=df)
 target = records.targets.table(schema_name='myschema',
                                table_name='mytable',
                                db_engine=db_engine)
-results = records.move(source, target)
+results = move(source, target)
 ```
 
 When moving data, the sources supported can be found
