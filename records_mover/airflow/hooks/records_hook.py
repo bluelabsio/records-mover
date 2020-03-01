@@ -2,7 +2,8 @@ import boto3
 from urllib.parse import urlparse
 from airflow.exceptions import AirflowException
 from records_mover.records.records import Records
-from records_mover.db.factory import db_driver, DBDriver
+from records_mover.db.factory import db_driver
+from records_mover.db import DBDriver
 from records_mover.url.resolver import UrlResolver
 from airflow.hooks import BaseHook
 from airflow.contrib.hooks.aws_hook import AwsHook
