@@ -159,7 +159,6 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     postgres_options['encoding'] = hints['encoding']
     quiet_remove(unhandled_hints, 'encoding')
 
-
     # COPY TO will terminate each row with a Unix-style newline
     # ("\n"). Servers running on Microsoft Windows instead output
     # carriage return/newline ("\r\n"), but only for COPY to a server
@@ -171,25 +170,10 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     # data, COPY FROM will complain if the line endings in the input
     # are not all alike.
 
-    # TODO: Get this to work on read and write and test what we
-    # produce vs what we can accept
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    quiet_remove(unhandled_hints, 'record-terminator')
+    if hints['record-terminator'] in ["\n", "\r", "\r\n"]:
+        quiet_remove(unhandled_hints, 'record-terminator')
+    else:
+        cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
 
     # TODO: Get this to work on read and write and test what we
     # produce vs what we can accept
