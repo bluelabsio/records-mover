@@ -1,6 +1,6 @@
 from records_mover.db.quoting import quote_schema_and_table
 from records_mover import Session
-from records_mover.records.existing_table_handling import ExistingTableHandling
+from records_mover.records import ExistingTableHandling, move
 import logging
 import time
 import unittest
@@ -58,7 +58,6 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
         records = session.records
         targets = records.targets
         sources = records.sources
-        move = records.move
         source_engine = session.get_db_engine(source_dbname)
         target_engine = session.get_db_engine(target_dbname)
         source_schema_name = schema_name(source_dbname)

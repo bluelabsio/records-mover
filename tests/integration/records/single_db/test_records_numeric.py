@@ -6,7 +6,9 @@ import os
 import json
 import pathlib
 from .numeric_expectations import expected_field_info, expected_column_types
-from records_mover.records.schema import RecordsSchema
+from records_mover.records import (
+    RecordsSchema, move, DelimitedRecordsFormat, ProcessingInstructions
+)
 from ..records_numeric_database_fixture import RecordsNumericDatabaseFixture
 
 logger = logging.getLogger(__name__)
@@ -53,14 +55,14 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
         self.numeric_fixture.bring_up()
         with tempfile.TemporaryDirectory(prefix='test_records_numeric_schema') as tempdir:
             output_url = pathlib.Path(tempdir).resolve().as_uri() + '/'
-            records_format = self.records.RecordsFormat()
-            processing_instructions = self.records.ProcessingInstructions()
+            records_format = DelimitedRecordsFormat()
+            processing_instructions = ProcessingInstructions()
             source = self.records.sources.table(schema_name=self.schema_name,
                                                 table_name=self.table_name,
                                                 db_engine=self.engine)
             target = self.records.targets.directory_from_url(output_url,
                                                              records_format=records_format)
-            out = self.records.move(source, target, processing_instructions)
+            out = move(source, target, processing_instructions)
             self.assertIn(out.move_count, [1, None])
             self.validate_records_schema(tempdir)
 
@@ -81,22 +83,21 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
 
     def test_numeric_database_columns_created(self):
         records_schema = RecordsSchema.from_data(example_numeric_records_schema)
-        processing_instructions = self.records.ProcessingInstructions()
+        processing_instructions = ProcessingInstructions()
         preferred_records_format = {
             'redshift': 'bluelabs',
             'bigquery': 'bigquery',
             'vertica': 'vertica',
             'postgresql': 'bluelabs',
         }
+        records_format = DelimitedRecordsFormat(variant=preferred_records_format[self.engine.name])
         source = self.records.sources.\
             local_file('/dev/null',
-                       records_format=self.records.
-                       RecordsFormat(format_type='delimited',
-                                     variant=preferred_records_format[self.engine.name]),
+                       records_format=records_format,
                        records_schema=records_schema)
         target = self.records.targets.table(schema_name=self.schema_name,
                                             table_name=self.table_name,
                                             db_engine=self.engine)
-        out = self.records.move(source, target, processing_instructions)
+        out = move(source, target, processing_instructions)
         self.assertIn(out.move_count, [0, None])
         self.validate_table()

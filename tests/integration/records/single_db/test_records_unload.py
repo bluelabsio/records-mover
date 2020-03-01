@@ -4,6 +4,7 @@ import pathlib
 from ..directory_validator import RecordsDirectoryValidator
 from ..records_database_fixture import RecordsDatabaseFixture
 from .base_records_test import BaseRecordsIntegrationTest
+from records_mover.records import DelimitedRecordsFormat, move
 
 logger = logging.getLogger(__name__)
 
@@ -56,15 +57,12 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
             self.verify_records_directory(format_type, variant, tempdir, hints=hints)
 
     def unload(self, variant, directory, hints={}):
-        records_format = self.records.RecordsFormat(format_type='delimited',
-                                                    variant=variant,
-
-                                                    hints=hints)
+        records_format = DelimitedRecordsFormat(variant=variant,
+                                                hints=hints)
 
         directory_url = pathlib.Path(directory).resolve().as_uri() + '/'
         targets = self.records.targets
         sources = self.records.sources
-        move = self.records.move
         source = sources.table(schema_name=self.schema_name,
                                table_name=self.table_name,
                                db_engine=self.engine)

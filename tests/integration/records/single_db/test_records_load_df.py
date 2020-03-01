@@ -4,6 +4,7 @@ from .base_records_test import BaseRecordsIntegrationTest
 import datetime
 from odictliteral import odict
 from ..table_validator import RecordsTableValidator
+from records_mover.records import move
 
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,7 @@ class RecordsLoadDataframeIntegrationTest(BaseRecordsIntegrationTest):
             self.records.targets.table(schema_name=self.schema_name,
                                        table_name=self.table_name,
                                        db_engine=self.engine) as target:
-            out = self.records.move(source, target)
+            out = move(source, target)
             self.verify_db_table()
             return out
 

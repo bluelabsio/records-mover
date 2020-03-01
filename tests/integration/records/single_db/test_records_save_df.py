@@ -2,7 +2,9 @@ import pytz
 import logging
 from .base_records_test import BaseRecordsIntegrationTest
 from ..directory_validator import RecordsDirectoryValidator
-from records_mover.records.schema import RecordsSchema
+from records_mover.records import (
+    RecordsSchema, move, DelimitedRecordsFormat, ProcessingInstructions
+)
 import tempfile
 import pathlib
 import datetime
@@ -21,7 +23,7 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
         from pandas import DataFrame
 
         if processing_instructions is None:
-            processing_instructions = self.records.ProcessingInstructions()
+            processing_instructions = ProcessingInstructions()
         us_eastern = pytz.timezone('US/Eastern')
         df = DataFrame.from_dict([odict[
             'num': 123,
@@ -50,7 +52,7 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
                                                     processing_instructions=processing_instructions)
             target = self.records.targets.directory_from_url(output_url,
                                                              records_format=records_format)
-            out = self.records.move(source, target, processing_instructions)
+            out = move(source, target, processing_instructions)
             self.verify_records_directory(records_format.format_type,
                                           records_format.variant,
                                           tempdir,
@@ -64,15 +66,15 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
 
     def test_save_with_defaults(self):
         hints = {}
-        self.save_and_verify(records_format=self.records.RecordsFormat(hints=hints))
+        self.save_and_verify(records_format=DelimitedRecordsFormat(hints=hints))
 
     def test_save_csv_variant(self):
-        records_format = self.records.RecordsFormat(variant='csv')
+        records_format = DelimitedRecordsFormat(variant='csv')
         self.save_and_verify(records_format=records_format)
 
     def test_save_with_no_compression(self):
         hints = {
             'compression': None,
         }
-        records_format = self.records.RecordsFormat(hints=hints)
+        records_format = DelimitedRecordsFormat(hints=hints)
         self.save_and_verify(records_format=records_format)
