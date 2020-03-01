@@ -1,21 +1,4 @@
-from typing import Dict, Any, TypeVar, Callable, List, Union
-
-
-# Thank you, StackOverflow!
-def snake_to_camel(snake_str: str) -> str:
-    components = snake_str.split('_')
-    # We capitalize the first letter of each component except the first one
-    # with the 'capitalize' method and join them together.
-    return components[0] + "".join(x.capitalize() for x in components[1:])
-
-
-A = TypeVar('A')
-B = TypeVar('B')
-C = TypeVar('C')
-
-
-def map_keys(f: Callable[[A], B], dict_to_convert: Dict[A, C]) -> Dict[B, C]:
-    return {f(name): val for name, val in dict_to_convert.items()}
+from typing import Dict, Any, TypeVar, List, Union
 
 
 V = TypeVar('V')
