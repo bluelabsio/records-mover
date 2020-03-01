@@ -6,9 +6,9 @@ from records_mover.db import connect
 class TestSQLAlchemyDriverPicking(unittest.TestCase):
     @patch('records_mover.db.connect.db_facts_from_lpass')
     @patch('records_mover.db.connect.sa.create_engine')
-    def test_create_db_url(self,
-                           mock_create_engine,
-                           mock_db_facts_from_lpass):
+    def test_create_sqlalchemy_url(self,
+                                   mock_create_engine,
+                                   mock_db_facts_from_lpass):
         expected_mappings = {
             'psql (redshift)':
             'redshift://myuser:hunter1@myhost:123/analyticsdb',
@@ -35,14 +35,14 @@ class TestSQLAlchemyDriverPicking(unittest.TestCase):
                 'port': 123,
                 'database': 'analyticsdb'
             }
-            actual_url = connect.create_db_url(db_facts)
+            actual_url = connect.create_sqlalchemy_url(db_facts)
             assert str(actual_url) == expected_url
 
     @patch('records_mover.db.connect.db_facts_from_lpass')
     @patch('records_mover.db.connect.sa.create_engine')
-    def test_create_db_url_odbc_preferred(self,
-                                          mock_create_engine,
-                                          mock_db_facts_from_lpass):
+    def test_create_sqlalchemy_url_odbc_preferred(self,
+                                                  mock_create_engine,
+                                                  mock_db_facts_from_lpass):
         expected_mappings = {
             'psql (redshift)':
             'redshift://myuser:hunter1@myhost:123/analyticsdb',
@@ -71,5 +71,5 @@ class TestSQLAlchemyDriverPicking(unittest.TestCase):
                 'port': 123,
                 'database': 'analyticsdb'
             }
-            actual_url = connect.create_db_url(db_facts, prefer_odbc=True)
+            actual_url = connect.create_sqlalchemy_url(db_facts, prefer_odbc=True)
             assert str(actual_url) == expected_url

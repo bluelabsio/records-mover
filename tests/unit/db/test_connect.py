@@ -42,7 +42,7 @@ class TestConnect(unittest.TestCase):
             'type': 'bigquery',
             'bq_default_project_id': 'bluelabs-tools-dev',
         }
-        url = connect.create_db_url(db_facts)
+        url = connect.create_sqlalchemy_url(db_facts)
         self.assertEqual(url, 'bigquery://bluelabs-tools-dev')
 
     @patch('records_mover.db.connect.db_facts_from_lpass')
@@ -57,7 +57,7 @@ class TestConnect(unittest.TestCase):
             'bq_default_project_id': 'bluelabs-tools-dev',
             'bq_default_dataset_id': 'myfancydataset',
         }
-        url = connect.create_db_url(db_facts)
+        url = connect.create_sqlalchemy_url(db_facts)
         self.assertEqual(url, 'bigquery://bluelabs-tools-dev/myfancydataset')
 
     @patch('records_mover.db.connect.db_facts_from_lpass')

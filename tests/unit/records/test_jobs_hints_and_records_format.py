@@ -8,8 +8,9 @@ from contextlib import contextmanager
 class TestJobsHintsAndRecordsFormat(unittest.TestCase):
     maxDiff = None
 
+    @patch('records_mover.records.job.mover.move')
     @patch('records_mover.records.job.mover.Session')
-    def test_initial_hints_only(self, mock_Session):
+    def test_initial_hints_only(self, mock_Session, mock_move):
         mock_source = Mock(name='source')
         mock_target = Mock(name='target')
 
@@ -45,11 +46,12 @@ class TestJobsHintsAndRecordsFormat(unittest.TestCase):
                                     target_method_name='mytarget',
                                     job_name=mock_job_name,
                                     config=config)
-        mock_records.move.assert_called()
-        self.assertEqual(out, mock_records.move.return_value)
+        mock_move.assert_called()
+        self.assertEqual(out, mock_move.return_value)
 
+    @patch('records_mover.records.job.mover.move')
     @patch('records_mover.records.job.mover.Session')
-    def test_hints_with_no_variant(self, mock_Session):
+    def test_hints_with_no_variant(self, mock_Session, mock_move):
         mock_source = Mock(name='source')
         mock_target = Mock(name='target')
 
@@ -87,11 +89,12 @@ class TestJobsHintsAndRecordsFormat(unittest.TestCase):
                                     target_method_name='mytarget',
                                     job_name=mock_job_name,
                                     config=config)
-        mock_records.move.assert_called()
-        self.assertEqual(out, mock_records.move.return_value)
+        mock_move.assert_called()
+        self.assertEqual(out, mock_move.return_value)
 
+    @patch('records_mover.records.job.mover.move')
     @patch('records_mover.records.job.mover.Session')
-    def test_variant_with_no_hints(self, mock_Session):
+    def test_variant_with_no_hints(self, mock_Session, mock_move):
         mock_source = Mock(name='source')
         mock_target = Mock(name='target')
 
@@ -124,11 +127,12 @@ class TestJobsHintsAndRecordsFormat(unittest.TestCase):
                                     target_method_name='mytarget',
                                     job_name=mock_job_name,
                                     config=config)
-        mock_records.move.assert_called()
-        self.assertEqual(out, mock_records.move.return_value)
+        mock_move.assert_called()
+        self.assertEqual(out, mock_move.return_value)
 
+    @patch('records_mover.records.job.mover.move')
     @patch('records_mover.records.job.mover.Session')
-    def test_variant_first_then_hints(self, mock_Session):
+    def test_variant_first_then_hints(self, mock_Session, mock_move):
         mock_source = Mock(name='source')
         mock_target = Mock(name='target')
 
@@ -168,11 +172,12 @@ class TestJobsHintsAndRecordsFormat(unittest.TestCase):
                                     target_method_name='mytarget',
                                     job_name=mock_job_name,
                                     config=config)
-        mock_records.move.assert_called()
-        self.assertEqual(out, mock_records.move.return_value)
+        mock_move.assert_called()
+        self.assertEqual(out, mock_move.return_value)
 
+    @patch('records_mover.records.job.mover.move')
     @patch('records_mover.records.job.mover.Session')
-    def test_hints_first_then_variant(self, mock_Session):
+    def test_hints_first_then_variant(self, mock_Session, mock_move):
         mock_source = Mock(name='source')
         mock_target = Mock(name='target')
 
@@ -212,11 +217,12 @@ class TestJobsHintsAndRecordsFormat(unittest.TestCase):
                                     target_method_name='mytarget',
                                     job_name=mock_job_name,
                                     config=config)
-        mock_records.move.assert_called()
-        self.assertEqual(out, mock_records.move.return_value)
+        mock_move.assert_called()
+        self.assertEqual(out, mock_move.return_value)
 
+    @patch('records_mover.records.job.mover.move')
     @patch('records_mover.records.job.mover.Session')
-    def test_hints_with_no_initial_hints(self, mock_Session):
+    def test_hints_with_no_initial_hints(self, mock_Session, mock_move):
         mock_source = Mock(name='source')
         mock_target = Mock(name='target')
 
@@ -252,5 +258,5 @@ class TestJobsHintsAndRecordsFormat(unittest.TestCase):
                                     target_method_name='mytarget',
                                     job_name=mock_job_name,
                                     config=config)
-        mock_records.move.assert_called()
-        self.assertEqual(out, mock_records.move.return_value)
+        mock_move.assert_called()
+        self.assertEqual(out, mock_move.return_value)

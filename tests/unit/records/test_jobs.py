@@ -8,9 +8,11 @@ from contextlib import contextmanager
 class TestJobs(unittest.TestCase):
     maxDiff = None
 
+    @patch('records_mover.records.job.mover.move')
     @patch('records_mover.records.job.mover.Session')
     def test_run_records_mover_job(self,
-                                   mock_Session):
+                                   mock_Session,
+                                   mock_move):
         mock_source = Mock(name='source')
         mock_target = Mock(name='target')
 
@@ -59,8 +61,8 @@ class TestJobs(unittest.TestCase):
                                     target_method_name='mytarget',
                                     job_name=mock_job_name,
                                     config=config)
-        mock_records.move.assert_called()
-        self.assertEqual(out, mock_records.move.return_value)
+        mock_move.assert_called()
+        self.assertEqual(out, mock_move.return_value)
 
     @patch('records_mover.records.job.schema.method_signature_to_json_schema')
     def test_method_to_json_schema(self, mock_method_signature_to_json_schema):
