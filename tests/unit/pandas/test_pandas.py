@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 import unittest
 from records_mover import pandas

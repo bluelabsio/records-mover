@@ -1,8 +1,7 @@
 import json
 import numpy as np
-from ..utils.structures import map_keys, snake_to_camel, nest_dict
 from pandas import DataFrame
-from typing import List, Dict, Any
+from typing import Any
 
 
 # http://stackoverflow.com/questions/27050108/convert-numpy-type-to-python
@@ -16,6 +15,7 @@ class NumPyJSONEncoder(json.JSONEncoder):
             return obj.tolist()
         else:
             return super(NumPyJSONEncoder, self).default(obj)
+
 
 def json_dumps(item: str) -> Any:
     return json.dumps(item, cls=NumPyJSONEncoder)
