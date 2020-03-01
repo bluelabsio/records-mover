@@ -2,7 +2,8 @@ from .database import db_facts_from_env
 from sqlalchemy.engine import Engine
 import boto3
 from .records.records import Records
-from .db import db_driver, DBDriver
+from .db.factory import db_driver
+from .db import DBDriver
 from .url.base import BaseFileUrl, BaseDirectoryUrl
 import sqlalchemy
 from typing import Union, Optional
