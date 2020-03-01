@@ -10,6 +10,7 @@ from tempfile import NamedTemporaryFile
 from ..hints import complain_on_unhandled_hints
 import logging
 from typing import Iterator, Iterable, Optional, Union, Dict, IO, Callable, TYPE_CHECKING
+from records_mover.pandas import purge_unnamed_unused_columns
 if TYPE_CHECKING:
     from pandas import DataFrame
 
@@ -70,6 +71,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
 
         for df in self.dfs:
             with NamedTemporaryFile(prefix='mover_seralized_dataframe') as output_file:
+                df = purge_unnamed_unused_columns(df)
                 output_filename = output_file.name
                 logger.info(f"Writing CSV file to {output_filename}")
                 save_df(df, output_filename)
