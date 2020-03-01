@@ -57,13 +57,13 @@ To see details on the tests available, run:
 To run all of the test suite locally (takes about 30 minutes):
 
    ```sh
-   time ( set +x; with-role admin-qa true && ensure-lpass-active && ./itest all )
+   ./itest all
    ```
 
 To run the same suite with mover itself in a Docker image:
 
    ```sh
-   time ( set +x; with-role admin-qa true && ensure-lpass-active && ./itest --docker all )
+   ./itest --docker all
    ```
 
 ### Common issues with integration tests
