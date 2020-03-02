@@ -77,7 +77,7 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
                                table_name=TARGET_TABLE_NAME,
                                db_engine=target_engine,
                                existing_table_handling=existing)
-        out = self.records.move(source, target)
+        out = records.move(source, target)
         # redshift doesn't give reliable info on load results, so this
         # will be None or 1
         self.assertNotEqual(0, out.move_count)
