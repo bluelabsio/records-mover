@@ -139,7 +139,7 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
             targets.table(schema_name=self.schema_name,
                           table_name=self.table_name,
                           db_engine=self.engine) as target:
-            out = move(source, target)
+            out = self.records.move(source, target)
         if not self.gives_exact_load_count():
             self.assertIsNone(out.move_count)
         else:

@@ -5,6 +5,7 @@ from ..db import DBDriver
 from ..url.resolver import UrlResolver
 from .sources import RecordsSources
 from .targets import RecordsTargets
+from .mover import move
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,7 @@ class Records:
                                       url_resolver=url_resolver)
         self.targets = RecordsTargets(url_resolver=url_resolver,
                                       db_driver=db_driver)
+        self.move = move
         """
         To move records from one place to another, you can use the methods on this object.
 

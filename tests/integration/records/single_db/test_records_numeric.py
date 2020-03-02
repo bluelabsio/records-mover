@@ -62,7 +62,7 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
                                                 db_engine=self.engine)
             target = self.records.targets.directory_from_url(output_url,
                                                              records_format=records_format)
-            out = move(source, target, processing_instructions)
+            out = self.records.move(source, target, processing_instructions)
             self.assertIn(out.move_count, [1, None])
             self.validate_records_schema(tempdir)
 
@@ -98,6 +98,6 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
         target = self.records.targets.table(schema_name=self.schema_name,
                                             table_name=self.table_name,
                                             db_engine=self.engine)
-        out = move(source, target, processing_instructions)
+        out = self.records.move(source, target, processing_instructions)
         self.assertIn(out.move_count, [0, None])
         self.validate_table()

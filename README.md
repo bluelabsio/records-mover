@@ -79,7 +79,7 @@ source = records.sources.dataframe(df=df)
 target = records.targets.table(schema_name='myschema',
                                table_name='mytable',
                                db_engine=db_engine)
-results = move(source, target)
+results = records.move(source, target)
 ```
 
 When moving data, the sources supported can be found

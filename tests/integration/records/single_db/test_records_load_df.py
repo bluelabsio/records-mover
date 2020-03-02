@@ -39,7 +39,7 @@ class RecordsLoadDataframeIntegrationTest(BaseRecordsIntegrationTest):
             self.records.targets.table(schema_name=self.schema_name,
                                        table_name=self.table_name,
                                        db_engine=self.engine) as target:
-            out = move(source, target)
+            out = self.records.move(source, target)
             self.verify_db_table()
             return out
 

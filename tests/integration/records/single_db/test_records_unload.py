@@ -68,7 +68,7 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
                                db_engine=self.engine)
         target = targets.directory_from_url(output_url=directory_url,
                                             records_format=records_format)
-        out = move(source, target)
+        out = self.records.move(source, target)
         self.assertTrue(out.move_count in [1, None])
 
     def verify_records_directory(self, format_type, variant, tempdir, hints={}):

@@ -1,6 +1,5 @@
 """Create and run jobs to convert between different sources and targets"""
 from records_mover import Session
-from records_mover.records import move
 from ..processing_instructions import ProcessingInstructions
 from ..results import MoveResult
 from ...types import JobConfig
@@ -32,9 +31,10 @@ def run_records_mover_job(source_method_name: str,
                                    session=session)
         processing_instructions = ProcessingInstructions(**pi_kwargs)
 
+        records = session.records
         source = source_method(**source_kwargs)
         target = target_method(**target_kwargs)
-        return move(source, target, processing_instructions)
+        return records.move(source, target, processing_instructions)
     except Exception as e:
         logger.error(e)
         raise

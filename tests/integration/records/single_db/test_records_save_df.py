@@ -52,7 +52,7 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
                                                     processing_instructions=processing_instructions)
             target = self.records.targets.directory_from_url(output_url,
                                                              records_format=records_format)
-            out = move(source, target, processing_instructions)
+            out = self.records.move(source, target, processing_instructions)
             self.verify_records_directory(records_format.format_type,
                                           records_format.variant,
                                           tempdir,
