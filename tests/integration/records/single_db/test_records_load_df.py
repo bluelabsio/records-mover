@@ -4,7 +4,6 @@ from .base_records_test import BaseRecordsIntegrationTest
 import datetime
 from odictliteral import odict
 from ..table_validator import RecordsTableValidator
-from records_mover.records import move
 
 
 logger = logging.getLogger(__name__)
