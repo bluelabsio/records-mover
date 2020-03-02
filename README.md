@@ -55,7 +55,6 @@ Now we can run this code:
 
 # Pull in the job lib library - be sure to run the pip install above first!
 from records_mover import Session
-from records_mover.records import move
 from pandas import DataFrame
 
 session = Session()
@@ -79,7 +78,7 @@ source = records.sources.dataframe(df=df)
 target = records.targets.table(schema_name='myschema',
                                table_name='mytable',
                                db_engine=db_engine)
-results = move(source, target)
+results = records.move(source, target)
 ```
 
 When moving data, the sources supported can be found

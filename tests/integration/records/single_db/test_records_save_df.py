@@ -3,7 +3,7 @@ import logging
 from .base_records_test import BaseRecordsIntegrationTest
 from ..directory_validator import RecordsDirectoryValidator
 from records_mover.records import (
-    RecordsSchema, move, DelimitedRecordsFormat, ProcessingInstructions
+    RecordsSchema, DelimitedRecordsFormat, ProcessingInstructions
 )
 import tempfile
 import pathlib
@@ -52,7 +52,7 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
                                                     processing_instructions=processing_instructions)
             target = self.records.targets.directory_from_url(output_url,
                                                              records_format=records_format)
-            out = move(source, target, processing_instructions)
+            out = self.records.move(source, target, processing_instructions)
             self.verify_records_directory(records_format.format_type,
                                           records_format.variant,
                                           tempdir,

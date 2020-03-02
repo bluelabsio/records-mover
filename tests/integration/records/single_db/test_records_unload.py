@@ -4,7 +4,7 @@ import pathlib
 from ..directory_validator import RecordsDirectoryValidator
 from ..records_database_fixture import RecordsDatabaseFixture
 from .base_records_test import BaseRecordsIntegrationTest
-from records_mover.records import DelimitedRecordsFormat, move
+from records_mover.records import DelimitedRecordsFormat
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
                                db_engine=self.engine)
         target = targets.directory_from_url(output_url=directory_url,
                                             records_format=records_format)
-        out = move(source, target)
+        out = self.records.move(source, target)
         self.assertTrue(out.move_count in [1, None])
 
     def verify_records_directory(self, format_type, variant, tempdir, hints={}):
