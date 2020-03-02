@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from .base_records_test import BaseRecordsIntegrationTest
 from ..table_validator import RecordsTableValidator
 
-from records_mover.records import RecordsSchema, move, RecordsFormat
+from records_mover.records import RecordsSchema, RecordsFormat
 
 logger = logging.getLogger(__name__)
 

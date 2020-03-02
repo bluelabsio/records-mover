@@ -7,7 +7,7 @@ import json
 import pathlib
 from .numeric_expectations import expected_field_info, expected_column_types
 from records_mover.records import (
-    RecordsSchema, move, DelimitedRecordsFormat, ProcessingInstructions
+    RecordsSchema, DelimitedRecordsFormat, ProcessingInstructions
 )
 from ..records_numeric_database_fixture import RecordsNumericDatabaseFixture
 

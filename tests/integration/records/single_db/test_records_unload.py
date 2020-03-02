@@ -4,7 +4,7 @@ import pathlib
 from ..directory_validator import RecordsDirectoryValidator
 from ..records_database_fixture import RecordsDatabaseFixture
 from .base_records_test import BaseRecordsIntegrationTest
-from records_mover.records import DelimitedRecordsFormat, move
+from records_mover.records import DelimitedRecordsFormat
 
 logger = logging.getLogger(__name__)
 

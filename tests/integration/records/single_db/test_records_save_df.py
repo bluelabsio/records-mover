@@ -3,7 +3,7 @@ import logging
 from .base_records_test import BaseRecordsIntegrationTest
 from ..directory_validator import RecordsDirectoryValidator
 from records_mover.records import (
-    RecordsSchema, move, DelimitedRecordsFormat, ProcessingInstructions
+    RecordsSchema, DelimitedRecordsFormat, ProcessingInstructions
 )
 import tempfile
 import pathlib

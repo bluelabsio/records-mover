@@ -1,6 +1,6 @@
 from records_mover.db.quoting import quote_schema_and_table
 from records_mover import Session
-from records_mover.records import ExistingTableHandling, move
+from records_mover.records import ExistingTableHandling
 import logging
 import time
 import unittest

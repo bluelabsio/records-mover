@@ -55,7 +55,6 @@ Now we can run this code:
 
 # Pull in the job lib library - be sure to run the pip install above first!
 from records_mover import Session
-from records_mover.records import move
 from pandas import DataFrame
 
 session = Session()
