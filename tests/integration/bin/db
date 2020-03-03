@@ -46,7 +46,7 @@ else
     shift
   fi
 
-  eval "$(db-facts "${DB_NAME:?}")"
+  eval "$(db-facts sh "${DB_NAME:?}")"
 
   "${DIR:?}/arg-to-stdin" "${FILENAME:?}" template -n "${FILENAME:?}" -- "${@}" | \
     "${DIR:?}/with-db" "${DB_NAME:?}" "${DIR:?}/db-connect"
