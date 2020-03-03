@@ -22,7 +22,7 @@ odbc_driver_for_type = {
 }
 
 
-def create_vertica_odbc_db_url(db_facts: DBFacts) -> str:
+def create_vertica_odbc_sqlalchemy_url(db_facts: DBFacts) -> str:
     # Vertica wants the port in its ODBC connect string as a separate
     # parameter called "Port":
     #
@@ -53,7 +53,7 @@ def create_vertica_odbc_db_url(db_facts: DBFacts) -> str:
     return "vertica+pyodbc:///?odbc_connect={}".format(db_url)
 
 
-def create_bigquery_db_url(db_facts: DBFacts) -> str:
+def create_bigquery_sqlalchemy_url(db_facts: DBFacts) -> str:
     "Create URL compatible with https://github.com/mxmzdlv/pybigquery"
 
     default_project_id = db_facts.get('bq_default_project_id')
@@ -75,11 +75,12 @@ def create_bigquery_db_engine(db_facts: DBFacts) -> sa.engine.Engine:
         logger.info(f"Logging into BigQuery as {credentials_info['client_email']}")
     else:
         logger.info("Found no service account info for BigQuery, using local creds")
-    url = create_bigquery_db_url(db_facts)
+    url = create_bigquery_sqlalchemy_url(db_facts)
     return sa.engine.create_engine(url, credentials_info=credentials_info)
 
 
-def create_db_url(db_facts: DBFacts, prefer_odbc: bool=False) -> Union[str, sa.engine.url.URL]:
+def create_sqlalchemy_url(db_facts: DBFacts,
+                          prefer_odbc: bool=False) -> Union[str, sa.engine.url.URL]:
     db_type = canonicalize_db_type(db_facts['type'])
     driver = db_driver_for_type.get(db_type, db_type)
     if prefer_odbc:
@@ -88,13 +89,13 @@ def create_db_url(db_facts: DBFacts, prefer_odbc: bool=False) -> Union[str, sa.e
     # still using 'username'
     username = db_facts.get('username', db_facts.get('user'))  # type: ignore
     if driver == 'vertica+pyodbc':
-        return create_vertica_odbc_db_url(db_facts)
+        return create_vertica_odbc_sqlalchemy_url(db_facts)
     elif driver == 'bigquery':
         if 'bq_service_account_json' in db_facts:
             raise NotImplementedError("pybigquery does not support providing credentials info "
                                       "(service account JSON) directly")
 
-        return create_bigquery_db_url(db_facts)
+        return create_bigquery_sqlalchemy_url(db_facts)
     else:
         return sa.engine.url.URL(drivername=driver,
                                  username=username,
@@ -118,5 +119,5 @@ def engine_from_db_facts(db_facts: DBFacts) -> sa.engine.Engine:
         # use create_engine() instead of creating a URL just in case.
         return create_bigquery_db_engine(db_facts)
     else:
-        db_url = create_db_url(db_facts)
+        db_url = create_sqlalchemy_url(db_facts)
         return sa.create_engine(db_url)

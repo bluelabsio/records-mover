@@ -1,6 +1,6 @@
 from records_mover.db.quoting import quote_schema_and_table
 from records_mover import Session
-from records_mover.records.existing_table_handling import ExistingTableHandling
+from records_mover.records import ExistingTableHandling
 import logging
 import time
 import unittest
@@ -58,7 +58,6 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
         records = session.records
         targets = records.targets
         sources = records.sources
-        move = records.move
         source_engine = session.get_db_engine(source_dbname)
         target_engine = session.get_db_engine(target_dbname)
         source_schema_name = schema_name(source_dbname)
@@ -78,7 +77,7 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
                                table_name=TARGET_TABLE_NAME,
                                db_engine=target_engine,
                                existing_table_handling=existing)
-        out = move(source, target)
+        out = records.move(source, target)
         # redshift doesn't give reliable info on load results, so this
         # will be None or 1
         self.assertNotEqual(0, out.move_count)

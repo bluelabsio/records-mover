@@ -18,7 +18,6 @@ def run_records_mover_job(source_method_name: str,
         source_method = getattr(session.records.sources, source_method_name)
         target_method = getattr(session.records.targets, target_method_name)
         logger.info('Starting...')
-        records = session.records
 
         source_kwargs = config_to_args(config=config['source'],
                                        method=source_method,
@@ -32,6 +31,7 @@ def run_records_mover_job(source_method_name: str,
                                    session=session)
         processing_instructions = ProcessingInstructions(**pi_kwargs)
 
+        records = session.records
         source = source_method(**source_kwargs)
         target = target_method(**target_kwargs)
         return records.move(source, target, processing_instructions)

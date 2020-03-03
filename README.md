@@ -64,7 +64,8 @@ records = session.records
 #
 # You can instead call session.get_db_engine('cred name').
 #
-# On your laptop, 'cred name' is the same thing passed to dbcli (mapping to something in LastPass).
+# On your laptop, 'cred name' is the same thing passed to dbcli (mapping to
+# something in your db-facts config).
 #
 # In Airflow, 'cred name' maps to the connection ID in the admin Connnections UI.
 #
