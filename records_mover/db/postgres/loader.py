@@ -8,7 +8,6 @@ from ...records.hints import complain_on_unhandled_hints
 from ...records.records_directory import RecordsDirectory
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
-from ...utils.concat_files import ConcatFiles
 from postgres_copy import copy_from
 from .postgres_copy_options import postgres_copy_options
 from typing import IO, Union, List
@@ -30,7 +29,7 @@ class PostgresLoader:
                           schema: str,
                           table: str,
                           load_plan: RecordsLoadPlan,
-                          fileobj: IO[bytes]) -> int:
+                          fileobj: IO[bytes]) -> None:
         records_format = load_plan.records_format
         if not isinstance(records_format, DelimitedRecordsFormat):
             raise NotImplementedError("Not currently able to load "
@@ -48,12 +47,11 @@ class PostgresLoader:
                           schema=schema,
                           autoload=True,
                           autoload_with=self.db)
-        out = copy_from(fileobj,
-                        table_obj,
-                        self.db,
-                        **postgres_options)
+        copy_from(fileobj,
+                  table_obj,
+                  self.db,
+                  **postgres_options)
         logger.info('Copy complete')
-        return out
 
     def load(self,
              schema: str,
@@ -61,8 +59,6 @@ class PostgresLoader:
              load_plan: RecordsLoadPlan,
              directory: RecordsDirectory) -> int:
         all_urls = directory.manifest_entry_urls()
-
-        total_rows = 0
 
         for url in all_urls:
             loc = self.url_resolver.file_url(url)
@@ -72,8 +68,7 @@ class PostgresLoader:
                 # the existing table, so it's safe to call this
                 # multiple times and append until done:
                 logger.info(f"Loading {url} into {schema}.{table}")
-                total_rows += self.load_from_fileobj(schema, table, load_plan, f)
-        return total_rows
+                self.load_from_fileobj(schema, table, load_plan, f)
 
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         try:
