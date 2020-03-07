@@ -62,17 +62,18 @@ class PostgresLoader:
              directory: RecordsDirectory) -> int:
         all_urls = directory.manifest_entry_urls()
 
-        locs = [self.url_resolver.file_url(url) for url in all_urls]
-        fileobjs: List[IO[bytes]] = []
-        with ExitStack() as stack:
-            fileobjs = [stack.enter_context(loc.open()) for loc in locs]
-            # TODO: Is this even right if there are headers?
-            concatted_fileobj: IO[bytes] = ConcatFiles(fileobjs)  # type: ignore
-            return self.load_from_fileobj(schema,
-                                          table,
-                                          load_plan,
-                                          concatted_fileobj)
-        assert False  # TODO WTF
+        total_rows = 0
+
+        for url in all_urls:
+            loc = self.url_resolver.file_url(url)
+            with loc.open() as f:
+                # Postgres COPY FROM defaults to appending data--we
+                # let the records Prep class decide what to do about
+                # the existing table, so it's safe to call this
+                # multiple times and append until done:
+                logger.info(f"Loading {url} into {schema}.{table}")
+                total_rows += self.load_from_fileobj(schema, table, load_plan, f)
+        return total_rows
 
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         try:
