@@ -84,8 +84,7 @@ class PostgresLoader:
             complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
                                         unhandled_hints, load_plan.records_format.hints)
             return True
-        except NotImplementedError as e:
-            logger.exception(e)  # TODO
+        except NotImplementedError:
             return False
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
