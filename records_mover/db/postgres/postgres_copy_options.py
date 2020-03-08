@@ -65,8 +65,6 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     #  the case of copying a query.)
     #
 
-    # TODO: OIDS
-
     # DELIMITER
     #
     #  Specifies the character that separates columns within each row
