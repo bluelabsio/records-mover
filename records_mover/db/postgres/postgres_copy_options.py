@@ -45,6 +45,78 @@ def needs_csv_format(hints: RecordsHints) -> bool:
     return False
 
 
+def postgres_copy_options_common(unhandled_hints: Set[str],
+                                 hints: RecordsHints,
+                                 fail_if_cant_handle_hint: bool,
+                                 postgres_options: PostgresCopyOptions) -> None:
+
+    # TODO: Get this to work on read and write and test what we
+    # produce vs what we can accept
+    quiet_remove(unhandled_hints, 'datetimeformattz')
+
+    # TODO: Get this to work on read and write and test what we
+    # produce vs what we can accept
+    quiet_remove(unhandled_hints, 'datetimeformat')
+
+    # TODO: Get this to work on read and write and test what we
+    # produce vs what we can accept
+    quiet_remove(unhandled_hints, 'timeonlyformat')
+
+    # TODO: Get this to work on read and write and test what we
+    # produce vs what we can accept
+    quiet_remove(unhandled_hints, 'dateformat')
+
+    # ENCODING
+    #
+    #  Specifies that the file is encoded in the encoding_name. If
+    #  this option is omitted, the current client encoding is
+    #  used. See the Notes below for more details.
+
+    # TODO: Dedupe common params
+    if hints['encoding'] in postgres_encoding_names:
+        postgres_options['encoding'] = postgres_encoding_names[hints['encoding']]
+        quiet_remove(unhandled_hints, 'encoding')
+    else:
+        cant_handle_hint(fail_if_cant_handle_hint, 'encoding', hints)
+
+    # FORCE_NOT_NULL
+    #
+    #  Do not match the specified columns' values against the null
+    #  string. In the default case where the null string is empty,
+    #  this means that empty values will be read as zero-length
+    #  strings rather than nulls, even when they are not quoted. This
+    #  option is allowed only in COPY FROM, and only when using CSV
+    #  format.
+    #
+    # HEADER
+    #
+    #  Specifies that the file contains a header line with the names
+    #  of each column in the file. On output, the first line contains
+    #  the column names from the table, and on input, the first line
+    #  is ignored. This option is allowed only when using CSV format.
+    #
+    quiet_remove(unhandled_hints, 'header-row')
+    postgres_options['header'] = hints['header-row']
+
+    # OIDS
+    #
+    #  Specifies copying the OID for each row. (An error is raised if
+    #  OIDS is specified for a table that does not have OIDs, or in
+    #  the case of copying a query.)
+    #
+
+
+    # DELIMITER
+    #
+    #  Specifies the character that separates columns within each row
+    #  (line) of the file. The default is a tab character in text
+    #  format, a comma in CSV format. This must be a single one-byte
+    #  character. This option is not allowed when using binary format.
+    #
+    postgres_options['delimiter'] = hints['field-delimiter']
+    quiet_remove(unhandled_hints, 'field-delimiter')
+
+
 def postgres_copy_options_text(unhandled_hints: Set[str],
                                hints: RecordsHints,
                                fail_if_cant_handle_hint: bool,
@@ -67,23 +139,6 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     else:
         quiet_remove(unhandled_hints, 'escape')
 
-    # OIDS
-    #
-    #  Specifies copying the OID for each row. (An error is raised if
-    #  OIDS is specified for a table that does not have OIDs, or in
-    #  the case of copying a query.)
-    #
-
-    # DELIMITER
-    #
-    #  Specifies the character that separates columns within each row
-    #  (line) of the file. The default is a tab character in text
-    #  format, a comma in CSV format. This must be a single one-byte
-    #  character. This option is not allowed when using binary format.
-    #
-    postgres_options['delimiter'] = hints['field-delimiter']
-    quiet_remove(unhandled_hints, 'field-delimiter')
-
     # NULL
     #
     #  Specifies the string that represents a null value. The default
@@ -97,17 +152,6 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     #  string will be stored as a null value, so you should make sure
     #  that you use the same string as you used with COPY TO.
     #
-    # HEADER
-    #
-    #  Specifies that the file contains a header line with the names
-    #  of each column in the file. On output, the first line contains
-    #  the column names from the table, and on input, the first line
-    #  is ignored. This option is allowed only when using CSV format.
-    #
-    if hints['header-row']:
-        cant_handle_hint(fail_if_cant_handle_hint, 'header-row', hints)
-    else:
-        quiet_remove(unhandled_hints, 'header-row')
 
     # QUOTE
     #
@@ -156,18 +200,6 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     #  option is allowed only in COPY FROM, and only when using CSV
     #  format.
     #
-    # ENCODING
-    #
-    #  Specifies that the file is encoded in the encoding_name. If
-    #  this option is omitted, the current client encoding is
-    #  used. See the Notes below for more details.
-
-    # TODO: Dedupe common params
-    if hints['encoding'] in postgres_encoding_names:
-        postgres_options['encoding'] = postgres_encoding_names[hints['encoding']]
-        quiet_remove(unhandled_hints, 'encoding')
-    else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'encoding', hints)
 
     # COPY TO will terminate each row with a Unix-style newline
     # ("\n"). Servers running on Microsoft Windows instead output
@@ -185,26 +217,16 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
 
-    # TODO: Get this to work on read and write and test what we
-    # produce vs what we can accept
-    quiet_remove(unhandled_hints, 'datetimeformattz')
-
-    # TODO: Get this to work on read and write and test what we
-    # produce vs what we can accept
-    quiet_remove(unhandled_hints, 'datetimeformat')
-
-    # TODO: Get this to work on read and write and test what we
-    # produce vs what we can accept
-    quiet_remove(unhandled_hints, 'timeonlyformat')
-
-    # TODO: Get this to work on read and write and test what we
-    # produce vs what we can accept
-    quiet_remove(unhandled_hints, 'dateformat')
-
     if hints['compression'] is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
     else:
         quiet_remove(unhandled_hints, 'compression')
+
+    postgres_copy_options_common(unhandled_hints,
+                                 hints,
+                                 fail_if_cant_handle_hint,
+                                 postgres_options)
+
 
 
 def postgres_copy_options_csv(unhandled_hints: Set[str],
@@ -217,25 +239,6 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
     #  Separated Values), or binary. The default is text.
     #
     postgres_options['format'] = 'csv'
-
-    # OIDS
-    #
-    #  Specifies copying the OID for each row. (An error is raised if
-    #  OIDS is specified for a table that does not have OIDs, or in
-    #  the case of copying a query.)
-    #
-
-    # TODO: OIDS
-
-    # DELIMITER
-    #
-    #  Specifies the character that separates columns within each row
-    #  (line) of the file. The default is a tab character in text
-    #  format, a comma in CSV format. This must be a single one-byte
-    #  character. This option is not allowed when using binary format.
-    #
-    postgres_options['delimiter'] = hints['field-delimiter']
-    quiet_remove(unhandled_hints, 'field-delimiter')
 
     # NULL
     #
@@ -250,15 +253,6 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
     #  string will be stored as a null value, so you should make sure
     #  that you use the same string as you used with COPY TO.
     #
-    # HEADER
-    #
-    #  Specifies that the file contains a header line with the names
-    #  of each column in the file. On output, the first line contains
-    #  the column names from the table, and on input, the first line
-    #  is ignored. This option is allowed only when using CSV format.
-    #
-    quiet_remove(unhandled_hints, 'header-row')
-    postgres_options['header'] = hints['header-row']
 
     # QUOTE
     #
@@ -304,51 +298,19 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
     else:
         quiet_remove(unhandled_hints, 'quoting')
 
-    # FORCE_NOT_NULL
-    #
-    #  Do not match the specified columns' values against the null
-    #  string. In the default case where the null string is empty,
-    #  this means that empty values will be read as zero-length
-    #  strings rather than nulls, even when they are not quoted. This
-    #  option is allowed only in COPY FROM, and only when using CSV
-    #  format.
-    #
-    # ENCODING
-    #
-    #  Specifies that the file is encoded in the encoding_name. If
-    #  this option is omitted, the current client encoding is
-    #  used. See the Notes below for more details.
-
-    if hints['encoding'] in postgres_encoding_names:
-        postgres_options['encoding'] = postgres_encoding_names[hints['encoding']]
-        quiet_remove(unhandled_hints, 'encoding')
-    else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'encoding', hints)
-
     # TODO: Get this to work on read and write and test what we
     # produce vs what we can accept
     quiet_remove(unhandled_hints, 'record-terminator')
-
-    # TODO: Get this to work on read and write and test what we
-    # produce vs what we can accept
-    quiet_remove(unhandled_hints, 'datetimeformattz')
-
-    # TODO: Get this to work on read and write and test what we
-    # produce vs what we can accept
-    quiet_remove(unhandled_hints, 'datetimeformat')
-
-    # TODO: Get this to work on read and write and test what we
-    # produce vs what we can accept
-    quiet_remove(unhandled_hints, 'timeonlyformat')
-
-    # TODO: Get this to work on read and write and test what we
-    # produce vs what we can accept
-    quiet_remove(unhandled_hints, 'dateformat')
 
     if hints['compression'] is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
     else:
         quiet_remove(unhandled_hints, 'compression')
+
+    postgres_copy_options_common(unhandled_hints,
+                                 hints,
+                                 fail_if_cant_handle_hint,
+                                 postgres_options)
 
 
 def postgres_copy_options(unhandled_hints: Set[str],
