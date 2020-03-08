@@ -89,13 +89,18 @@ class PostgresLoader:
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
         return [
-            # TODO: Validate these
+            # To validate that these load without, watch logging while
+            # running and verify 'dataframe' doesn't appear:
+            #
+            # ./itest shell
+            #
+            # mvrec file2table --source.variant bluelabs --source.no_compression tests/integration/resources/delimited-bluelabs-no-header.csv dockerized-postgres public bluelabsformat
             DelimitedRecordsFormat(variant='bluelabs',
                                    hints={'compression': None}),
+            # mvrec file2table --source.variant csv --source.no_compression tests/integration/resources/delimited-csv-with-header.csv dockerized-postgres public csvformat
             DelimitedRecordsFormat(variant='csv',
                                    hints={'compression': None}),
+            # mvrec file2table --source.variant bigquery --source.no_compression tests/integration/resources/delimited-bigquery-with-header.csv dockerized-postgres public bigqueryformat
             DelimitedRecordsFormat(variant='bigquery',
-                                   hints={'compression': None}),
-            DelimitedRecordsFormat(variant='vertica',
                                    hints={'compression': None}),
         ]
