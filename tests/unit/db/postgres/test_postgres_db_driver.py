@@ -1,14 +1,16 @@
 import unittest
 from records_mover.db.postgres.postgres_db_driver import PostgresDBDriver
-from mock import MagicMock
+from mock import MagicMock, Mock
 import sqlalchemy
 
 
 class TestPostgresDBDriver(unittest.TestCase):
     def setUp(self):
-        self.mock_db_engine = MagicMock()
+        self.mock_db_engine = MagicMock(name='db_engine')
+        self.mock_url_resolver = Mock(name='url_resolver')
         self.mock_db_engine.engine = self.mock_db_engine
-        self.postgres_db_driver = PostgresDBDriver(db=self.mock_db_engine)
+        self.postgres_db_driver = PostgresDBDriver(db=self.mock_db_engine,
+                                                   url_resolver=self.mock_url_resolver)
 
     def test_integer_limits(self):
         expectations = {
