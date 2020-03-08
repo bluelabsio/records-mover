@@ -72,8 +72,9 @@ def postgres_copy_options_common(unhandled_hints: Set[str],
     #  this option is omitted, the current client encoding is
     #  used. See the Notes below for more details.
 
-    if hints['encoding'] in postgres_encoding_names:
-        postgres_options['encoding'] = postgres_encoding_names[hints['encoding']]
+    encoding_hint: str = hints['encoding']  # type: ignore
+    if encoding_hint in postgres_encoding_names:
+        postgres_options['encoding'] = postgres_encoding_names[encoding_hint]
         quiet_remove(unhandled_hints, 'encoding')
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'encoding', hints)

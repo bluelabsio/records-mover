@@ -90,8 +90,8 @@ class PostgresDBDriver(DBDriver):
              schema: str,
              table: str,
              load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> int:
-        return self._postgres_loader.load(schema=schema,
-                                          table=table,
-                                          load_plan=load_plan,
-                                          directory=directory)
+             directory: RecordsDirectory) -> None:
+        self._postgres_loader.load(schema=schema,
+                                   table=table,
+                                   load_plan=load_plan,
+                                   directory=directory)

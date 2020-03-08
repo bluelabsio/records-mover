@@ -57,7 +57,7 @@ class PostgresLoader:
              schema: str,
              table: str,
              load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> int:
+             directory: RecordsDirectory) -> None:
         all_urls = directory.manifest_entry_urls()
 
         for url in all_urls:
