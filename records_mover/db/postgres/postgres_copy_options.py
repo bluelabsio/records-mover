@@ -14,6 +14,15 @@ PostgresCopyOptions = Dict[str, object]
 
 # https://www.postgresql.org/docs/9.2/sql-copy.html
 
+# https://www.postgresql.org/docs/9.3/multibyte.html
+postgres_encoding_names = {
+    'UTF8': 'UTF8',
+    # UTF-16 not supported
+    # https://www.postgresql.org/message-id/20051028061108.GB30916%40london087.server4you.de
+    'LATIN1': 'LATIN1',
+    'CP1252': 'WIN1252',
+}
+
 
 def needs_csv_format(hints: RecordsHints) -> bool:
     # This format option is used for importing and exporting the Comma
@@ -153,9 +162,12 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     #  this option is omitted, the current client encoding is
     #  used. See the Notes below for more details.
 
-    # TODO: Test different encodings
-    postgres_options['encoding'] = hints['encoding']
-    quiet_remove(unhandled_hints, 'encoding')
+    # TODO: Dedupe common params
+    if hints['encoding'] in postgres_encoding_names:
+        postgres_options['encoding'] = postgres_encoding_names[hints['encoding']]
+        quiet_remove(unhandled_hints, 'encoding')
+    else:
+        cant_handle_hint(fail_if_cant_handle_hint, 'encoding', hints)
 
     # COPY TO will terminate each row with a Unix-style newline
     # ("\n"). Servers running on Microsoft Windows instead output
@@ -307,9 +319,11 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
     #  this option is omitted, the current client encoding is
     #  used. See the Notes below for more details.
 
-    # TODO: Test different encodings
-    postgres_options['encoding'] = hints['encoding']
-    quiet_remove(unhandled_hints, 'encoding')
+    if hints['encoding'] in postgres_encoding_names:
+        postgres_options['encoding'] = postgres_encoding_names[hints['encoding']]
+        quiet_remove(unhandled_hints, 'encoding')
+    else:
+        cant_handle_hint(fail_if_cant_handle_hint, 'encoding', hints)
 
     # TODO: Get this to work on read and write and test what we
     # produce vs what we can accept
