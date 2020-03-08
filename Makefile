@@ -43,6 +43,9 @@ quality-flake8:
 quality-punchlist:
 	make QUALITY_TOOL=punchlist quality
 
+quality-bigfiles:
+	make QUALITY_TOOL=bigfiles quality
+
 quality-mdl:
 	make QUALITY_TOOL=mdl quality
 
