@@ -1,10 +1,31 @@
-from typing import Union, Literal, Dict, Set, Tuple, Optional
 from ...utils import quiet_remove
 from ...records.hints import cant_handle_hint
 from ...records.load_plan import RecordsLoadPlan
 from records_mover.records.types import RecordsHints
 from ...records.records_format import DelimitedRecordsFormat
 import logging
+from typing import Union, Dict, Set, Tuple, Optional, TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Literal
+    # https://www.postgresql.org/docs/9.5/runtime-config-client.html#GUC-DATESTYLE
+    #
+    # DateStyle (string)
+    #
+    #  Sets the display format for date and time values, as well as
+    #  the rules for interpreting ambiguous date input values. For
+    #  historical reasons, this variable contains two independent
+    #  components: the output format specification (ISO, Postgres,
+    #  SQL, or German) and the input/output specification for
+    #  year/month/day ordering (DMY, MDY, or YMD). These can be set
+    #  separately or together. The keywords Euro and European are
+    #  synonyms for DMY; the keywords US, NonEuro, and NonEuropean are
+    #  synonyms for MDY. See Section 8.5 for more information. The
+    #  built-in default is ISO, MDY, but initdb will initialize the
+    #  configuration file with a setting that corresponds to the
+    #  behavior of the chosen lc_time locale.
+    DateInputStyle = Union[Literal["DMY"], Literal["MDY"]]
+else:
+    DateInputStyle = str
 
 
 logger = logging.getLogger(__name__)
@@ -12,23 +33,6 @@ logger = logging.getLogger(__name__)
 
 PostgresCopyOptions = Dict[str, object]
 
-# https://www.postgresql.org/docs/9.5/runtime-config-client.html#GUC-DATESTYLE
-#
-# DateStyle (string)
-#
-#  Sets the display format for date and time values, as well as
-#  the rules for interpreting ambiguous date input values. For
-#  historical reasons, this variable contains two independent
-#  components: the output format specification (ISO, Postgres,
-#  SQL, or German) and the input/output specification for
-#  year/month/day ordering (DMY, MDY, or YMD). These can be set
-#  separately or together. The keywords Euro and European are
-#  synonyms for DMY; the keywords US, NonEuro, and NonEuropean are
-#  synonyms for MDY. See Section 8.5 for more information. The
-#  built-in default is ISO, MDY, but initdb will initialize the
-#  configuration file with a setting that corresponds to the
-#  behavior of the chosen lc_time locale.
-DateInputStyle = Union[Literal["DMY"], Literal["MDY"]]
 
 # https://www.postgresql.org/docs/9.2/sql-copy.html
 
