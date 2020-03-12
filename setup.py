@@ -66,7 +66,7 @@ setup(name='records-mover',
           'sqlalchemy',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
-          'db-facts>=2.15.3,<3',
+          'db-facts>=3,<4',
           'odictliteral',
           # we rely on exception types from smart_open,
           # which seem to change in feature releases
