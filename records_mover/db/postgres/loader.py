@@ -8,7 +8,7 @@ from ...records.hints import complain_on_unhandled_hints
 from ...records.records_directory import RecordsDirectory
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
-from postgres_copy import copy_from
+from .sqlalchemy_postgres_copy import copy_from
 from .postgres_copy_options import postgres_copy_options
 from typing import IO, Union, List
 import logging
