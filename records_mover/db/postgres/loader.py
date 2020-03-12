@@ -1,7 +1,7 @@
 import sqlalchemy
 from sqlalchemy import MetaData
 from sqlalchemy.schema import Table
-from contextlib import ExitStack
+from ..quoting import quote_value
 from ...url.resolver import UrlResolver
 from ...records.load_plan import RecordsLoadPlan
 from ...records.hints import complain_on_unhandled_hints
@@ -36,7 +36,10 @@ class PostgresLoader:
                                       f"{records_format.format_type}")
         processing_instructions = load_plan.processing_instructions
         unhandled_hints = set(records_format.hints.keys())
-        postgres_options = postgres_copy_options(unhandled_hints, load_plan)
+        date_input_style, postgres_options = postgres_copy_options(unhandled_hints, load_plan)
+        if date_input_style is None:
+            # U-S-A!  U-S-A!
+            date_input_style = 'MDY'
         logger.info(f"PostgreSQL load options: {postgres_options}")
         complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
                                     unhandled_hints,
@@ -47,10 +50,25 @@ class PostgresLoader:
                           schema=schema,
                           autoload=True,
                           autoload_with=self.db)
-        copy_from(fileobj,
-                  table_obj,
-                  self.db,
-                  **postgres_options)
+
+        with self.db.engine.begin() as conn:
+            # https://www.postgresql.org/docs/8.3/sql-set.html
+            #
+            # The effects of SET LOCAL last only till the end of the
+            # current transaction, whether committed or not. A special
+            # case is SET followed by SET LOCAL within a single
+            # transaction: the SET LOCAL value will be seen until the end
+            # of the transaction, but afterwards (if the transaction is
+            # committed) the SET value will take effect.
+            date_style = f"ISO, {date_input_style}"
+            sql = f"SET LOCAL DateStyle = {quote_value(conn, date_style)}"
+            logger.info(sql)
+            conn.execute(sql)
+
+            copy_from(fileobj,
+                      table_obj,
+                      conn,
+                      **postgres_options)
         logger.info('Copy complete')
 
     def load(self,
