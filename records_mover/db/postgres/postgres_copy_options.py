@@ -95,11 +95,6 @@ def postgres_copy_options_common(unhandled_hints: Set[str],
     #
     # postgres=#
 
-    # TODO: File GitHub issue documenting that we're assuming 'ISO,
-    # MDY' as datestyle and describing a feature to switch DateStyle
-    # appropriately to match the needed hint or to deal with
-    # euro-style defaults.
-
     datetimeformattz = hints['datetimeformattz']
 
     # datetimeformattz: Valid values: "YYYY-MM-DD HH:MI:SSOF",
@@ -161,7 +156,8 @@ def postgres_copy_options_common(unhandled_hints: Set[str],
 
     datetimeformat = hints['datetimeformat']
 
-    if datetimeformat == "YYYY-MM-DD HH24:MI:SS":
+    if datetimeformat in ("YYYY-MM-DD HH24:MI:SS",
+                          "YYYY-MM-DD HH:MI:SS"):
         #
         #  postgres=# select timestamp '2020-01-02 15:13:12';
         #        timestamp
@@ -540,9 +536,29 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
     else:
         quiet_remove(unhandled_hints, 'quoting')
 
-    # TODO: Get this to work on read and write and test what we
-    # produce vs what we can accept
-    quiet_remove(unhandled_hints, 'record-terminator')
+    # As of the 9.2 release (documentation as of 2019-03-12), there's
+    # no statement in the docs on what newline formats are accepted in
+    # "CSV" mode:
+    #
+    # https://www.postgresql.org/docs/9.2/sql-copy.html#AEN67247
+    #
+    # So let's test and find out!
+    #
+    # This test file is in UNIX newline mode:
+    #
+    # $ file tests/integration/resources/delimited-bigquery-with-header.csv
+    # tests/integration/resources/delimited-bigquery-with-header.csv: ASCII text
+    # $
+    # It loads fine with:
+    # $ mvrec file2table --source.variant bigquery --source.no_compression tests/integration/resources/delimited-bigquery-with-header.csv --target.existing_table drop_and_recreate dockerized-postgres public bigqueryformat
+    # $ unix2mac -n tests/integration/resources/delimited-bigquery-with-header.csv tests/integration/resources/delimited-bigquery-with-header-mac.csv
+    # $ mvrec file2table --source.variant bigquery --source.no_compression tests/integration/resources/delimited-bigquery-with-header-mac.csv dockerized-postgres public bigqueryformat # loads fine
+    # $ unix2dos -n tests/integration/resources/delimited-bigquery-with-header.csv tests/integration/resources/delimited-bigquery-with-header-dos.csv
+    # $ mvrec file2table --source.variant bigquery --source.no_compression tests/integration/resources/delimited-bigquery-with-header-dos.csv --target.existing_table drop_and_recreate dockerized-postgres public bigqueryformat # loads fine
+    if hints['record-terminator'] in ("\n", "\r\n", "\r", None):
+        quiet_remove(unhandled_hints, 'record-terminator')
+    else:
+        cant_handle_hint(fail_if_cant_handle_hint, 'records-terminator', hints)
 
     if hints['compression'] is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
