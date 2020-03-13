@@ -30,6 +30,15 @@ def determine_date_input_style(unhandled_hints: Set[str],
                                fail_if_cant_handle_hint: bool) ->\
         Optional[DateInputStyle]:
     date_input_style: Optional[DateInputStyle] = None
+
+    def upgrade_date_input_style(style: DateInputStyle, hint_name: str) -> None:
+        nonlocal date_input_style
+        if date_input_style not in (None, style):
+            cant_handle_hint(fail_if_cant_handle_hint, hint_name, hints)
+        else:
+            date_input_style = style
+            quiet_remove(unhandled_hints, hint_name)
+
     # https://www.postgresql.org/docs/9.5/datatype-datetime.html#DATATYPE-DATETIME-INPUT
 
     # "Date and time input is accepted in almost any reasonable
@@ -98,11 +107,7 @@ def determine_date_input_style(unhandled_hints: Set[str],
         #  (1 row)
         #
         #  postgres=#
-        if date_input_style not in (None, 'MDY'):
-            cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
-        else:
-            date_input_style = 'MDY'
-            quiet_remove(unhandled_hints, 'datetimeformattz')
+        upgrade_date_input_style('MDY', 'datetimeformattz')
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
 
@@ -147,11 +152,7 @@ def determine_date_input_style(unhandled_hints: Set[str],
         #
         #  postgres=#
 
-        if date_input_style not in (None, 'MDY'):
-            cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
-        else:
-            date_input_style = 'MDY'
-            quiet_remove(unhandled_hints, 'datetimeformat')
+        upgrade_date_input_style('MDY', 'datetimeformat')
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
 
@@ -213,11 +214,7 @@ def determine_date_input_style(unhandled_hints: Set[str],
         #  (1 row)
         #
         #  postgres=#
-        if date_input_style not in (None, 'MDY'):
-            cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
-        else:
-            date_input_style = 'MDY'
-            quiet_remove(unhandled_hints, 'dateformat')
+        upgrade_date_input_style('MDY', 'dateformat')
     elif dateformat == "DD-MM-YYYY":
         # "DD-MM-YYYY" - not supported by default, need to switch to
         # DMY:
@@ -229,11 +226,7 @@ def determine_date_input_style(unhandled_hints: Set[str],
         #  (1 row)
         #
         #  postgres=#
-        if date_input_style not in (None, 'DMY'):
-            cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
-        else:
-            date_input_style = 'DMY'
-            quiet_remove(unhandled_hints, 'dateformat')
+        upgrade_date_input_style('DMY', 'dateformat')
     elif dateformat == "MM/DD/YY":
         # "MM/DD/YY".
         #
@@ -244,11 +237,7 @@ def determine_date_input_style(unhandled_hints: Set[str],
         #  (1 row)
         #
         #  postgres=#
-        if date_input_style not in (None, 'MDY'):
-            cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
-        else:
-            date_input_style = 'MDY'
-            quiet_remove(unhandled_hints, 'dateformat')
+        upgrade_date_input_style('MDY', 'dateformat')
     elif dateformat is None:
         # null implies that that date format is unknown, and that the
         # implementation SHOULD generate using their default value and
