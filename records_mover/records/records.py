@@ -1,34 +1,41 @@
-from typing import Callable, Optional, Union
-from sqlalchemy import MetaData
 from sqlalchemy.engine import Engine, Connection
-from .processing_instructions import ProcessingInstructions
-from .existing_table_handling import ExistingTableHandling
 import logging
-from .unload_plan import RecordsUnloadPlan
-from .records_format import RecordsFormat
-from ..db import DBDriver, LoadError
+from ..db import DBDriver
 from ..url.resolver import UrlResolver
-from .mover import move
-from .types import RecordsFormatType
 from .sources import RecordsSources
 from .targets import RecordsTargets
+from .mover import move
+from enum import Enum
+from typing import Callable, Union, TYPE_CHECKING
+if TYPE_CHECKING:
+    from records_mover import Session  # noqa
 
 logger = logging.getLogger(__name__)
 
 
+class PleaseInfer(Enum):
+    # This is a mypy-friendly way of doing a singleton object:
+    #
+    # https://github.com/python/typing/issues/236
+    token = 1
+
+
 class Records:
     def __init__(self,
-                 db_driver: Callable[[Union[Engine, Connection]], DBDriver],
-                 url_resolver: UrlResolver) -> None:
-        self.meta = MetaData()
-        self.db_driver = db_driver
-        self.url_resolver = url_resolver
+                 db_driver: Union[Callable[[Union[Engine, Connection]], DBDriver],
+                                  PleaseInfer] = PleaseInfer.token,
+                 url_resolver: Union[UrlResolver, PleaseInfer] = PleaseInfer.token,
+                 session: Union['Session', PleaseInfer] = PleaseInfer.token) -> None:
+        if db_driver is PleaseInfer.token or url_resolver is PleaseInfer.token:
+            if session is PleaseInfer.token:
+                from records_mover import Session  # noqa
+
+                session = Session()
+            if db_driver is PleaseInfer.token:
+                db_driver = session.db_driver
+            if url_resolver is PleaseInfer.token:
+                url_resolver = session.url_resolver
         self.move = move
-        self.RecordsFormat = RecordsFormat
-        self.RecordsUnloadPlan = RecordsUnloadPlan
-        self.ProcessingInstructions = ProcessingInstructions
-        self.ExistingTableHandling = ExistingTableHandling
-        self.LoadError = LoadError
         self.sources = RecordsSources(db_driver=db_driver,
                                       url_resolver=url_resolver)
         self.targets = RecordsTargets(url_resolver=url_resolver,
@@ -49,9 +56,3 @@ class Records:
                                           db_engine=db_engine)
            results = records.move(source, target)
         """
-
-    def best_records_format_variant(self,
-                                    records_format_type: RecordsFormatType,
-                                    db_engine: Engine) -> Optional[str]:
-        driver = self.db_driver(db_engine)
-        return driver.best_records_format_variant(records_format_type)

@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from .base_records_test import BaseRecordsIntegrationTest
 from ..table_validator import RecordsTableValidator
 
-from records_mover.records.schema import RecordsSchema
+from records_mover.records import RecordsSchema, RecordsFormat
 
 logger = logging.getLogger(__name__)
 
@@ -103,9 +103,9 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
         if sourcefn is None:
             sourcefn = self.local_source
 
-        records_format = self.records.RecordsFormat(format_type=format_type,
-                                                    variant=variant,
-                                                    hints=hints)
+        records_format = RecordsFormat(format_type=format_type,
+                                       variant=variant,
+                                       hints=hints)
         #
         # CSV type inference is not smart enough to identify the
         # date/time columns as anything but strings yet.
@@ -130,7 +130,6 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
             records_schema = RecordsSchema.from_json(f.read())
 
         targets = self.records.targets
-        move = self.records.move
         filename = self.records_filename(format_type, variant, hints, broken=broken)
         logger.info(f"Testing load from {filename}")
 
@@ -140,7 +139,7 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
             targets.table(schema_name=self.schema_name,
                           table_name=self.table_name,
                           db_engine=self.engine) as target:
-            out = move(source, target)
+            out = self.records.move(source, target)
         if not self.gives_exact_load_count():
             self.assertIsNone(out.move_count)
         else:
