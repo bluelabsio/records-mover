@@ -19,7 +19,16 @@ future, add them to this document!
    including matching all of ther references to it.
   * Be sure to change the `with-db dockerized-postgres` line to refer
     to your database type.
-  * Push up changes and verify that tests fail because the database
-    type wasn't found.  We can fix that!
+  * Push up changes and verify that tests fail because your new
+    database "is not a valid DB name".
+  * Modify the `integration_test_with_dbs` job to include a Docker
+    image for your new database.  If your database can't be run in a
+    Docker image, you'll need some way to get to a database that can
+    be used during integration testing.
+  * Modify `tests/integration/circleci-dbfacts.yml` to point to your
+    new integration test database account, whether in Docker or
+    cloud-hosted.
+
+
 3. Set up the `itest` script to be able to test as well.
   * Verify you get the same failures as from CircleCI.

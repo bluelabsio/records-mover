@@ -121,6 +121,12 @@ jobs:
       - image: postgres:latest
         environment:
           POSTGRES_PASSWORD: 'hunter2'
+      - image: mysql:latest
+        environment:
+          MYSQL_ROOT_PASSWORD: 'hunter2root'
+          MYSQL_DATABASE: 'mysqlitest'
+          MYSQL_USER: mysqluser
+          MYSQL_PASSWORD: 'hunter2'
     steps:
       - checkout
       - add_ssh_keys:
@@ -220,7 +226,7 @@ jobs:
       python_version:
         type: string
         description: "Version of python to test against"
-        default: '3.6'
+        default: '3.8'
     docker:
       - image: circleci/python:<<parameters.python_version>>
     steps:
