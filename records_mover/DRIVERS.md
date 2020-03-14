@@ -99,6 +99,14 @@ future, add them to this document!
     'TIME', 'DATETIME', 'DATETIME']`: Double check the types assigned.
     You may need to subclass DBDriver and implement to convince
     records mover to create the types you expect.
+  * Errors from `tests/integration/records/directory_validator.py`:
+     ```console
+     AssertionError:
+     received ['integer', 'string', 'string', 'string', 'string', 'string', 'string', 'date', 'time', 'datetime', 'datetime'],
+     expected [['integer', 'string', 'string', 'string', 'string', 'string', 'string', 'date', 'time', 'datetime', 'datetimetz'], ['integer', 'string', 'string', 'string', 'string', 'string', 'string', 'date', 'string', 'datetime', 'datetimetz']]
+     ```
+
+     To address, make sure the types returned are as expected for this database.
 4. If there are things you see below that you know are needed from the
    above list, but the tests are passing, consider adding an
    integration test to match.

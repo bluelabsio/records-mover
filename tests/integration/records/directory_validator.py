@@ -61,7 +61,20 @@ class RecordsDirectoryValidator:
                     'integer', 'string', 'string', 'string',
                     'string', 'string', 'string', 'date', 'string',
                     'datetime', 'datetimetz'
-                ]
+                ],
+                # MySQL's datetimetz type ("TIMESTAMP") doesn't
+                # support dates before the Unix epoch (Jan 1 1970),
+                # and records-mover does not yet support using
+                # inference to determine if the data in question will
+                # fit into it.
+                #
+                # https://app.asana.com/0/1128138765527694/1166526213569051
+                # https://stackoverflow.com/questions/31761047/what-difference-between-the-date-time-datetime-and-timestamp-types/56138746
+                [
+                    'integer', 'string', 'string', 'string',
+                    'string', 'string', 'string', 'date', 'time',
+                    'datetime', 'datetime'
+                ],
             ]
             assert actual_field_types in acceptable_field_types,\
                 f"\nreceived {actual_field_types}, \nexpected {acceptable_field_types}"
