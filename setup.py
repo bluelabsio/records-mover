@@ -139,6 +139,7 @@ setup(name='records-mover',
           #
           # https://github.com/aws/aws-cli/blob/develop/setup.py
           'PyYAML<5.3',
+          'mysqlclient',
           # sqlalchemy-vertica-python 0.5.5 introduced
           # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
           # which fixed a bug pulling schema information from Vertica
