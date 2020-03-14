@@ -2,7 +2,6 @@ import unittest
 from records_mover.db.postgres.loader import PostgresLoader
 from records_mover.records import DelimitedRecordsFormat
 from mock import MagicMock, Mock, patch
-import sqlalchemy
 
 
 class TestPostgresLoader(unittest.TestCase):

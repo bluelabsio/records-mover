@@ -1,6 +1,6 @@
 import inspect
 from ..types import JsonSchema
-from typing import Any, Optional, List, Union, TypeVar
+from typing import Optional, List, Union, TypeVar
 
 
 # default is set to inspect.Parameter.empty if no default
