@@ -1,22 +1,16 @@
-from records_mover.utils import quiet_remove
-from records_mover.records.hints import cant_handle_hint
 from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.records.types import RecordsHints
 from records_mover.records.records_format import DelimitedRecordsFormat
 import logging
-from typing import Dict, Set, Tuple, Optional
-from .date_input_style import DateInputStyle, determine_date_input_style
+from typing import Set, Tuple, Optional
+from .date_input_style import DateInputStyle
 from .csv import postgres_copy_options_csv
 from .text import postgres_copy_options_text
 from .types import PostgresCopyOptions
 
 logger = logging.getLogger(__name__)
 
-
-
-
 # https://www.postgresql.org/docs/9.2/sql-copy.html
-
 
 
 def needs_csv_format(hints: RecordsHints) -> bool:
