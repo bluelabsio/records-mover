@@ -23,6 +23,10 @@ class TestPostgresDBDriver(unittest.TestCase):
             self.assertEqual(min_int, expected_min_int)
             self.assertEqual(max_int, expected_max_int)
 
+    def test_integer_limits_unexpected_type(self):
+        out = self.postgres_db_driver.integer_limits(Mock(name='unexpected'))
+        self.assertEqual(None, out)
+
     def test_fp_constraints_double(self):
         db_col_type = sqlalchemy.dialects.postgresql.base.DOUBLE_PRECISION()
         total_bits, significand_bits = self.postgres_db_driver.fp_constraints(db_col_type)
@@ -34,6 +38,10 @@ class TestPostgresDBDriver(unittest.TestCase):
         total_bits, significand_bits = self.postgres_db_driver.fp_constraints(db_col_type)
         self.assertEqual(total_bits, 32)
         self.assertEqual(significand_bits, 23)
+
+    def test_fp_constraints_unexpected_type(self):
+        out = self.postgres_db_driver.fp_constraints(Mock(name='unexpected'))
+        self.assertEqual(None, out)
 
     def test_type_for_smallint_fits(self):
         out = self.postgres_db_driver.type_for_integer(-123, 123)

@@ -25,12 +25,22 @@ class TestDateInputStyle(unittest.TestCase):
                     'timeonlyformat': "HH12:MI AM",
                     'dateformat': "YYYY-MM-DD",
                 },
-                'RAISE'
+                NotImplementedError
+            ),
+            (
+                # Can't parse MDY and DMY at the same time
+                {
+                    'datetimeformattz': 'MM/DD/YY HH24:MI',
+                    'datetimeformat': "MM/DD/YY HH24:MI",
+                    'timeonlyformat': "HH12:MI AM",
+                    'dateformat': "DD-MM-YYYY",
+                },
+                NotImplementedError
             ),
         ]
         fail_if_cant_handle_hint = True
         for hints, expected_result in tests:
-            if expected_result == 'RAISE':
+            if expected_result == NotImplementedError:
                 with self.assertRaises(NotImplementedError):
                     determine_date_input_style(unhandled_hints,
                                                hints,
