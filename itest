@@ -59,6 +59,10 @@ def local_dockerized_dbfacts():
                 subprocess.check_output([
                     './itest-dc', 'port', 'postgresdb', '5432'
                 ]).decode('utf8').rstrip().split(':')[1]
+            mysql_port =\
+                subprocess.check_output([
+                    './itest-dc', 'port', 'mysqldb', '3306'
+                ]).decode('utf8').rstrip().split(':')[1]
             db_facts = {
                 'dbs': {
                     'dockerized-vertica': {
@@ -82,7 +86,18 @@ def local_dockerized_dbfacts():
                             'user': 'postgres',
                             'password': 'hunter2',
                         }
-                    }
+                    },
+                    'dockerized-mysql': {
+                        'exports': {
+                            'host': 'localhost',
+                            'port': mysql_port,
+                            'database': 'mysqlitest',
+                            'type': 'mysql',
+                            'protocol': 'mysql',
+                            'user': 'mysqluser',
+                            'password': 'hunter2',
+                        }
+                    },
                 }
             }
             yaml_output = yaml.dump(db_facts)
@@ -122,13 +137,15 @@ def docker_compose_shell() -> None:
 
 
 def docker_compose_start() -> None:
-    print("Running docker_compose start verticadb postgresdb...", file=sys.stderr)
+    print("Running docker_compose start verticadb postgresdb mysqldb...", file=sys.stderr)
     docker_compose(["up", "--no-start"])
-    docker_compose(["start", "verticadb", "postgresdb"])
+    docker_compose(["start", "verticadb", "postgresdb", "mysqldb"])
     docker_compose_run(['./wait-for-vertica.sh'])
     print("Verified Vertica is up and listening", file=sys.stderr)
     docker_compose_run(['./wait-for-postgres.sh'])
     print("Verified Postgres is up and listening", file=sys.stderr)
+    docker_compose_run(['./wait-for-mysql.sh'])
+    print("Verified MySQL is up and listening", file=sys.stderr)
 
 
 def run_test(args, target, parser):
@@ -196,6 +213,18 @@ def run_test(args, target, parser):
                                            "with-aws-creds", "circleci",
                                            "nosetests", "--xunit-file=nosetests.xml", "."],
                                           cwd="tests/integration/records/single_db")
+    elif (target == 'mysql'):
+        with dockerized_dbs():
+            if (args.docker):
+                docker_compose_run(['with-db', 'dockerized-mysql',
+                                    'nosetests', '--xunit-file=nosetests.xml', '.'],
+                                   prefixes=["with-aws-creds", "circleci"],
+                                   cwd="/usr/src/app/tests/integration/records/single_db")
+            else:
+                with local_dockerized_dbfacts():
+                    subprocess.check_call(["with-db", "dockerized-mysql",
+                                           "nosetests", "--xunit-file=nosetests.xml", "."],
+                                          cwd="tests/integration/records/single_db")
     elif (target == 'postgres'):
         with dockerized_dbs():
             if (args.docker):
@@ -250,6 +279,7 @@ def run_test(args, target, parser):
 def main():
     tests = {
         'cli': 'Run bash-based multi-source/target copy tests',
+        'mysql': 'Run load/unload suite against Dockerized MySQL',
         'postgres': 'Run load/unload suite against Dockerized PostgreSQL',
         'vertica-s3': 'Run load/unload suite against Dockerized Vertica, using S3',
         'vertica-no-s3': 'Run load/unload suite against Dockerized Vertica, using streams',

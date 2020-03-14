@@ -1,0 +1,6 @@
+#!/bin/bash -e
+
+>&2 echo "SHOW TABLES: List all tables in schema"
+>&2 echo "DESCRIBE foo: Show table structure"
+
+mysql -A "-h${DB_HOST:?}" -P "${DB_PORT:?}" "-u${DB_USERNAME:?}" -p"${DB_PASSWORD}" -D"${DB_DATABASE:?}" --protocol=TCP

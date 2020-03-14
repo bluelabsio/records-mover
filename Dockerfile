@@ -1,12 +1,10 @@
 FROM python:3.6
 
-#
 # database connection scripts, psql CLI client for postgres and
-# Redshift, Vertica vsql client and misc shell tools for
+# Redshift, Vertica vsql client, MySQL client and misc shell tools for
 # integration tests
-#
 
-RUN apt-get update && apt-get install -y netcat jq postgresql-client curl
+RUN apt-get update && apt-get install -y netcat jq postgresql-client curl default-mysql-client
 
 # google-cloud-sdk for dbcli and bigquery in integration tests
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-sdk -y
