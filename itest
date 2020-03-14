@@ -89,7 +89,12 @@ def local_dockerized_dbfacts():
                     },
                     'dockerized-mysql': {
                         'exports': {
-                            'host': 'localhost',
+                            # This needs to be 127.0.0.1, because if
+                            # this is the string 'localhost', the
+                            # MySQL driver wants to use Unix domain
+                            # sockets to connect, which won't work
+                            # because this is a tunnelled port.
+                            'host': '127.0.0.1',
                             'port': mysql_port,
                             'database': 'mysqlitest',
                             'type': 'mysql',

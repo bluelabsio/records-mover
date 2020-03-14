@@ -83,6 +83,9 @@ future, add them to this document!
     natively, maybe just the DBAPI driver) as a transtive dependency
     in `setup.py`.  Rerun `./deps.sh` and then `./itest --docker
     build` to re-install locally.
+  * If database connections aren't working, you may want to insert
+    some debugging into `records_mover/db/connect.py` to figure out
+    what's going on.
 4. If there are things you see below that you know are needed from the
    above list, but the tests are passing, consider adding an
    integration test to match.
