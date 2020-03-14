@@ -23,7 +23,7 @@ ENV PATH $PATH:/opt/vertica/bin
 
 WORKDIR /usr/src/app
 
-COPY README.md requirements.txt setup.py setuputils.py /usr/src/app/
+COPY README.md requirements.txt setup.py /usr/src/app/
 
 RUN mkdir /usr/src/app/records_mover
 
