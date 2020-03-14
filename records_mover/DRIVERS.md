@@ -86,6 +86,11 @@ future, add them to this document!
   * If database connections aren't working, you may want to insert
     some debugging into `records_mover/db/connect.py` to figure out
     what's going on.
+  * Access errors trying to drop a table in the `public` schema:
+    Probably means whatever default schema comes with your database
+    user doesn't match the default assumption - modify
+    `tests/integration/records/single_db/base_records_test.py` to
+    match.
 4. If there are things you see below that you know are needed from the
    above list, but the tests are passing, consider adding an
    integration test to match.

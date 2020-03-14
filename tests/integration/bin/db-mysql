@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+>&2 echo "SHOW DATABASES: List all schemas (MySQL calls them 'databases')"
 >&2 echo "SHOW TABLES: List all tables in schema"
 >&2 echo "DESCRIBE foo: Show table structure"
 

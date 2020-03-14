@@ -47,6 +47,8 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         if self.engine.name == 'bigquery':
             self.schema_name = 'bq_itest'
             # avoid per-table rate limits
+        elif self.engine.name == 'mysql':
+            self.schema_name = 'mysqlitest'
         else:
             self.schema_name = 'public'
         table_name_prefix = "itest_"
