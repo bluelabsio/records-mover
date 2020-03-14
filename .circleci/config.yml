@@ -328,8 +328,8 @@ workflows:
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
             with-db dockerized-postgres nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
-#          requires: # TODO
-#            - redshift-itest
+          requires:
+            - redshift-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -401,8 +401,8 @@ workflows:
           name: redshift-itest
           python_version: "3.6"
           db_name: demo-itest
-#          requires:  # TODO
-#            - test-3.8
+          requires:
+            - test-3.8
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
