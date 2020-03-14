@@ -107,15 +107,24 @@ future, add them to this document!
      ```
 
      To address, make sure the types returned are as expected for this database.
+   * `KeyError: 'mysql'`:
+     `tests/integration/records/single_db/test_records_numeric.py`
+     needs to be modified to set expectations for this database type.
+     You can set this to 'bluelabs' as we haven't yet taught
+     records-mover to do bulk imports, so we have no idea what the
+     ideal records format variant is for that yet.
+
 4. If there are things you see below that you know are needed from the
    above list, but the tests are passing, consider adding an
    integration test to match.
-5. Add support for bulk import if the database supports it TODO
-5. Add support for bulk export if the database supports it TODO
+5. Edit
+   `tests/integration/records/multi_db/test_records_table2table.py` to
+   include the new test database and run `./itest table2table` to run
+   tests.  Fix errors as they pop up:
+   * TBD
 7. Add support for bulk import if the database supports it TODO
    * `tests/integration/records/single_db/test_records_numeric.py`
      needs to be modified to set the best loading records type for
      this database type - pick a type which can be loaded natively
      without using Pandas.
 8. Add support for bulk export if the database supports it TODO
-
