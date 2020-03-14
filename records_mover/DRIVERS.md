@@ -73,7 +73,7 @@ future, add them to this document!
     cloud-hosted.
   * Iterate on the errors until you get the same errors you got in
     your `./itest` runs.
-3. Fix the tests!
+3. Fix these "singledb" tests!
   * Now that you have tests running (and failing), you can address the
     problems one by one.  Here are things you are likely to need to
     do--I'd suggest waiting for the problem to come up via the test
