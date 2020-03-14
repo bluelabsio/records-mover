@@ -3,7 +3,7 @@ from records_mover.records.hints import cant_handle_hint
 from records_mover.records.types import RecordsHints
 from typing import Optional, Set, Union, TYPE_CHECKING
 if TYPE_CHECKING:
-    from typing import Literal
+    from typing_extensions import Literal
     # https://www.postgresql.org/docs/9.5/runtime-config-client.html#GUC-DATESTYLE
     #
     # DateStyle (string)
