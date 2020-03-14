@@ -99,3 +99,10 @@ future, add them to this document!
    integration test to match.
 5. Add support for bulk import if the database supports it TODO
 5. Add support for bulk export if the database supports it TODO
+7. Add support for bulk import if the database supports it TODO
+   * `tests/integration/records/single_db/test_records_numeric.py`
+     needs to be modified to set the best loading records type for
+     this database type - pick a type which can be loaded natively
+     without using Pandas.
+8. Add support for bulk export if the database supports it TODO
+

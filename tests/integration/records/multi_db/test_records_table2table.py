@@ -23,6 +23,7 @@ DB_NAMES = {
     'redshift': 'demo-itest',
     'bigquery': 'bltoolsdevbq-bq_itest',
     'postgres': 'dockerized-postgres',
+    'mysql': 'dockerized-mysql',
 }
 
 
