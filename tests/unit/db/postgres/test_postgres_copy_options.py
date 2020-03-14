@@ -1,5 +1,5 @@
 import unittest
-from records_mover.db.postgres.postgres_copy_options import postgres_copy_options
+from records_mover.db.postgres.copy_options import postgres_copy_options
 from records_mover.records import ProcessingInstructions, DelimitedRecordsFormat
 from records_mover.records.load_plan import RecordsLoadPlan
 

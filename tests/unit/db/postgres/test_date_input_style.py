@@ -1,5 +1,6 @@
 import unittest
-from records_mover.db.postgres.date_input_style import determine_date_input_style
+from records_mover.db.postgres.copy_options.date_input_style import determine_date_input_style
+
 
 class TestDateInputStyle(unittest.TestCase):
     def test_determine_date_input_style_(self):
