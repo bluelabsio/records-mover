@@ -355,8 +355,8 @@ workflows:
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
             with-db dockerized-mysql nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
-          requires:
-            - redshift-itest
+#          requires:  # TODO restore this
+#            - redshift-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
