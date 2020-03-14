@@ -9,7 +9,7 @@ from ...records.records_directory import RecordsDirectory
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from .sqlalchemy_postgres_copy import copy_from
-from .postgres_copy_options import postgres_copy_options
+from .copy_options import postgres_copy_options
 from typing import IO, Union, List
 import logging
 
@@ -112,13 +112,22 @@ class PostgresLoader:
             #
             # ./itest shell
             #
-            # mvrec file2table --source.variant bluelabs --source.no_compression tests/integration/resources/delimited-bluelabs-no-header.csv dockerized-postgres public bluelabsformat
+            # mvrec file2table --source.variant bluelabs
+            # --source.no_compression
+            # tests/integration/resources/delimited-bluelabs-no-header.csv
+            # dockerized-postgres public bluelabsformat
             DelimitedRecordsFormat(variant='bluelabs',
                                    hints={'compression': None}),
-            # mvrec file2table --source.variant csv --source.no_compression tests/integration/resources/delimited-csv-with-header.csv dockerized-postgres public csvformat
+            # mvrec file2table --source.variant csv
+            # --source.no_compression
+            # tests/integration/resources/delimited-csv-with-header.csv
+            # dockerized-postgres public csvformat
             DelimitedRecordsFormat(variant='csv',
                                    hints={'compression': None}),
-            # mvrec file2table --source.variant bigquery --source.no_compression tests/integration/resources/delimited-bigquery-with-header.csv dockerized-postgres public bigqueryformat
+            # mvrec file2table --source.variant bigquery
+            # --source.no_compression
+            # tests/integration/resources/delimited-bigquery-with-header.csv
+            # dockerized-postgres public bigqueryformat
             DelimitedRecordsFormat(variant='bigquery',
                                    hints={'compression': None}),
         ]

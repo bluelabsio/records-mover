@@ -1,5 +1,5 @@
-from ...utils import quiet_remove
-from ...records.hints import cant_handle_hint
+from records_mover.utils import quiet_remove
+from records_mover.records.hints import cant_handle_hint
 from records_mover.records.types import RecordsHints
 from typing import Optional, Set, Union, TYPE_CHECKING
 if TYPE_CHECKING:
