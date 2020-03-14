@@ -91,6 +91,9 @@ future, add them to this document!
     user doesn't match the default assumption - modify
     `tests/integration/records/single_db/base_records_test.py` to
     match.
+  * `NotImplementedError: Please teach me how to integration test
+    mysql`: Add information for your new database in
+    `tests/integration/records/records_database_fixture.py`.
 4. If there are things you see below that you know are needed from the
    above list, but the tests are passing, consider adding an
    integration test to match.
