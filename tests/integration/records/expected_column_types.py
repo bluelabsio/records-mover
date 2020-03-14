@@ -39,6 +39,16 @@ expected_column_types = [
         "<class 'sqlalchemy.sql.sqltypes.DATETIME'>",
         "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>"
     ],
+    # MySQL
+    [
+        'INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
+        'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME', 'DATETIME'
+    ],
+    # MySQL when loaded from a dataframe
+    [
+        'INTEGER(11)', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)',
+        'VARCHAR(444)', 'DATE', 'TIME', 'DATETIME', 'DATETIME'
+    ],
     # Notes on table2table triggered results:
     #
     #

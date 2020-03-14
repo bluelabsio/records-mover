@@ -94,6 +94,11 @@ future, add them to this document!
   * `NotImplementedError: Please teach me how to integration test
     mysql`: Add information for your new database in
     `tests/integration/records/records_database_fixture.py`.
+  * `AssertionError: ['INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)',
+    'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)', 'VARCHAR(111)', 'DATE',
+    'TIME', 'DATETIME', 'DATETIME']`: Double check the types assigned.
+    You may need to subclass DBDriver and implement to convince
+    records mover to create the types you expect.
 4. If there are things you see below that you know are needed from the
    above list, but the tests are passing, consider adding an
    integration test to match.
