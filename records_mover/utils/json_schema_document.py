@@ -13,9 +13,9 @@ class JsonSchemaDocument:
     """Represents JSON Schema"""
     def __init__(self,
                  json_type: Union[str, List[str]],
-                 default: DefaultValue=inspect.Parameter.empty,
-                 enum: Optional[List[A]]=None,
-                 description: Optional[str]=None) -> None:
+                 default: DefaultValue = inspect.Parameter.empty,
+                 enum: Optional[List[A]] = None,
+                 description: Optional[str] = None) -> None:
         self.json_type = json_type
         self.default = default
         self.enum = enum
