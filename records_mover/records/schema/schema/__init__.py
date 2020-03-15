@@ -152,11 +152,8 @@ class RecordsSchema:
         """
         Returns a new dataframe with types that match what we know from this records schema.
         """
-        col_mappings = {field.name: field.to_numpy_dtype() for field in self.fields}
-        if len(col_mappings) == 0:
-            # .as_type() doesn't like being given an empty map!
-            return df
-        return df.astype(col_mappings)
+        fields = {field.name: field for field in self.fields}
+        return df.apply(lambda series: fields[series.name].cast_series_type(series))
 
     def assign_dataframe_names(self,
                                include_index: bool,

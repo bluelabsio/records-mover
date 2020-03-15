@@ -152,6 +152,35 @@ class RecordsSchemaField:
     def to_sqlalchemy_column(self, driver: 'DBDriver') -> Column:
         return field_to_sqlalchemy_column(self, driver)
 
+    def cast_series_type(self, series: 'Series') -> 'Series':
+        import pandas as pd
+        if self.field_type == 'time':
+            if series.size > 0:
+                # https://stackoverflow.com/questions/34501930/how-to-convert-timedelta-to-time-of-day-in-pandas
+                #
+                # Some databases (e.g., MySQL) contains a TIME type
+                # which is ambiguous - it can either represent a
+                # particular time of day or it can represent an
+                # elapsed amount of time.
+                #
+                # Clever, right?
+                #
+                # Unfortunately, Pandas knows about time deltas, but
+                # not about times of day, so upon use of read_sql(),
+                # these objects will come out as as a timedelta64[ns]
+                # type.
+                #
+                # Since that's not what our 'time' field type means,
+                # we have to convert it back to a string, or when it
+                # gets turned into a CSV later, it'll look really
+                # goofy - 1pm will come out as: "0 days 01:00:00".
+                #
+                if type(series[0]) == pd.Timedelta:
+                    # Convert from "0 days 12:34:56.000000000" to "12:34:56"
+                    return series.astype(str).str.split().str[-1].str.split('.').str[0]
+
+        return series.astype(self.to_numpy_dtype())
+
     def to_numpy_dtype(self) -> Union[Type[Any], str]:
         if self.field_type == 'integer':
             int_constraints =\
