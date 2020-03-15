@@ -51,6 +51,53 @@ class RecordsNumericDatabaseFixture:
                      12147483647.78::REAL AS float32,
                      19223372036854775807.78::FLOAT8 AS float64;
 """  # noqa
+        elif self.engine.name == 'mysql':
+            # Postgres supports a number of different numeric types
+            # https://dev.mysql.com/doc/refman/8.0/en/numeric-types.html
+            #
+            # TODO: Figure out what to do about BIT
+            # TODO: Figure out what to do about BOOL/BOOLEAN (alias for TINYINT(1)
+            # TODO: Figure out what to do about UNSIGNED
+            create_tables = f"""
+              CREATE TABLE {self.schema_name}.{self.table_name} (
+                 `int8` TINYINT,
+                 `int16` SMALLINT,
+                 `int24` MEDIUMINT,
+                 `int32` INT,
+                 `int64` BIGINT,
+                 `fixed_6_2` DECIMAL(6, 2),
+                 `fixed_38_9` DECIMAL(38, 9),
+                 `fixed_65_30` DECIMAL(65, 30),
+                 `float32` FLOAT,
+                 `float64` DOUBLE
+              );
+              INSERT INTO {self.schema_name}.{self.table_name}
+              (
+                 `int8`,
+                 `int16`,
+                 `int24`,
+                 `int32`,
+                 `int64`,
+                 `fixed_6_2`,
+                 `fixed_38_9`,
+                 `fixed_65_30`,
+                 `float32`,
+                 `float64`
+              )
+              VALUES
+              (
+                  127,
+                  32767,
+                  8388607,
+                  2147483647,
+                  9223372036854775807,
+                  1234.56,
+                  1234.56,
+                  1234.56,
+                  12147483647.78,
+                  19223372036854775807.78
+              );
+"""  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
         print(f"Creating: {create_tables}")

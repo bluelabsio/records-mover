@@ -2,6 +2,7 @@ from .vertica.vertica_db_driver import VerticaDBDriver
 from .redshift.redshift_db_driver import RedshiftDBDriver
 from .bigquery.bigquery_db_driver import BigQueryDBDriver
 from .postgres.postgres_db_driver import PostgresDBDriver
+from .mysql.mysql_db_driver import MySQLDBDriver
 from .driver import DBDriver
 import sqlalchemy
 from typing import Union
@@ -20,5 +21,7 @@ def db_driver(db: Union[sqlalchemy.engine.Engine,
         return BigQueryDBDriver(db, **kwargs)
     elif engine.name == 'postgresql':
         return PostgresDBDriver(db, **kwargs)
+    elif engine.name == 'mysql':
+        return MySQLDBDriver(db, **kwargs)
     else:
         return DBDriver(db, **kwargs)

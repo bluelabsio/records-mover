@@ -94,7 +94,18 @@ future, add them to this document!
     match.
   * `NotImplementedError: Please teach me how to integration test
     mysql`: Add information for your new database in
-    `tests/integration/records/records_database_fixture.py`.
+    `tests/integration/records/records_database_fixture.py` and
+    `tests/integration/records/records_numeric_database_fixture.py`.
+    This is where you'll start to get familiar with the different
+    column types available for your database.  Be sure to be as
+    thorough as practical for your database so we can support both
+    exporting a wide variety of column types and so that we can
+    support space-efficient use on import.
+
+    For the numeric tests, when re-running you'll probably need to
+    start filling out a subclass of DBDriver.  Relevant methods:
+    `type_for_fixed_point()`, `type_for_floating_point()`,
+    `fp_constraints()`, and `integer_limits()`.
   * `AssertionError: ['INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)',
     'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)', 'VARCHAR(111)', 'DATE',
     'TIME', 'DATETIME', 'DATETIME']`: Double check the types assigned.
@@ -114,7 +125,6 @@ future, add them to this document!
      You can set this to 'bluelabs' as we haven't yet taught
      records-mover to do bulk imports, so we have no idea what the
      ideal records format variant is for that yet.
-
 4. If there are things you see below that you know are needed from the
    above list, but the tests are passing, consider adding an
    integration test to match.

@@ -1,9 +1,23 @@
 expected_field_info = {
+    'int8': {
+        'type': 'integer',
+        'constraints': {
+            'min': '-128',
+            'max': '127'
+        }
+    },
     'int16': {
         'type': 'integer',
         'constraints': {
             'min': '-32768',
             'max': '32767'
+        }
+    },
+    'int24': {
+        'type': 'integer',
+        'constraints': {
+            'min': '-8388608',
+            'max': '8388607'
         }
     },
     'int32': {
@@ -32,6 +46,13 @@ expected_field_info = {
         'constraints': {
             'fixed_precision': 38,
             'fixed_scale': 9
+        }
+    },
+    'fixed_65_30': {
+        'type': 'decimal',
+        'constraints': {
+            'fixed_precision': 65,
+            'fixed_scale': 30
         }
     },
     'float32': {
