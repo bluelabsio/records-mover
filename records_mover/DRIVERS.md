@@ -73,12 +73,13 @@ future, add them to this document!
     cloud-hosted.
   * Iterate on the errors until you get the same errors you got in
     your `./itest` runs.
-3. Fix these "singledb" tests!
-  * Now that you have tests running (and failing), you can address the
-    problems one by one.  Here are things you are likely to need to
-    do--I'd suggest waiting for the problem to come up via the test
-    and then applying the fix until the tests pass.  If you encounter
-    things not on the list below, add them here for the next person!
+3. Fix these "singledb" tests!  Now that you have tests running (and
+   failing), you can address the problems one by one.  Here are things
+   you are likely to need to do--I'd suggest waiting for the problem
+   to come up via the test and then applying the fix until the tests
+   pass.  If you encounter things not on the list below, add them here
+   for the next person (unless the fix you put in will address for all
+   future databses with the same issue).
   * Add Python driver (either SQLAlchemy or if SQLAlchemy supports it
     natively, maybe just the DBAPI driver) as a transtive dependency
     in `setup.py`.  Rerun `./deps.sh` and then `./itest --docker
