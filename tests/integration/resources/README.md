@@ -61,3 +61,10 @@ timezones in timestamps are expressed.
   output being the UTC time without offset (so, "17:34:56.789012" for
   our fixtures).  Otherwise they would appear as "12:34:56.789012",
   the time in the US/Eastern timezone that our fixtures assign.
+
+### notz
+
+* Some databases (e.g., MySQL) don't have a generally usable column
+  type for our `datetimetz` type.  As a result, when data is exported
+  from a table without a records schema defined, it's of course not
+  going to have a timezone offset recorded.

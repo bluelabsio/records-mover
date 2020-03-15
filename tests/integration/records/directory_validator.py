@@ -113,7 +113,7 @@ class RecordsDirectoryValidator:
         outputs = {}
         success = False
 
-        for alt in ['', '-pandas', '-pandas-utc', '-utc']:
+        for alt in ['', '-pandas', '-pandas-utc', '-utc', '-pandas-notz']:
             expected_file = f"{dir_path}/../resources/{self.test_name}{alt}.csv"
             logger.info(f"expected_file: {expected_file}")
             try:
