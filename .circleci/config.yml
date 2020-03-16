@@ -181,6 +181,7 @@ jobs:
               sleep 5
             done
             vsql -h 127.0.0.1 -U dbadmin -c 'select 1;'
+      # TODO: Where is the wait for postgres and wait for mysql?
       - run:
           name: Run tests
           command: "<<parameters.command>>"
