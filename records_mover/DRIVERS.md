@@ -106,6 +106,12 @@ future, add them to this document!
     start filling out a subclass of DBDriver.  Relevant methods:
     `type_for_fixed_point()`, `type_for_floating_point()`,
     `fp_constraints()`, and `integer_limits()`.
+  * `KeyError: 'mysql'` in
+    `tests/integration/records/single_db/test_records_numeric.py`:
+    There are test expectations to set here based on the numeric types
+    supported by your database.  Once you set them, you'll probably
+    need to add ad `type_for_integer()` method covering things
+    correctly.
   * `AssertionError: ['INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)',
     'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)', 'VARCHAR(111)', 'DATE',
     'TIME', 'DATETIME', 'DATETIME']`: Double check the types assigned.

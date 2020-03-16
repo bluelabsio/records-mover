@@ -151,4 +151,26 @@ expected_column_types = {
         'fixed_38_9': 'NUMERIC(38, 9)',
         'fixed_100_4': 'NUMERIC(100, 4)',
     },
+    # The numbers after the integer types are display widths - how
+    # many spaces to save to render them on output.  Not especially
+    # relevant and records-mover just uses the defaults which end up
+    # as the below.
+    'mysql': {
+        'int8': 'TINYINT(4)',
+        'int16': 'SMALLINT(6)',
+        'int32': 'INTEGER(11)',
+        'int64': 'BIGINT(20)',
+        'ubyte': 'TINYINT(3) UNSIGNED',
+        'uint8': 'TINYINT(3) UNSIGNED',
+        'uint16': 'SMALLINT(5) UNSIGNED',
+        'uint32': 'INTEGER(10) UNSIGNED',
+        'uint64': 'BIGINT(20) UNSIGNED',
+        'float16': 'FLOAT',
+        'float32': 'FLOAT',
+        'float64': 'DOUBLE',
+        'float128': 'DOUBLE',  # MySQL doesn't support >float64
+        'fixed_6_2': 'DECIMAL(6, 2)',
+        'fixed_38_9': 'DECIMAL(38, 9)',
+        'fixed_100_4': 'DOUBLE',  # MySQL doesn't support NUMERIC(n,d) where n>65
+    },
 }

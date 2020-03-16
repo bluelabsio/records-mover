@@ -1,10 +1,15 @@
 import sqlalchemy
 import logging
 from ...utils.limits import (INT8_MIN, INT8_MAX,
+                             UINT8_MIN, UINT8_MAX,
                              INT16_MIN, INT16_MAX,
+                             UINT16_MIN, UINT16_MAX,
                              INT24_MIN, INT24_MAX,
+                             UINT24_MIN, UINT24_MAX,
                              INT32_MIN, INT32_MAX,
+                             UINT32_MIN, UINT32_MAX,
                              INT64_MIN, INT64_MAX,
+                             UINT64_MIN, UINT64_MAX,
                              FLOAT32_SIGNIFICAND_BITS,
                              FLOAT64_SIGNIFICAND_BITS,
                              num_digits)
@@ -46,25 +51,37 @@ class MySQLDBDriver(DBDriver):
             return (32, FLOAT32_SIGNIFICAND_BITS)
         return super().fp_constraints(type_)
 
-    # def type_for_integer(self,
-    #                      min_value: Optional[int],
-    #                      max_value: Optional[int]) -> sqlalchemy.types.TypeEngine:
-    #     """Find correct integral column type to fit the given min and max integer values"""
+    def type_for_integer(self,
+                         min_value: Optional[int],
+                         max_value: Optional[int]) -> sqlalchemy.types.TypeEngine:
+        """Find correct integral column type to fit the given min and max integer values"""
 
-    #     if min_value is not None and max_value is not None:
-    #         if min_value >= INT16_MIN and max_value <= INT16_MAX:
-    #             return sqlalchemy.sql.sqltypes.SMALLINT()
-    #         if min_value >= INT32_MIN and max_value <= INT32_MAX:
-    #             return sqlalchemy.sql.sqltypes.INTEGER()
-    #         if min_value >= INT64_MIN and max_value <= INT64_MAX:
-    #             return sqlalchemy.sql.sqltypes.BIGINT()
+        if min_value is not None and max_value is not None:
+            pass
+            if min_value >= INT8_MIN and max_value <= INT8_MAX:
+                return sqlalchemy.dialects.mysql.TINYINT()
+            elif min_value >= UINT8_MIN and max_value <= UINT8_MAX:
+                return sqlalchemy.dialects.mysql.TINYINT(unsigned=True)
+            elif min_value >= INT16_MIN and max_value <= INT16_MAX:
+                return sqlalchemy.sql.sqltypes.SMALLINT()
+            elif min_value >= UINT16_MIN and max_value <= UINT16_MAX:
+                return sqlalchemy.dialects.mysql.SMALLINT(unsigned=True)
+            elif min_value >= INT32_MIN and max_value <= INT32_MAX:
+                return sqlalchemy.sql.sqltypes.INTEGER()
+            elif min_value >= UINT32_MIN and max_value <= UINT32_MAX:
+                return sqlalchemy.dialects.mysql.INTEGER(unsigned=True)
+            elif min_value >= INT64_MIN and max_value <= INT64_MAX:
+                return sqlalchemy.sql.sqltypes.BIGINT()
+            elif min_value >= UINT64_MIN and max_value <= UINT64_MAX:
+                return sqlalchemy.dialects.mysql.BIGINT(unsigned=True)
     #         else:
+    # TODO: Figure out a test that needs the below
     #             num_digits_min = num_digits(min_value)
     #             num_digits_max = num_digits(max_value)
     #             digit_count = max(num_digits_min, num_digits_max)
     #             return self.type_for_fixed_point(precision=digit_count,
     #                                              scale=0)
-    #     return super().type_for_integer(min_value, max_value)
+        return super().type_for_integer(min_value, max_value)
 
     def type_for_floating_point(self,
                                 fp_total_bits: int,
