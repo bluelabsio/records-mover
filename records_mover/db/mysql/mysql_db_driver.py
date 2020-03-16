@@ -106,3 +106,17 @@ class MySQLDBDriver(DBDriver):
         else:
             return super().type_for_fixed_point(precision=precision,
                                                 scale=scale)
+
+    def varchar_length_is_in_chars(self) -> bool:
+        # This is assuming folks are using MySQL 5+
+        # https://stackoverflow.com/questions/1997540/mysql-varchar-lengths-and-utf-8
+        return True
+
+    def type_for_date_plus_time(self, has_tz: bool = False) -> sqlalchemy.sql.sqltypes.DateTime:
+        # Support six digits of fractional seconds to match other
+        # databases and general expectations for a datetime
+        #
+        # Never has timezone, as the one type with a timezone
+        # (TIMESTAMP) doesn't allow for dates before Jan 1, 1970, so
+        # it's not generally useful.
+        return sqlalchemy.dialects.mysql.DATETIME(fsp=6)

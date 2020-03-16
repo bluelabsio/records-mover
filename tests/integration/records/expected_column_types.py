@@ -42,12 +42,12 @@ expected_column_types = [
     # MySQL
     [
         'INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
-        'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME', 'DATETIME'
+        'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
     ],
     # MySQL when loaded from a dataframe
     [
-        'INTEGER(11)', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)',
-        'VARCHAR(444)', 'DATE', 'TIME', 'DATETIME', 'DATETIME'
+        'BIGINT(20)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
+        'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
     ],
     # Notes on table2table triggered results:
     #
