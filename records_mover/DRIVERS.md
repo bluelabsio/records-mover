@@ -131,6 +131,12 @@ future, add them to this document!
      You can set this to 'bluelabs' as we haven't yet taught
      records-mover to do bulk imports, so we have no idea what the
      ideal records format variant is for that yet.
+   * `AssertionError` in
+     `tests/integration/records/table_validator.py`: There are various
+     checks here, including things dealing with how datetimes get
+     rendered.  Examine carefully the existing predicates defined
+     within and add new ones judiciously if it appears the behavior
+     you are seeing is correct but not currently anticipated.
 4. If there are things you see below that you know are needed from the
    above list, but the tests are passing, consider adding an
    integration test to match.

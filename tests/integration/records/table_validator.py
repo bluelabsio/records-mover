@@ -14,6 +14,13 @@ class RecordsTableValidator:
         self.engine = db_engine
         self.source_data_db_engine = source_data_db_engine
 
+    def database_has_no_usable_timestamptz_type(self):
+        # If true, timestamptzs are treated like timestamps, and the
+        # timezone is stripped off without looking at it before the
+        # timestamp itself is stored without any modifications to the
+        # hour number.
+        return self.engine.name == 'mysql'
+
     def database_default_store_timezone_is_us_eastern(self):
         """
         If we don't specify a timezone in a timestamptz string, does the
@@ -28,6 +35,9 @@ class RecordsTableValidator:
         # Docker image (jbfavre/vertica) uses UTC, but our physical
         # servers when integration tests are run by hand does not.
         return False
+
+    def selects_time_types_as_timedelta(self):
+        return self.engine.name == 'mysql'
 
     def supports_time_without_date(self):
         # for shame, redshift!
@@ -117,6 +127,15 @@ class RecordsTableValidator:
                     "tzformatstr": "%E4Y-%m-%d %H:%M:%E*S %Z",
                     "formatstr": "%E4Y-%m-%d %H:%M:%E*S",
                 }
+            elif self.engine.name == 'mysql':
+                select_sql = f"""
+                SELECT num, numstr, comma, doublequote, quotecommaquote, date, `time`,
+                       `timestamp`,
+                       DATE_FORMAT(`timestamp`, '%%Y-%%m-%%d %%H:%%i:%%s.%%f') as timestampstr,
+                       timestamptz,
+                       DATE_FORMAT(timestamptz, '%%Y-%%m-%%d %%H:%%i:%%s.%%f+00') as timestamptzstr
+                FROM {schema_name}.{table_name}
+                """
             else:
                 select_sql = f"""
                 SELECT num, numstr, comma, doublequote, quotecommaquote, date, "time",
@@ -138,8 +157,14 @@ class RecordsTableValidator:
         assert ret['quotecommaquote'] == '","'
         assert ret['date'] == datetime.date(2000, 1, 1),\
             f"Expected datetime.date(2000, 1, 1), got {ret['date']}"
+
         if self.supports_time_without_date():
-            assert ret['time'] == datetime.time(0, 0), f"Incorrect time: {ret['time']}"
+            if self.selects_time_types_as_timedelta():
+                assert ret['time'] == datetime.timedelta(0, 0),\
+                    f"Incorrect time: {ret['time']} (of type {type(ret['time'])})"
+            else:
+                assert ret['time'] == datetime.time(0, 0),\
+                    f"Incorrect time: {ret['time']} (of type {type(ret['time'])})"
         else:
             # fall back to storing as string
             if self.variant_uses_am_pm(variant):
@@ -153,10 +178,19 @@ class RecordsTableValidator:
 
         else:
             assert (ret['timestamp'] == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)),\
-                f"ret['timestamp'] was {ret['timestamp']}"
+                f"ret['timestamp'] was {ret['timestamp']} of type {type(ret['timestamp'])}"
 
-        if (self.variant_doesnt_support_timezones(variant) and
-           not self.database_default_store_timezone_is_us_eastern()):
+        if self.database_has_no_usable_timestamptz_type():
+            # In this case, we're trying to load a string that looks like this:
+            #
+            #  2000-01-02 12:34:56.789012-05
+            #
+            # But since we're loading it into a column type that
+            # doesn't store timezones, the database in question just
+            # strips off the timezone and stores the '12'
+            utc_hour = 12
+        elif (self.variant_doesnt_support_timezones(variant) and
+              not self.database_default_store_timezone_is_us_eastern()):
             # Example date that we'd be loading:
             #
             #   2000-01-02 12:34:56.789012
@@ -185,7 +219,8 @@ class RecordsTableValidator:
             seconds = '56'
             micros = '789012'
 
-        assert ret['timestampstr'] == f'2000-01-02 12:34:{seconds}.{micros}', ret['timestampstr']
+        assert ret['timestampstr'] == f'2000-01-02 12:34:{seconds}.{micros}',\
+            f"expected '2000-01-02 12:34:{seconds}.{micros}' got '{ret['timestampstr']}'"
 
         assert ret['timestamptzstr'] in [
                 f'2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC',
@@ -206,6 +241,11 @@ class RecordsTableValidator:
         # timestamptzstr shows that db knows what's up internally:
         #
         actual_time = ret['timestamptz']
-        assert actual_time - utc_expected_time == datetime.timedelta(0),\
-            f"Delta is {actual_time - utc_expected_time}, " \
-            f"actual_time is {actual_time}, expected time is {utc_expected_time}"
+        if actual_time.tzinfo is None:
+            assert actual_time - utc_naive_expected_time == datetime.timedelta(0),\
+                f"Delta is {actual_time - utc_naive_expected_time}, " \
+                f"actual_time is {actual_time}, tz-naive expected time is {utc_naive_expected_time}"
+        else:
+            assert actual_time - utc_expected_time == datetime.timedelta(0),\
+                f"Delta is {actual_time - utc_expected_time}, " \
+                f"actual_time is {actual_time}, expected time is {utc_expected_time}"
