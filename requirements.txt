@@ -9,7 +9,7 @@ coverage
 mock
 pytz
 pandas<2
-mypy>=0.730
+mypy==0.770
 lxml # needed by mypy HTML coverage reporting
 pylint
 apache-airflow>=1.10,<2
