@@ -164,6 +164,21 @@ class Session():
                            stream: IO[str] = sys.stdout,
                            fmt: str = '%(asctime)s - %(message)s',
                            datefmt: str = '%H:%M:%S') -> None:
+        """
+        records-mover logs details about its operations using Python logging.  This method is a
+        simple way to configure that logging to be output to a stream (by default, stdout).
+
+        :param app_name: Name of the application using records-mover.  If set to 'foo', you can set
+        a log variable FOO_LOG_LEVEL to the log level threshold you'd like to set
+        (INFO/WARNING/etc).
+        :param default_log_level: Logging more detailed than this will not be output to the stream.
+        :param stream: Stream which logging should be sent (e.g., sys.stdout, sys.stdin, or perhaps
+        a file you open)
+        :param fmt: Logging format to send to Python'slogging.Formatter() - determines what details
+         will be sent.
+        :param datefmt: Date format to send to Python'slogging.Formatter() - determines how the
+        current date/time will be recorded in the log.
+        """
         log_levels.set_levels(app_name, default_root_log_level)
         formatter = logging.Formatter(fmt, datefmt)
         handler = logging.StreamHandler(stream=stream)
