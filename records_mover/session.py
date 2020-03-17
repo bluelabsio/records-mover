@@ -6,7 +6,8 @@ from .db.factory import db_driver
 from .db import DBDriver
 from .url.base import BaseFileUrl, BaseDirectoryUrl
 import sqlalchemy
-from typing import Union, Optional
+from . import log_levels
+from typing import Union, Optional, IO
 from .creds.base_creds import BaseCreds
 from .db.connect import engine_from_db_facts
 from .url.resolver import UrlResolver
@@ -17,6 +18,7 @@ from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
 import subprocess
 import os
+import sys
 import logging
 
 
@@ -155,6 +157,19 @@ class Session():
             return boto3.session.Session()
         else:
             return self.creds.boto3_session(self._default_aws_creds_name)
+
+    def set_stream_logging(self,
+                           app_name: str = 'records_mover',
+                           default_root_log_level: int = logging.INFO,
+                           stream: IO[str] = sys.stdout,
+                           fmt: str = '%(asctime)s - %(message)s',
+                           datefmt: str = '%H:%M:%S') -> None:
+        log_levels.set_levels(app_name, default_root_log_level)
+        formatter = logging.Formatter(fmt, datefmt)
+        handler = logging.StreamHandler(stream=stream)
+        handler.setFormatter(formatter)
+        root_logger = logging.getLogger()
+        root_logger.addHandler(handler)
 
     @property
     def records(self) -> Records:
