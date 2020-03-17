@@ -94,4 +94,11 @@ class RedshiftLoader:
             return False
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
-        return [DelimitedRecordsFormat(variant='bluelabs')]
+        return [
+            # The default bluelabs format can't represent empty strings
+            # - but it can with this flag.
+            DelimitedRecordsFormat(variant='bluelabs', hints={
+                'quoting': 'all',
+            }),
+            DelimitedRecordsFormat(variant='bluelabs'),
+        ]
