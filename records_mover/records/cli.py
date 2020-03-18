@@ -7,6 +7,7 @@ from ..utils.json_schema import method_signature_to_json_schema
 from .processing_instructions import ProcessingInstructions
 from records_mover.cli.job_config_schema_as_args_parser import (JobConfigSchemaAsArgsParser,
                                                                 arguments_output_to_config)
+from records_mover.logging import set_stream_logging
 from typing import Callable, Dict, Any
 from ..types import JsonSchema, JobConfig
 from ..version import __version__
@@ -99,7 +100,5 @@ def main() -> None:
     if func is None:
         parser.print_help()
     else:
-        from records_mover import Session
-        session = Session()
-        session.set_stream_logging()
+        set_stream_logging()
         func(raw_config)
