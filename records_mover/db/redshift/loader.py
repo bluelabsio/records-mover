@@ -95,15 +95,16 @@ class RedshiftLoader:
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
         return [
-            # Redshift is pretty flexible with timezones, so let's use
-            # them if feasible:
+            # Redshift is pretty flexible with timezone parsing, so
+            # let's use them - the default csv and bigquery formats
+            # don't include timezones.
             DelimitedRecordsFormat(variant='bigquery',
                                    hints={
                                        'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
                                        'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
                                    }),
             # 'bigquery' and 'csv' support both newlines in strings as
-            # well as empty strings but not timezones
+            # well as empty strings (but not timezones)
             DelimitedRecordsFormat(variant='bigquery'),
             DelimitedRecordsFormat(variant='csv'),
             # The default 'bluelabs' format can't represent empty
