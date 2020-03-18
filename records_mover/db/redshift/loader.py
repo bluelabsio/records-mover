@@ -95,11 +95,14 @@ class RedshiftLoader:
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
         return [
-            # Redshift is pretty flexible with timezone parsing, so
-            # let's use them - the default csv and bigquery formats
-            # don't include timezones.
-            DelimitedRecordsFormat(variant='bigquery',
+            # Redshift is pretty flexible with date/time/timezone
+            # parsing, so let's use them and go back to saner defaults
+            # than those of MS Excel - e.g., the default csv and bigquery
+            # formats don't include timezones.
+            DelimitedRecordsFormat(variant='csv',
                                    hints={
+                                       'dateformat': 'YYYY-MM-DD',
+                                       'timeonlyformat': 'HH24:MI:SS',
                                        'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
                                        'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
                                    }),
