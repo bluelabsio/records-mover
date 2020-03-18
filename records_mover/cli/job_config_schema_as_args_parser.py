@@ -3,14 +3,17 @@ from records_mover.utils.structures import nest_dict
 import os
 import json
 from ..types import JsonSchema, JobConfig
-from typing import Iterable, Dict, Any, Sequence, List, TYPE_CHECKING
+from typing import Iterable, Dict, Any, Sequence, List, TypeVar, TYPE_CHECKING
 if TYPE_CHECKING:
     from argparse_types import ArgParseArgument
 
-ARG_VALUE_WAS_NONE = object()
+ARG_VALUE_WAS_NONE: object = object()
 
 
-def arguments_output_to_config(arguments_output: Dict[str, Any]) -> JobConfig:
+A = TypeVar('A')
+
+
+def arguments_output_to_config(arguments_output: Dict[str, A]) -> JobConfig:
     """
     argparse represents unspecified arguents as None, but we want to be
     able to know the difference between 'user told us None' (key set
