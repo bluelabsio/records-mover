@@ -50,7 +50,7 @@ class RedshiftLoader:
                                                  processing_instructions.fail_if_cant_handle_hint,
                                                  processing_instructions.fail_if_row_invalid,
                                                  processing_instructions.max_failure_rows)
-
+        logger.info(f"Copying to Redshift with options: {redshift_options}")
         complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
                                     unhandled_hints, load_plan.records_format.hints)
         # http://sqlalchemy-redshift.readthedocs.io/en/latest/commands.html
@@ -95,10 +95,23 @@ class RedshiftLoader:
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
         return [
-            # The default bluelabs format can't represent empty strings
-            # - but it can with this flag.
+            # Redshift is pretty flexible with timezones, so let's use
+            # them if feasible:
+            DelimitedRecordsFormat(variant='bigquery',
+                                   hints={
+                                       'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
+                                       'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
+                                   }),
+            # 'bigquery' and 'csv' support both newlines in strings as
+            # well as empty strings but not timezones
+            DelimitedRecordsFormat(variant='bigquery'),
+            DelimitedRecordsFormat(variant='csv'),
+            # The default 'bluelabs' format can't represent empty
+            # strings - but it can with this flag.  Unfortunately, it
+            # doesn't support newlines in strings.
             DelimitedRecordsFormat(variant='bluelabs', hints={
                 'quoting': 'all',
             }),
+            # Supports newlines in strings, but not empty strings.
             DelimitedRecordsFormat(variant='bluelabs'),
         ]
