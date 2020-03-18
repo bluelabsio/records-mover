@@ -6,7 +6,6 @@ from .db.factory import db_driver
 from .db import DBDriver
 from .url.base import BaseFileUrl, BaseDirectoryUrl
 import sqlalchemy
-from . import log_levels
 from typing import Union, Optional, IO
 from .creds.base_creds import BaseCreds
 from .db.connect import engine_from_db_facts
@@ -16,6 +15,7 @@ from enum import Enum
 from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
+from records_mover.logging import set_stream_logging
 import subprocess
 import os
 import sys
@@ -159,8 +159,8 @@ class Session():
             return self.creds.boto3_session(self._default_aws_creds_name)
 
     def set_stream_logging(self,
-                           app_name: str = 'records_mover',
-                           default_root_log_level: int = logging.INFO,
+                           name: str = 'records_mover',
+                           level: int = logging.INFO,
                            stream: IO[str] = sys.stdout,
                            fmt: str = '%(asctime)s - %(message)s',
                            datefmt: str = '%H:%M:%S') -> None:
@@ -168,10 +168,16 @@ class Session():
         records-mover logs details about its operations using Python logging.  This method is a
         simple way to configure that logging to be output to a stream (by default, stdout).
 
-        :param app_name: Name of the application using records-mover.  If set to 'foo', you can set
-        a log variable FOO_LOG_LEVEL to the log level threshold you'd like to set
-        (INFO/WARNING/etc).
-        :param default_log_level: Logging more detailed than this will not be output to the stream.
+        You can use it for other things (e.g., dependencies of
+        records-mover) by adjusting the 'name' argument.
+
+        :param name: Name of the package to set logging under.  If set
+        to 'foo', you can set a log variable FOO_LOG_LEVEL to the log
+        level threshold you'd like to set (INFO/WARNING/etc) - so you
+        can by default set, say, export
+        RECORDS_MOVER_LOG_LEVEL=WARNING to quiet down loging, or
+        export RECORDS_MOVER_LOG_LEVEL=DEBUG to increase it.
+        :param level: Logging more detailed than this will not be output to the stream.
         :param stream: Stream which logging should be sent (e.g., sys.stdout, sys.stdin, or perhaps
         a file you open)
         :param fmt: Logging format to send to Python'slogging.Formatter() - determines what details
@@ -179,12 +185,11 @@ class Session():
         :param datefmt: Date format to send to Python'slogging.Formatter() - determines how the
         current date/time will be recorded in the log.
         """
-        log_levels.set_levels(app_name, default_root_log_level)
-        formatter = logging.Formatter(fmt, datefmt)
-        handler = logging.StreamHandler(stream=stream)
-        handler.setFormatter(formatter)
-        root_logger = logging.getLogger()
-        root_logger.addHandler(handler)
+        set_stream_logging(name=name,
+                           level=level,
+                           stream=stream,
+                           fmt=fmt,
+                           datefmt=datefmt)
 
     @property
     def records(self) -> Records:
