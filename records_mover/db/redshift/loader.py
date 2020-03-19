@@ -111,8 +111,10 @@ class RedshiftLoader:
             DelimitedRecordsFormat(variant='bigquery'),
             DelimitedRecordsFormat(variant='csv'),
             # The default 'bluelabs' format can't represent empty
-            # strings - but it can with this flag.  Unfortunately, it
-            # doesn't support newlines in strings.
+            # strings when exported via Pandas (see
+            # https://github.com/pandas-dev/pandas/issues/15891) - but
+            # it can with this flag.  Unfortunately, Redshift doesn't
+            # support newlines in strings when using this format.
             DelimitedRecordsFormat(variant='bluelabs', hints={
                 'quoting': 'all',
             }),
