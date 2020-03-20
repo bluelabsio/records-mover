@@ -53,7 +53,7 @@ Now we can run this code:
 ```python
 #!/usr/bin/env python3
 
-# Pull in the job lib library - be sure to run the pip install above first!
+# Pull in the records-mover library - be sure to run the pip install above first!
 from records_mover import Session
 from pandas import DataFrame
 
