@@ -1,7 +1,7 @@
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from records_mover.records.types import RecordsHints
-from typing import Set, Optional
+from typing import Set, Optional, Tuple
 from .date_input_style import DateInputStyle
 from .common import postgres_copy_options_common
 from .types import PostgresCopyOptions
@@ -9,8 +9,9 @@ from .types import PostgresCopyOptions
 
 def postgres_copy_options_csv(unhandled_hints: Set[str],
                               hints: RecordsHints,
-                              fail_if_cant_handle_hint: bool,
-                              postgres_options: PostgresCopyOptions) -> Optional[DateInputStyle]:
+                              fail_if_cant_handle_hint: bool) ->\
+        Tuple[Optional[DateInputStyle], PostgresCopyOptions]:
+    postgres_options: PostgresCopyOptions = {}
     # FORMAT
     #
     #  Selects the data format to be read or written: text, csv (Comma

@@ -1,7 +1,7 @@
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from records_mover.records.types import RecordsHints
-from typing import Set, Optional
+from typing import Set, Optional, Tuple
 from .date_input_style import DateInputStyle, determine_date_input_style
 from .types import PostgresCopyOptions
 
@@ -19,7 +19,9 @@ postgres_encoding_names = {
 def postgres_copy_options_common(unhandled_hints: Set[str],
                                  hints: RecordsHints,
                                  fail_if_cant_handle_hint: bool,
-                                 postgres_options: PostgresCopyOptions) -> Optional[DateInputStyle]:
+                                 original_postgres_options: PostgresCopyOptions) ->\
+        Tuple[Optional[DateInputStyle], PostgresCopyOptions]:
+    postgres_options = original_postgres_options.copy()
     date_input_style: Optional[DateInputStyle] =\
         determine_date_input_style(unhandled_hints,
                                    hints,
@@ -74,4 +76,4 @@ def postgres_copy_options_common(unhandled_hints: Set[str],
     postgres_options['delimiter'] = hints['field-delimiter']
     quiet_remove(unhandled_hints, 'field-delimiter')
 
-    return date_input_style
+    return (date_input_style, postgres_options)

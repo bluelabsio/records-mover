@@ -43,16 +43,11 @@ def postgres_copy_options(unhandled_hints: Set[str],
                                   f"{load_plan.records_format.format_type}")
     hints = load_plan.records_format.hints
 
-    postgres_options: PostgresCopyOptions = {}
     if needs_csv_format(hints):
-        date_input_style = postgres_copy_options_csv(unhandled_hints,
-                                                     hints,
-                                                     fail_if_cant_handle_hint,
-                                                     postgres_options)
+        return postgres_copy_options_csv(unhandled_hints,
+                                         hints,
+                                         fail_if_cant_handle_hint)
     else:
-        date_input_style = postgres_copy_options_text(unhandled_hints,
-                                                      hints,
-                                                      fail_if_cant_handle_hint,
-                                                      postgres_options)
-
-    return (date_input_style, postgres_options)
+        return postgres_copy_options_text(unhandled_hints,
+                                          hints,
+                                          fail_if_cant_handle_hint)
