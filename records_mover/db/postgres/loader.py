@@ -1,5 +1,6 @@
 import sqlalchemy
 from sqlalchemy import MetaData
+from contextlib import ExitStack
 from sqlalchemy.schema import Table
 from ..quoting import quote_value
 from ...url.resolver import UrlResolver
@@ -10,7 +11,7 @@ from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from .sqlalchemy_postgres_copy import copy_from
 from .copy_options import postgres_copy_options
-from typing import IO, Union, List
+from typing import IO, Union, List, Iterable
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,16 @@ class PostgresLoader:
                           table: str,
                           load_plan: RecordsLoadPlan,
                           fileobj: IO[bytes]) -> None:
+        return self.load_from_fileobjs(schema=schema,
+                                       table=table,
+                                       load_plan=load_plan,
+                                       fileobjs=[fileobj])
+
+    def load_from_fileobjs(self,
+                           schema: str,
+                           table: str,
+                           load_plan: RecordsLoadPlan,
+                           fileobjs: Iterable[IO[bytes]]) -> None:
         records_format = load_plan.records_format
         if not isinstance(records_format, DelimitedRecordsFormat):
             raise NotImplementedError("Not currently able to load "
@@ -65,10 +76,15 @@ class PostgresLoader:
             logger.info(sql)
             conn.execute(sql)
 
-            copy_from(fileobj,
-                      table_obj,
-                      conn,
-                      **postgres_options)
+            for fileobj in fileobjs:
+                # Postgres COPY FROM defaults to appending data--we
+                # let the records Prep class decide what to do about
+                # the existing table, so it's safe to call this
+                # multiple times and append until done:
+                copy_from(fileobj,
+                          table_obj,
+                          conn,
+                          **postgres_options)
         logger.info('Copy complete')
 
     def load(self,
@@ -78,15 +94,11 @@ class PostgresLoader:
              directory: RecordsDirectory) -> None:
         all_urls = directory.manifest_entry_urls()
 
-        for url in all_urls:
-            loc = self.url_resolver.file_url(url)
-            with loc.open() as f:
-                # Postgres COPY FROM defaults to appending data--we
-                # let the records Prep class decide what to do about
-                # the existing table, so it's safe to call this
-                # multiple times and append until done:
-                logger.info(f"Loading {url} into {schema}.{table}")
-                self.load_from_fileobj(schema, table, load_plan, f)
+        with ExitStack() as stack:
+            all_locs = [self.url_resolver.file_url(url) for url in all_urls]
+            all_fileobjs = [stack.enter_context(loc.open()) for loc in all_locs]
+            logger.info(f"Loading {directory.loc.url} into {schema}.{table}")
+            self.load_from_fileobjs(schema, table, load_plan, all_fileobjs)
 
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         try:
