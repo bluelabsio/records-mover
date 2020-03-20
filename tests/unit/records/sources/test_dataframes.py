@@ -5,6 +5,7 @@ import unittest
 
 
 class TestDataframesRecordsSource(unittest.TestCase):
+    @patch('records_mover.records.sources.dataframes.purge_unnamed_unused_columns')
     @patch('records_mover.records.sources.dataframes.RecordsSchema')
     @patch('records_mover.records.sources.dataframes.FileobjsSource')
     @patch('records_mover.records.sources.dataframes.complain_on_unhandled_hints')
@@ -17,7 +18,8 @@ class TestDataframesRecordsSource(unittest.TestCase):
                                           mock_pandas_to_csv_options,
                                           mock_complain_on_unhandled_hints,
                                           mock_FileobjsSource,
-                                          mock_RecordsSchema):
+                                          mock_RecordsSchema,
+                                          mock_purge_unnamed_unused_columns):
         mock_df_1 = Mock(name='df_1')
         mock_df_2 = Mock(name='df_2')
         mock_processing_instructions = Mock(name='processing_instructions')
@@ -46,6 +48,7 @@ class TestDataframesRecordsSource(unittest.TestCase):
 
         mock_target_records_format.generate_filename = generate_filename
         mock_target_records_schema = mock_RecordsSchema.from_dataframe.return_value
+        mock_purge_unnamed_unused_columns.side_effect = lambda a: a
         with dataframe_records_source.\
             to_fileobjs_source(records_format_if_possible=mock_target_records_format,
                                processing_instructions=mock_processing_instructions)\
@@ -77,6 +80,7 @@ class TestDataframesRecordsSource(unittest.TestCase):
         mock_data_fileobj_1.close.assert_called()
         mock_data_fileobj_2.close.assert_called()
 
+    @patch('records_mover.records.sources.dataframes.purge_unnamed_unused_columns')
     @patch('records_mover.records.sources.dataframes.RecordsSchema')
     @patch('records_mover.records.sources.dataframes.FileobjsSource')
     @patch('records_mover.records.sources.dataframes.complain_on_unhandled_hints')
@@ -89,7 +93,8 @@ class TestDataframesRecordsSource(unittest.TestCase):
                                         mock_pandas_to_csv_options,
                                         mock_complain_on_unhandled_hints,
                                         mock_FileobjsSource,
-                                        mock_RecordsSchema):
+                                        mock_RecordsSchema,
+                                        mock_purge_unnamed_unused_columns):
         mock_df_1 = Mock(name='df_1')
         mock_df_2 = Mock(name='df_2')
         mock_processing_instructions = Mock(name='processing_instructions')
@@ -116,6 +121,7 @@ class TestDataframesRecordsSource(unittest.TestCase):
         mock_data_fileobj_1.closed = False
         mock_data_fileobj_2 = mock_builtin_open.return_value.__enter__.return_value
         mock_data_fileobj_2.closed = False
+        mock_purge_unnamed_unused_columns.side_effect = lambda a: a
 
         with dataframe_records_source.\
             to_fileobjs_source(records_format_if_possible=mock_target_records_format,

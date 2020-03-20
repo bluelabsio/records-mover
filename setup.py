@@ -146,6 +146,14 @@ setup(name='records-mover',
           # sqlalchemy-redshift 0.7.7 introduced support for Parquet
           # in UNLOAD
           'sqlalchemy-redshift>=0.7.7',
+          # This is currently vendored in
+          # records_mover/db/postgres/sqlalchemy_postgres_copy.py but
+          # once this PR is merged and a new version published, we can
+          # use the new upstream version:
+          #
+          # https://github.com/jmcarp/sqlalchemy-postgres-copy/pull/14
+          #
+          # 'sqlalchemy-postgres-copy>=0.5,<0.6',
           'pybigquery',
           'sqlalchemy',
           # Not sure how/if interface will change in db-facts, so

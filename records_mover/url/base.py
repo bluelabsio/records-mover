@@ -103,7 +103,7 @@ class BaseFileUrl:
         "Create a subdirectory within this file's current directory with the given name"
         raise NotImplementedError()
 
-    def string_contents(self, encoding: str='utf-8') -> str:
+    def string_contents(self, encoding: str = 'utf-8') -> str:
         "Return the contents of this file as a string."
         with self.open() as f:
             return f.read().decode(encoding)

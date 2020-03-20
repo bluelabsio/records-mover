@@ -132,6 +132,29 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_load_job_config.assert_called_with(set(), mock_load_plan)
         self.assertEqual(True, out)
 
+    @patch('records_mover.db.bigquery.loader.load_job_config')
+    @patch('records_mover.db.bigquery.loader.ProcessingInstructions')
+    @patch('records_mover.db.bigquery.loader.RecordsLoadPlan')
+    def test_can_load_this_format_false_parquet(self,
+                                                mock_RecordsLoadPlan,
+                                                mock_ProcessingInstructions,
+                                                mock_load_job_config):
+        mock_db = Mock(name='db')
+        mock_source_records_format = Mock(name='source_records_format', spec=ParquetRecordsFormat)
+        mock_source_records_format.format_type = 'delimited'
+        mock_processing_instructions = mock_ProcessingInstructions.return_value
+        mock_load_plan = mock_RecordsLoadPlan.return_value
+        mock_load_plan.records_format = mock_source_records_format
+        mock_url_resolver = Mock(name='url_resolver')
+        mock_source_records_format.hints = {}
+        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver)
+        out = bigquery_loader.can_load_this_format(mock_source_records_format)
+        mock_ProcessingInstructions.assert_called_with()
+        mock_RecordsLoadPlan.\
+            assert_called_with(records_format=mock_source_records_format,
+                               processing_instructions=mock_processing_instructions)
+        self.assertEqual(False, out)
+
     def test_known_supported_records_formats_for_load(self):
         mock_db = Mock(name='db')
         mock_url_resolver = Mock(name='url_resolver')
