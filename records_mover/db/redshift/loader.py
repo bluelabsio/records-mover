@@ -50,7 +50,7 @@ class RedshiftLoader:
                                                  processing_instructions.fail_if_cant_handle_hint,
                                                  processing_instructions.fail_if_row_invalid,
                                                  processing_instructions.max_failure_rows)
-
+        logger.info(f"Copying to Redshift with options: {redshift_options}")
         complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
                                     unhandled_hints, load_plan.records_format.hints)
         # http://sqlalchemy-redshift.readthedocs.io/en/latest/commands.html
@@ -94,4 +94,30 @@ class RedshiftLoader:
             return False
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
-        return [DelimitedRecordsFormat(variant='bluelabs')]
+        return [
+            # Redshift is pretty flexible with date/time/timezone
+            # parsing, so let's use them and go back to saner defaults
+            # than those of MS Excel - e.g., the default csv and bigquery
+            # formats don't include timezones.
+            DelimitedRecordsFormat(variant='csv',
+                                   hints={
+                                       'dateformat': 'YYYY-MM-DD',
+                                       'timeonlyformat': 'HH24:MI:SS',
+                                       'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
+                                       'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
+                                   }),
+            # 'bigquery' and 'csv' support both newlines in strings as
+            # well as empty strings (but not timezones)
+            DelimitedRecordsFormat(variant='bigquery'),
+            DelimitedRecordsFormat(variant='csv'),
+            # The default 'bluelabs' format can't represent empty
+            # strings when exported via Pandas (see
+            # https://github.com/pandas-dev/pandas/issues/15891) - but
+            # it can with this flag.  Unfortunately, Redshift doesn't
+            # support newlines in strings when using this format.
+            DelimitedRecordsFormat(variant='bluelabs', hints={
+                'quoting': 'all',
+            }),
+            # Supports newlines in strings, but not empty strings.
+            DelimitedRecordsFormat(variant='bluelabs'),
+        ]

@@ -48,7 +48,19 @@ class TestRedshiftLoader(unittest.TestCase):
 
     def test_known_supported_records_formats_for_load(self):
         out = self.redshift_loader.known_supported_records_formats_for_load()
-        self.assertEqual(out, [DelimitedRecordsFormat(variant='bluelabs')])
+        self.assertEqual(out, [
+            DelimitedRecordsFormat(variant='csv',
+                                   hints={
+                                       'dateformat': 'YYYY-MM-DD',
+                                       'timeonlyformat': 'HH24:MI:SS',
+                                       'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
+                                       'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
+                                   }),
+            DelimitedRecordsFormat(variant='bigquery'),
+            DelimitedRecordsFormat(variant='csv'),
+            DelimitedRecordsFormat(variant='bluelabs', hints={'quoting': 'all'}),
+            DelimitedRecordsFormat(variant='bluelabs'),
+        ])
 
     @patch('records_mover.db.redshift.loader.CopyCommand')
     @patch('records_mover.db.redshift.loader.complain_on_unhandled_hints')

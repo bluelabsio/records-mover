@@ -6,7 +6,7 @@ from .db.factory import db_driver
 from .db import DBDriver
 from .url.base import BaseFileUrl, BaseDirectoryUrl
 import sqlalchemy
-from typing import Union, Optional
+from typing import Union, Optional, IO
 from .creds.base_creds import BaseCreds
 from .db.connect import engine_from_db_facts
 from .url.resolver import UrlResolver
@@ -15,8 +15,10 @@ from enum import Enum
 from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
+from records_mover.logging import set_stream_logging
 import subprocess
 import os
+import sys
 import logging
 
 
@@ -155,6 +157,39 @@ class Session():
             return boto3.session.Session()
         else:
             return self.creds.boto3_session(self._default_aws_creds_name)
+
+    def set_stream_logging(self,
+                           name: str = 'records_mover',
+                           level: int = logging.INFO,
+                           stream: IO[str] = sys.stdout,
+                           fmt: str = '%(asctime)s - %(message)s',
+                           datefmt: str = '%H:%M:%S') -> None:
+        """
+        records-mover logs details about its operations using Python logging.  This method is a
+        simple way to configure that logging to be output to a stream (by default, stdout).
+
+        You can use it for other things (e.g., dependencies of
+        records-mover) by adjusting the 'name' argument.
+
+        :param name: Name of the package to set logging under.  If set
+        to 'foo', you can set a log variable FOO_LOG_LEVEL to the log
+        level threshold you'd like to set (INFO/WARNING/etc) - so you
+        can by default set, say, export
+        RECORDS_MOVER_LOG_LEVEL=WARNING to quiet down loging, or
+        export RECORDS_MOVER_LOG_LEVEL=DEBUG to increase it.
+        :param level: Logging more detailed than this will not be output to the stream.
+        :param stream: Stream which logging should be sent (e.g., sys.stdout, sys.stdin, or perhaps
+        a file you open)
+        :param fmt: Logging format to send to Python'slogging.Formatter() - determines what details
+         will be sent.
+        :param datefmt: Date format to send to Python'slogging.Formatter() - determines how the
+        current date/time will be recorded in the log.
+        """
+        set_stream_logging(name=name,
+                           level=level,
+                           stream=stream,
+                           fmt=fmt,
+                           datefmt=datefmt)
 
     @property
     def records(self) -> Records:
