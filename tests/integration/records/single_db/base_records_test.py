@@ -82,11 +82,8 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         else:
             return f"{format_type}-{variant}-no-header"
 
-    def running_from_laptop(self):
-        return sys.platform == 'darwin'
-
     def has_scratch_bucket(self):
-        return os.environ.get('SCRATCH_S3_URL') is not None or self.running_from_laptop()
+        return os.environ.get('SCRATCH_S3_URL') is not None
 
     def has_pandas(self):
         try:
