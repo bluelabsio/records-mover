@@ -121,11 +121,11 @@ jobs:
       - image: postgres:latest
         environment:
           POSTGRES_PASSWORD: 'hunter2'
-          # MySQL after 5 (they bumped version to 8) uses a new auth protocol
-          # that is not well supported by clients - including the
-          # Debian-installable client packages.
-          #
-          # https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/
+      # MySQL after 5 (they bumped version to 8) uses a new auth protocol
+      # that is not well supported by clients - including the
+      # Debian-installable client packages.
+      #
+      # https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/
       - image: mysql:5
         environment:
           MYSQL_ROOT_PASSWORD: 'hunter2root'
