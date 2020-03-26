@@ -4,15 +4,15 @@ from airflow.hooks import BaseHook
 
 
 class SqlAlchemyDbHook(BaseHook):
-    def __init__(self, db_conn_id):
+    def __init__(self, db_conn_id: str) -> None:
         self.db_conn_id = db_conn_id
 
-    def get_conn(self):
+    def get_conn(self) -> sa.engine.Engine:
         conn = BaseHook.get_connection(self.db_conn_id)
         db_url = create_sqlalchemy_url(
             {
                 'host': conn.host,
-                'port': str(conn.port),
+                'port': conn.port,
                 'database': conn.schema,
                 'user': conn.login,
                 'password': conn.password,

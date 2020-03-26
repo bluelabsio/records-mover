@@ -4,7 +4,7 @@ from ..results import MoveResult
 from ..records_format import BaseRecordsFormat
 from ..processing_instructions import ProcessingInstructions
 from contextlib import contextmanager
-from typing import Iterator, List
+from typing import Iterator, List, Tuple
 import itertools
 from typing import TYPE_CHECKING, Optional
 import logging
@@ -42,7 +42,9 @@ class NegotiatesRecordsFormat(RecordsSource, metaclass=ABCMeta):
         source_formats = self.known_supported_records_formats()
         target_formats = records_target.known_supported_records_formats()
         compatible_format = None
-        ranked_candidates = list(itertools.zip_longest(source_formats, target_formats))
+        ranked_candidates: List[Tuple[BaseRecordsFormat,
+                                      BaseRecordsFormat]] =\
+            list(itertools.zip_longest(source_formats, target_formats))
         # Look at the candidates in order of their appearance, so if
         # there's a suboptimal records format, those can be put at the
         # end of the lists returned by

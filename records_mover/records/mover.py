@@ -106,7 +106,7 @@ def move(records_source: Union[RecordsSource, ContextManager[RecordsSource]],
         target_records_format: BaseRecordsFormat = getattr(records_target, "records_format", None)
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     f"by first writing {records_source} to {target_records_format} "
-                    "records format...")
+                    "records format (if easy to rewrite)...")
         with records_source.\
                 to_fileobjs_source(processing_instructions=processing_instructions,
                                    records_format_if_possible=target_records_format)\

@@ -50,3 +50,6 @@ class DataUrlRecordsSource(SupportsToFileobjsSource):
                                 processing_instructions=processing_instructions,
                                 initial_hints=self.initial_hints) as fileobjs_source:
                 yield fileobjs_source
+
+    def __str__(self) -> str:
+        return f"{type(self).__name__}({self.records_format})"
