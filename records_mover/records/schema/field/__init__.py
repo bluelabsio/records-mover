@@ -178,6 +178,9 @@ class RecordsSchemaField:
                 if type(series[0]) == pd.Timedelta:
                     # Convert from "0 days 12:34:56.000000000" to "12:34:56"
                     return series.astype(str).str.split().str[-1].str.split('.').str[0]
+            elif self.field_type == 'date':
+                # TODO fill in here
+                pass
 
         return series.astype(self.to_numpy_dtype())
 

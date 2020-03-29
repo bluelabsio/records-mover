@@ -6,6 +6,7 @@ from ..results import MoveResult
 from ..processing_instructions import ProcessingInstructions
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from ..hints import complain_on_unhandled_hints
+from records_mover.records.pandas import format_df_for_csv_output
 import logging
 from typing import IO, Union, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -40,6 +41,9 @@ class FileobjTarget(SupportsMoveFromDataframes):
         logger.info(f"Writing CSV file to {self.fileobj} with options {options}...")
         encoding: str = self.records_format.hints['encoding']  # type: ignore
 
+        records_schema = dfs_source.initial_records_schema(processing_instructions)
+        records_format = self.records_format
+
         def write_dfs(path_or_buf: Union[str, IO[str]]) -> int:
             first_row = True
             move_count = 0
@@ -50,6 +54,7 @@ class FileobjTarget(SupportsMoveFromDataframes):
                 include_header_row = options['header'] and first_row
                 first_row = False
                 options['header'] = include_header_row
+                df = format_df_for_csv_output(df, records_schema, records_format)
                 df.to_csv(path_or_buf=path_or_buf,
                           mode="a",
                           index=dfs_source.include_index,

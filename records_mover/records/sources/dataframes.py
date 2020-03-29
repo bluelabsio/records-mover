@@ -11,6 +11,7 @@ from ..hints import complain_on_unhandled_hints
 import logging
 from typing import Iterator, Iterable, Optional, Union, Dict, IO, Callable, TYPE_CHECKING
 from records_mover.pandas import purge_unnamed_unused_columns
+from records_mover.records.pandas import format_df_for_csv_output
 if TYPE_CHECKING:
     from pandas import DataFrame
 
@@ -131,7 +132,14 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
             complain_on_unhandled_hints(self.processing_instructions.fail_if_dont_understand,
                                         unhandled_hints, records_format.hints)
 
+            # Convince mypy that this type will stay the same
+            delimited_records_format = records_format
+
             def save_df(df: 'DataFrame', output_filename: str) -> None:
+                records_schema = self.schema_from_df(df, processing_instructions)
+                df = format_df_for_csv_output(df,
+                                              records_schema,
+                                              delimited_records_format)
                 df.to_csv(path_or_buf=output_filename,
                           index=self.include_index,
                           **options)
