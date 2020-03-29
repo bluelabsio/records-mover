@@ -3,14 +3,16 @@ from ...utils import quiet_remove
 from ..hints import cant_handle_hint
 from ..processing_instructions import ProcessingInstructions
 from ..records_format import DelimitedRecordsFormat
+from records_mover.records.schema import RecordsSchema
 import logging
-from typing import Set, Dict, Any
+from typing import Set, Dict, Any, Optional
 
 
 logger = logging.getLogger(__name__)
 
 
 def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
+                            records_schema: RecordsSchema,
                             unhandled_hints: Set[str],
                             processing_instructions: ProcessingInstructions) -> Dict[str, Any]:
     ...
@@ -370,9 +372,14 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # Note: A fast-path exists for iso8601-formatted dates.
     #
 
-    # (we don't yet pass in a records schema which would provide
-    # ability to know in advance which columns are datetimes--sounds
-    # like it may be very helpful to do so!)
+    pandas_options['parse_dates'] = [
+        index
+        for index, field
+        in enumerate(records_schema.fields)
+        if field.field_type in ['date', 'time', 'datetime', 'datetimetz']
+    ]
+
+    # TODO: Evaluate below
 
     quiet_remove(unhandled_hints, 'dateformat')
     quiet_remove(unhandled_hints, 'timeonlyformat')
@@ -387,8 +394,6 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # be inferred, switch to a faster method of parsing them. In some
     # cases this can increase the parsing speed by 5-10x.
     #
-
-    # (won't be used since we're not yet able to pass in parse_dates)
 
     #
     # keep_date_col : bool, default False
