@@ -44,7 +44,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
             'quotechar': '"',
             'quoting': 3,
             'warn_bad_lines': True,
-            'parse_dates': [1, 2, 3, 4],
+            'parse_dates': [0, 1, 2, 3],
         }
         processing_instructions = ProcessingInstructions()
         records_format = DelimitedRecordsFormat(hints=bluelabs_format_hints)
@@ -68,7 +68,8 @@ class TestPandasReadCsvOptions(unittest.TestCase):
             'prefix': 'untitled_',
             'quotechar': '"',
             'quoting': 0,
-            'warn_bad_lines': True
+            'warn_bad_lines': True,
+            'parse_dates': [0, 1, 2, 3],
         }
         processing_instructions = ProcessingInstructions()
         records_format = DelimitedRecordsFormat(hints=csv_format_hints)
@@ -93,7 +94,8 @@ class TestPandasReadCsvOptions(unittest.TestCase):
             'prefix': 'untitled_',
             'quotechar': '"',
             'quoting': 3,
-            'warn_bad_lines': True
+            'warn_bad_lines': True,
+            'parse_dates': [0, 1, 2, 3],
         }
         processing_instructions = ProcessingInstructions()
         records_format = DelimitedRecordsFormat(hints=vertica_format_hints)
