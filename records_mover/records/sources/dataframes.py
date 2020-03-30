@@ -136,7 +136,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
             delimited_records_format = records_format
 
             def save_df(df: 'DataFrame', output_filename: str) -> None:
-                records_schema = self.schema_from_df(df, processing_instructions)
+                records_schema = self.initial_records_schema(processing_instructions)
                 df = format_df_for_csv_output(df,
                                               records_schema,
                                               delimited_records_format)
