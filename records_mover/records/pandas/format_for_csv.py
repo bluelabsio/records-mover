@@ -12,9 +12,6 @@ def format_df_for_csv_output(df: DataFrame,
                              records_format: DelimitedRecordsFormat) -> DataFrame:
     formatted_df = df.copy(deep=False)
 
-    logger.info(f"VMB formatted_df: {formatted_df}")
-    logger.info(f"VMB index, field: {list(enumerate(records_schema.fields))}")
-    logger.info(f"VMB formatted_df.iloc[:, 1]: {formatted_df.iloc[:, 1]}")
     for index, field in enumerate(records_schema.fields):
         logger.info(f"VMB: Looking at field {field.name} with type {field.field_type}")
         if field.field_type == 'date':
