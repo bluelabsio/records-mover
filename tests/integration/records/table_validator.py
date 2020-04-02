@@ -62,7 +62,9 @@ class RecordsTableValidator:
         #
         # https://app.asana.com/0/1128138765527694/1159958019131681
         #
-        using_bigquery_via_pandas = self.engine.name == 'bigquery' and variant is None
+        # Our only supported variant for load into BigQuery is, well,
+        # 'bigquery', so everything else goes through pandas:
+        using_bigquery_via_pandas = self.engine.name == 'bigquery' and variant != 'bigquery'
         return using_bigquery_via_pandas or variant in ['csv', 'bigquery']
 
     def variant_uses_am_pm(self, variant):
