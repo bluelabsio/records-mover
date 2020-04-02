@@ -170,6 +170,10 @@ jobs:
           command: |
             sudo apt-get update -y && sudo apt-get install -y postgresql-client
       - run:
+          name: Install mysql
+          command: |
+            sudo apt-get update -y && sudo apt-get install -y mysql-client
+      - run:
           name: Wait for vertica
           command: |
             # Bail out trying after 30 seconds
