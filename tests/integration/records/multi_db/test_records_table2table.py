@@ -16,7 +16,7 @@ BUILD_NUM = os.environ.get("CIRCLE_BUILD_NUM", "local")
 TARGET_TABLE_NAME_PREFIX = "itest_target"
 TARGET_TABLE_NAME = f'{TARGET_TABLE_NAME_PREFIX}_{BUILD_NUM}_{CURRENT_EPOCH}'
 
-DB_TYPES = ['vertica', 'redshift', 'bigquery', 'postgres']
+DB_TYPES = ['vertica', 'redshift', 'bigquery', 'postgres', 'mysql']
 
 DB_NAMES = {
     'vertica': 'dockerized-vertica',
