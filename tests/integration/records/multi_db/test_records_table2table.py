@@ -32,6 +32,8 @@ def schema_name(db_name):
         return 'itest'
     elif db_name == 'dockerized-vertica':
         return 'public'
+    elif db_name == 'dockerized-mysql':
+        return 'mysqlitest'
     elif db_name == 'dockerized-postgres':
         return 'public'
     elif db_name == 'bltoolsdevbq-bq_itest':
