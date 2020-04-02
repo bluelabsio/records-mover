@@ -175,6 +175,7 @@ jobs:
             # Bail out trying after 30 seconds
             end=$((SECONDS+30))
             echo "Starting at second ${SECONDS:?} - ending at ${end:?}"
+            # TODO: Make into alias
             while ! vsql -h 127.0.0.1 -U dbadmin -c 'select 1;' && [[ "${SECONDS:?}" -lt "${end:?}" ]]
             do
               echo "Waiting for vertica..."
@@ -182,6 +183,21 @@ jobs:
             done
             vsql -h 127.0.0.1 -U dbadmin -c 'select 1;'
       # TODO: Where is the wait for postgres and wait for mysql?
+      - run:
+          name: Wait for mysql
+          command: |
+            # Bail out trying after 30 seconds
+            end=$((SECONDS+30))
+            echo "Starting at second ${SECONDS:?} - ending at ${end:?}"
+            mysql_connect() {
+              echo 'select 1;' | mysql --password=hunter2 --host=127.0.0.1 -u mysqluser mysqlitest
+            }
+            while ! mysql_connect && [[ "${SECONDS:?}" -lt "${end:?}" ]]
+            do
+              echo "Waiting for mysql..."
+              sleep 5
+            done
+            mysql_connect
       - run:
           name: Run tests
           command: "<<parameters.command>>"
