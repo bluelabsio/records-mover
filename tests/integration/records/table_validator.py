@@ -74,9 +74,12 @@ class RecordsTableValidator:
     def variant_uses_am_pm(self, variant: DelimitedVariant) -> bool:
         return variant == 'csv'
 
-    def validate(self, variant: DelimitedVariant, schema_name: str, table_name: str) -> None:
+    def validate(self,
+                 variant: Optional[DelimitedVariant],
+                 schema_name: str,
+                 table_name: str) -> None:
         """
-        :param variant: None means the data was given to records mvoer via a Pandas
+        :param variant: None means the data was given to records mover via a Pandas
         dataframe instead of a CSV.
         """
         self.validate_data_types(schema_name, table_name)
