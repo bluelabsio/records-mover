@@ -1,7 +1,9 @@
 import pytz
 import datetime
 import logging
+from sqlalchemy.engine import Engine
 from sqlalchemy.sql import text
+from typing import Optional
 from .timezone import set_session_tz
 from .expected_column_types import expected_column_types
 
@@ -10,11 +12,19 @@ logger = logging.getLogger(__name__)
 
 
 class RecordsTableValidator:
-    def __init__(self, db_engine, source_data_db_engine=None):
+    def __init__(self, db_engine: Engine,
+                 source_data_db_engine: Optional[Engine] = None) -> None:
+        """
+        :param db_engine: Target database of the records move.
+
+        :param source_data_db_engine: Source database of the records
+        move.  None if we are loading from a file directly instead of
+        copying from one database to another.
+        """
         self.engine = db_engine
         self.source_data_db_engine = source_data_db_engine
 
-    def database_default_store_timezone_is_us_eastern(self):
+    def database_default_store_timezone_is_us_eastern(self) -> bool:
         """
         If we don't specify a timezone in a timestamptz string, does the
         database assign the US/Eastern timezone when it's stored?
@@ -29,13 +39,13 @@ class RecordsTableValidator:
         # servers when integration tests are run by hand does not.
         return False
 
-    def supports_time_without_date(self):
+    def supports_time_without_date(self) -> bool:
         # for shame, redshift!
         return (self.engine.name != 'redshift'
                 and (self.source_data_db_engine is None or
                      self.source_data_db_engine.name != 'redshift'))
 
-    def variant_doesnt_support_seconds(self, variant):
+    def variant_doesnt_support_seconds(self, variant: DelimitedVariant):
         # things are represented as second-denominated date + time
         #
         # e.g. - 1/1/00,12:00 AM
