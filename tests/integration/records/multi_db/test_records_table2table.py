@@ -53,7 +53,7 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
             purge_old_tables(schema_name(db_name), TARGET_TABLE_NAME_PREFIX,
                              db_name=db_name)
 
-    def move_and_verify(self, source_dbname, target_dbname, variant_used_internally):
+    def move_and_verify(self, source_dbname: str, target_dbname: str) -> None:
         session = Session()
         records = session.records
         targets = records.targets
@@ -96,18 +96,13 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
 
 def create_test_func(source_name, target_name):
     def source2target(self):
-        self.move_and_verify(source_name, target_name,
-                             variant_used_internally='vertica')
+        self.move_and_verify(source_name, target_name)
     return source2target
 
 
 if __name__ == '__main__':
     for source in DB_TYPES:
         for target in DB_TYPES:
-            variant_used_internally = 'bluelabs'
-            if 'vertica' in [source, target]:
-                variant_used_internally = 'vertica'
-
             source_name = DB_NAMES[source]
             target_name = DB_NAMES[target]
             f = create_test_func(source_name, target_name)
