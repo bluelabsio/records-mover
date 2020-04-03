@@ -3,7 +3,8 @@ import datetime
 import logging
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import text
-from typing import Optional
+from sqlalchemy.sql.elements import TextClause
+from typing import Optional, Dict, Any, Union
 from .timezone import set_session_tz
 from .expected_column_types import expected_column_types
 from records_mover.records import DelimitedVariant
@@ -97,7 +98,7 @@ class RecordsTableValidator:
         actual_column_names = [column['name'] for column in columns]
         assert actual_column_names == expected_column_names, actual_column_names
 
-        def format_type(column: str) -> str:
+        def format_type(column: Dict[str, Any]) -> str:
             suffix = ''
             if 'timezone' in column and column['timezone']:
                 suffix = ' (tz)'
@@ -115,6 +116,7 @@ class RecordsTableValidator:
         with self.engine.connect() as connection:
             set_session_tz(connection)
 
+            select_sql: Union[TextClause, str]
             if self.engine.name == 'bigquery':
                 #
                 # According to Google, "DATETIME is not supported for
