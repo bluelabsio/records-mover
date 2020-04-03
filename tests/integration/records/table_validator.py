@@ -31,8 +31,8 @@ class RecordsTableValidator:
         :param db_engine: Target database of the records move.
 
         :param source_data_db_engine: Source database of the records
-        move.  None if we are loading from a file directly instead of
-        copying from one database to another.
+        move.  None if we are loading from a file or a dataframe
+        instead of copying from one database to another.
         """
         self.engine = db_engine
         self.source_data_db_engine = source_data_db_engine
@@ -103,15 +103,28 @@ class RecordsTableValidator:
         actual_column_types = [format_type(column) for column in columns]
         assert actual_column_types in expected_column_types, actual_column_types
 
+    def default_load_variant(self, db_engine: Engine) -> DelimitedVariant:
+        if db_engine.name == 'bigquery':
+            return 'bigquery'
+        elif db_engine.name == 'vertica':
+            return 'vertica'
+        else:
+            return 'bluelabs'
+
     def determine_load_variant(self,
                                file_variant: Optional[DelimitedVariant]) -> DelimitedVariant:
         if file_variant is None:
+
             # If we're not loading from a file, we're copying from a database
-            assert self.source_data_db_engine is not None
-            if self.source_data_db_engine.name == 'bigquery':
-                return 'bigquery'
+            if self.source_data_db_engine is None:
+                # Loading from a dataframe
+                return self.default_load_variant(self.engine)
             else:
-                return 'vertica'
+                # Loading from a database
+                if self.source_data_db_engine.name == 'bigquery':
+                    return 'bigquery'
+                else:
+                    return 'vertica'
         else:
             return file_variant
 
