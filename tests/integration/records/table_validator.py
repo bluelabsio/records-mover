@@ -6,6 +6,7 @@ from sqlalchemy.sql import text
 from typing import Optional
 from .timezone import set_session_tz
 from .expected_column_types import expected_column_types
+from records_mover.records import DelimitedVariant
 
 
 logger = logging.getLogger(__name__)
