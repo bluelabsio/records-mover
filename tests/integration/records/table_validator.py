@@ -52,10 +52,10 @@ class RecordsTableValidator:
         # e.g. - 1/1/00,12:00 AM
         return variant == 'csv'
 
-    def variant_translated_through_pandas(self, variant):
+    def variant_translated_through_pandas(self, variant: DelimitedVariant) -> bool:
         return self.engine.name == 'vertica' and variant not in ['vertica', 'bluelabs']
 
-    def variant_doesnt_support_timezones(self, variant):
+    def variant_doesnt_support_timezones(self, variant: DelimitedVariant) -> bool:
         #
         # When loading a dataframe into BigQuery, we convert to a CSV
         # in bigquery format, which doesn't support timezones due to
@@ -66,10 +66,10 @@ class RecordsTableValidator:
         using_bigquery_via_pandas = self.engine.name == 'bigquery' and variant is None
         return using_bigquery_via_pandas or variant in ['csv', 'bigquery']
 
-    def variant_uses_am_pm(self, variant):
+    def variant_uses_am_pm(self, variant: DelimitedVariant) -> bool:
         return variant == 'csv'
 
-    def validate(self, variant, schema_name, table_name):
+    def validate(self, variant: DelimitedVariant, schema_name: str, table_name: str) -> None:
         """
         :param variant: None means the data was given to records mvoer via a Pandas
         dataframe instead of a CSV.
@@ -77,7 +77,7 @@ class RecordsTableValidator:
         self.validate_data_types(schema_name, table_name)
         self.validate_data_values(variant, schema_name, table_name)
 
-    def validate_data_types(self, schema_name, table_name):
+    def validate_data_types(self, schema_name: str, table_name: str) -> None:
         columns = self.engine.dialect.get_columns(self.engine, table_name, schema=schema_name)
         expected_column_names = [
             'num', 'numstr', 'str', 'comma', 'doublequote', 'quotecommaquote',
@@ -86,7 +86,7 @@ class RecordsTableValidator:
         actual_column_names = [column['name'] for column in columns]
         assert actual_column_names == expected_column_names, actual_column_names
 
-        def format_type(column):
+        def format_type(column: str) -> str:
             suffix = ''
             if 'timezone' in column and column['timezone']:
                 suffix = ' (tz)'
@@ -95,7 +95,10 @@ class RecordsTableValidator:
         actual_column_types = [format_type(column) for column in columns]
         assert actual_column_types in expected_column_types, actual_column_types
 
-    def validate_data_values(self, variant, schema_name, table_name):
+    def validate_data_values(self,
+                             variant: DelimitedVariant,
+                             schema_name: str,
+                             table_name: str) -> None:
         params = {}
 
         with self.engine.connect() as connection:
