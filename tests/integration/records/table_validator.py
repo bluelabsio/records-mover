@@ -100,12 +100,25 @@ class RecordsTableValidator:
         actual_column_types = [format_type(column) for column in columns]
         assert actual_column_types in expected_column_types, actual_column_types
 
+    def determine_load_variant(self,
+                               file_variant: Optional[DelimitedVariant]) -> DelimitedVariant:
+        if file_variant is None:
+            # If we're not loading from a file, we're copying from a database
+            assert self.source_data_db_engine is not None
+            if self.source_data_db_engine.name == 'bigquery':
+                return 'bigquery'
+            else:
+                return 'vertica'
+        else:
+            return file_variant
+
     def validate_data_values(self,
-                             variant: DelimitedVariant,
+                             file_variant: Optional[DelimitedVariant],
                              schema_name: str,
                              table_name: str) -> None:
         params = {}
 
+        load_variant = self.determine_load_variant(file_variant)
         with self.engine.connect() as connection:
             set_session_tz(connection)
 
@@ -162,11 +175,11 @@ class RecordsTableValidator:
             assert ret['time'] == datetime.time(0, 0), f"Incorrect time: {ret['time']}"
         else:
             # fall back to storing as string
-            if self.variant_uses_am_pm(variant):
+            if self.variant_uses_am_pm(load_variant):
                 assert ret['time'] == '12:00 AM', f"time was {ret['time']}"
             else:
                 assert ret['time'] == '00:00:00', f"time was {ret['time']}"
-        if self.variant_doesnt_support_seconds(variant):
+        if self.variant_doesnt_support_seconds(load_variant):
             assert ret['timestamp'] ==\
                 datetime.datetime(2000, 1, 2, 12, 34),\
                 f"Found timestamp {ret['timestamp']}"
@@ -175,7 +188,7 @@ class RecordsTableValidator:
             assert (ret['timestamp'] == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)),\
                 f"ret['timestamp'] was {ret['timestamp']}"
 
-        if (self.variant_doesnt_support_timezones(variant) and
+        if (self.variant_doesnt_support_timezones(file_variant) and
            not self.database_default_store_timezone_is_us_eastern()):
             # Example date that we'd be loading:
             #
@@ -198,7 +211,7 @@ class RecordsTableValidator:
             # the same result will happen, as the database will
             # understand that noon on the east coast is hour 17 UTC.
             utc_hour = 17
-        if self.variant_doesnt_support_seconds(variant):
+        if self.variant_doesnt_support_seconds(load_variant):
             seconds = '00'
             micros = '000000'
         else:
@@ -216,7 +229,7 @@ class RecordsTableValidator:
              f"hour to be {utc_hour}")
 
         utc = pytz.timezone('UTC')
-        if self.variant_doesnt_support_seconds(variant):
+        if self.variant_doesnt_support_seconds(load_variant):
             utc_naive_expected_time = datetime.datetime(2000, 1, 2, utc_hour, 34)
         else:
             utc_naive_expected_time = datetime.datetime(2000, 1, 2, utc_hour, 34, 56, 789012)
