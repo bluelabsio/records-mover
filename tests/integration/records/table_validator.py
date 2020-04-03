@@ -12,6 +12,17 @@ from records_mover.records import DelimitedVariant
 logger = logging.getLogger(__name__)
 
 
+#
+# Terminology:
+#
+# unload_variant: Variant exported from the source database, or None
+#                 if source database unloads via SELECT into a dataframe.
+#
+# file_variant: Variant of the file presented to records mover as the
+#               source, or None if the move was from a database instead.
+#
+# load_variant: Variant which the target database will eventually load
+#               from, or None if the database will be loaded via INSERT..
 class RecordsTableValidator:
     def __init__(self, db_engine: Engine,
                  source_data_db_engine: Optional[Engine] = None) -> None:
