@@ -10,7 +10,8 @@ clean: coverageclean typecoverageclean
 	FILES=$$(find . -name \*.pyc); for f in $${FILES}; do rm $$f; done
 
 typecheck:
-	mypy --cobertura-xml-report typecover --html-report typecover . tests/integration/records
+	mypy --cobertura-xml-report typecover --html-report typecover .
+	mypy tests/integration/records
 
 typecoverage:
 	python setup.py mypy_ratchet
