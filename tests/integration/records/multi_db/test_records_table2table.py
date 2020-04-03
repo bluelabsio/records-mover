@@ -1,5 +1,5 @@
 from records_mover.db.quoting import quote_schema_and_table
-from records_mover import Session
+from records_mover import Session, set_stream_logging
 from records_mover.records import ExistingTableHandling
 import logging
 import time
@@ -101,6 +101,8 @@ def create_test_func(source_name, target_name):
 
 
 if __name__ == '__main__':
+    set_stream_logging()
+
     for source in DB_TYPES:
         for target in DB_TYPES:
             source_name = DB_NAMES[source]
