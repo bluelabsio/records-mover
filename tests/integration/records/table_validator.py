@@ -67,16 +67,9 @@ class RecordsTableValidator:
     def variant_translated_through_pandas(self, variant: DelimitedVariant) -> bool:
         return self.engine.name == 'vertica' and variant not in ['vertica', 'bluelabs']
 
-    def variant_doesnt_support_timezones(self, variant: DelimitedVariant) -> bool:
-        #
-        # When loading a dataframe into BigQuery, we convert to a CSV
-        # in bigquery format, which doesn't support timezones due to
-        # an issue described here:
-        #
-        # https://app.asana.com/0/1128138765527694/1159958019131681
-        #
-        using_bigquery_via_pandas = self.engine.name == 'bigquery' and variant is None
-        return using_bigquery_via_pandas or variant in ['csv', 'bigquery']
+    def variant_doesnt_support_timezones(self,
+                                         variant: Optional[DelimitedVariant]) -> bool:
+        return variant in ['csv', 'bigquery']
 
     def variant_uses_am_pm(self, variant: DelimitedVariant) -> bool:
         return variant == 'csv'
