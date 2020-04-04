@@ -12,6 +12,7 @@ from records_mover.records import DelimitedVariant
 
 logger = logging.getLogger(__name__)
 
+# TODO: Can I pass in load_variant to constructor?
 
 #
 # Terminology:
@@ -128,6 +129,9 @@ class RecordsTableValidator:
         else:
             return file_variant
 
+    def loaded_from_dataframe(self, file_variant: Optional[DelimitedVariant]) -> bool:
+        return file_variant is None and self.source_data_db_engine is None
+
     def validate_data_values(self,
                              file_variant: Optional[DelimitedVariant],
                              schema_name: str,
@@ -204,10 +208,28 @@ class RecordsTableValidator:
             assert (ret['timestamp'] == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)),\
                 f"ret['timestamp'] was {ret['timestamp']}"
 
-        if ((self.variant_doesnt_support_timezones(file_variant) or
-             self.variant_doesnt_support_timezones(load_variant)) and
+        if (self.loaded_from_dataframe(file_variant) and
+            self.variant_doesnt_support_timezones(load_variant) and
            not self.database_default_store_timezone_is_us_eastern()):
-            # Example date that we'd be loading:
+            #
+            # In this case, we correctly tell Pandas that we have are
+            # at noon:34 US/Eastern, and tell Pandas to format the
+            # datetime format.  Unfortunately, if you don't specify a
+            # timezone as part of that format, Pandas just prints the
+            # TZ-naive hour.
+            #
+            utc_hour = 12
+        elif (self.variant_doesnt_support_timezones(file_variant) and
+              not self.database_default_store_timezone_is_us_eastern()):
+            # In this case we're loading from one of our example
+            # files, but the example file doesn't contain a timezone.
+            # Per tests/integration/resources/README.md:
+            #
+            #     On systems where a timezone can't be represented,
+            #     this should be represented as if the implicit
+            #     timezone was US/Eastern.
+            #
+            # Example date that we'd be loading as a string:
             #
             #   2000-01-02 12:34:56.789012
             #
