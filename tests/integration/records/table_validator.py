@@ -241,6 +241,18 @@ class RecordsTableValidator:
             # doesn't store timezones, the database in question just
             # strips off the timezone and stores the '12'
             utc_hour = 12
+        elif(self.loaded_from_dataframe() and
+             self.database_has_no_usable_timestamptz_type()):
+            utc_hour = 12
+            #
+            # In this case, we correctly tell Pandas that we have are
+            # at noon:34 US/Eastern, and tell Pandas to format the
+            # datetime format.
+            #
+            # But since we're loading it into a column type that
+            # doesn't store timezones, the database in question just
+            # strips off the timezone and stores the '12'
+            #
         elif (self.loaded_from_dataframe() and
               self.variant_doesnt_support_timezones(load_variant) and
               not self.database_default_store_timezone_is_us_eastern()):
