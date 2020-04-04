@@ -371,6 +371,7 @@ class RecordsTableValidator:
             assert ret['timestamptzstr'] in [
                 f'2000-01-02 {utc_hour}:34:{seconds}.{micros} ',
                 f'2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC',
+                f'2000-01-02 {utc_hour}:34:{seconds}.{micros}+00'
             ],\
                 (f"translated ret['timestamptzstr'] was {ret['timestamptzstr']} and "
                  f"class is {type(ret['timestamptzstr'])} - expected "
