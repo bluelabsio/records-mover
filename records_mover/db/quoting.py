@@ -1,9 +1,10 @@
 from sqlalchemy.engine import Engine, Connection
+from sqlalchemy.engine.default import DefaultDialect
 import sqlalchemy_redshift.dialect
 from typing import Optional, Union
 
 
-def _dialect(db: Optional[Union[Connection, Engine]]):
+def _dialect(db: Optional[Union[Connection, Engine]]) -> DefaultDialect:
     if db is None:
         # use a common one which is likely to be compatible
         return sqlalchemy_redshift.dialect.RedshiftDialect()

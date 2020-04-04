@@ -170,7 +170,6 @@ class RecordsTableValidator:
         params = {}
 
         load_variant = self.determine_load_variant()
-        print(f"VMB: load_variant: {load_variant}")
 
         with self.target_db_engine.connect() as connection:
             set_session_tz(connection)

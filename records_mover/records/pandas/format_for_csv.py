@@ -13,7 +13,6 @@ def format_df_for_csv_output(df: DataFrame,
     formatted_df = df.copy(deep=False)
 
     for index, field in enumerate(records_schema.fields):
-        logger.info(f"VMB: Looking at field {field.name} with type {field.field_type}")
         if field.field_type == 'date':
             # TODO: is there a less weird way of doing this?
             series = formatted_df.iloc[:, index]
@@ -33,9 +32,6 @@ def format_df_for_csv_output(df: DataFrame,
                                                                        '%Y-%m-%d')
                 formatted_series = series.dt.strftime(pandas_date_format)
                 formatted_df.iloc[:, index] = formatted_series
-                # logger.info(f"VMB formatted_series: {formatted_series}")
-                # logger.info(f"VMB formatted_df['date']: {formatted_df['date']}")
-                # logger.info(f"VMB formatted_df: {formatted_df}")
         elif field.field_type == 'time':
             # TODO: What about timetz
             # TODO: is there a less weird way of doing this?
@@ -55,5 +51,4 @@ def format_df_for_csv_output(df: DataFrame,
                                                                        '%H:%M:%S')
                 formatted_series = series.dt.strftime(pandas_time_format)
                 formatted_df.iloc[:, index] = formatted_series
-                logger.info(f"VMB formatted_series: {formatted_series}")
     return formatted_df
