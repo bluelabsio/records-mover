@@ -204,7 +204,8 @@ class RecordsTableValidator:
             assert (ret['timestamp'] == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)),\
                 f"ret['timestamp'] was {ret['timestamp']}"
 
-        if (self.variant_doesnt_support_timezones(file_variant) and
+        if ((self.variant_doesnt_support_timezones(file_variant) or
+             self.variant_doesnt_support_timezones(load_variant)) and
            not self.database_default_store_timezone_is_us_eastern()):
             # Example date that we'd be loading:
             #
