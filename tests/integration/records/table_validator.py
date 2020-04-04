@@ -362,13 +362,21 @@ class RecordsTableValidator:
         assert ret['timestampstr'] == f'2000-01-02 12:34:{seconds}.{micros}',\
             f"expected '2000-01-02 12:34:{seconds}.{micros}' got '{ret['timestampstr']}'"
 
-        assert ret['timestamptzstr'] in [
+        if (self.source_db_engine is not None and
+           self.database_has_no_usable_timestamptz_type(self.source_db_engine)):
+            assert ret['timestamptzstr'] ==\
+                f'2000-01-02 {utc_hour}:34:{seconds}.{micros} ',\
+                (f"translated ret['timestamptzstr'] was {ret['timestamptzstr']} and "
+                 f"class is {type(ret['timestamptzstr'])} - expected "
+                 f"hour to be {utc_hour}")
+        else:
+            assert ret['timestamptzstr'] in [
                 f'2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC',
                 f'2000-01-02 {utc_hour}:34:{seconds}.{micros}+00'
             ],\
-            (f"translated ret['timestamptzstr'] was {ret['timestamptzstr']} and "
-             f"class is {type(ret['timestamptzstr'])} - expected "
-             f"hour to be {utc_hour}")
+                (f"translated ret['timestamptzstr'] was {ret['timestamptzstr']} and "
+                 f"class is {type(ret['timestamptzstr'])} - expected "
+                 f"hour to be {utc_hour}")
 
         utc = pytz.timezone('UTC')
         if ((load_variant is not None and
