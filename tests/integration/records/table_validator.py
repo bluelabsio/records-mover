@@ -122,7 +122,7 @@ class RecordsTableValidator:
             # variant name for the CSV-esque variant that we now
             # prefer for Redshift.
             return ['bluelabs', 'csv', 'bigquery']
-        elif db_engine.name == 'postgres':
+        elif db_engine.name == 'postgresql':
             return ['bluelabs', 'csv', 'bigquery']
         elif db_engine.name == 'mysql':
             return []
