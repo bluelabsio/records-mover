@@ -54,7 +54,8 @@ class RecordsTableValidator:
         return False
 
     def supports_time_without_date(self) -> bool:
-        # for shame, redshift!
+        # Redshift as a source or destination doesn't support a time
+        # type, meaning the net result will be time as a string type.
         return (self.engine.name != 'redshift'
                 and (self.source_data_db_engine is None or
                      self.source_data_db_engine.name != 'redshift'))
