@@ -184,6 +184,12 @@ expected_column_types = [
         'VARCHAR(444)', 'DATE', 'TIME WITHOUT TIME ZONE', 'TIMESTAMP WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE'
     ],
+    # mysql2redshift
+    [
+        'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)',
+        'VARCHAR(444)', 'DATE', 'VARCHAR(8)', 'TIMESTAMP WITHOUT TIME ZONE',
+        'TIMESTAMP WITHOUT TIME ZONE'
+    ],
     # vertica2postgres
     [
         'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
