@@ -111,17 +111,26 @@ class RecordsTableValidator:
         actual_column_types = [format_type(column) for column in columns]
         assert actual_column_types in expected_column_types, actual_column_types
 
-    def default_load_variant(self, db_engine: Engine) -> DelimitedVariant:
+    def supported_load_variants(self, db_engine: Engine) -> DelimitedVariant:
         if db_engine.name == 'bigquery':
-            return 'bigquery'
+            return ['bigquery']
         elif db_engine.name == 'vertica':
-            return 'vertica'
+            return ['bluelabs', 'vertica']
+        elif db_engine.name == 'redshift':
+            return ['bigquery', 'csv', 'bluelabs']
+        elif db_engine.name == 'postgres':
+            return ['bluelabs', 'csv', 'bigquery']
+        elif db_engine.name == 'mysql':
+            return []
         else:
-            return 'bluelabs'
+            raise NotImplementedError(f"Teach me about database type {db_engine.name}")
+
+    def default_load_variant(self, db_engine: Engine) -> DelimitedVariant:
+        supported = self.supported_load_variants(db_engine)
+        return supported[0]
 
     def determine_load_variant(self) -> DelimitedVariant:
         if self.file_variant is None:
-
             # If we're not loading from a file, we're copying from a database
             if self.source_data_db_engine is None:
                 # Loading from a dataframe
@@ -133,7 +142,10 @@ class RecordsTableValidator:
                 else:
                     return 'vertica'
         else:
-            return self.file_variant
+            if self.file_variant in self.supported_load_variants(self.engine):
+                return self.file_variant
+            else:
+                return self.default_load_variant(self.engine)
 
     def loaded_from_dataframe(self) -> bool:
         return self.file_variant is None and self.source_data_db_engine is None
@@ -231,6 +243,8 @@ class RecordsTableValidator:
             assert (ret['timestamp'] == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)),\
                 f"ret['timestamp'] was {ret['timestamp']} of type {type(ret['timestamp'])}"
 
+        print(f"VMB: load_variant: {load_variant}")
+
         if (self.loaded_from_file() and
            self.database_has_no_usable_timestamptz_type()):
             # In this case, we're trying to load a string that looks like this:
@@ -243,7 +257,6 @@ class RecordsTableValidator:
             utc_hour = 12
         elif(self.loaded_from_dataframe() and
              self.database_has_no_usable_timestamptz_type()):
-            utc_hour = 12
             #
             # In this case, we correctly tell Pandas that we have are
             # at noon:34 US/Eastern, and tell Pandas to format the
@@ -253,6 +266,21 @@ class RecordsTableValidator:
             # doesn't store timezones, the database in question just
             # strips off the timezone and stores the '12'
             #
+            utc_hour = 12
+        elif (self.loaded_from_file() and
+              load_variant != self.file_variant and
+              self.variant_doesnt_support_timezones(load_variant) and
+              not self.database_default_store_timezone_is_us_eastern()):
+            # In this case, we're trying to load a string that looks like this:
+            #
+            #  2000-01-02 12:34:56.789012-05
+            #
+            # That gets correct turned into a dataframe representing
+            # noon:34 US/Eastern.  We tell Pandas to format the
+            # datetime format in the load variant.  Unfortunately, if
+            # you don't specify a timezone as part of that format,
+            # Pandas just prints the TZ-naive hour.
+            utc_hour = 12
         elif (self.loaded_from_dataframe() and
               self.variant_doesnt_support_timezones(load_variant) and
               not self.database_default_store_timezone_is_us_eastern()):
