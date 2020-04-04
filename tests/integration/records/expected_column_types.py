@@ -149,6 +149,20 @@ expected_column_types = [
         "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>",
         "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>",
     ],
+    # mysql2bigquery
+    [
+        "<class 'sqlalchemy.sql.sqltypes.Integer'>",
+        "<class 'sqlalchemy.sql.sqltypes.String'>",
+        "<class 'sqlalchemy.sql.sqltypes.String'>",
+        "<class 'sqlalchemy.sql.sqltypes.String'>",
+        "<class 'sqlalchemy.sql.sqltypes.String'>",
+        "<class 'sqlalchemy.sql.sqltypes.String'>",
+        "<class 'sqlalchemy.sql.sqltypes.String'>",
+        "<class 'sqlalchemy.sql.sqltypes.DATE'>",
+        "<class 'sqlalchemy.sql.sqltypes.TIME'>",
+        "<class 'sqlalchemy.sql.sqltypes.DATETIME'>",
+        "<class 'sqlalchemy.sql.sqltypes.DATETIME'>"
+    ],
     # redshift2mysql
     [
         'INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
@@ -157,6 +171,11 @@ expected_column_types = [
     # postgres2mysql
     [
         'INTEGER(11)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
+        'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
+    ],
+    # bigquery2mysql
+    [
+        'BIGINT(20)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
     ],
     # vertica2postgres

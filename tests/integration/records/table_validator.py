@@ -25,8 +25,9 @@ logger = logging.getLogger(__name__)
 # load_variant: Variant which the target database will eventually load
 #               from, or None if the database will be loaded via INSERT..
 class RecordsTableValidator:
-    def __init__(self, db_engine: Engine,
-                 source_data_db_engine: Optional[Engine] = None,
+    def __init__(self,
+                 target_db_engine: Engine,
+                 source_db_engine: Optional[Engine] = None,
                  file_variant: Optional[DelimitedVariant] = None) -> None:
         """
         :param db_engine: Target database of the records move.
@@ -38,16 +39,16 @@ class RecordsTableValidator:
         :param file_variant: None means the data was given to records mover via a Pandas
         dataframe or by copying from another database instead of a CSV.
         """
-        self.engine = db_engine
-        self.source_data_db_engine = source_data_db_engine
+        self.target_db_engine = target_db_engine
+        self.source_db_engine = source_db_engine
         self.file_variant = file_variant
 
-    def database_has_no_usable_timestamptz_type(self) -> bool:
+    def database_has_no_usable_timestamptz_type(self, engine: Engine) -> bool:
         # If true, timestamptzs are treated like timestamps, and the
         # timezone is stripped off without looking at it before the
         # timestamp itself is stored without any modifications to the
         # hour number.
-        return self.engine.name == 'mysql'
+        return engine.name == 'mysql'
 
     def database_default_store_timezone_is_us_eastern(self) -> bool:
         """
@@ -65,14 +66,14 @@ class RecordsTableValidator:
         return False
 
     def selects_time_types_as_timedelta(self):
-        return self.engine.name == 'mysql'
+        return self.target_db_engine.name == 'mysql'
 
     def supports_time_without_date(self) -> bool:
         # Redshift as a source or destination doesn't support a time
         # type, meaning the net result will be time as a string type.
-        return (self.engine.name != 'redshift'
-                and (self.source_data_db_engine is None or
-                     self.source_data_db_engine.name != 'redshift'))
+        return (self.target_db_engine.name != 'redshift'
+                and (self.source_db_engine is None or
+                     self.source_db_engine.name != 'redshift'))
 
     def variant_doesnt_support_seconds(self, variant: DelimitedVariant):
         # things are represented as second-denominated date + time
@@ -94,7 +95,7 @@ class RecordsTableValidator:
         self.validate_data_values(schema_name, table_name)
 
     def validate_data_types(self, schema_name: str, table_name: str) -> None:
-        columns = self.engine.dialect.get_columns(self.engine, table_name, schema=schema_name)
+        columns = self.target_db_engine.dialect.get_columns(self.target_db_engine, table_name, schema=schema_name)
         expected_column_names = [
             'num', 'numstr', 'str', 'comma', 'doublequote', 'quotecommaquote',
             'newlinestr', 'date', 'time', 'timestamp', 'timestamptz'
@@ -137,25 +138,28 @@ class RecordsTableValidator:
 
     def determine_load_variant(self) -> Optional[DelimitedVariant]:
         if self.loaded_from_file():
-            if self.file_variant in self.supported_load_variants(self.engine):
+            if self.file_variant in self.supported_load_variants(self.target_db_engine):
                 return self.file_variant
             else:
-                return self.default_load_variant(self.engine)
+                return self.default_load_variant(self.target_db_engine)
         else:
             # If we're not loading from a file, we're copying from a database
             if self.loaded_from_dataframe():
                 # Loading from a dataframe
-                return self.default_load_variant(self.engine)
+                return self.default_load_variant(self.target_db_engine)
             else:
                 # Loading from a database
-                assert self.source_data_db_engine is not None
-                if self.source_data_db_engine.name == 'bigquery':
+                assert self.source_db_engine is not None
+                if self.source_db_engine.name == 'bigquery':
                     return 'bigquery'
                 else:
                     return 'vertica'
 
+    def loaded_from_database(self) -> bool:
+        return self.source_db_engine is not None
+
     def loaded_from_dataframe(self) -> bool:
-        return self.file_variant is None and self.source_data_db_engine is None
+        return self.file_variant is None and self.source_db_engine is None
 
     def loaded_from_file(self) -> bool:
         return self.file_variant is not None
@@ -168,11 +172,11 @@ class RecordsTableValidator:
         load_variant = self.determine_load_variant()
         print(f"VMB: load_variant: {load_variant}")
 
-        with self.engine.connect() as connection:
+        with self.target_db_engine.connect() as connection:
             set_session_tz(connection)
 
             select_sql: Union[TextClause, str]
-            if self.engine.name == 'bigquery':
+            if self.target_db_engine.name == 'bigquery':
                 #
                 # According to Google, "DATETIME is not supported for
                 # uploading from Parquet" -
@@ -187,19 +191,23 @@ class RecordsTableValidator:
                 # timezone on this column in this test validation code
                 # for uniformity with a CAST().
                 #
+                # Similarly, when moving from MySQL, which doesn't
+                # support a usable datetimetz type, we'll end up
+                # creating a datetime type for the 'timestamptz'
+                # column, and will need to cast.
                 select_sql = text(f"""
                 SELECT num, numstr, comma, doublequote, quotecommaquote, date, `time`,
                        CAST(`timestamp` AS datetime) as `timestamp`,
                        format_datetime(:formatstr, CAST(`timestamp` as datetime)) as timestampstr,
                        timestamptz,
-                       format_timestamp(:tzformatstr, timestamptz) as timestamptzstr
+                       format_timestamp(:tzformatstr, CAST(`timestamptz` as timestamp)) as timestamptzstr
                 FROM {schema_name}.{table_name}
                 """)
                 params = {
                     "tzformatstr": "%E4Y-%m-%d %H:%M:%E*S %Z",
                     "formatstr": "%E4Y-%m-%d %H:%M:%E*S",
                 }
-            elif self.engine.name == 'mysql':
+            elif self.target_db_engine.name == 'mysql':
                 select_sql = f"""
                 SELECT num, numstr, comma, doublequote, quotecommaquote, date, `time`,
                        `timestamp`,
@@ -255,8 +263,16 @@ class RecordsTableValidator:
             assert (ret['timestamp'] == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)),\
                 f"ret['timestamp'] was {ret['timestamp']} of type {type(ret['timestamp'])}"
 
-        if (self.loaded_from_file() and
-           self.database_has_no_usable_timestamptz_type()):
+        if (self.source_db_engine is not None and
+           self.database_has_no_usable_timestamptz_type(self.source_db_engine)):
+            # The source database doesn't know anything about
+            # timezones, and records_database_fixture.py inserts
+            # something like "2000-01-02 12:34:56.789012-05" - and the
+            # timezone parts gets ignored by the database.
+            #
+            utc_hour = 12
+        elif (self.loaded_from_file() and
+              self.database_has_no_usable_timestamptz_type(self.target_db_engine)):
             # In this case, we're trying to load a string that looks like this:
             #
             #  2000-01-02 12:34:56.789012-05
@@ -266,7 +282,7 @@ class RecordsTableValidator:
             # strips off the timezone and stores the '12'
             utc_hour = 12
         elif(self.loaded_from_dataframe() and
-             self.database_has_no_usable_timestamptz_type()):
+             self.database_has_no_usable_timestamptz_type(self.target_db_engine)):
             #
             # In this case, we correctly tell Pandas that we have are
             # at noon:34 US/Eastern, and tell Pandas to format the

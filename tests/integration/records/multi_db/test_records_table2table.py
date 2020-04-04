@@ -85,7 +85,7 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
         # will be None or 1
         self.assertNotEqual(0, out.move_count)
         validator = RecordsTableValidator(target_engine,
-                                          source_data_db_engine=source_engine)
+                                          source_db_engine=source_engine)
         validator.validate(schema_name=target_schema_name,
                            table_name=TARGET_TABLE_NAME)
 
@@ -105,8 +105,8 @@ def create_test_func(source_name, target_name):
 if __name__ == '__main__':
     set_stream_logging()
 
-    for source in DB_TYPES:
-        for target in DB_TYPES:
+    for source in ['mysql']:  # DB_TYPES:
+        for target in ['bigquery']:  # DB_TYPES:
             source_name = DB_NAMES[source]
             target_name = DB_NAMES[target]
             f = create_test_func(source_name, target_name)
