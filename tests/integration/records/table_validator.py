@@ -138,6 +138,9 @@ class RecordsTableValidator:
     def loaded_from_dataframe(self) -> bool:
         return self.file_variant is None and self.source_data_db_engine is None
 
+    def loaded_from_file(self) -> bool:
+        return self.file_variant is not None
+
     def validate_data_values(self,
                              schema_name: str,
                              table_name: str) -> None:
@@ -228,7 +231,8 @@ class RecordsTableValidator:
             assert (ret['timestamp'] == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)),\
                 f"ret['timestamp'] was {ret['timestamp']} of type {type(ret['timestamp'])}"
 
-        if self.database_has_no_usable_timestamptz_type():
+        if (self.loaded_from_file() and
+           self.database_has_no_usable_timestamptz_type()):
             # In this case, we're trying to load a string that looks like this:
             #
             #  2000-01-02 12:34:56.789012-05
