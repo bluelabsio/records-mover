@@ -4,7 +4,7 @@ import logging
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import text
 from sqlalchemy.sql.elements import TextClause
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any, Union, List
 from .timezone import set_session_tz
 from .expected_column_types import expected_column_types
 from records_mover.records import DelimitedVariant
@@ -111,7 +111,7 @@ class RecordsTableValidator:
         actual_column_types = [format_type(column) for column in columns]
         assert actual_column_types in expected_column_types, actual_column_types
 
-    def supported_load_variants(self, db_engine: Engine) -> DelimitedVariant:
+    def supported_load_variants(self, db_engine: Engine) -> List[DelimitedVariant]:
         if db_engine.name == 'bigquery':
             return ['bigquery']
         elif db_engine.name == 'vertica':
@@ -129,11 +129,13 @@ class RecordsTableValidator:
         else:
             raise NotImplementedError(f"Teach me about database type {db_engine.name}")
 
-    def default_load_variant(self, db_engine: Engine) -> DelimitedVariant:
+    def default_load_variant(self, db_engine: Engine) -> Optional[DelimitedVariant]:
         supported = self.supported_load_variants(db_engine)
+        if len(supported) == 0:
+            return None
         return supported[0]
 
-    def determine_load_variant(self) -> DelimitedVariant:
+    def determine_load_variant(self) -> Optional[DelimitedVariant]:
         if self.loaded_from_file():
             if self.file_variant in self.supported_load_variants(self.engine):
                 return self.file_variant
@@ -146,6 +148,7 @@ class RecordsTableValidator:
                 return self.default_load_variant(self.engine)
             else:
                 # Loading from a database
+                assert self.source_data_db_engine is not None
                 if self.source_data_db_engine.name == 'bigquery':
                     return 'bigquery'
                 else:
@@ -163,6 +166,8 @@ class RecordsTableValidator:
         params = {}
 
         load_variant = self.determine_load_variant()
+        print(f"VMB: load_variant: {load_variant}")
+
         with self.engine.connect() as connection:
             set_session_tz(connection)
 
@@ -234,11 +239,14 @@ class RecordsTableValidator:
                     f"Incorrect time: {ret['time']} (of type {type(ret['time'])})"
         else:
             # fall back to storing as string
-            if self.variant_uses_am_pm(load_variant):
+            if load_variant is not None and self.variant_uses_am_pm(load_variant):
                 assert ret['time'] == '12:00 AM', f"time was {ret['time']}"
             else:
                 assert ret['time'] == '00:00:00', f"time was {ret['time']}"
-        if self.variant_doesnt_support_seconds(load_variant):
+        if (((load_variant is not None) and
+             self.variant_doesnt_support_seconds(load_variant)) or
+           ((self.file_variant is not None) and
+           self.variant_doesnt_support_seconds(self.file_variant))):
             assert ret['timestamp'] ==\
                 datetime.datetime(2000, 1, 2, 12, 34),\
                 f"Found timestamp {ret['timestamp']}"
@@ -246,8 +254,6 @@ class RecordsTableValidator:
         else:
             assert (ret['timestamp'] == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)),\
                 f"ret['timestamp'] was {ret['timestamp']} of type {type(ret['timestamp'])}"
-
-        print(f"VMB: load_variant: {load_variant}")
 
         if (self.loaded_from_file() and
            self.database_has_no_usable_timestamptz_type()):
@@ -327,7 +333,10 @@ class RecordsTableValidator:
             # the same result will happen, as the database will
             # understand that noon on the east coast is hour 17 UTC.
             utc_hour = 17
-        if self.variant_doesnt_support_seconds(load_variant):
+        if ((load_variant is not None and
+             self.variant_doesnt_support_seconds(load_variant)) or
+            ((self.file_variant is not None and
+              self.variant_doesnt_support_seconds(self.file_variant)))):
             seconds = '00'
             micros = '000000'
         else:
@@ -346,7 +355,10 @@ class RecordsTableValidator:
              f"hour to be {utc_hour}")
 
         utc = pytz.timezone('UTC')
-        if self.variant_doesnt_support_seconds(load_variant):
+        if ((load_variant is not None and
+             self.variant_doesnt_support_seconds(load_variant)) or
+            (self.file_variant is not None and
+             self.variant_doesnt_support_seconds(self.file_variant))):
             utc_naive_expected_time = datetime.datetime(2000, 1, 2, utc_hour, 34)
         else:
             utc_naive_expected_time = datetime.datetime(2000, 1, 2, utc_hour, 34, 56, 789012)
