@@ -364,8 +364,14 @@ class RecordsTableValidator:
 
         if (self.source_db_engine is not None and
            self.database_has_no_usable_timestamptz_type(self.source_db_engine)):
-            assert ret['timestamptzstr'] ==\
-                f'2000-01-02 {utc_hour}:34:{seconds}.{micros} ',\
+            # Depending on the capabilities of the target database, we
+            # may not be able to get a rendered version that includes
+            # the UTC tz - but either way we won't have transferred a
+            # timezone in.
+            assert ret['timestamptzstr'] in [
+                f'2000-01-02 {utc_hour}:34:{seconds}.{micros} ',
+                f'2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC',
+            ],\
                 (f"translated ret['timestamptzstr'] was {ret['timestamptzstr']} and "
                  f"class is {type(ret['timestamptzstr'])} - expected "
                  f"hour to be {utc_hour}")
