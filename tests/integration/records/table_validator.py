@@ -66,9 +66,6 @@ class RecordsTableValidator:
         # e.g. - 1/1/00,12:00 AM
         return variant == 'csv'
 
-    def variant_translated_through_pandas(self, variant: DelimitedVariant) -> bool:
-        return self.engine.name == 'vertica' and variant not in ['vertica', 'bluelabs']
-
     def variant_doesnt_support_timezones(self,
                                          variant: Optional[DelimitedVariant]) -> bool:
         return variant in ['csv', 'bigquery']
