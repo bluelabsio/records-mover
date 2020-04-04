@@ -12,7 +12,6 @@ from records_mover.records import DelimitedVariant
 
 logger = logging.getLogger(__name__)
 
-# TODO: Can I pass in load_variant to constructor?
 
 #
 # Terminology:
@@ -27,16 +26,21 @@ logger = logging.getLogger(__name__)
 #               from, or None if the database will be loaded via INSERT..
 class RecordsTableValidator:
     def __init__(self, db_engine: Engine,
-                 source_data_db_engine: Optional[Engine] = None) -> None:
+                 source_data_db_engine: Optional[Engine] = None,
+                 file_variant: Optional[DelimitedVariant] = None) -> None:
         """
         :param db_engine: Target database of the records move.
 
         :param source_data_db_engine: Source database of the records
         move.  None if we are loading from a file or a dataframe
         instead of copying from one database to another.
+
+        :param file_variant: None means the data was given to records mover via a Pandas
+        dataframe or by copying from another database instead of a CSV.
         """
         self.engine = db_engine
         self.source_data_db_engine = source_data_db_engine
+        self.file_variant = file_variant
 
     def database_default_store_timezone_is_us_eastern(self) -> bool:
         """
@@ -74,15 +78,10 @@ class RecordsTableValidator:
         return variant == 'csv'
 
     def validate(self,
-                 variant: Optional[DelimitedVariant],
                  schema_name: str,
                  table_name: str) -> None:
-        """
-        :param variant: None means the data was given to records mover via a Pandas
-        dataframe instead of a CSV.
-        """
         self.validate_data_types(schema_name, table_name)
-        self.validate_data_values(variant, schema_name, table_name)
+        self.validate_data_values(schema_name, table_name)
 
     def validate_data_types(self, schema_name: str, table_name: str) -> None:
         columns = self.engine.dialect.get_columns(self.engine, table_name, schema=schema_name)
@@ -110,9 +109,8 @@ class RecordsTableValidator:
         else:
             return 'bluelabs'
 
-    def determine_load_variant(self,
-                               file_variant: Optional[DelimitedVariant]) -> DelimitedVariant:
-        if file_variant is None:
+    def determine_load_variant(self) -> DelimitedVariant:
+        if self.file_variant is None:
 
             # If we're not loading from a file, we're copying from a database
             if self.source_data_db_engine is None:
@@ -125,18 +123,17 @@ class RecordsTableValidator:
                 else:
                     return 'vertica'
         else:
-            return file_variant
+            return self.file_variant
 
-    def loaded_from_dataframe(self, file_variant: Optional[DelimitedVariant]) -> bool:
-        return file_variant is None and self.source_data_db_engine is None
+    def loaded_from_dataframe(self) -> bool:
+        return self.file_variant is None and self.source_data_db_engine is None
 
     def validate_data_values(self,
-                             file_variant: Optional[DelimitedVariant],
                              schema_name: str,
                              table_name: str) -> None:
         params = {}
 
-        load_variant = self.determine_load_variant(file_variant)
+        load_variant = self.determine_load_variant()
         with self.engine.connect() as connection:
             set_session_tz(connection)
 
@@ -206,7 +203,7 @@ class RecordsTableValidator:
             assert (ret['timestamp'] == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)),\
                 f"ret['timestamp'] was {ret['timestamp']}"
 
-        if (self.loaded_from_dataframe(file_variant) and
+        if (self.loaded_from_dataframe() and
             self.variant_doesnt_support_timezones(load_variant) and
            not self.database_default_store_timezone_is_us_eastern()):
             #
@@ -217,7 +214,7 @@ class RecordsTableValidator:
             # TZ-naive hour.
             #
             utc_hour = 12
-        elif (self.variant_doesnt_support_timezones(file_variant) and
+        elif (self.variant_doesnt_support_timezones(self.file_variant) and
               not self.database_default_store_timezone_is_us_eastern()):
             # In this case we're loading from one of our example
             # files, but the example file doesn't contain a timezone.

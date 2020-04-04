@@ -83,8 +83,7 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
         self.assertNotEqual(0, out.move_count)
         validator = RecordsTableValidator(target_engine,
                                           source_data_db_engine=source_engine)
-        validator.validate(variant=None,
-                           schema_name=target_schema_name,
+        validator.validate(schema_name=target_schema_name,
                            table_name=TARGET_TABLE_NAME)
 
         quoted_target = quote_schema_and_table(target_engine, target_schema_name, TARGET_TABLE_NAME)
