@@ -149,6 +149,16 @@ expected_column_types = [
         "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>",
         "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>",
     ],
+    # redshift2mysql
+    [
+        'INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
+        'VARCHAR(111)', 'DATE', 'VARCHAR(8)', 'DATETIME(6)', 'DATETIME(6)'
+    ],
+    # postgres2mysql
+    [
+        'INTEGER(11)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
+        'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
+    ],
     # vertica2postgres
     [
         'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
