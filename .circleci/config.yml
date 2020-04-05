@@ -43,13 +43,13 @@ commands:
   wait_for_db:
     description: "Pause until database answers allowing time to startup.  Abort if startup got hung in CircleCI."
     parameters:
-      name:
+      db_name:
         type: string
       connect_command:
         type: string
     steps:
       - run:
-          name: <<parameters.name>>
+          name: Waiting for <<parameters.db_name>>
           command: |
             # Bail out trying after 30 seconds
             end=$((SECONDS+30))
@@ -59,7 +59,7 @@ commands:
             }
             while ! db_connect && [[ "${SECONDS:?}" -lt "${end:?}" ]]
             do
-              echo "Waiting for <<parameters.connect_command>>..."
+              echo "Waiting for <<parameters.db_name>>..."
               sleep 5
             done
             db_connect
@@ -200,7 +200,7 @@ jobs:
           name: Wait for Vertica
           connect_command: vsql -h 127.0.0.1 -U dbadmin -c 'select 1;'
       - run:
-          name: Wait for vertica
+          db_name: Vertica
           command: |
             # Bail out trying after 30 seconds
             end=$((SECONDS+30))
