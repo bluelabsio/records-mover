@@ -41,22 +41,22 @@ def prep_df_for_csv_output(df: DataFrame,
                                                                        '%Y-%m-%d')
                 formatted_series = series.dt.strftime(pandas_date_format)
                 formatted_df.iloc[:, index] = formatted_series
-        elif field.field_type == 'time':
-            # TODO: Is this needed at all?  Try removing.
-            series = formatted_df.iloc[:, index]
-            if not isinstance(series[0], pd.Timestamp):
-                logger.warning(f"Found {series.name} as unexpected type {type(series[0])}")
-            else:
-                logger.info(f"Converting {series.name} from np.datetime64 to string "
-                            "in CSV's format")
-                hint_time_format = records_format.hints['timeonlyformat']
-                assert isinstance(hint_time_format, str)
-                pandas_time_format_conversion = {
-                    'HH24:MI:SS': '%H:%M:%S',
-                    'HH12:MI AM': '%I:%M:%S %p',
-                }
-                pandas_time_format = pandas_time_format_conversion.get(hint_time_format,
-                                                                       '%H:%M:%S')
-                formatted_series = series.dt.strftime(pandas_time_format)
-                formatted_df.iloc[:, index] = formatted_series
+        # elif field.field_type == 'time':
+        #     # TODO: Is this needed at all?  Try removing.
+        #     series = formatted_df.iloc[:, index]
+        #     if not isinstance(series[0], pd.Timestamp):
+        #         logger.warning(f"Found {series.name} as unexpected type {type(series[0])}")
+        #     else:
+        #         logger.info(f"Converting {series.name} from np.datetime64 to string "
+        #                     "in CSV's format")
+        #         hint_time_format = records_format.hints['timeonlyformat']
+        #         assert isinstance(hint_time_format, str)
+        #         pandas_time_format_conversion = {
+        #             'HH24:MI:SS': '%H:%M:%S',
+        #             'HH12:MI AM': '%I:%M:%S %p',
+        #         }
+        #         pandas_time_format = pandas_time_format_conversion.get(hint_time_format,
+        #                                                                '%H:%M:%S')
+        #         formatted_series = series.dt.strftime(pandas_time_format)
+        #         formatted_df.iloc[:, index] = formatted_series
     return formatted_df
