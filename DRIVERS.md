@@ -62,7 +62,7 @@ future, add them to this document!
     annotation comment reminding you to fix it before the PR is
     merged!
     ```yaml
-    #          requires:  # TODO restore this
+    #          requires:  # T ODO restore this
     #            - redshift-itest
     ```
   * Modify the `integration_test_with_dbs` job to include a Docker
@@ -145,9 +145,11 @@ future, add them to this document!
    include the new test database and run `./itest table2table` to run
    tests.  Fix errors as they pop up:
    * TBD
-7. Add support for bulk import if the database supports it TODO
+7. Add support for bulk import if the database supports it (and add
+   more detail here on how to do that!).
    * `tests/integration/records/single_db/test_records_numeric.py`
      needs to be modified to set the best loading records type for
      this database type - pick a type which can be loaded natively
      without using Pandas.
-8. Add support for bulk export if the database supports it TODO
+8. Add support for bulk export if the database supports it (and add
+   more detail here on how to do that!).

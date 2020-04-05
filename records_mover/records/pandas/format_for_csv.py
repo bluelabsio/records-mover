@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 def format_df_for_csv_output(df: DataFrame,
                              records_schema: RecordsSchema,
                              records_format: DelimitedRecordsFormat) -> DataFrame:
+    # TODO: Should this take an index parameter?
     formatted_df = df.copy(deep=False)
 
     for index, field in enumerate(records_schema.fields):
@@ -44,7 +45,6 @@ def format_df_for_csv_output(df: DataFrame,
                             "in CSV's format")
                 hint_time_format = records_format.hints['timeonlyformat']
                 assert isinstance(hint_time_format, str)
-                # TODO: Do I have this conversion elsewhere?
                 pandas_time_format_conversion = {
                     'HH24:MI:SS': '%H:%M:%S',
                     'HH12:MI AM': '%I:%M:%S %p',
