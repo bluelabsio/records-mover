@@ -88,7 +88,6 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
             'redshift': 'bluelabs',
             'bigquery': 'bigquery',
             'vertica': 'vertica',
-            # TODO: Test postgres and see if this is right - is this test valid if we use pandas?
             'postgresql': 'bluelabs',
             'mysql': 'bluelabs',
         }

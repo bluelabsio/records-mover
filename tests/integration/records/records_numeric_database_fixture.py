@@ -57,7 +57,6 @@ class RecordsNumericDatabaseFixture:
             #
             # TODO: Figure out what to do about BIT
             # TODO: Figure out what to do about BOOL/BOOLEAN (alias for TINYINT(1)
-            # TODO: Figure out what to do about UNSIGNED
             create_tables = f"""
               CREATE TABLE {self.schema_name}.{self.table_name} (
                  `int8` TINYINT,
