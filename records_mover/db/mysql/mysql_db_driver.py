@@ -1,4 +1,5 @@
 import sqlalchemy
+import sqlalchemy.dialects.mysql
 import logging
 from ...utils.limits import (INT8_MIN, INT8_MAX,
                              UINT8_MIN, UINT8_MAX,
@@ -21,11 +22,6 @@ logger = logging.getLogger(__name__)
 
 
 class MySQLDBDriver(DBDriver):
-    # def __init__(self,
-    #              db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
-    #              **kwargs) -> None:
-    #     super().__init__(db)
-
     # https://www.postgresql.org/docs/10/datatype-numeric.html
     def integer_limits(self,
                        type_: sqlalchemy.types.Integer) ->\
@@ -74,13 +70,12 @@ class MySQLDBDriver(DBDriver):
                 return sqlalchemy.sql.sqltypes.BIGINT()
             elif min_value >= UINT64_MIN and max_value <= UINT64_MAX:
                 return sqlalchemy.dialects.mysql.BIGINT(unsigned=True)
-    #         else:
-    # TODO: Figure out a test that needs the below
-    #             num_digits_min = num_digits(min_value)
-    #             num_digits_max = num_digits(max_value)
-    #             digit_count = max(num_digits_min, num_digits_max)
-    #             return self.type_for_fixed_point(precision=digit_count,
-    #                                              scale=0)
+            else:
+                num_digits_min = num_digits(min_value)
+                num_digits_max = num_digits(max_value)
+                digit_count = max(num_digits_min, num_digits_max)
+                return self.type_for_fixed_point(precision=digit_count,
+                                                 scale=0)
         return super().type_for_integer(min_value, max_value)
 
     def type_for_floating_point(self,
