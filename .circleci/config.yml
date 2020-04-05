@@ -45,22 +45,22 @@ commands:
     parameters:
       connect_command:
         type: string
-      steps:
-        - run:
-            name: Wait for vertica
-            command: |
-              # Bail out trying after 30 seconds
-              end=$((SECONDS+30))
-              echo "Starting at second ${SECONDS:?} - ending at ${end:?}"
-              db_connect() {
-                <<parameters.connect_command>>
-              }
-              while ! db_connect && [[ "${SECONDS:?}" -lt "${end:?}" ]]
-              do
-                echo "Waiting for <<parameters.connect_command>>..."
-                sleep 5
-              done
-              db_connect
+    steps:
+      - run:
+          name: Wait for vertica
+          command: |
+            # Bail out trying after 30 seconds
+            end=$((SECONDS+30))
+            echo "Starting at second ${SECONDS:?} - ending at ${end:?}"
+            db_connect() {
+              <<parameters.connect_command>>
+            }
+            while ! db_connect && [[ "${SECONDS:?}" -lt "${end:?}" ]]
+            do
+              echo "Waiting for <<parameters.connect_command>>..."
+              sleep 5
+            done
+            db_connect
 
 jobs:
   test:
