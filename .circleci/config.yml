@@ -197,10 +197,10 @@ jobs:
           command: |
             sudo apt-get update -y && sudo apt-get install -y default-mysql-client
       - wait_for_db:
-          name: Wait for Vertica
+          db_name: Vertica
           connect_command: vsql -h 127.0.0.1 -U dbadmin -c 'select 1;'
       - run:
-          db_name: Vertica
+          name: Wait for Vertica
           command: |
             # Bail out trying after 30 seconds
             end=$((SECONDS+30))
