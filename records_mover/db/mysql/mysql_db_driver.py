@@ -31,7 +31,7 @@ class MySQLDBDriver(DBDriver):
                 return (UINT8_MIN, UINT8_MAX)
             else:
                 return (INT8_MIN, INT8_MAX)
-        elif isinstance(type_, sqlalchemy.sql.sqltypes.SMALLINT):
+        elif isinstance(type_, sqlalchemy.dialects.mysql.SMALLINT):
             if type_.unsigned:
                 return (UINT16_MIN, UINT16_MAX)
             else:
@@ -41,12 +41,12 @@ class MySQLDBDriver(DBDriver):
                 return (UINT24_MIN, UINT24_MAX)
             else:
                 return (INT24_MIN, INT24_MAX)
-        elif isinstance(type_, sqlalchemy.sql.sqltypes.INTEGER):
+        elif isinstance(type_, sqlalchemy.dialects.mysql.INTEGER):
             if type_.unsigned:
                 return (UINT32_MIN, UINT32_MAX)
             else:
                 return (INT32_MIN, INT32_MAX)
-        elif isinstance(type_, sqlalchemy.sql.sqltypes.BIGINT):
+        elif isinstance(type_, sqlalchemy.dialects.mysql.BIGINT):
             if type_.unsigned:
                 return (UINT64_MIN, UINT64_MAX)
             else:
