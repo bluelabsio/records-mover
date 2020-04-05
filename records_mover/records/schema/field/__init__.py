@@ -180,6 +180,7 @@ class RecordsSchemaField:
                     return series.astype(str).str.split().str[-1].str.split('.').str[0]
             elif self.field_type == 'date':
                 # TODO fill in here
+                # TODO what about other types?
                 pass
 
         return series.astype(self.to_numpy_dtype())
