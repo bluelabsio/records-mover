@@ -64,9 +64,9 @@ class TestMySQLDBDriver(unittest.TestCase):
         self.assertEqual(type(out), sqlalchemy.dialects.mysql.SMALLINT)
         self.assertEqual(out.unsigned, True)
 
-    def test_type_for_integer_fits(self):
+    def test_type_for_mediumint_fits(self):
         out = self.mysql_db_driver.type_for_integer(-123, 123000)
-        self.assertEqual(type(out), sqlalchemy.sql.sqltypes.INTEGER)
+        self.assertEqual(type(out), sqlalchemy.dialects.mysql.types.MEDIUMINT)
 
     def test_type_for_unsigned_integer_fits(self):
         out = self.mysql_db_driver.type_for_integer(123, 2147483658)
