@@ -40,6 +40,27 @@ commands:
           key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
+  wait_for_db:
+    description: "Pause until database answers allowing time to startup.  Abort if startup got hung in CircleCI."
+    parameters:
+      connect_command:
+        type: string
+      steps:
+        - run:
+            name: Wait for vertica
+            command: |
+              # Bail out trying after 30 seconds
+              end=$((SECONDS+30))
+              echo "Starting at second ${SECONDS:?} - ending at ${end:?}"
+              db_connect() {
+                <<parameters.connect_command>>
+              }
+              while ! db_connect && [[ "${SECONDS:?}" -lt "${end:?}" ]]
+              do
+                echo "Waiting for <<parameters.connect_command>>..."
+                sleep 5
+              done
+              db_connect
 
 jobs:
   test:
@@ -173,6 +194,9 @@ jobs:
           name: Install mysql
           command: |
             sudo apt-get update -y && sudo apt-get install -y default-mysql-client
+      - wait_for_db:
+          name: Wait for Vertica
+          connect_command: vsql -h 127.0.0.1 -U dbadmin -c 'select 1;'
       - run:
           name: Wait for vertica
           command: |
