@@ -15,7 +15,7 @@ from ...utils.limits import (INT8_MIN, INT8_MAX,
                              FLOAT64_SIGNIFICAND_BITS,
                              num_digits)
 from ..driver import DBDriver
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple
 
 
 logger = logging.getLogger(__name__)
@@ -62,6 +62,10 @@ class MySQLDBDriver(DBDriver):
                 return sqlalchemy.sql.sqltypes.SMALLINT()
             elif min_value >= UINT16_MIN and max_value <= UINT16_MAX:
                 return sqlalchemy.dialects.mysql.SMALLINT(unsigned=True)
+            elif min_value >= INT24_MIN and max_value <= INT24_MAX:
+                return sqlalchemy.dialects.mysql.MEDIUMINT()
+            elif min_value >= UINT24_MIN and max_value <= UINT24_MAX:
+                return sqlalchemy.dialects.mysql.MEDIUMINT(unsigned=True)
             elif min_value >= INT32_MIN and max_value <= INT32_MAX:
                 return sqlalchemy.sql.sqltypes.INTEGER()
             elif min_value >= UINT32_MIN and max_value <= UINT32_MAX:
