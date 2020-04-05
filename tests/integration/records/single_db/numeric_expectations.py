@@ -6,11 +6,25 @@ expected_field_info = {
             'max': '127'
         }
     },
+    'uint8': {
+        'type': 'integer',
+        'constraints': {
+            'min': '0',
+            'max': '255'
+        }
+    },
     'int16': {
         'type': 'integer',
         'constraints': {
             'min': '-32768',
             'max': '32767'
+        }
+    },
+    'uint16': {
+        'type': 'integer',
+        'constraints': {
+            'min': '0',
+            'max': '65535'
         }
     },
     'int24': {
@@ -20,6 +34,13 @@ expected_field_info = {
             'max': '8388607'
         }
     },
+    'uint24': {
+        'type': 'integer',
+        'constraints': {
+            'min': '0',
+            'max': '16777215'
+        }
+    },
     'int32': {
         'type': 'integer',
         'constraints': {
@@ -27,11 +48,25 @@ expected_field_info = {
             'max': '2147483647'
         }
     },
+    'uint32': {
+        'type': 'integer',
+        'constraints': {
+            'min': '0',
+            'max': '4294967295'
+        }
+    },
     'int64': {
         'type': 'integer',
         'constraints': {
             'min': '-9223372036854775808',
             'max': '9223372036854775807'
+        }
+    },
+    'uint64': {
+        'type': 'integer',
+        'constraints': {
+            'min': '0',
+            'max': '18446744073709551615'
         }
     },
     'fixed_6_2': {

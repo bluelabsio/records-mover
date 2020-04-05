@@ -27,15 +27,30 @@ class MySQLDBDriver(DBDriver):
                        type_: sqlalchemy.types.Integer) ->\
             Optional[Tuple[int, int]]:
         if isinstance(type_, sqlalchemy.dialects.mysql.TINYINT):
-            return (INT8_MIN, INT8_MAX)
+            if type_.unsigned:
+                return (UINT8_MIN, UINT8_MAX)
+            else:
+                return (INT8_MIN, INT8_MAX)
         elif isinstance(type_, sqlalchemy.sql.sqltypes.SMALLINT):
-            return (INT16_MIN, INT16_MAX)
+            if type_.unsigned:
+                return (UINT16_MIN, UINT16_MAX)
+            else:
+                return (INT16_MIN, INT16_MAX)
         elif isinstance(type_, sqlalchemy.dialects.mysql.MEDIUMINT):
-            return (INT24_MIN, INT24_MAX)
+            if type_.unsigned:
+                return (UINT24_MIN, UINT24_MAX)
+            else:
+                return (INT24_MIN, INT24_MAX)
         elif isinstance(type_, sqlalchemy.sql.sqltypes.INTEGER):
-            return (INT32_MIN, INT32_MAX)
+            if type_.unsigned:
+                return (UINT32_MIN, UINT32_MAX)
+            else:
+                return (INT32_MIN, INT32_MAX)
         elif isinstance(type_, sqlalchemy.sql.sqltypes.BIGINT):
-            return (INT64_MIN, INT64_MAX)
+            if type_.unsigned:
+                return (UINT64_MIN, UINT64_MAX)
+            else:
+                return (INT64_MIN, INT64_MAX)
         return super().integer_limits(type_)
 
     def fp_constraints(self,

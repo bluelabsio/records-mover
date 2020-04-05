@@ -61,10 +61,15 @@ class RecordsNumericDatabaseFixture:
             create_tables = f"""
               CREATE TABLE {self.schema_name}.{self.table_name} (
                  `int8` TINYINT,
+                 `uint8` TINYINT UNSIGNED,
                  `int16` SMALLINT,
+                 `uint16` SMALLINT UNSIGNED,
                  `int24` MEDIUMINT,
+                 `uint24` MEDIUMINT UNSIGNED,
                  `int32` INT,
+                 `uint32` INT UNSIGNED,
                  `int64` BIGINT,
+                 `uint64` BIGINT UNSIGNED,
                  `fixed_6_2` DECIMAL(6, 2),
                  `fixed_38_9` DECIMAL(38, 9),
                  `fixed_65_30` DECIMAL(65, 30),
@@ -74,10 +79,15 @@ class RecordsNumericDatabaseFixture:
               INSERT INTO {self.schema_name}.{self.table_name}
               (
                  `int8`,
+                 `uint8`,
                  `int16`,
+                 `uint16`,
                  `int24`,
+                 `uint24`,
                  `int32`,
+                 `uint32`,
                  `int64`,
+                 `uint64`,
                  `fixed_6_2`,
                  `fixed_38_9`,
                  `fixed_65_30`,
@@ -87,10 +97,15 @@ class RecordsNumericDatabaseFixture:
               VALUES
               (
                   127,
+                  128,
                   32767,
+                  32768,
                   8388607,
+                  8388608,
                   2147483647,
+                  2147483648,
                   9223372036854775807,
+                  9223372036854775808,
                   1234.56,
                   1234.56,
                   1234.56,
