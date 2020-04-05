@@ -7,9 +7,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def format_df_for_csv_output(df: DataFrame,
-                             records_schema: RecordsSchema,
-                             records_format: DelimitedRecordsFormat) -> DataFrame:
+def prep_df_for_csv_output(df: DataFrame,
+                           records_schema: RecordsSchema,
+                           records_format: DelimitedRecordsFormat) -> DataFrame:
     # TODO: Should this take an index parameter?
     formatted_df = df.copy(deep=False)
 

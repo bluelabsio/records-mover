@@ -6,7 +6,7 @@ from ..results import MoveResult
 from ..processing_instructions import ProcessingInstructions
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from ..hints import complain_on_unhandled_hints
-from records_mover.records.pandas import format_df_for_csv_output
+from records_mover.records.pandas import prep_df_for_csv_output
 import logging
 from typing import IO, Union, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -54,7 +54,7 @@ class FileobjTarget(SupportsMoveFromDataframes):
                 include_header_row = options['header'] and first_row
                 first_row = False
                 options['header'] = include_header_row
-                df = format_df_for_csv_output(df, records_schema, records_format)
+                df = prep_df_for_csv_output(df, records_schema, records_format)
                 df.to_csv(path_or_buf=path_or_buf,
                           mode="a",
                           index=dfs_source.include_index,
