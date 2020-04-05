@@ -199,21 +199,9 @@ jobs:
       - wait_for_db:
           db_name: Vertica
           connect_command: vsql -h 127.0.0.1 -U dbadmin -c 'select 1;'
-      - run:
-          name: Wait for Vertica
-          command: |
-            # Bail out trying after 30 seconds
-            end=$((SECONDS+30))
-            echo "Starting at second ${SECONDS:?} - ending at ${end:?}"
-            vsql_connect() {
-              vsql -h 127.0.0.1 -U dbadmin -c 'select 1;'
-            }
-            while ! vsql_connect && [[ "${SECONDS:?}" -lt "${end:?}" ]]
-            do
-              echo "Waiting for vertica..."
-              sleep 5
-            done
-            vsql_connect
+      - wait_for_db:
+          db_name: MySQL
+          connect_command: echo 'select 1;' | mysql --password=hunter2 --host=127.0.0.1 -u mysqluser mysqlitest
       # TODO: Where is the wait for postgres and wait for mysql?
       - run:
           name: Wait for mysql
