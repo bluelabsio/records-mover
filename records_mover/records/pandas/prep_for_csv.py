@@ -15,7 +15,6 @@ def prep_df_for_csv_output(df: DataFrame,
 
     for index, field in enumerate(records_schema.fields):
         if field.field_type == 'date':
-            # TODO: is there a less weird way of doing this?
             series = formatted_df.iloc[:, index]
             if not isinstance(series[0], pd.Timestamp):
                 logger.warning(f"Found {series.name} as unexpected type {type(series[0])}")
@@ -35,8 +34,6 @@ def prep_df_for_csv_output(df: DataFrame,
                 formatted_series = series.dt.strftime(pandas_date_format)
                 formatted_df.iloc[:, index] = formatted_series
         elif field.field_type == 'time':
-            # TODO: What about timetz
-            # TODO: is there a less weird way of doing this?
             series = formatted_df.iloc[:, index]
             if not isinstance(series[0], pd.Timestamp):
                 logger.warning(f"Found {series.name} as unexpected type {type(series[0])}")
