@@ -6,7 +6,7 @@ from records_mover.records.schema import RecordsSchema
 from records_mover.records import DelimitedRecordsFormat
 
 
-class TestFormatForCsv(unittest.TestCase):
+class TestPrepForCsv(unittest.TestCase):
     def test_prep_df_for_csv_output(self):
         schema_data = {
             'schema': "bltypes/v1",
