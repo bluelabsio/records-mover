@@ -1,6 +1,5 @@
 import pandas as pd
 import unittest
-from mock import patch, call
 from records_mover.records.pandas import format_df_for_csv_output
 from records_mover.records.schema import RecordsSchema
 from records_mover.records import DelimitedRecordsFormat

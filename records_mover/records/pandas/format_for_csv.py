@@ -19,7 +19,8 @@ def format_df_for_csv_output(df: DataFrame,
             if not isinstance(series[0], pd.Timestamp):
                 logger.warning(f"Found {series.name} as unexpected type {type(series[0])}")
             else:
-                logger.info(f"Converting {series.name} from np.datetime64 to string in CSV's format")
+                logger.info(f"Converting {series.name} from np.datetime64 to "
+                            "string in CSV's format")
                 hint_date_format = records_format.hints['dateformat']
                 assert isinstance(hint_date_format, str)
                 # TODO: Do I have this conversion elsewhere?
@@ -39,7 +40,8 @@ def format_df_for_csv_output(df: DataFrame,
             if not isinstance(series[0], pd.Timestamp):
                 logger.warning(f"Found {series.name} as unexpected type {type(series[0])}")
             else:
-                logger.info(f"Converting {series.name} from np.datetime64 to string in CSV's format")
+                logger.info(f"Converting {series.name} from np.datetime64 to string "
+                            "in CSV's format")
                 hint_time_format = records_format.hints['timeonlyformat']
                 assert isinstance(hint_time_format, str)
                 # TODO: Do I have this conversion elsewhere?

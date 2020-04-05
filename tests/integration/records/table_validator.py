@@ -95,7 +95,9 @@ class RecordsTableValidator:
         self.validate_data_values(schema_name, table_name)
 
     def validate_data_types(self, schema_name: str, table_name: str) -> None:
-        columns = self.target_db_engine.dialect.get_columns(self.target_db_engine, table_name, schema=schema_name)
+        columns = self.target_db_engine.dialect.get_columns(self.target_db_engine,
+                                                            table_name,
+                                                            schema=schema_name)
         expected_column_names = [
             'num', 'numstr', 'str', 'comma', 'doublequote', 'quotecommaquote',
             'newlinestr', 'date', 'time', 'timestamp', 'timestamptz'
@@ -199,7 +201,8 @@ class RecordsTableValidator:
                        CAST(`timestamp` AS datetime) as `timestamp`,
                        format_datetime(:formatstr, CAST(`timestamp` as datetime)) as timestampstr,
                        timestamptz,
-                       format_timestamp(:tzformatstr, CAST(`timestamptz` as timestamp)) as timestamptzstr
+                       format_timestamp(:tzformatstr, CAST(`timestamptz` as timestamp))
+                       as timestamptzstr
                 FROM {schema_name}.{table_name}
                 """)
                 params = {

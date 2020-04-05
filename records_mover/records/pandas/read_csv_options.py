@@ -5,7 +5,7 @@ from ..processing_instructions import ProcessingInstructions
 from ..records_format import DelimitedRecordsFormat
 from records_mover.records.schema import RecordsSchema
 import logging
-from typing import Set, Dict, Any, Optional
+from typing import Set, Dict, Any
 
 
 logger = logging.getLogger(__name__)

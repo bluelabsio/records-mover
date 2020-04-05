@@ -1,6 +1,6 @@
 from records_mover.records.sources.dataframes import DataframesRecordsSource
 from records_mover.records.records_format import DelimitedRecordsFormat, ParquetRecordsFormat
-from mock import Mock, patch, mock_open, call
+from mock import Mock, patch, mock_open
 import unittest
 
 

@@ -170,12 +170,14 @@ expected_column_types = [
     ],
     # postgres2mysql
     [
-        'INTEGER(11)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
+        'INTEGER(11)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
+        'VARCHAR(256)',
         'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
     ],
     # bigquery2mysql
     [
-        'BIGINT(20)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
+        'BIGINT(20)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
+        'VARCHAR(256)',
         'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
     ],
     # mysql2postgres
