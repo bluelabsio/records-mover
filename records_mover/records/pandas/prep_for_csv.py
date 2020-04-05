@@ -10,6 +10,14 @@ logger = logging.getLogger(__name__)
 def prep_df_for_csv_output(df: DataFrame,
                            records_schema: RecordsSchema,
                            records_format: DelimitedRecordsFormat) -> DataFrame:
+    #
+    # Pandas dataframes only have a native 'datetime'/'datetimetz'
+    # datatype (pd.Timestamp), not an individal 'date', 'time' or
+    # 'timetz' class.  To generate the correct thing when writing out
+    # a 'date' or 'time' type to a CSV with Pandas' .to_csv() method,
+    # we need to convert those values to strings that represent
+    # exactly what we want.
+    #
     # TODO: Should this take an index parameter?
     formatted_df = df.copy(deep=False)
 
@@ -34,6 +42,7 @@ def prep_df_for_csv_output(df: DataFrame,
                 formatted_series = series.dt.strftime(pandas_date_format)
                 formatted_df.iloc[:, index] = formatted_series
         elif field.field_type == 'time':
+            # TODO: Is this needed at all?  Try removing.
             series = formatted_df.iloc[:, index]
             if not isinstance(series[0], pd.Timestamp):
                 logger.warning(f"Found {series.name} as unexpected type {type(series[0])}")
