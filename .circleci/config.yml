@@ -43,11 +43,13 @@ commands:
   wait_for_db:
     description: "Pause until database answers allowing time to startup.  Abort if startup got hung in CircleCI."
     parameters:
+      name:
+        type: string
       connect_command:
         type: string
     steps:
       - run:
-          name: Wait for vertica
+          name: <<parameters.name>>
           command: |
             # Bail out trying after 30 seconds
             end=$((SECONDS+30))
