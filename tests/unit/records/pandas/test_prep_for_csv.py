@@ -30,9 +30,6 @@ class TestPrepForCsv(unittest.TestCase):
         # us_eastern = pytz.timezone('US/Eastern')
         data = {
             'date': [pd.Timestamp(year=1970, month=1, day=1)],
-            # TODO: This is an ugly way to represent a time alone.
-            # Can I figure out why I needed this code and leave a
-            # comment explaining it?
             'time': [
                 pd.Timestamp(year=1970, month=1, day=1,
                              hour=12, minute=33, second=53, microsecond=1234)
