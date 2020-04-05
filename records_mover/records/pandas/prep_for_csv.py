@@ -35,7 +35,6 @@ def prep_df_for_csv_output(df: DataFrame,
                             "string in CSV's format")
                 hint_date_format = records_format.hints['dateformat']
                 assert isinstance(hint_date_format, str)
-                # TODO: Do I have this conversion elsewhere?  Should it belong in a hints / delimited class?
                 pandas_date_format_conversion = {
                     'YYYY-MM-DD': '%Y-%m-%d',
                     'MM/DD/YY': '%m/%d/%Y',
