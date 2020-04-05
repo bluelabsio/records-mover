@@ -1,12 +1,12 @@
 import pandas as pd
 import unittest
-from records_mover.records.pandas import format_df_for_csv_output
+from records_mover.records.pandas import prep_df_for_csv_output
 from records_mover.records.schema import RecordsSchema
 from records_mover.records import DelimitedRecordsFormat
 
 
 class TestFormatForCsv(unittest.TestCase):
-    def test_format_df_for_csv_output(self):
+    def test_prep_df_for_csv_output(self):
         schema_data = {
             'schema': "bltypes/v1",
             'fields': {
@@ -42,9 +42,9 @@ class TestFormatForCsv(unittest.TestCase):
         df = pd.DataFrame(data,
                           columns=['date', 'time'])
 
-        new_df = format_df_for_csv_output(df,
-                                          records_schema,
-                                          records_format)
+        new_df = prep_df_for_csv_output(df,
+                                        records_schema,
+                                        records_format)
         self.assertEqual(new_df['date'][0], '1970-01-01')
         self.assertEqual(new_df['time'][0], '12:33:53')
         self.assertIsNotNone(new_df)

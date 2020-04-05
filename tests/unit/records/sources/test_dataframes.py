@@ -5,7 +5,7 @@ import unittest
 
 
 class TestDataframesRecordsSource(unittest.TestCase):
-    @patch('records_mover.records.sources.dataframes.format_df_for_csv_output')
+    @patch('records_mover.records.sources.dataframes.prep_df_for_csv_output')
     @patch('records_mover.records.sources.dataframes.purge_unnamed_unused_columns')
     @patch('records_mover.records.sources.dataframes.RecordsSchema')
     @patch('records_mover.records.sources.dataframes.FileobjsSource')
@@ -21,7 +21,7 @@ class TestDataframesRecordsSource(unittest.TestCase):
                                           mock_FileobjsSource,
                                           mock_RecordsSchema,
                                           mock_purge_unnamed_unused_columns,
-                                          mock_format_df_for_csv_output):
+                                          mock_prep_df_for_csv_output):
         mock_df_1 = Mock(name='df_1')
         mock_df_2 = Mock(name='df_2')
         mock_processing_instructions = Mock(name='processing_instructions')
@@ -62,13 +62,13 @@ class TestDataframesRecordsSource(unittest.TestCase):
                 assert_called_with(mock_processing_instructions.fail_if_dont_understand,
                                    mock_unhandled_hints,
                                    mock_target_records_format.hints)
-            mock_format_df_for_csv_output.assert_any_call(mock_df_1,
-                                                          mock_target_records_schema,
-                                                          mock_target_records_format)
-            mock_format_df_for_csv_output.assert_any_call(mock_df_2,
-                                                          mock_target_records_schema,
-                                                          mock_target_records_format)
-            mock_formatted_df = mock_format_df_for_csv_output.return_value
+            mock_prep_df_for_csv_output.assert_any_call(mock_df_1,
+                                                        mock_target_records_schema,
+                                                        mock_target_records_format)
+            mock_prep_df_for_csv_output.assert_any_call(mock_df_2,
+                                                        mock_target_records_schema,
+                                                        mock_target_records_format)
+            mock_formatted_df = mock_prep_df_for_csv_output.return_value
             mock_formatted_df.to_csv.assert_called_with(path_or_buf=mock_output_filename,
                                                         index=mock_include_index,
                                                         **mock_options)
