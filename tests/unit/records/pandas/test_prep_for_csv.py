@@ -46,7 +46,8 @@ class TestPrepForCsv(unittest.TestCase):
             #
             # 'timetz': [
             #     us_eastern.localize(pd.Timestamp(year=1970, month=1, day=1,
-            #                                      hour=12, minute=33, second=53, microsecond=1234)),
+            #                                      hour=12, minute=33, second=53,
+            #                                      microsecond=1234)),
             # ],
         }
         df = pd.DataFrame(data,
