@@ -55,8 +55,6 @@ class RecordsNumericDatabaseFixture:
             # Postgres supports a number of different numeric types
             # https://dev.mysql.com/doc/refman/8.0/en/numeric-types.html
             #
-            # TODO: Figure out what to do about BIT
-            # TODO: Figure out what to do about BOOL/BOOLEAN (alias for TINYINT(1)
             create_tables = f"""
               CREATE TABLE {self.schema_name}.{self.table_name} (
                  `int8` TINYINT,
