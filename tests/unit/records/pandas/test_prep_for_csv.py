@@ -23,15 +23,6 @@ class TestFormatForCsv(unittest.TestCase):
                     "type": "timetz",
                     "index": 3,
                 },
-                # TODO:
-                # "timestamp": {
-                #     "type": "datetime",
-                #     "index": 3,
-                # },
-                # "timestamptz": {
-                #     "type": "datetimetz",
-                #     "index": 4,
-                # }
             }
         }
         records_format = DelimitedRecordsFormat(variant='bluelabs')
