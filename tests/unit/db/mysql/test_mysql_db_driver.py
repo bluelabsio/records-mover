@@ -15,10 +15,15 @@ class TestMySQLDBDriver(unittest.TestCase):
     def test_integer_limits(self):
         expectations = {
             sqlalchemy.dialects.mysql.TINYINT(): (-128, 127),
-            sqlalchemy.sql.sqltypes.SMALLINT(): (-32768, 32767),
+            sqlalchemy.dialects.mysql.TINYINT(unsigned=True): (0, 255),
+            sqlalchemy.dialects.mysql.SMALLINT(): (-32768, 32767),
+            sqlalchemy.dialects.mysql.SMALLINT(unsigned=True): (0, 65535),
             sqlalchemy.dialects.mysql.MEDIUMINT(): (-8388608, 8388607),
-            sqlalchemy.sql.sqltypes.INTEGER(): (-2147483648, 2147483647),
-            sqlalchemy.sql.sqltypes.BIGINT(): (-9223372036854775808, 9223372036854775807),
+            sqlalchemy.dialects.mysql.MEDIUMINT(unsigned=True): (0, 16777215),
+            sqlalchemy.dialects.mysql.INTEGER(): (-2147483648, 2147483647),
+            sqlalchemy.dialects.mysql.INTEGER(unsigned=True): (0, 4294967295),
+            sqlalchemy.dialects.mysql.BIGINT(): (-9223372036854775808, 9223372036854775807),
+            sqlalchemy.dialects.mysql.BIGINT(unsigned=True): (0, 18446744073709551615),
         }
         for mock_type, (expected_min_int, expected_max_int) in expectations.items():
             min_int, max_int = self.mysql_db_driver.integer_limits(mock_type)
