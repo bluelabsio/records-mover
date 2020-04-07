@@ -1,10 +1,63 @@
 from pandas import DataFrame
 import pandas as pd
 from records_mover.records.schema import RecordsSchema
+from records_mover.records.schema.field import RecordsSchemaField
 from records_mover.records import DelimitedRecordsFormat
 import logging
+from typing import Optional, Union, TypeVar
 
 logger = logging.getLogger(__name__)
+
+
+T = TypeVar('T', bound=Union[pd.Series, pd.Index])
+
+
+def convert_series_or_index(series_or_index: T,
+                            field: RecordsSchemaField,
+                            records_format: DelimitedRecordsFormat) -> Optional[T]:
+    if field.field_type == 'date':
+        if not isinstance(series_or_index[0], pd.Timestamp):
+            logger.warning(f"Found {series_or_index.name} as unexpected type "
+                           f"{type(series_or_index[0])}")
+        else:
+            logger.info(f"Converting {series_or_index.name} from np.datetime64 to "
+                        "string in CSV's format")
+            hint_date_format = records_format.hints['dateformat']
+            assert isinstance(hint_date_format, str)
+            pandas_date_format_conversion = {
+                'YYYY-MM-DD': '%Y-%m-%d',
+                'MM/DD/YY': '%m/%d/%Y',
+                'DD/MM/YY': '%d/%m/%Y',
+            }
+            pandas_date_format = pandas_date_format_conversion.get(hint_date_format,
+                                                                   '%Y-%m-%d')
+            if isinstance(series_or_index, pd.Series):
+                return series_or_index.dt.strftime(pandas_date_format)
+            else:
+                return series_or_index.strftime(pandas_date_format)
+    elif field.field_type == 'time':
+        if not isinstance(series_or_index[0], pd.Timestamp):
+            logger.warning(f"Found {series_or_index.name} as unexpected "
+                           f"type {type(series_or_index[0])}")
+        else:
+            logger.info(f"Converting {series_or_index.name} from np.datetime64 to string "
+                        "in CSV's format")
+            hint_time_format = records_format.hints['timeonlyformat']
+            assert isinstance(hint_time_format, str)
+            pandas_time_format_conversion = {
+                'HH24:MI:SS': '%H:%M:%S',
+                'HH12:MI AM': '%I:%M:%S %p',
+            }
+            pandas_time_format = pandas_time_format_conversion.get(hint_time_format,
+                                                                   '%H:%M:%S')
+            if isinstance(series_or_index, pd.Series):
+                return series_or_index.dt.strftime(pandas_time_format)
+            else:
+                return series_or_index.strftime(pandas_time_format)
+    else:
+        logger.debug(f"Not converting field type {field.field_type}")
+
+    return None
 
 
 def prep_df_for_csv_output(df: DataFrame,
@@ -27,41 +80,18 @@ def prep_df_for_csv_output(df: DataFrame,
     # the way out.
     #
     formatted_df = df.copy(deep=False)
+    remaining_fields = records_schema.fields.copy()
+    if include_index:
+        field = remaining_fields.pop(0)
+        formatted_index = convert_series_or_index(formatted_df.index,
+                                                  field,
+                                                  records_format)
+        if formatted_index is not None:
+            formatted_df.index = formatted_index
 
-    for index, field in enumerate(records_schema.fields):
-        if field.field_type == 'date':
-            series = formatted_df.iloc[:, index]
-            if not isinstance(series[0], pd.Timestamp):
-                logger.warning(f"Found {series.name} as unexpected type {type(series[0])}")
-            else:
-                logger.info(f"Converting {series.name} from np.datetime64 to "
-                            "string in CSV's format")
-                hint_date_format = records_format.hints['dateformat']
-                assert isinstance(hint_date_format, str)
-                pandas_date_format_conversion = {
-                    'YYYY-MM-DD': '%Y-%m-%d',
-                    'MM/DD/YY': '%m/%d/%Y',
-                    'DD/MM/YY': '%d/%m/%Y',
-                }
-                pandas_date_format = pandas_date_format_conversion.get(hint_date_format,
-                                                                       '%Y-%m-%d')
-                formatted_series = series.dt.strftime(pandas_date_format)
-                formatted_df.iloc[:, index] = formatted_series
-        elif field.field_type == 'time':
-            series = formatted_df.iloc[:, index]
-            if not isinstance(series[0], pd.Timestamp):
-                logger.warning(f"Found {series.name} as unexpected type {type(series[0])}")
-            else:
-                logger.info(f"Converting {series.name} from np.datetime64 to string "
-                            "in CSV's format")
-                hint_time_format = records_format.hints['timeonlyformat']
-                assert isinstance(hint_time_format, str)
-                pandas_time_format_conversion = {
-                    'HH24:MI:SS': '%H:%M:%S',
-                    'HH12:MI AM': '%I:%M:%S %p',
-                }
-                pandas_time_format = pandas_time_format_conversion.get(hint_time_format,
-                                                                       '%H:%M:%S')
-                formatted_series = series.dt.strftime(pandas_time_format)
-                formatted_df.iloc[:, index] = formatted_series
+    for index, field in enumerate(remaining_fields):
+        series = formatted_df.iloc[:, index]
+        formatted_series = convert_series_or_index(series, field, records_format)
+        if formatted_series is not None:
+            formatted_df.iloc[:, index] = formatted_series
     return formatted_df
