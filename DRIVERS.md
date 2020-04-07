@@ -118,38 +118,37 @@ future, add them to this document!
     You may need to subclass DBDriver and implement to convince
     records mover to create the types you expect.
   * Errors from `tests/integration/records/directory_validator.py`:
-     ```console
-     AssertionError:
-     received ['integer', 'string', 'string', 'string', 'string', 'string', 'string', 'date', 'time', 'datetime', 'datetime'],
-     expected [['integer', 'string', 'string', 'string', 'string', 'string', 'string', 'date', 'time', 'datetime', 'datetimetz'], ['integer', 'string', 'string', 'string', 'string', 'string', 'string', 'date', 'string', 'datetime', 'datetimetz']]
-     ```
+    ```console
+    AssertionError:
+    received ['integer', 'string', 'string', 'string', 'string', 'string', 'string', 'date', 'time', 'datetime', 'datetime'],
+    expected [['integer', 'string', 'string', 'string', 'string', 'string', 'string', 'date', 'time', 'datetime', 'datetimetz'], ['integer', 'string', 'string', 'string', 'string', 'string', 'string', 'date', 'string', 'datetime', 'datetimetz']]
+    ```
 
-     To address, make sure the types returned are as expected for this database.
-   * `KeyError: 'mysql'`:
-     `tests/integration/records/single_db/test_records_numeric.py`
-     needs to be modified to set expectations for this database type.
-     You can set this to 'bluelabs' as we haven't yet taught
-     records-mover to do bulk imports, so we have no idea what the
-     ideal records format variant is for that yet.
-   * `AssertionError` in
-     `tests/integration/records/table_validator.py`: There are various
-     checks here, including things dealing with how datetimes get
-     rendered.  Examine carefully the existing predicates defined
-     within and add new ones judiciously if it appears the behavior
-     you are seeing is correct but not currently anticipated.
+    To address, make sure the types returned are as expected for this database.
+  * `KeyError: 'mysql'`:
+    `tests/integration/records/single_db/test_records_numeric.py`
+    needs to be modified to set expectations for this database type.
+    You can set this to 'bluelabs' as we haven't yet taught
+    records-mover to do bulk imports, so we have no idea what the
+    ideal records format variant is for that yet.
+  * `AssertionError` in
+    `tests/integration/records/table_validator.py`: There are various
+    checks here, including things dealing with how datetimes get
+    rendered.  Examine carefully the existing predicates defined
+    within and add new ones judiciously if it appears the behavior
+    you are seeing is correct but not currently anticipated.
 4. If there are things you see below that you know are needed from the
    above list, but the tests are passing, consider adding an
    integration test to match.
 5. Edit
    `tests/integration/records/multi_db/test_records_table2table.py` to
    include the new test database and run `./itest table2table` to run
-   tests.  Fix errors as they pop up:
-   * TBD
+   tests.  Fix errors as they pop up.
 7. Add support for bulk import if the database supports it (and add
    more detail here on how to do that!).
-   * `tests/integration/records/single_db/test_records_numeric.py`
-     needs to be modified to set the best loading records type for
-     this database type - pick a type which can be loaded natively
-     without using Pandas.
+  * `tests/integration/records/single_db/test_records_numeric.py`
+    needs to be modified to set the best loading records type for
+    this database type - pick a type which can be loaded natively
+    without using Pandas.
 8. Add support for bulk export if the database supports it (and add
    more detail here on how to do that!).
