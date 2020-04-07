@@ -6,6 +6,6 @@ import google.auth.service_account
 
 class Credentials(google.auth.credentials.Credentials):
     @classmethod
-    def from_service_account_info(cls, info: Mapping[str, str], scopes: Iterable[str], **kwargs) ->\
+    def from_service_account_info(cls, info: Mapping[str, str], scopes: Iterable[str]) ->\
             google.auth.service_account.Credentials:
         ...

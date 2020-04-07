@@ -164,6 +164,9 @@ class Session:
     region_name: str
     resource: Any
 
+    def __init__(self) -> None:
+        ...
+
     def get_credentials(self) -> Optional[Credentials]:
         ...
 
