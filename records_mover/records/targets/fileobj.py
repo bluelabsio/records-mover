@@ -54,7 +54,10 @@ class FileobjTarget(SupportsMoveFromDataframes):
                 include_header_row = options['header'] and first_row
                 first_row = False
                 options['header'] = include_header_row
-                df = prep_df_for_csv_output(df, records_schema, records_format)
+                df = prep_df_for_csv_output(df,
+                                            include_index=dfs_source.include_index,
+                                            records_schema=records_schema,
+                                            records_format=records_format)
                 df.to_csv(path_or_buf=path_or_buf,
                           mode="a",
                           index=dfs_source.include_index,

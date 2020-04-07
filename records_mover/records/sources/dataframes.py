@@ -138,8 +138,9 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
 
             def save_df(df: 'DataFrame', output_filename: str) -> None:
                 df = prep_df_for_csv_output(df,
-                                            records_schema,
-                                            delimited_records_format)
+                                            include_index=self.include_index,
+                                            records_schema=records_schema,
+                                            records_format=delimited_records_format)
                 df.to_csv(path_or_buf=output_filename,
                           index=self.include_index,
                           **options)

@@ -63,11 +63,13 @@ class TestDataframesRecordsSource(unittest.TestCase):
                                    mock_unhandled_hints,
                                    mock_target_records_format.hints)
             mock_prep_df_for_csv_output.assert_any_call(mock_df_1,
-                                                        mock_target_records_schema,
-                                                        mock_target_records_format)
+                                                        include_index=mock_include_index,
+                                                        records_schema=mock_target_records_schema,
+                                                        records_format=mock_target_records_format)
             mock_prep_df_for_csv_output.assert_any_call(mock_df_2,
-                                                        mock_target_records_schema,
-                                                        mock_target_records_format)
+                                                        include_index=mock_include_index,
+                                                        records_schema=mock_target_records_schema,
+                                                        records_format=mock_target_records_format)
             mock_formatted_df = mock_prep_df_for_csv_output.return_value
             mock_formatted_df.to_csv.assert_called_with(path_or_buf=mock_output_filename,
                                                         index=mock_include_index,
