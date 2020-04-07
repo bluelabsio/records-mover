@@ -176,9 +176,9 @@ class BaseFileUrl:
         "exist in the directory."
         raise NotImplementedError()
 
-    def wait_to_exist(self):
-        "Returns true after the file exists--useful for eventually consistent stores (e.g., S3)"
-        return True
+    def wait_to_exist(self) -> None:
+        "Returns after the file exists--useful for eventually consistent stores (e.g., S3)"
+        return
 
     def exists(self) -> bool:
         try:

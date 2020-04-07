@@ -16,12 +16,12 @@ def vertica_import_sql(schema: str,
                        abort_on_error: bool,
                        load_method: str,
                        no_commit: bool,
-                       escape_as: Optional[str]=None,
-                       enclosed_by: Optional[str]=None,
-                       stream_name: Optional[str]=None,
-                       skip=0,
-                       rejected_data_table: Optional[str]=None,
-                       rejected_data_schema: Optional[str]=None) -> str:
+                       escape_as: Optional[str] = None,
+                       enclosed_by: Optional[str] = None,
+                       stream_name: Optional[str] = None,
+                       skip: int = 0,
+                       rejected_data_table: Optional[str] = None,
+                       rejected_data_schema: Optional[str] = None) -> str:
 
     # https://my.vertica.com/docs/8.1.x/HTML/index.htm#Authoring/SQLReferenceManual/Statements/COPY/COPY.htm
     # https://my.vertica.com/docs/8.1.x/HTML/index.htm#Authoring/SQLReferenceManual/Statements/COPY/Parameters.htm
