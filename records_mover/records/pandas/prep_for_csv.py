@@ -64,8 +64,6 @@ def prep_df_for_csv_output(df: DataFrame,
                            include_index: bool,
                            records_schema: RecordsSchema,
                            records_format: DelimitedRecordsFormat) -> DataFrame:
-    # TODO: Should this take into account index situation?
-
     #
     # Pandas dataframes only have a native 'datetime'/'datetimetz'
     # datatype (pd.Timestamp), not an individal 'date', 'time' or
