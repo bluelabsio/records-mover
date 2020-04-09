@@ -440,7 +440,7 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     if not consistent_formats:
         cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', hints)
 
-    pandas_options['day_first'] = day_first(hints['dateformat'])
+    pandas_options['dayfirst'] = day_first(hints['dateformat'])
 
     quiet_remove(unhandled_hints, 'dateformat')
     quiet_remove(unhandled_hints, 'timeonlyformat')

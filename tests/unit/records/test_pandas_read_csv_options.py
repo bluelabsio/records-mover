@@ -32,7 +32,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
 
     def test_pandas_read_csv_options_bluelabs(self):
         expected = {
-            'day_first': False,
+            'dayfirst': False,
             'compression': 'gzip',
             'delimiter': ',',
             'doublequote': False,
@@ -59,7 +59,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
 
     def test_pandas_read_csv_options_bleulabs(self):
         expected = {
-            'day_first': True,
+            'dayfirst': True,
             'compression': 'gzip',
             'delimiter': ',',
             'doublequote': False,
@@ -108,7 +108,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
 
     def test_pandas_read_csv_options_csv(self):
         expected = {
-            'day_first': False,
+            'dayfirst': False,
             'compression': 'gzip',
             'delimiter': ',',
             'doublequote': True,
@@ -135,7 +135,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
     def test_pandas_read_csv_options_vertica(self):
         self.maxDiff = None
         expected = {
-            'day_first': False,
+            'dayfirst': False,
             'compression': None,
             'delimiter': '\x01',
             'doublequote': False,
