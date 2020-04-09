@@ -12,9 +12,9 @@ logger = logging.getLogger(__name__)
 T = TypeVar('T', bound=Union[pd.Series, pd.Index])
 
 
-def convert_series_or_index(series_or_index: T,
-                            field: RecordsSchemaField,
-                            records_format: DelimitedRecordsFormat) -> Optional[T]:
+def _convert_series_or_index(series_or_index: T,
+                             field: RecordsSchemaField,
+                             records_format: DelimitedRecordsFormat) -> Optional[T]:
     if field.field_type == 'date':
         if not isinstance(series_or_index[0], pd.Timestamp):
             logger.warning(f"Found {series_or_index.name} as unexpected type "
@@ -81,15 +81,15 @@ def prep_df_for_csv_output(df: DataFrame,
     remaining_fields = records_schema.fields.copy()
     if include_index:
         field = remaining_fields.pop(0)
-        formatted_index = convert_series_or_index(formatted_df.index,
-                                                  field,
-                                                  records_format)
+        formatted_index = _convert_series_or_index(formatted_df.index,
+                                                   field,
+                                                   records_format)
         if formatted_index is not None:
             formatted_df.index = formatted_index
 
     for index, field in enumerate(remaining_fields):
         series = formatted_df.iloc[:, index]
-        formatted_series = convert_series_or_index(series, field, records_format)
+        formatted_series = _convert_series_or_index(series, field, records_format)
         if formatted_series is not None:
             formatted_df.iloc[:, index] = formatted_series
     return formatted_df
