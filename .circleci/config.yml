@@ -255,7 +255,7 @@ jobs:
       python_version:
         type: string
         description: "Version of python to test against"
-        default: '3.8'
+        default: '3.6'
     docker:
       - image: circleci/python:<<parameters.python_version>>
     steps:
