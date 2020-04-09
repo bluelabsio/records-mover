@@ -52,7 +52,7 @@ class RecordsNumericDatabaseFixture:
                      19223372036854775807.78::FLOAT8 AS float64;
 """  # noqa
         elif self.engine.name == 'mysql':
-            # Postgres supports a number of different numeric types
+            # MySQL supports a number of different numeric types
             # https://dev.mysql.com/doc/refman/8.0/en/numeric-types.html
             #
             create_tables = f"""
