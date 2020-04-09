@@ -379,13 +379,6 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
         if field.field_type in ['date', 'time', 'datetime', 'datetimetz']
     ]
 
-    # TODO: Evaluate below
-
-    quiet_remove(unhandled_hints, 'dateformat')
-    quiet_remove(unhandled_hints, 'timeonlyformat')
-    quiet_remove(unhandled_hints, 'datetimeformat')
-    quiet_remove(unhandled_hints, 'datetimeformattz')
-
     #
     # infer_datetime_format : bool, default False
     #
@@ -394,6 +387,10 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # be inferred, switch to a faster method of parsing them. In some
     # cases this can increase the parsing speed by 5-10x.
     #
+
+    # Left as default for now because presumably Pandas has some
+    # reason why this isn't the default that they didn't spell out in
+    # the docs.
 
     #
     # keep_date_col : bool, default False
@@ -420,7 +417,8 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # defined by parse_dates) as arguments.
     #
 
-    # (N/A as we don't pass anything as parse_dates)
+    # (So far the default parser has handled what we've thrown at it,
+    # so we'll leave this at the default)
 
     #
     # dayfirst : bool, default False
@@ -428,7 +426,26 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # DD/MM format dates, international and European format.
     #
 
-    # (N/A as we don't pass anything as parse_dates)
+    def day_first(dateish_format: str) -> bool:
+        return (dateish_format.startswith('DD-MM-') or
+                dateish_format.startswith('DD/MM/'))
+
+    assert isinstance(hints['dateformat'], str)
+    assert isinstance(hints['datetimeformat'], str)
+    assert isinstance(hints['datetimeformattz'], str)
+    consistent_formats = (day_first(hints['dateformat']) ==
+                          day_first(hints['datetimeformat']) ==
+                          day_first(hints['datetimeformattz']))
+
+    if not consistent_formats:
+        cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', hints)
+
+    pandas_options['day_first'] = day_first(hints['dateformat'])
+
+    quiet_remove(unhandled_hints, 'dateformat')
+    quiet_remove(unhandled_hints, 'timeonlyformat')
+    quiet_remove(unhandled_hints, 'datetimeformat')
+    quiet_remove(unhandled_hints, 'datetimeformattz')
 
     #
     # iterator : bool, default False

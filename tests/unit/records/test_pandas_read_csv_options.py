@@ -32,6 +32,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
 
     def test_pandas_read_csv_options_bluelabs(self):
         expected = {
+            'day_first': False,
             'compression': 'gzip',
             'delimiter': ',',
             'doublequote': False,
@@ -56,8 +57,58 @@ class TestPandasReadCsvOptions(unittest.TestCase):
         self.assertEqual(expected, actual)
         self.assertFalse(unhandled_hints)
 
+    def test_pandas_read_csv_options_bleulabs(self):
+        expected = {
+            'day_first': True,
+            'compression': 'gzip',
+            'delimiter': ',',
+            'doublequote': False,
+            'encoding': 'UTF8',
+            'engine': 'python',
+            'error_bad_lines': True,
+            'escapechar': '\\',
+            'header': None,
+            'prefix': 'untitled_',
+            'quotechar': '"',
+            'quoting': 3,
+            'warn_bad_lines': True,
+            'parse_dates': [0, 1, 2, 3],
+        }
+        processing_instructions = ProcessingInstructions()
+        hints = bluelabs_format_hints.copy()
+        hints.update({
+            'dateformat': 'DD-MM-YYYY',
+            'datetimeformattz': 'DD-MM-YYYY HH24:MIOF',
+            'datetimeformat': 'DD-MM-YYYY HH24:MI',
+        })
+        records_format = DelimitedRecordsFormat(hints=hints)
+        unhandled_hints = set()
+        actual = pandas_read_csv_options(records_format,
+                                         self.records_schema,
+                                         unhandled_hints,
+                                         processing_instructions)
+        self.assertEqual(expected, actual)
+        self.assertFalse(unhandled_hints)
+
+    def test_pandas_read_csv_options_inconsistent_date_format(self):
+        processing_instructions = ProcessingInstructions()
+        hints = bluelabs_format_hints.copy()
+        hints.update({
+            'dateformat': 'DD-MM-YYYY',
+            'datetimeformattz': 'MM-DD-YYYY HH24:MIOF',
+            'datetimeformat': 'DD-MM-YYYY HH24:MI',
+        })
+        records_format = DelimitedRecordsFormat(hints=hints)
+        unhandled_hints = set()
+        with self.assertRaises(NotImplementedError):
+            pandas_read_csv_options(records_format,
+                                    self.records_schema,
+                                    unhandled_hints,
+                                    processing_instructions)
+
     def test_pandas_read_csv_options_csv(self):
         expected = {
+            'day_first': False,
             'compression': 'gzip',
             'delimiter': ',',
             'doublequote': True,
@@ -84,6 +135,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
     def test_pandas_read_csv_options_vertica(self):
         self.maxDiff = None
         expected = {
+            'day_first': False,
             'compression': None,
             'delimiter': '\x01',
             'doublequote': False,

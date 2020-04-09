@@ -27,7 +27,6 @@ class RotatingFileHandler(BaseRotatingHandler):
     maxBytes: Any = ...
     backupCount: Any = ...
 
-
     def __init__(
         self,
         filename: Any,
