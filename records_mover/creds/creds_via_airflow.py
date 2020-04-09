@@ -2,6 +2,7 @@ from .base_creds import BaseCreds
 import boto3
 import logging
 from db_facts.db_facts_types import DBFacts
+from records_mover.logging import register_secret
 from typing import Iterable, Optional, Union, TYPE_CHECKING
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
@@ -24,6 +25,8 @@ class CredsViaAirflow(BaseCreds):
         def add(key: str, value: Optional[Union[str, int]]) -> None:
             if value is not None:
                 out[key] = value  # type: ignore
+
+        register_secret(conn.password)
 
         add('host', conn.host)
         add('port', conn.port)
