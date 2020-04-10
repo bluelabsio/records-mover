@@ -38,7 +38,6 @@ def set_stream_logging(name: str = 'records_mover',
                        level: int = logging.INFO,
                        stream: IO[str] = sys.stdout,
                        fmt: str = '%(asctime)s - %(message)s',
-
                        datefmt: str = '%H:%M:%S') -> None:
     """
     records-mover logs details about its operations using Python logging.  This method is a
