@@ -111,8 +111,16 @@ class MySQLDBDriver(DBDriver):
     def type_for_fixed_point(self,
                              precision: int,
                              scale: int) -> sqlalchemy.sql.sqltypes.Numeric:
-        # BigQuery NUMERIC() type takes no arguments and supports 38
-        # digits of precision, of which 9 digits are scale.
+        # "The maximum number of digits for DECIMAL is 65, but the
+        # actual range for a given DECIMAL column can be constrained
+        # by the precision or scale for a given column. When such a
+        # column is assigned a value with more digits following the
+        # decimal point than are permitted by the specified scale, the
+        # value is converted to that scale. (The precise behavior is
+        # operating system-specific, but generally the effect is
+        # truncation to the permissible number of digits.)"
+        #
+        # https://dev.mysql.com/doc/refman/8.0/en/fixed-point-types.html
         if precision > 65:
             logger.warning('Using MySQL DOUBLE type to represent '
                            f'NUMERIC({precision},{scale}))')
