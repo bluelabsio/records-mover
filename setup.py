@@ -156,7 +156,13 @@ setup(name='records-mover',
           #
           # 'sqlalchemy-postgres-copy>=0.5,<0.6',
           'pybigquery',
-          'sqlalchemy',
+          # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
+          #
+          # sqlalchemy 1.3.16 seems to have (accidentally?) introduced
+          # a breaking change that affects sqlalchemy-redshift:
+          #
+          # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
+          'sqlalchemy!=1.3.16',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
           'db-facts>=3,<4',
