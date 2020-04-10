@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class MySQLDBDriver(DBDriver):
-    # https://www.postgresql.org/docs/10/datatype-numeric.html
+    # https://dev.mysql.com/doc/refman/8.0/en/integer-types.html
     def integer_limits(self,
                        type_: sqlalchemy.types.Integer) ->\
             Optional[Tuple[int, int]]:
@@ -100,8 +100,13 @@ class MySQLDBDriver(DBDriver):
     def type_for_floating_point(self,
                                 fp_total_bits: int,
                                 fp_significand_bits: int) -> sqlalchemy.sql.sqltypes.Numeric:
+        # https://dev.mysql.com/doc/refman/8.0/en/floating-point-types.html
+        #
+        # "A precision from 0 to 23 results in a 4-byte
+        # single-precision FLOAT column. A precision from 24 to 53
+        # results in an 8-byte double-precision DOUBLE column."
         if fp_significand_bits > FLOAT64_SIGNIFICAND_BITS:
-            logger.warning(f"Falling back to Postgres DOUBLE type, as MySQL "
+            logger.warning(f"Falling back to MySQL DOUBLE type, as MySQL "
                            "doesn't support fp_significand_bits>{FLOAT64_SIGNIFICAND_BITS} "
                            f"(requested: {fp_significand_bits}")
             return sqlalchemy.sql.sqltypes.Float(precision=FLOAT64_SIGNIFICAND_BITS)
