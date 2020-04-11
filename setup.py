@@ -144,14 +144,12 @@ gsheet_dependencies = [
     'PyOpenSSL'
 ]
 
-cli_dependencies = [
-    'odictliteral',
-    'jsonschema',
-    'typing_inspect',
-    'docstring_parser',
-    'psycopg2-binary',
-    'pandas<2',
+parquet_dependencies = [
     'pyarrow'
+]
+
+pandas_dependencies = [
+    'pandas<2',
 ]
 
 redshift_dependencies_base = [
@@ -168,10 +166,6 @@ redshift_dependencies_source = [
     'psycopg2',
 ] + redshift_dependencies_base
 
-pandas_dependencies = [
-    'pandas<2',
-]
-
 postgres_depencencies_base = db_dependencies
 
 postgres_dependencies_binary = [
@@ -182,12 +176,29 @@ postgres_dependencies_source = [
     'psycopg2',
 ] + postgres_depencencies_base
 
+cli_dependencies_base = [
+    'odictliteral',
+    'jsonschema',
+    'typing_inspect',
+    'docstring_parser',
+]
+
+
 vertica_dependencies = [
     # sqlalchemy-vertica-python 0.5.5 introduced
     # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
     # which fixed a bug pulling schema information from Vertica
     'sqlalchemy-vertica-python>=0.5.5,<0.6',
 ]
+
+db_jumbo_dependencies_binary = (
+    redshift_dependencies_binary +
+    postgres_dependencies_binary +
+    vertica_dependencies +
+    bigquery_dependencies
+)
+
+cli_jumbo_dependencies = cli_dependencies_base + db_jumbo_dependencies_binary + pandas_dependencies
 
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
@@ -230,7 +241,9 @@ setup(name='records-mover',
           'airflow': airflow_dependencies,
           'db': db_dependencies,
           'gsheets': gsheet_dependencies,
-          'cli': cli_dependencies,
+          # TODO: or should this be cli + cli-minimal?
+          'cli': cli_dependencies_base,
+          'cli-jumbo': cli_jumbo_dependencies,
           'bigquery': bigquery_dependencies,
           'aws': aws_dependencies,
           'redshift-binary': redshift_dependencies_binary,
