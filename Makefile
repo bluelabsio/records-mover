@@ -20,8 +20,13 @@ citypecoverage: typecoverage
 	@git status --porcelain metrics/mypy_high_water_mark
 	@test -z "$$(git status --porcelain metrics/mypy_high_water_mark)"
 
+
+minimal_test:
+	ENV=test nosetests --exclude='tests/integration' --exclude='tests/unit/alldeps' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive
+
+
 test:
-	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive
+	ENV=test nosetests --exclude='tests/integration' --exclude='tests/unit/mindeps' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive
 
 citest:
 	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml
