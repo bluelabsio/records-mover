@@ -99,6 +99,16 @@ class MypyCoverageRatchetCommand(CoverageRatchetCommand):
         self.coverage_source_file = "typecover/cobertura.xml"
 
 
+db_dependencies = [
+    # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
+    #
+    # sqlalchemy 1.3.16 seems to have (accidentally?) introduced
+    # a breaking change that affects sqlalchemy-redshift:
+    #
+    # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
+    'sqlalchemy!=1.3.16',
+]
+
 bigquery_dependencies = [
     # This is currently vendored in
     # records_mover/db/postgres/sqlalchemy_postgres_copy.py but
@@ -109,7 +119,7 @@ bigquery_dependencies = [
     #
     # 'sqlalchemy-postgres-copy>=0.5,<0.6',
     'pybigquery',
-]
+] + db_dependencies
 
 aws_dependencies = [
     'boto>=2,<3',
@@ -136,7 +146,7 @@ redshift_dependencies_base = [
     # sqlalchemy-redshift 0.7.7 introduced support for Parquet
     # in UNLOAD
     'sqlalchemy-redshift>=0.7.7',
-] + aws_dependencies
+] + aws_dependencies + db_dependencies
 
 redshift_dependencies_binary = [
     'psycopg2-binary',
@@ -150,13 +160,15 @@ pandas_dependencies = [
     'pandas<2',
 ]
 
+postgres_depencencies_base = db_dependencies
+
 postgres_dependencies_binary = [
     'psycopg2-binary',
-]
+] + postgres_depencencies_base
 
 postgres_dependencies_source = [
     'psycopg2',
-]
+] + postgres_depencencies_base
 
 vertica_dependencies = [
     # sqlalchemy-vertica-python 0.5.5 introduced
@@ -197,13 +209,6 @@ setup(name='records-mover',
           #
           # https://github.com/aws/aws-cli/blob/develop/setup.py
           'PyYAML<5.3',
-          # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
-          #
-          # sqlalchemy 1.3.16 seems to have (accidentally?) introduced
-          # a breaking change that affects sqlalchemy-redshift:
-          #
-          # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
-          'sqlalchemy!=1.3.16',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
           'db-facts>=3,<4',
@@ -217,6 +222,7 @@ setup(name='records-mover',
           'tenacity>=6<7'
       ],
       extras_require={
+          'db': db_dependencies,
           'gsheets': gsheet_dependencies,
           'cli': cli_dependencies,
           'bigquery': bigquery_dependencies,
