@@ -113,7 +113,11 @@ class Session():
         self._default_aws_creds_name = default_aws_creds_name
         self._scratch_s3_url = scratch_s3_url
         self.creds = creds
-        self.url_resolver = UrlResolver(boto3_session=self._boto3_session())
+        url_resolver_kwargs = {}
+        boto3_session = self._boto3_session()
+        if boto3_session:
+            url_resolver_kwargs['boto3_session'] = boto3_session
+        self.url_resolver = UrlResolver(**url_resolver_kwargs)
 
     def get_default_db_engine(self) -> 'Engine':
         from .db.connect import engine_from_db_facts
@@ -156,7 +160,14 @@ class Session():
     def directory_url(self, url: str) -> BaseDirectoryUrl:
         return self.url_resolver.directory_url(url)
 
-    def _boto3_session(self) -> boto3.session.Session:
+    def _boto3_session(self) -> Optional['boto3.session.Session']:
+        try:
+            import boto3
+        except ModuleNotFoundError:
+            logger.debug("boto3 not installed",
+                         exc_info=True)
+            return None
+
         if self._default_aws_creds_name is None:
             return boto3.session.Session()
         else:
