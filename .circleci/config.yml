@@ -9,6 +9,8 @@ commands:
   installvenv:
     description: "Installs dependencies in venv if needed"
     parameters:
+      extras:
+        type: string
       python_version:
         type: string
       pandas_version:
@@ -24,11 +26,11 @@ commands:
               . venv/bin/activate
               # venv/ dir doesn't seem to save enough info to keep the
               # editable installation
-              pip install --progress-bar=off -e '.[movercli]'
+              pip install --progress-bar=off -e '.<<parameters.extras>>'
             else
               python -m venv venv
               . venv/bin/activate
-              pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
+              pip install --progress-bar=off -r requirements.txt -e '.<<parameters.extras>>'
               if [ '<<parameters.pandas_version>>' != '' ]
               then
                 pip install --upgrade --progress-bar=off 'pandas<<parameters.pandas_version>>'
@@ -44,6 +46,8 @@ commands:
 jobs:
   test:
     parameters:
+      extras:
+        type: string
       python_version:
         type: string
         description: "Version of python to test against"
@@ -66,6 +70,7 @@ jobs:
             # Bluelabs Butler Key
             - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
       - installvenv:
+          extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
       - run:
@@ -107,6 +112,8 @@ jobs:
 
   integration_test_with_dbs:
     parameters:
+      extras:
+        type: string
       python_version:
         type: string
         description: "Version of python to test against"
@@ -128,6 +135,7 @@ jobs:
             # Bluelabs Butler Key
             - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
       - installvenv:
+          extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: '<1'
       - run:
@@ -180,6 +188,8 @@ jobs:
 
   integration_test:
     parameters:
+      extras:
+        type: string
       python_version:
         type: string
         description: "Version of python to test against"
@@ -198,6 +208,7 @@ jobs:
             # Bluelabs Butler Key
             - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
       - installvenv:
+          extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
       - run:
@@ -217,6 +228,8 @@ jobs:
 
   deploy:
     parameters:
+      extras:
+        type: string
       python_version:
         type: string
         description: "Version of python to test against"
@@ -226,6 +239,7 @@ jobs:
     steps:
       - checkout
       - installvenv:
+          extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: '<1'
       - run:
