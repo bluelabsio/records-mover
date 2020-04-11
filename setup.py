@@ -99,6 +99,10 @@ class MypyCoverageRatchetCommand(CoverageRatchetCommand):
         self.coverage_source_file = "typecover/cobertura.xml"
 
 
+airflow_dependencies = [
+    'apache-airflow>=1.10,<2'
+]
+
 db_dependencies = [
     # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
     #
@@ -122,8 +126,14 @@ bigquery_dependencies = [
 ] + db_dependencies
 
 aws_dependencies = [
+    'awscli>=1,<2',
     'boto>=2,<3',
     'boto3',
+    # we rely on exception types from smart_open,
+    # which seem to change in feature releases
+    # without a major version bump
+    'smart_open>=1.8.4,<1.9.0',
+    's3-concat>=0.1.7,<0.2'
 ]
 
 gsheet_dependencies = [
@@ -135,6 +145,8 @@ gsheet_dependencies = [
 ]
 
 cli_dependencies = [
+    'odictliteral',
+    'jsonschema',
     'typing_inspect',
     'docstring_parser',
     'psycopg2-binary',
@@ -196,8 +208,7 @@ setup(name='records-mover',
           'records_mover': ['py.typed']
       },
       install_requires=[
-          'jsonschema', 'timeout_decorator',
-          'awscli>=1,<2',
+          'timeout_decorator',
           # awscli pins PyYAML below 5.3 so they can maintain support
           # for old versions of Python.  This can cause issues at
           # run-time if we don't constrain things here as well, as a
@@ -212,16 +223,11 @@ setup(name='records-mover',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
           'db-facts>=3,<4',
-          'odictliteral',
-          # we rely on exception types from smart_open,
-          # which seem to change in feature releases
-          # without a major version bump
-          'smart_open>=1.8.4,<1.9.0',
           'chardet',
-          's3-concat>=0.1.7,<0.2'
           'tenacity>=6<7'
       ],
       extras_require={
+          'airflow': airflow_dependencies,
           'db': db_dependencies,
           'gsheets': gsheet_dependencies,
           'cli': cli_dependencies,
