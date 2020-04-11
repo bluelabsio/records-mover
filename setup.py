@@ -99,6 +99,23 @@ class MypyCoverageRatchetCommand(CoverageRatchetCommand):
         self.coverage_source_file = "typecover/cobertura.xml"
 
 
+bigquery_dependencies = [
+    # This is currently vendored in
+    # records_mover/db/postgres/sqlalchemy_postgres_copy.py but
+    # once this PR is merged and a new version published, we can
+    # use the new upstream version:
+    #
+    # https://github.com/jmcarp/sqlalchemy-postgres-copy/pull/14
+    #
+    # 'sqlalchemy-postgres-copy>=0.5,<0.6',
+    'pybigquery',
+]
+
+aws_dependencies = [
+    'boto>=2,<3',
+    'boto3',
+]
+
 gsheet_dependencies = [
     'google',
     'google_auth_httplib2',
@@ -106,6 +123,48 @@ gsheet_dependencies = [
     'oauth2client>=2.0.2,<2.1.0',
     'PyOpenSSL'
 ]
+
+cli_dependencies = [
+    'typing_inspect',
+    'docstring_parser',
+    'psycopg2-binary',
+    'pandas<2',
+    'pyarrow'
+]
+
+redshift_dependencies_base = [
+    # sqlalchemy-redshift 0.7.7 introduced support for Parquet
+    # in UNLOAD
+    'sqlalchemy-redshift>=0.7.7',
+] + aws_dependencies
+
+redshift_dependencies_binary = [
+    'psycopg2-binary',
+] + redshift_dependencies_base
+
+redshift_dependencies_source = [
+    'psycopg2',
+] + redshift_dependencies_base
+
+pandas_dependencies = [
+    'pandas<2',
+]
+
+postgres_dependencies_binary = [
+    'psycopg2-binary',
+]
+
+postgres_dependencies_source = [
+    'psycopg2',
+]
+
+vertica_dependencies = [
+    # sqlalchemy-vertica-python 0.5.5 introduced
+    # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
+    # which fixed a bug pulling schema information from Vertica
+    'sqlalchemy-vertica-python>=0.5.5,<0.6',
+]
+
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
@@ -125,7 +184,6 @@ setup(name='records-mover',
           'records_mover': ['py.typed']
       },
       install_requires=[
-          'boto>=2,<3', 'boto3',
           'jsonschema', 'timeout_decorator',
           'awscli>=1,<2',
           # awscli pins PyYAML below 5.3 so they can maintain support
@@ -139,22 +197,6 @@ setup(name='records-mover',
           #
           # https://github.com/aws/aws-cli/blob/develop/setup.py
           'PyYAML<5.3',
-          # sqlalchemy-vertica-python 0.5.5 introduced
-          # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
-          # which fixed a bug pulling schema information from Vertica
-          'sqlalchemy-vertica-python>=0.5.5,<0.6',
-          # sqlalchemy-redshift 0.7.7 introduced support for Parquet
-          # in UNLOAD
-          'sqlalchemy-redshift>=0.7.7',
-          # This is currently vendored in
-          # records_mover/db/postgres/sqlalchemy_postgres_copy.py but
-          # once this PR is merged and a new version published, we can
-          # use the new upstream version:
-          #
-          # https://github.com/jmcarp/sqlalchemy-postgres-copy/pull/14
-          #
-          # 'sqlalchemy-postgres-copy>=0.5,<0.6',
-          'pybigquery',
           # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
           #
           # sqlalchemy 1.3.16 seems to have (accidentally?) introduced
@@ -176,11 +218,15 @@ setup(name='records-mover',
       ],
       extras_require={
           'gsheets': gsheet_dependencies,
-          'movercli': gsheet_dependencies + ['typing_inspect',
-                                             'docstring_parser',
-                                             'psycopg2-binary',
-                                             'pandas<2',
-                                             'pyarrow'],
+          'cli': cli_dependencies,
+          'bigquery': bigquery_dependencies,
+          'aws': aws_dependencies,
+          'redshift-binary': redshift_dependencies_binary,
+          'redshift-source': redshift_dependencies_source,
+          'postgres-binary': postgres_dependencies_binary,
+          'postgres-source': postgres_dependencies_source,
+          'vertica': vertica_dependencies,
+          'pandas': pandas_dependencies,
       },
       entry_points={
           'console_scripts': 'mvrec = records_mover.records.cli:main',
