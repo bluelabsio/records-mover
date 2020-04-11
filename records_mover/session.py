@@ -1,14 +1,8 @@
-from .database import db_facts_from_env
-from sqlalchemy.engine import Engine
-import boto3
-from .records.records import Records
-from .db.factory import db_driver
-from .db import DBDriver
-from .url.base import BaseFileUrl, BaseDirectoryUrl
-import sqlalchemy
-from typing import Union, Optional, IO
 from .creds.base_creds import BaseCreds
-from .db.connect import engine_from_db_facts
+from .database import db_facts_from_env
+from .records.records import Records
+from .url.base import BaseFileUrl, BaseDirectoryUrl
+from typing import Union, Optional, IO
 from .url.resolver import UrlResolver
 from db_facts.db_facts_types import DBFacts
 from enum import Enum
@@ -20,6 +14,11 @@ import subprocess
 import os
 import sys
 import logging
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .db import DBDriver  # noqa
+    from sqlalchemy.engine import Engine, Connection  # noqa
+    import boto3  # noqa
 
 
 logger = logging.getLogger(__name__)
@@ -116,7 +115,9 @@ class Session():
         self.creds = creds
         self.url_resolver = UrlResolver(boto3_session=self._boto3_session())
 
-    def get_default_db_engine(self) -> Engine:
+    def get_default_db_engine(self) -> 'Engine':
+        from .db.connect import engine_from_db_facts
+
         if self._default_db_creds_name is None:
             db_facts = db_facts_from_env()
             return engine_from_db_facts(db_facts)
@@ -131,14 +132,17 @@ class Session():
 
     def get_db_engine(self,
                       db_creds_name: str,
-                      creds_provider: Optional[BaseCreds] = None) -> Engine:
+                      creds_provider: Optional[BaseCreds] = None) -> 'Engine':
+        from .db.connect import engine_from_db_facts
+
         if creds_provider is None:
             creds_provider = self.creds
         db_facts = creds_provider.db_facts(db_creds_name)
         return engine_from_db_facts(db_facts)
 
-    def db_driver(self, db: Union[sqlalchemy.engine.Engine,
-                                  sqlalchemy.engine.Connection]) -> DBDriver:
+    def db_driver(self, db: Union['Engine', 'Connection']) -> 'DBDriver':
+        from .db.factory import db_driver
+
         s3_temp_base_loc = None
         if self._scratch_s3_url is not None:
             s3_temp_base_loc = self.directory_url(self._scratch_s3_url)

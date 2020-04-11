@@ -1,5 +1,3 @@
-from sqlalchemy import Column
-from sqlalchemy.types import TypeEngine
 import datetime
 import numpy as np
 from ...processing_instructions import ProcessingInstructions
@@ -23,11 +21,10 @@ from .constraints import (RecordsSchemaFieldConstraints,
                           RecordsSchemaFieldDecimalConstraints)
 from .statistics import RecordsSchemaFieldStatistics
 from .types import RECORDS_FIELD_TYPES
-from .sqlalchemy import (field_from_sqlalchemy_column,
-                         field_to_sqlalchemy_type,
-                         field_to_sqlalchemy_column)
 if TYPE_CHECKING:
     from pandas import Series, Index
+    from sqlalchemy import Column
+    from sqlalchemy.types import TypeEngine
     from records_mover.db import DBDriver  # noqa
     from .types import FieldType
 
@@ -137,19 +134,25 @@ class RecordsSchemaField:
                                  processing_instructions=processing_instructions)
 
     @staticmethod
-    def from_sqlalchemy_column(column: Column,
+    def from_sqlalchemy_column(column: 'Column',
                                driver: 'DBDriver',
                                rep_type: str)\
             -> 'RecordsSchemaField':
+        from .sqlalchemy import field_from_sqlalchemy_column
+
         return field_from_sqlalchemy_column(column=column,
                                             driver=driver,
                                             rep_type=rep_type)
 
     def to_sqlalchemy_type(self,
-                           driver: 'DBDriver') -> TypeEngine:
+                           driver: 'DBDriver') -> 'TypeEngine':
+        from .sqlalchemy import field_to_sqlalchemy_type
+
         return field_to_sqlalchemy_type(self, driver)
 
-    def to_sqlalchemy_column(self, driver: 'DBDriver') -> Column:
+    def to_sqlalchemy_column(self, driver: 'DBDriver') -> 'Column':
+        from .sqlalchemy import field_to_sqlalchemy_column
+
         return field_to_sqlalchemy_column(self, driver)
 
     def to_numpy_dtype(self) -> Union[Type[Any], str]:
