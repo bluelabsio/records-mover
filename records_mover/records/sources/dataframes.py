@@ -140,7 +140,8 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
                 df = prep_df_for_csv_output(df,
                                             include_index=self.include_index,
                                             records_schema=records_schema,
-                                            records_format=delimited_records_format)
+                                            records_format=delimited_records_format,
+                                            processing_instructions=processing_instructions)
                 df.to_csv(path_or_buf=output_filename,
                           index=self.include_index,
                           **options)

@@ -3,7 +3,7 @@ import pandas as pd
 import unittest
 from records_mover.records.pandas import prep_df_for_csv_output
 from records_mover.records.schema import RecordsSchema
-from records_mover.records import DelimitedRecordsFormat
+from records_mover.records import DelimitedRecordsFormat, ProcessingInstructions
 
 
 class TestPrepForCsv(unittest.TestCase):
@@ -27,6 +27,7 @@ class TestPrepForCsv(unittest.TestCase):
         }
         records_format = DelimitedRecordsFormat(variant='bluelabs')
         records_schema = RecordsSchema.from_data(schema_data)
+        processing_instructions = ProcessingInstructions()
         # us_eastern = pytz.timezone('US/Eastern')
         data = {
             'date': [pd.Timestamp(year=1970, month=1, day=1)],
@@ -56,7 +57,8 @@ class TestPrepForCsv(unittest.TestCase):
         new_df = prep_df_for_csv_output(df=df,
                                         include_index=False,
                                         records_schema=records_schema,
-                                        records_format=records_format)
+                                        records_format=records_format,
+                                        processing_instructions=processing_instructions)
         self.assertEqual(new_df['date'][0], '1970-01-01')
         self.assertEqual(new_df['time'][0], '12:33:53')
         # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
@@ -82,6 +84,7 @@ class TestPrepForCsv(unittest.TestCase):
         }
         records_format = DelimitedRecordsFormat(variant='bluelabs')
         records_schema = RecordsSchema.from_data(schema_data)
+        processing_instructions = ProcessingInstructions()
         # us_eastern = pytz.timezone('US/Eastern')
         data = {
             'time': [
@@ -111,7 +114,8 @@ class TestPrepForCsv(unittest.TestCase):
         new_df = prep_df_for_csv_output(df=df,
                                         include_index=True,
                                         records_schema=records_schema,
-                                        records_format=records_format)
+                                        records_format=records_format,
+                                        processing_instructions=processing_instructions)
         self.assertEqual(new_df.index[0], '1970-01-01')
         self.assertEqual(new_df['time'][0], '12:33:53')
         # self.assertEqual(new_df['timetz'][0], '12:33:53-05')

@@ -1,8 +1,12 @@
 from pandas import DataFrame
 import pandas as pd
+from records_mover.records import ProcessingInstructions
 from records_mover.records.schema import RecordsSchema
 from records_mover.records.schema.field import RecordsSchemaField
 from records_mover.records import DelimitedRecordsFormat
+from records_mover.records.hints import (python_date_format_from_hints,
+                                         python_time_format_from_hints,
+                                         cant_handle_hint)
 import logging
 from typing import Optional, Union, TypeVar
 
@@ -14,7 +18,8 @@ T = TypeVar('T', bound=Union[pd.Series, pd.Index])
 
 def _convert_series_or_index(series_or_index: T,
                              field: RecordsSchemaField,
-                             records_format: DelimitedRecordsFormat) -> Optional[T]:
+                             records_format: DelimitedRecordsFormat,
+                             processing_instructions: ProcessingInstructions) -> Optional[T]:
     if field.field_type == 'date':
         if not isinstance(series_or_index[0], pd.Timestamp):
             logger.warning(f"Found {series_or_index.name} as unexpected type "
@@ -24,13 +29,12 @@ def _convert_series_or_index(series_or_index: T,
                         "string in CSV's format")
             hint_date_format = records_format.hints['dateformat']
             assert isinstance(hint_date_format, str)
-            pandas_date_format_conversion = {
-                'YYYY-MM-DD': '%Y-%m-%d',
-                'MM/DD/YY': '%m/%d/%Y',
-                'DD/MM/YY': '%d/%m/%Y',
-            }
-            pandas_date_format = pandas_date_format_conversion.get(hint_date_format,
-                                                                   '%Y-%m-%d')
+            pandas_date_format = python_date_format_from_hints.get(hint_date_format)
+            if pandas_date_format is None:
+                cant_handle_hint(processing_instructions.fail_if_cant_handle_hint,
+                                 'dateformat',
+                                 records_format.hints)
+                pandas_date_format = '%Y-%m-%d'
             if isinstance(series_or_index, pd.Series):
                 return series_or_index.dt.strftime(pandas_date_format)
             else:
@@ -44,12 +48,12 @@ def _convert_series_or_index(series_or_index: T,
                         "in CSV's format")
             hint_time_format = records_format.hints['timeonlyformat']
             assert isinstance(hint_time_format, str)
-            pandas_time_format_conversion = {
-                'HH24:MI:SS': '%H:%M:%S',
-                'HH12:MI AM': '%I:%M:%S %p',
-            }
-            pandas_time_format = pandas_time_format_conversion.get(hint_time_format,
-                                                                   '%H:%M:%S')
+            pandas_time_format = python_time_format_from_hints.get(hint_time_format)
+            if pandas_time_format is None:
+                cant_handle_hint(processing_instructions.fail_if_cant_handle_hint,
+                                 'timeonlyformat',
+                                 records_format.hints)
+                pandas_time_format = '%H:%M:%S'
             if isinstance(series_or_index, pd.Series):
                 return series_or_index.dt.strftime(pandas_time_format)
             else:
@@ -63,7 +67,8 @@ def _convert_series_or_index(series_or_index: T,
 def prep_df_for_csv_output(df: DataFrame,
                            include_index: bool,
                            records_schema: RecordsSchema,
-                           records_format: DelimitedRecordsFormat) -> DataFrame:
+                           records_format: DelimitedRecordsFormat,
+                           processing_instructions: ProcessingInstructions) -> DataFrame:
     #
     # Pandas dataframes only have a native 'datetime'/'datetimetz'
     # datatype (pd.Timestamp), not an individal 'date', 'time' or
@@ -83,13 +88,17 @@ def prep_df_for_csv_output(df: DataFrame,
         field = remaining_fields.pop(0)
         formatted_index = _convert_series_or_index(formatted_df.index,
                                                    field,
-                                                   records_format)
+                                                   records_format,
+                                                   processing_instructions)
         if formatted_index is not None:
             formatted_df.index = formatted_index
 
     for index, field in enumerate(remaining_fields):
         series = formatted_df.iloc[:, index]
-        formatted_series = _convert_series_or_index(series, field, records_format)
+        formatted_series = _convert_series_or_index(series,
+                                                    field,
+                                                    records_format,
+                                                    processing_instructions)
         if formatted_series is not None:
             formatted_df.iloc[:, index] = formatted_series
     return formatted_df

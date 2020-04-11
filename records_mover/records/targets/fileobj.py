@@ -57,7 +57,8 @@ class FileobjTarget(SupportsMoveFromDataframes):
                 df = prep_df_for_csv_output(df,
                                             include_index=dfs_source.include_index,
                                             records_schema=records_schema,
-                                            records_format=records_format)
+                                            records_format=records_format,
+                                            processing_instructions=processing_instructions)
                 df.to_csv(path_or_buf=path_or_buf,
                           mode="a",
                           index=dfs_source.include_index,
