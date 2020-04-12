@@ -326,7 +326,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - test:
           name: test-3.8
-          extras: '[unittests]'
+          extras: '[unittest]'
           makefile_target: citest
           python_version: "3.8"
           pandas_version: ">=1"
