@@ -98,6 +98,9 @@ class MypyCoverageRatchetCommand(CoverageRatchetCommand):
         )
         self.coverage_source_file = "typecover/cobertura.xml"
 
+_itest_dependencies = [
+    'jsonschema'  # needed for directory_validator.py
+]
 
 airflow_dependencies = [
     'apache-airflow>=1.10,<2'
@@ -252,6 +255,7 @@ setup(name='records-mover',
           'postgres-source': postgres_dependencies_source,
           'vertica': vertica_dependencies,
           'pandas': pandas_dependencies,
+          '_itest': _itest_dependencies,
       },
       entry_points={
           'console_scripts': 'mvrec = records_mover.records.cli:main',
