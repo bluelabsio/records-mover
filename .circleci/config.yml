@@ -334,18 +334,6 @@ workflows:
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - test:
-          name: test-3.8-slim
-          python_version: "3.8"
-          pandas_version: ">=1"
-          extras: ''
-          makefile_target: cimindepstest
-          coverage: true
-          requires:
-            - redshift-itest
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: vertica-no-s3-itest
           extras: '[vertica,itest]'
