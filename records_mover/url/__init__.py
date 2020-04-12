@@ -16,7 +16,6 @@ file_url_ctors: Dict[str, Union[Type[BaseFileUrl], CreatesUrls]] = {}
 def init_urls() -> None:
     try:
         from .s3.s3_url import S3Url
-        directory_url_ctors['s3'] = S3Url
     except ModuleNotFoundError:
         logger.debug('No S3 support', exc_info=True)
         S3Url = None  # type: ignore
