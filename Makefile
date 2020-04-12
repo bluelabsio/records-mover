@@ -23,9 +23,11 @@ citypecoverage: typecoverage
 
 # TODO: Match this pattern below
 # TODO: is udnerscore right?
-minimal_test:
+mindepstest:
 	ENV=test nosetests --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive tests/unit tests/unitmindeps
 
+cimindepstest:
+	ENV=test nosetests --cover-package=records_mover tests/unit tests/unitmindeps
 
 test:
 	ENV=test nosetests --where=tests/unit --where=tests/unitalldeps  --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive

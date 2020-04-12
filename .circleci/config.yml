@@ -54,6 +54,9 @@ jobs:
         type: string
         default: ''
         description: "Which pip extras to install.  If provided, must be surrounded by [] and comma separated."
+      makefile_target:
+        type: string
+        description: "Makefile target to run for tests"
       python_version:
         type: string
         description: "Version of python to test against"
@@ -83,7 +86,7 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
-            make citest
+            make <<parameters.makefile_target>>
             if [ "<<parameters.coverage>>" == true ]
             then
               make cicoverage
@@ -303,6 +306,7 @@ workflows:
       - test:
           name: test-3.6
           extras: '[jumbo]'
+          makefile_target: citest
           python_version: "3.6"
           pandas_version: "<1"
           requires:
@@ -313,6 +317,7 @@ workflows:
       - test:
           name: test-3.7
           extras: '[jumbo]'
+          makefile_target: citest
           python_version: "3.7"
           pandas_version: ">=1"
           requires:
@@ -323,6 +328,7 @@ workflows:
       - test:
           name: test-3.8
           extras: '[jumbo]'
+          makefile_target: citest
           python_version: "3.8"
           pandas_version: ">=1"
           coverage: true
@@ -333,6 +339,8 @@ workflows:
           name: test-3.8-slim
           python_version: "3.8"
           pandas_version: ">=1"
+          extras: ''
+          makefile_target: cimindepstest
           coverage: true
           filters:
             tags:
