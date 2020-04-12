@@ -201,7 +201,6 @@ jobs:
     parameters:
       extras:
         type: string
-        default: ''
         description: "Which pip extras to install.  If provided, must be surrounded by [] and comma separated."
       python_version:
         type: string
@@ -347,6 +346,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: vertica-no-s3-itest
+          extras: '[vertica]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -364,6 +364,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: postgres-itest
+          extras: '[postgres]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -380,6 +381,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: vertica-s3-itest
+          extras: '[vertica,aws]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -396,6 +398,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-1-itest
+          extras: ''
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -412,6 +415,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-2-itest
+          extras: ''
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -428,6 +432,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-3-itest
+          extras: ''
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -444,6 +449,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest
+          extras: '[redshift,pandas]'
           python_version: "3.6"
           db_name: demo-itest
 #          requires:  # TODO
@@ -453,6 +459,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest-old-pandas
+          extras: '[redshift]'
           python_version: "3.6"
           pandas_version: "<1"
           db_name: demo-itest
@@ -463,6 +470,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest-no-pandas
+          extras: '[redshift]'
           python_version: "3.6"
           pandas_version: ""
           db_name: demo-itest
@@ -473,6 +481,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: bigquery-itest
+          extras: '[bigquery,pandas]'
           python_version: "3.6"
           db_name: bltoolsdevbq-bq_itest
           requires:
