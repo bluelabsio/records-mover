@@ -1,5 +1,4 @@
 from .base import SupportsToDataframesSource
-from pandas import DataFrame
 from contextlib import contextmanager
 import itertools
 import google.auth.credentials
@@ -42,6 +41,8 @@ class GoogleSheetsRecordsSource(SupportsToDataframesSource):
     def to_dataframes_source(self,
                              processing_instructions: ProcessingInstructions) \
             -> Iterator[DataframesRecordsSource]:
+        from pandas import DataFrame
+
         service = self._get_service()
 
         #
