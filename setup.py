@@ -99,9 +99,20 @@ class MypyCoverageRatchetCommand(CoverageRatchetCommand):
         self.coverage_source_file = "typecover/cobertura.xml"
 
 
-itest_dependencies = [
-    'jsonschema'  # needed for directory_validator.py
+google_api_client_dependencies = [
+    'google-api-python-client>=1.5.0,<1.6.0',
 ]
+
+
+itest_dependencies = (
+    [
+        'jsonschema',  # needed for directory_validator.py
+        'googleapiclient'
+    ] +
+    # needed for records_database_fixture retrying drop/creates on
+    # BigQuery
+    google_api_client_dependencies
+)
 
 airflow_dependencies = [
     'apache-airflow>=1.10,<2'
@@ -143,10 +154,9 @@ aws_dependencies = [
 gsheet_dependencies = [
     'google',
     'google_auth_httplib2',
-    'google-api-python-client>=1.5.0,<1.6.0',
     'oauth2client>=2.0.2,<2.1.0',
     'PyOpenSSL'
-]
+] + google_api_client_dependencies
 
 parquet_dependencies = [
     'pyarrow'
