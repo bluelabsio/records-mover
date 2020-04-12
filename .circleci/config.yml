@@ -449,7 +449,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest
-          extras: '[redshift,pandas,_itest]'
+          extras: '[redshift,pandas,itest]'
           python_version: "3.6"
           db_name: demo-itest
 #          requires:  # TODO
