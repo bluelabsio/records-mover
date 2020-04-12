@@ -364,7 +364,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: postgres-itest
-          extras: '[postgres,itest]'
+          extras: '[postgres-binary,itest]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -459,7 +459,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest-old-pandas
-          extras: '[redshift,itest]'
+          extras: '[redshift-binary,itest]'
           python_version: "3.6"
           pandas_version: "<1"
           db_name: demo-itest
@@ -470,7 +470,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest-no-pandas
-          extras: '[redshift,itest]'
+          extras: '[redshift-binary,itest]'
           python_version: "3.6"
           pandas_version: ""
           db_name: demo-itest
