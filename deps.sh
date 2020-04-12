@@ -15,4 +15,4 @@ pyenv virtualenv "${python_version:?}" records-mover-"${python_version:?}" || tr
 pyenv local records-mover-"${python_version:?}"
 
 pip3 install --upgrade pip
-pip3 install -r requirements.txt -e '.[movercli]'
+pip3 install -r requirements.txt -e '.[unittest,itest]'
