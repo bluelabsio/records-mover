@@ -346,7 +346,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: vertica-no-s3-itest
-          extras: '[vertica]'
+          extras: '[vertica,itest]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -364,7 +364,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: postgres-itest
-          extras: '[postgres]'
+          extras: '[postgres,itest]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -381,7 +381,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: vertica-s3-itest
-          extras: '[vertica,aws]'
+          extras: '[vertica,aws,itest]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -449,7 +449,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest
-          extras: '[redshift-binary,pandas,itest]'
+          extras: '[redshift-binary,itest]'
           python_version: "3.6"
           db_name: demo-itest
 #          requires:  # TODO
@@ -459,7 +459,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest-old-pandas
-          extras: '[redshift]'
+          extras: '[redshift,itest]'
           python_version: "3.6"
           pandas_version: "<1"
           db_name: demo-itest
@@ -470,7 +470,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest-no-pandas
-          extras: '[redshift]'
+          extras: '[redshift,itest]'
           python_version: "3.6"
           pandas_version: ""
           db_name: demo-itest
@@ -481,7 +481,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: bigquery-itest
-          extras: '[bigquery,pandas]'
+          extras: '[bigquery,itest]'
           python_version: "3.6"
           db_name: bltoolsdevbq-bq_itest
           requires:
