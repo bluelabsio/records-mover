@@ -446,8 +446,8 @@ workflows:
           name: redshift-itest
           python_version: "3.6"
           db_name: demo-itest
-          requires:
-            - test-3.8
+#          requires:  # TODO
+#            - test-3.8
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
