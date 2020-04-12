@@ -147,12 +147,17 @@ class Session():
     def db_driver(self, db: Union['Engine', 'Connection']) -> 'DBDriver':
         from .db.factory import db_driver
 
-        s3_temp_base_loc = None
+        kwargs = {}
         if self._scratch_s3_url is not None:
-            s3_temp_base_loc = self.directory_url(self._scratch_s3_url)
+            try:
+                s3_temp_base_loc = self.directory_url(self._scratch_s3_url)
+                kwargs['s3_temp_base_loc'] = s3_temp_base_loc
+            except NotImplementedError:
+                logger.debug('boto3 not installed', exc_info=True)
+
         return db_driver(db=db,
-                         s3_temp_base_loc=s3_temp_base_loc,
-                         url_resolver=self.url_resolver)
+                         url_resolver=self.url_resolver,
+                         **kwargs)
 
     def file_url(self, url: str) -> BaseFileUrl:
         return self.url_resolver.file_url(url)
