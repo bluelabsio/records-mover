@@ -5,6 +5,7 @@
 export SLUGIFY_USES_TEXT_UNIDECODE=yes
 
 brew update && ( brew upgrade pyenv || true )
+pyenv rehash  # needed if pyenv is updated
 
 python_version=3.8.1
 # zipimport.ZipImportError: can't decompress data; zlib not available:
