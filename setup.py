@@ -214,7 +214,8 @@ unittest_dependencies = (
     cli_dependencies_base +
     airflow_dependencies +
     gsheet_dependencies +
-    db_dependencies
+    literally_every_single_database_binary_dependencies +
+    aws_dependencies
 )
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
