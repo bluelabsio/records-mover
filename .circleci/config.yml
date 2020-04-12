@@ -398,7 +398,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-1-itest
-          extras: '[gsheets]'
+          extras: '[gsheets,db]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -415,7 +415,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-2-itest
-          extras: '[gsheets]'
+          extras: '[gsheets,db]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -432,7 +432,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-3-itest
-          extras: '[gsheets]'
+          extras: '[gsheets,db]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -491,7 +491,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: tbl2tbl-itest
-          extras: '[db]'
+          extras: '[db,itest]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
