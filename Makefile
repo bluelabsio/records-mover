@@ -21,15 +21,17 @@ citypecoverage: typecoverage
 	@test -z "$$(git status --porcelain metrics/mypy_high_water_mark)"
 
 
+# TODO: Match this pattern below
+# TODO: is udnerscore right?
 minimal_test:
-	ENV=test nosetests --exclude='tests/integration' --exclude='tests/unit/alldeps' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive
+	ENV=test nosetests --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive tests/unit tests/unitmindeps
 
 
 test:
-	ENV=test nosetests --exclude='tests/integration' --exclude='tests/unit/mindeps' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive
+	ENV=test nosetests --where=tests/unit --where=tests/unitalldeps  --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive
 
 citest:
-	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml
+	ENV=test nosetests --where=tests/unit --where=tests/unitalldeps --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml
 
 coverage:
 	python setup.py coverage_ratchet
