@@ -6,7 +6,7 @@ from records_mover.records.schema.field.representation import RecordsSchemaField
 class TestFieldRepresentation(unittest.TestCase):
     maxDiff = None
 
-    @patch('records_mover.records.schema.field.representation.CreateColumn')
+    @patch('sqlalchemy.schema.CreateColumn')
     def test_from_sqlalchemy_column_splitting(self,
                                               mock_CreateColumn):
         mock_column = Mock(name='column')

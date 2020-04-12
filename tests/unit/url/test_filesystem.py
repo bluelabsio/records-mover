@@ -1,5 +1,5 @@
 from records_mover.url.filesystem import FilesystemDirectoryUrl, FilesystemFileUrl
-from records_mover.url.http import HttpFileUrl
+from records_mover.url.s3.s3_file_url import S3FileUrl
 from records_mover.url.base import BaseFileUrl
 from mock import patch, Mock, MagicMock, mock_open
 import unittest
@@ -113,7 +113,7 @@ class TestFilesystemFileUrl(unittest.TestCase):
         self.assertEqual(out, mock_new_loc)
 
     def test_rename_to_bad_target(self):
-        mock_new_loc = Mock(name='new_loc', spec=HttpFileUrl)
+        mock_new_loc = Mock(name='new_loc', spec=S3FileUrl)
         with self.assertRaises(TypeError):
             self.filesystem_file_url.rename_to(mock_new_loc)
 

@@ -8,7 +8,7 @@ class TestGoogleSheetsRecordsSource(unittest.TestCase):
     @patch('records_mover.records.sources.google_sheets.google_auth_httplib2')
     @patch('records_mover.records.sources.google_sheets.httplib2')
     @patch('records_mover.records.sources.google_sheets.DataframesRecordsSource')
-    @patch('records_mover.records.sources.google_sheets.DataFrame')
+    @patch('pandas.DataFrame')
     def test_dataframes_source_headers_from_sheet(self,
                                                   mock_DataFrame,
                                                   mock_DataframesRecordsSource,
@@ -60,7 +60,7 @@ class TestGoogleSheetsRecordsSource(unittest.TestCase):
     @patch('records_mover.records.sources.google_sheets.google_auth_httplib2')
     @patch('records_mover.records.sources.google_sheets.httplib2')
     @patch('records_mover.records.sources.google_sheets.DataframesRecordsSource')
-    @patch('records_mover.records.sources.google_sheets.DataFrame')
+    @patch('pandas.DataFrame')
     def test_dataframe_duplicate_sheet_headers(self,
                                                mock_DataFrame,
                                                mock_DataframesRecordsSource,
@@ -97,7 +97,7 @@ class TestGoogleSheetsRecordsSource(unittest.TestCase):
     @patch('records_mover.records.sources.google_sheets.google_auth_httplib2')
     @patch('records_mover.records.sources.google_sheets.httplib2')
     @patch('records_mover.records.sources.google_sheets.DataframesRecordsSource')
-    @patch('records_mover.records.sources.google_sheets.DataFrame')
+    @patch('pandas.DataFrame')
     def test_dataframe_out_of_band_headers(self,
                                            mock_DataFrame,
                                            mock_DataframesRecordsSource,
