@@ -213,6 +213,12 @@ db_jumbo_dependencies_binary = (
 
 cli_jumbo_dependencies = cli_dependencies_base + db_jumbo_dependencies_binary + pandas_dependencies
 
+literally_every_single_database_binary_dependencies = (
+    vertica_dependencies +
+    postgres_dependencies_binary +
+    redshift_dependencies_binary +
+    bigquery_dependencies
+)
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
@@ -265,6 +271,9 @@ setup(name='records-mover',
           'postgres-source': postgres_dependencies_source,
           'vertica': vertica_dependencies,
           'pandas': pandas_dependencies,
+          # don't let it be said we didn't warn you.
+          'literally_every_single_database_binary':
+          literally_every_single_database_binary_dependencies,
           'itest': itest_dependencies,
       },
       entry_points={
