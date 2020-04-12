@@ -189,7 +189,7 @@ class RecordsTargets(object):
         table, controls how any existing table found will be handled.
 
         """
-        from .spectrum import SpectrumRecordsTarget
+        from .spectrum import SpectrumRecordsTarget  # noqa
 
         yield SpectrumRecordsTarget(schema_name=schema_name,
                                     table_name=table_name,

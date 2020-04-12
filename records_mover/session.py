@@ -167,7 +167,7 @@ class Session():
 
     def _boto3_session(self) -> Optional['boto3.session.Session']:
         try:
-            import boto3
+            import boto3  # noqa
         except ModuleNotFoundError:
             logger.debug("boto3 not installed",
                          exc_info=True)
