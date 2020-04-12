@@ -103,7 +103,6 @@ google_api_client_dependencies = [
     'google-api-python-client>=1.5.0,<1.6.0',
 ]
 
-
 itest_dependencies = (
     [
         'jsonschema',  # needed for directory_validator.py
