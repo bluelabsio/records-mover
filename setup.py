@@ -202,7 +202,7 @@ vertica_dependencies = [
     # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
     # which fixed a bug pulling schema information from Vertica
     'sqlalchemy-vertica-python>=0.5.5,<0.6',
-]
+] + db_dependencies
 
 db_jumbo_dependencies_binary = (
     redshift_dependencies_binary +
