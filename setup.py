@@ -258,7 +258,6 @@ setup(name='records-mover',
           'airflow': airflow_dependencies,
           'db': db_dependencies,
           'gsheets': gsheet_dependencies,
-          # TODO: or should this be cli + cli-minimal?
           'cli': cli_dependencies_base,
           'bigquery': bigquery_dependencies,
           'aws': aws_dependencies,
