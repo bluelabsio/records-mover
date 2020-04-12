@@ -203,15 +203,6 @@ vertica_dependencies = [
     'sqlalchemy-vertica-python>=0.5.5,<0.6',
 ] + db_dependencies
 
-db_jumbo_dependencies_binary = (
-    redshift_dependencies_binary +
-    postgres_dependencies_binary +
-    vertica_dependencies +
-    bigquery_dependencies
-)
-
-cli_jumbo_dependencies = cli_dependencies_base + db_jumbo_dependencies_binary + pandas_dependencies
-
 literally_every_single_database_binary_dependencies = (
     vertica_dependencies +
     postgres_dependencies_binary +
@@ -219,7 +210,7 @@ literally_every_single_database_binary_dependencies = (
     bigquery_dependencies
 )
 
-unittest_dependencies = []
+unittest_dependencies = cli_dependencies_base
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
@@ -263,7 +254,6 @@ setup(name='records-mover',
           'gsheets': gsheet_dependencies,
           # TODO: or should this be cli + cli-minimal?
           'cli': cli_dependencies_base,
-          'cli-jumbo': cli_jumbo_dependencies,
           'bigquery': bigquery_dependencies,
           'aws': aws_dependencies,
           'redshift-binary': redshift_dependencies_binary,
