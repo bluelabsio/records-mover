@@ -304,7 +304,7 @@ workflows:
       # https://app.asana.com/0/1128138765527694/1161072974798065
       - test:
           name: test-3.6
-          extras: '[unittests]'
+          extras: '[unittest]'
           makefile_target: citest
           python_version: "3.6"
           pandas_version: "<1"
@@ -315,7 +315,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - test:
           name: test-3.7
-          extras: '[unittests]'
+          extras: '[unittest]'
           makefile_target: citest
           python_version: "3.7"
           pandas_version: ">=1"
