@@ -107,7 +107,6 @@ google_api_client_dependencies = [
 itest_dependencies = (
     [
         'jsonschema',  # needed for directory_validator.py
-        'googleapiclient'
     ] +
     # needed for records_database_fixture retrying drop/creates on
     # BigQuery
