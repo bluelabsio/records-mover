@@ -196,7 +196,6 @@ cli_dependencies_base = [
     'docstring_parser',
 ]
 
-
 vertica_dependencies = [
     # sqlalchemy-vertica-python 0.5.5 introduced
     # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
@@ -219,6 +218,8 @@ literally_every_single_database_binary_dependencies = (
     redshift_dependencies_binary +
     bigquery_dependencies
 )
+
+unittest_dependencies = []
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
@@ -275,6 +276,7 @@ setup(name='records-mover',
           'literally_every_single_database_binary':
           literally_every_single_database_binary_dependencies,
           'itest': itest_dependencies,
+          'unittest': unittest_dependencies,
       },
       entry_points={
           'console_scripts': 'mvrec = records_mover.records.cli:main',

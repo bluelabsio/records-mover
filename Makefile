@@ -33,7 +33,7 @@ test:
 	ENV=test nosetests --where=tests/unit --where=tests/unitalldeps  --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive
 
 citest:
-	ENV=test nosetests --where=tests/unit --where=tests/unitalldeps --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml
+	ENV=test nosetests --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml tests/unit tests/unitalldeps
 
 coverage:
 	python setup.py coverage_ratchet
