@@ -21,7 +21,7 @@ commands:
         description: "Version of pandas to test against"
     steps:
       - restore_cache:
-          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           command: |
@@ -43,7 +43,7 @@ commands:
               fi
             fi
       - save_cache:
-          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
 
@@ -449,7 +449,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest
-          extras: '[redshift,pandas,itest]'
+          extras: '[redshift-binary,pandas,itest]'
           python_version: "3.6"
           db_name: demo-itest
 #          requires:  # TODO
