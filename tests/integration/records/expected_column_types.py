@@ -1,8 +1,4 @@
-from typing import Dict, List, Tuple, Union
-
-# Note that Redshift doesn't support TIME type:
-# https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
-expected_column_types: Dict[Union[str, Tuple[str, str]], List[str]] = {
+expected_single_database_column_types = {
     'vertica': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME',
@@ -16,11 +12,6 @@ expected_column_types: Dict[Union[str, Tuple[str, str]], List[str]] = {
     'postgresql': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME WITHOUT TIME ZONE',
-        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
-    ],
-    ('df', 'postgresql'): [
-        'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
-        'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'TIME WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
     'bigquery': [
@@ -40,10 +31,33 @@ expected_column_types: Dict[Union[str, Tuple[str, str]], List[str]] = {
         'INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
         'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
     ],
-    ('df', 'mysql'): [
+}
+
+expected_df_loaded_database_column_types = {
+    'postgresql': [
+        'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
+        'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'TIME WITHOUT TIME ZONE',
+        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
+    ],
+    'mysql': [
         'BIGINT(20)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
         'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
     ],
+    'vertica': [
+        'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
+        'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'TIME',
+        'TIMESTAMP', 'TIMESTAMP'
+    ],
+    'redshift': [
+        'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
+        'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'VARCHAR(8)',
+        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
+    ],
+}
+
+# Note that Redshift doesn't support TIME type:
+# https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
+expected_table2table_column_types = {
     # Notes on table2table triggered results:
     #
     #
@@ -181,16 +195,6 @@ expected_column_types: Dict[Union[str, Tuple[str, str]], List[str]] = {
     ('vertica', 'redshift'): [
         'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
-    ],
-    ('df', 'vertica'): [
-        'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
-        'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'TIME',
-        'TIMESTAMP', 'TIMESTAMP'
-    ],
-    ('df', 'redshift'): [
-        'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
-        'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
 }
