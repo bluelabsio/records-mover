@@ -1,4 +1,3 @@
-import boto3
 from db_facts import db
 import os
 import base64
@@ -10,6 +9,7 @@ from db_facts.db_facts_types import DBFacts
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
     import google.auth.credentials  # noqa
+    import boto3  # noqa
 
 
 class CredsViaEnv(BaseCreds):
@@ -26,7 +26,9 @@ class CredsViaEnv(BaseCreds):
     def db_facts(self, db_creds_name: str) -> DBFacts:
         return db(db_creds_name.split('-'))
 
-    def boto3_session(self, aws_creds_name: str) -> boto3.session.Session:
+    def boto3_session(self, aws_creds_name: str) -> 'boto3.session.Session':
+        import boto3
+
         if aws_creds_name is None:
             return boto3.session.Session()
         else:

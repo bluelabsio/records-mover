@@ -7,7 +7,7 @@ from records_mover.records.schema.field.constraints import RecordsSchemaFieldStr
 class TestFieldStringConstraints(unittest.TestCase):
     maxDiff = None
 
-    @patch('records_mover.records.schema.field.representation.CreateColumn')
+    @patch('sqlalchemy.schema.CreateColumn')
     def test_from_sqlalchemy_typein_chars(self,
                                           mock_CreateColumn):
         mock_required = Mock(name='required')

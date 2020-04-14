@@ -9,13 +9,19 @@ commands:
   installvenv:
     description: "Installs dependencies in venv if needed"
     parameters:
+      extras:
+        type: string
+        default: ''
+        description: "Which pip extras to install.  If provided, must be surrounded by [] and comma separated."
       python_version:
         type: string
+        description: "Version of python to test against"
       pandas_version:
         type: string
+        description: "Version of pandas to test against"
     steps:
       - restore_cache:
-          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           command: |
@@ -24,11 +30,11 @@ commands:
               . venv/bin/activate
               # venv/ dir doesn't seem to save enough info to keep the
               # editable installation
-              pip install --progress-bar=off -e '.[movercli]'
+              pip install --progress-bar=off -e '.<<parameters.extras>>'
             else
               python -m venv venv
               . venv/bin/activate
-              pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
+              pip install --progress-bar=off -r requirements.txt -e '.<<parameters.extras>>'
               if [ '<<parameters.pandas_version>>' != '' ]
               then
                 pip install --upgrade --progress-bar=off 'pandas<<parameters.pandas_version>>'
@@ -37,7 +43,7 @@ commands:
               fi
             fi
       - save_cache:
-          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
   wait_for_db:
@@ -67,6 +73,10 @@ commands:
 jobs:
   test:
     parameters:
+      extras:
+        type: string
+        default: ''
+        description: "Which pip extras to install.  If provided, must be surrounded by [] and comma separated."
       python_version:
         type: string
         description: "Version of python to test against"
@@ -89,6 +99,7 @@ jobs:
             # Bluelabs Butler Key
             - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
       - installvenv:
+          extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
       - run:
@@ -130,6 +141,10 @@ jobs:
 
   integration_test_with_dbs:
     parameters:
+      extras:
+        type: string
+        default: ''
+        description: "Which pip extras to install.  If provided, must be surrounded by [] and comma separated."
       python_version:
         type: string
         description: "Version of python to test against"
@@ -162,6 +177,7 @@ jobs:
             # Bluelabs Butler Key
             - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
       - installvenv:
+          extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: '<1'
       - run:
@@ -215,6 +231,9 @@ jobs:
 
   integration_test:
     parameters:
+      extras:
+        type: string
+        description: "Which pip extras to install.  If provided, must be surrounded by [] and comma separated."
       python_version:
         type: string
         description: "Version of python to test against"
@@ -233,6 +252,7 @@ jobs:
             # Bluelabs Butler Key
             - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
       - installvenv:
+          extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
       - run:
@@ -252,6 +272,10 @@ jobs:
 
   deploy:
     parameters:
+      extras:
+        type: string
+        default: ''
+        description: "Which pip extras to install.  If provided, must be surrounded by [] and comma separated."
       python_version:
         type: string
         description: "Version of python to test against"
@@ -261,6 +285,7 @@ jobs:
     steps:
       - checkout
       - installvenv:
+          extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: '<1'
       - run:
@@ -311,6 +336,7 @@ workflows:
       # https://app.asana.com/0/1128138765527694/1161072974798065
       - test:
           name: test-3.6
+          extras: '[unittest]'
           python_version: "3.6"
           pandas_version: "<1"
           requires:
@@ -320,6 +346,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - test:
           name: test-3.7
+          extras: '[unittest]'
           python_version: "3.7"
           pandas_version: ">=1"
           requires:
@@ -329,6 +356,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - test:
           name: test-3.8
+          extras: '[unittest]'
           python_version: "3.8"
           pandas_version: ">=1"
           coverage: true
@@ -337,6 +365,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: vertica-no-s3-itest
+          extras: '[vertica,itest]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -354,6 +383,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: postgres-itest
+          extras: '[postgres-binary,itest]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -386,6 +416,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: vertica-s3-itest
+          extras: '[vertica,aws,itest]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -402,6 +433,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-1-itest
+          extras: '[cli,gsheets,vertica]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -418,6 +450,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-2-itest
+          extras: '[cli,gsheets,vertica]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -434,6 +467,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-3-itest
+          extras: '[cli,gsheets,vertica]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
@@ -450,6 +484,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest
+          extras: '[redshift-binary,itest]'
           python_version: "3.6"
           db_name: demo-itest
           requires:
@@ -459,6 +494,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest-old-pandas
+          extras: '[redshift-binary,itest]'
           python_version: "3.6"
           pandas_version: "<1"
           db_name: demo-itest
@@ -469,6 +505,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-itest-no-pandas
+          extras: '[redshift-binary,itest]'
           python_version: "3.6"
           pandas_version: ""
           db_name: demo-itest
@@ -479,6 +516,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: bigquery-itest
+          extras: '[bigquery,itest]'
           python_version: "3.6"
           db_name: bltoolsdevbq-bq_itest
           requires:
@@ -488,6 +526,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: tbl2tbl-itest
+          extras: '[literally_every_single_database_binary,itest]'
           python_version: "3.6"
           command: |
             . venv/bin/activate

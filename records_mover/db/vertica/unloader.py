@@ -1,6 +1,5 @@
 from records_mover.db.quoting import quote_value
 import sqlalchemy
-from typing import Iterator, Optional, Union, List
 from contextlib import contextmanager
 from ...records.unload_plan import RecordsUnloadPlan
 from ...records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
@@ -8,12 +7,14 @@ from ...url.base import BaseDirectoryUrl
 from ..errors import (NoTemporaryBucketConfiguration, LoadUnloadError,
                       CredsDoNotSupportS3Export, DatabaseDoesNotSupportS3Export)
 from ...records.records_directory import RecordsDirectory
-from botocore.credentials import Credentials
 from .export_sql import vertica_export_sql
 from .records_export_options import vertica_export_options
 from ...records.hints import complain_on_unhandled_hints
 from ..unloader import Unloader
 import logging
+from typing import Iterator, Optional, Union, List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from botocore.credentials import Credentials  # noqa
 
 
 logger = logging.getLogger(__name__)
@@ -86,7 +87,7 @@ class VerticaUnloader(Unloader):
         if not callable(getattr(loc, 'aws_creds')):
             raise NotImplementedError('No AWS creds loaded into location')
 
-        aws_creds: Optional[Credentials] = directory.loc.aws_creds()  # type: ignore
+        aws_creds: Optional['Credentials'] = directory.loc.aws_creds()  # type: ignore
         if aws_creds is None:
             raise CredsDoNotSupportS3Export('Please provide AWS credentials (run "aws configure")')
         if aws_creds.token is not None:

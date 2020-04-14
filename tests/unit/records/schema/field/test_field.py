@@ -46,7 +46,7 @@ class TestField(unittest.TestCase):
                                processing_instructions=mock_processing_instructions)
         self.assertEqual(out, mock_field_from_index.return_value)
 
-    @patch('records_mover.records.schema.field.field_from_sqlalchemy_column')
+    @patch('records_mover.records.schema.field.sqlalchemy.field_from_sqlalchemy_column')
     def test_from_sqlalchemy_column(self, mock_field_from_sqlalchemy_column):
         mock_column = Mock(name='column')
         mock_driver = Mock(name='driver')
@@ -60,7 +60,7 @@ class TestField(unittest.TestCase):
                                rep_type=mock_rep_type)
         self.assertEqual(out, mock_field_from_sqlalchemy_column.return_value)
 
-    @patch('records_mover.records.schema.field.field_to_sqlalchemy_type')
+    @patch('records_mover.records.schema.field.sqlalchemy.field_to_sqlalchemy_type')
     def test_to_sqlalchemy_type(self, mock_field_to_sqlalchemy_type):
         mock_driver = Mock(name='driver')
         mock_name = Mock(name='name')
@@ -77,7 +77,7 @@ class TestField(unittest.TestCase):
         mock_field_to_sqlalchemy_type.assert_called_with(field, mock_driver)
         self.assertEqual(out, mock_field_to_sqlalchemy_type.return_value)
 
-    @patch('records_mover.records.schema.field.field_to_sqlalchemy_column')
+    @patch('records_mover.records.schema.field.sqlalchemy.field_to_sqlalchemy_column')
     def test_to_sqlalchemy_column(self, mock_field_to_sqlalchemy_column):
         mock_driver = Mock(name='driver')
         mock_name = Mock(name='name')

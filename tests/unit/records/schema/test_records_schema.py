@@ -46,7 +46,7 @@ class TestRecordsSchema(unittest.TestCase):
                             known_representations={})
         self.assertEqual(str(obj), "RecordsSchema(types={})")
 
-    @patch('records_mover.records.schema.schema.schema_to_schema_sql')
+    @patch('records_mover.records.schema.schema.sqlalchemy.schema_to_schema_sql')
     def test_to_schema_sql(self, mock_schema_to_schema_sql):
         mock_driver = Mock(name='driver')
         mock_schema_name = Mock(name='schema_name')

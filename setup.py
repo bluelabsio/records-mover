@@ -99,13 +99,129 @@ class MypyCoverageRatchetCommand(CoverageRatchetCommand):
         self.coverage_source_file = "typecover/cobertura.xml"
 
 
+google_api_client_dependencies = [
+    'google-api-python-client>=1.5.0,<1.6.0',
+]
+
+itest_dependencies = (
+    [
+        'jsonschema',  # needed for directory_validator.py
+    ] +
+    # needed for records_database_fixture retrying drop/creates on
+    # BigQuery
+    google_api_client_dependencies
+)
+
+airflow_dependencies = [
+    'apache-airflow>=1.10,<2'
+]
+
+db_dependencies = [
+    # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
+    #
+    # sqlalchemy 1.3.16 seems to have (accidentally?) introduced
+    # a breaking change that affects sqlalchemy-redshift:
+    #
+    # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
+    'sqlalchemy!=1.3.16',
+]
+
+bigquery_dependencies = [
+    # This is currently vendored in
+    # records_mover/db/postgres/sqlalchemy_postgres_copy.py but
+    # once this PR is merged and a new version published, we can
+    # use the new upstream version:
+    #
+    # https://github.com/jmcarp/sqlalchemy-postgres-copy/pull/14
+    #
+    # 'sqlalchemy-postgres-copy>=0.5,<0.6',
+    'pybigquery',
+] + db_dependencies
+
+aws_dependencies = [
+    'awscli>=1,<2',
+    'boto>=2,<3',
+    'boto3',
+    # we rely on exception types from smart_open,
+    # which seem to change in feature releases
+    # without a major version bump
+    'smart_open>=1.8.4,<1.9.0',
+    's3-concat>=0.1.7,<0.2'
+]
+
 gsheet_dependencies = [
     'google',
     'google_auth_httplib2',
-    'google-api-python-client>=1.5.0,<1.6.0',
     'oauth2client>=2.0.2,<2.1.0',
     'PyOpenSSL'
+] + google_api_client_dependencies
+
+parquet_dependencies = [
+    'pyarrow'
 ]
+
+pandas_dependencies = [
+    'pandas<2',
+]
+
+mysql_dependencies = [
+    'mysqlclient'
+] + db_dependencies
+
+redshift_dependencies_base = [
+    # sqlalchemy-redshift 0.7.7 introduced support for Parquet
+    # in UNLOAD
+    'sqlalchemy-redshift>=0.7.7',
+] + aws_dependencies + db_dependencies
+
+redshift_dependencies_binary = [
+    'psycopg2-binary',
+] + redshift_dependencies_base
+
+redshift_dependencies_source = [
+    'psycopg2',
+] + redshift_dependencies_base
+
+postgres_depencencies_base = db_dependencies
+
+postgres_dependencies_binary = [
+    'psycopg2-binary',
+] + postgres_depencencies_base
+
+postgres_dependencies_source = [
+    'psycopg2',
+] + postgres_depencencies_base
+
+cli_dependencies_base = [
+    'odictliteral',
+    'jsonschema',
+    'typing_inspect',
+    'docstring_parser',
+]
+
+vertica_dependencies = [
+    # sqlalchemy-vertica-python 0.5.5 introduced
+    # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
+    # which fixed a bug pulling schema information from Vertica
+    'sqlalchemy-vertica-python>=0.5.5,<0.6',
+] + db_dependencies
+
+literally_every_single_database_binary_dependencies = (
+    vertica_dependencies +
+    postgres_dependencies_binary +
+    redshift_dependencies_binary +
+    bigquery_dependencies +
+    mysql_dependencies
+)
+
+unittest_dependencies = (
+    cli_dependencies_base +
+    airflow_dependencies +
+    gsheet_dependencies +
+    literally_every_single_database_binary_dependencies +
+    aws_dependencies +
+    pandas_dependencies
+)
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
@@ -125,9 +241,7 @@ setup(name='records-mover',
           'records_mover': ['py.typed']
       },
       install_requires=[
-          'boto>=2,<3', 'boto3',
-          'jsonschema', 'timeout_decorator',
-          'awscli>=1,<2',
+          'timeout_decorator',
           # awscli pins PyYAML below 5.3 so they can maintain support
           # for old versions of Python.  This can cause issues at
           # run-time if we don't constrain things here as well, as a
@@ -139,49 +253,30 @@ setup(name='records-mover',
           #
           # https://github.com/aws/aws-cli/blob/develop/setup.py
           'PyYAML<5.3',
-          'mysqlclient',
-          # sqlalchemy-vertica-python 0.5.5 introduced
-          # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
-          # which fixed a bug pulling schema information from Vertica
-          'sqlalchemy-vertica-python>=0.5.5,<0.6',
-          # sqlalchemy-redshift 0.7.7 introduced support for Parquet
-          # in UNLOAD
-          'sqlalchemy-redshift>=0.7.7',
-          # This is currently vendored in
-          # records_mover/db/postgres/sqlalchemy_postgres_copy.py but
-          # once this PR is merged and a new version published, we can
-          # use the new upstream version:
-          #
-          # https://github.com/jmcarp/sqlalchemy-postgres-copy/pull/14
-          #
-          # 'sqlalchemy-postgres-copy>=0.5,<0.6',
-          'pybigquery',
-          # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
-          #
-          # sqlalchemy 1.3.16 seems to have (accidentally?) introduced
-          # a breaking change that affects sqlalchemy-redshift:
-          #
-          # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
-          'sqlalchemy!=1.3.16',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
           'db-facts>=3,<4',
-          'odictliteral',
-          # we rely on exception types from smart_open,
-          # which seem to change in feature releases
-          # without a major version bump
-          'smart_open>=1.8.4,<1.9.0',
           'chardet',
-          's3-concat>=0.1.7,<0.2'
           'tenacity>=6<7'
       ],
       extras_require={
+          'airflow': airflow_dependencies,
+          'db': db_dependencies,
           'gsheets': gsheet_dependencies,
-          'movercli': gsheet_dependencies + ['typing_inspect',
-                                             'docstring_parser',
-                                             'psycopg2-binary',
-                                             'pandas<2',
-                                             'pyarrow'],
+          'cli': cli_dependencies_base,
+          'bigquery': bigquery_dependencies,
+          'aws': aws_dependencies,
+          'redshift-binary': redshift_dependencies_binary,
+          'redshift-source': redshift_dependencies_source,
+          'postgres-binary': postgres_dependencies_binary,
+          'postgres-source': postgres_dependencies_source,
+          'vertica': vertica_dependencies,
+          'pandas': pandas_dependencies,
+          # don't let it be said we didn't warn you.
+          'literally_every_single_database_binary':
+          literally_every_single_database_binary_dependencies,
+          'itest': itest_dependencies,
+          'unittest': unittest_dependencies,
       },
       entry_points={
           'console_scripts': 'mvrec = records_mover.records.cli:main',

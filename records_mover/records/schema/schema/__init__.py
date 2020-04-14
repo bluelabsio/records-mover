@@ -1,6 +1,5 @@
 import logging
 import json
-from .sqlalchemy import schema_from_db_table, schema_to_schema_sql
 from typing import List, Dict, Mapping, IO, Any, TYPE_CHECKING
 from ..field import RecordsSchemaField
 from ...records_format import BaseRecordsFormat
@@ -42,6 +41,7 @@ class RecordsSchema:
 
     @staticmethod
     def from_db_table(schema_name: str, table_name: str, driver: 'DBDriver') -> 'RecordsSchema':
+        from .sqlalchemy import schema_from_db_table
         return schema_from_db_table(schema_name=schema_name,
                                     table_name=table_name,
                                     driver=driver)
@@ -95,6 +95,7 @@ class RecordsSchema:
                       driver: 'DBDriver',
                       schema_name: str,
                       table_name: str) -> str:
+        from .sqlalchemy import schema_to_schema_sql
         return schema_to_schema_sql(records_schema=self,
                                     driver=driver,
                                     schema_name=schema_name,

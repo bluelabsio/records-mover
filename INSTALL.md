@@ -1,29 +1,40 @@
 # Installing Records Mover
 
-You can install records-mover with the following 'extras':
+You can install records-mover with a number of 'extras'.  See
+[setup.py](./setup.py) and the `extras_require` section for a full
+list.  In general, you'll need to explicitly spell out which databases
+you want to be able to move between (check `setup.py` for the list
+available), as well as for most sources and targets.
 
-* `pip3 install records-mover` - Install minimal version, not
-  including `pandas` (needed only for local data copy), `psycopg2`
-  (needed for Redshift or PostgreSQL connections) or `pyarrow` (needed
-  for local Parquet manipulation).
-* `pip3 install records-mover[gsheets]` - Minimal install plus API
-  libraries to access Google Sheets.
-* `pip3 install records-mover[movercli]` - Install everything and
-  make assumptions compatible with using mvrec on the command line.
-  Installs `pandas`, `psycopg2-binary` and `pyarrow`.
+Example:
 
-  Don't use this extra if you plan on using the library because of the
-  `psycopg2-binary` risk below.
+* `pip3 install records-mover` - Install minimal version.  Not able to
+  connect to databases, deal with dataframes either as input or as an
+  intermediary format, etc.  Generally not terribly useful.
+* `pip3 install records-mover[gsheets,pandas]` - Minimal install plus
+  libraries to access Google Sheets and manipulate Pandas DataFrames.
+* `pip3 install records-mover[cli,redshift-binary,pandas,parquet]` -
+  Install enough things to be able to use the `mvrec` command line,
+  talk to the Redshift database, and use Parquet internally and/or as
+  an input/output.  Installs `pandas`, `psycopg2-binary` and
+  `pyarrow`, among others.
+
+  You might consider `redshift-source` if you plan on using
+  records-mover as a library because of the `psycopg2-binary` risk
+  below.
 
 ## Why this is complicated
 
-Records mover relies on a number of external libraries.  Here are some
-things to keep in mind when using `pip install`:
+Records mover relies on a number of external libraries.  Each database
+comes with its own driver, some of which depend on binary libraries
+which may need to be installed in your OS.
+
+Indeed, some of those are even difficult to install.  Some examples:
 
 ### pandas
 
-Only when installing with `pip3 install 'records-mover[movercli]'`
-will you get pandas installed by default.
+Only when installing with `pip3 install 'records-mover[pandas]'` will
+you get pandas installed by default.
 
 Pandas a large dependency which is needed in cases where we need to
 process data locally.  If you are using cloud-native import/export
@@ -48,8 +59,9 @@ result:
   other code that might be using libssl from a different source.
 * `psycopg2cffi` - The version to use if you use `pypy`
 
-If you are using the mvrec command line only, you can use `pip3
-install 'records-mover[movercli]` and it just uses `psycopg2-binary`.
+If you are using the `mvrec` command line only, you can use `pip3
+install 'records-mover[cli,postgres-binary,redshift-binary]` and it
+will just use `psycopg2-binary`.
 
 ### pyarrow
 

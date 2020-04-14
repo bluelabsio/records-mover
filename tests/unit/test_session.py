@@ -6,7 +6,7 @@ import unittest
 @patch('records_mover.session.subprocess')
 @patch('records_mover.session.os')
 class TestSession(unittest.TestCase):
-    @patch('records_mover.session.engine_from_db_facts')
+    @patch('records_mover.db.connect.engine_from_db_facts')
     def test_get_db_engine(self,
                            mock_engine_from_db_facts,
                            mock_os,
@@ -39,7 +39,7 @@ class TestSession(unittest.TestCase):
         self.assertEqual(session.creds, mock_creds)
 
     @patch('records_mover.session.db_facts_from_env')
-    @patch('records_mover.session.engine_from_db_facts')
+    @patch('records_mover.db.connect.engine_from_db_facts')
     def test_get_default_db_engine_no_default(self,
                                               mock_engine_from_db_facts,
                                               mock_db_facts_from_env,

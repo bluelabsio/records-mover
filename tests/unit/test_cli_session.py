@@ -11,12 +11,12 @@ from mock import patch, Mock
     'AWS_ACCESS_KEY_ID': 'aws access key',
 })
 class TestCLISession(unittest.TestCase):
-    @patch('records_mover.session.db_driver')
+    @patch('records_mover.db.factory.db_driver')
     @patch('records_mover.session.UrlResolver')
-    @patch('records_mover.session.boto3')
+    @patch('boto3.session')
     @patch.dict('os.environ', {}, clear=True)
     def test_db_driver_with_guessed_bucket_url(self,
-                                               mock_boto3,
+                                               mock_boto3_session,
                                                mock_UrlResolver,
                                                mock_db_driver,
                                                mock_subprocess,
@@ -32,8 +32,8 @@ class TestCLISession(unittest.TestCase):
         mock_url_resolver = mock_UrlResolver.return_value
         mock_url_resolver.directory_url.assert_called_with('s3://chrisp-scratch/')
 
-        mock_session = mock_boto3.session.Session.return_value
-        mock_boto3.session.Session.assert_called_with()
+        mock_session = mock_boto3_session.Session.return_value
+        mock_boto3_session.Session.assert_called_with()
         mock_UrlResolver.assert_called_with(boto3_session=mock_session)
         mock_directory_url = mock_UrlResolver.return_value.directory_url
         mock_db_driver.assert_called_with(db=mock_db,
@@ -53,7 +53,7 @@ class TestCLISession(unittest.TestCase):
         self.assertEqual(mock_CredsViaLastPass.return_value, context.creds)
 
     @patch('records_mover.session.CredsViaLastPass')
-    @patch('records_mover.session.engine_from_db_facts')
+    @patch('records_mover.db.connect.engine_from_db_facts')
     def test_get_default_db_engine_from_name(self,
                                              mock_engine_from_db_facts,
                                              mock_CredsViaLastPass,

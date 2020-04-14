@@ -4,7 +4,7 @@ from records_mover.db.factory import db_driver
 
 
 class TestFactory(unittest.TestCase):
-    @patch('records_mover.db.factory.VerticaDBDriver')
+    @patch('records_mover.db.vertica.vertica_db_driver.VerticaDBDriver')
     def test_db_driver_vertica(self,
                                mock_VerticaDBDriver):
         mock_db = Mock(name='db')
@@ -13,7 +13,7 @@ class TestFactory(unittest.TestCase):
         out = db_driver(mock_db)
         self.assertEqual(out, mock_VerticaDBDriver.return_value)
 
-    @patch('records_mover.db.factory.RedshiftDBDriver')
+    @patch('records_mover.db.redshift.redshift_db_driver.RedshiftDBDriver')
     def test_db_driver_redshift(self,
                                 mock_RedshiftDBDriver):
         mock_db = Mock(name='db')
@@ -22,7 +22,7 @@ class TestFactory(unittest.TestCase):
         out = db_driver(mock_db)
         self.assertEqual(out, mock_RedshiftDBDriver.return_value)
 
-    @patch('records_mover.db.factory.BigQueryDBDriver')
+    @patch('records_mover.db.bigquery.bigquery_db_driver.BigQueryDBDriver')
     def test_db_driver_bigquery(self,
                                 mock_BigQueryDBDriver):
         mock_db = Mock(name='db')

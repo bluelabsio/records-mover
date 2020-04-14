@@ -2,7 +2,6 @@ import pytz
 import logging
 from .base_records_test import BaseRecordsIntegrationTest
 import datetime
-from odictliteral import odict
 from ..table_validator import RecordsTableValidator
 
 
@@ -19,7 +18,7 @@ class RecordsLoadDataframeIntegrationTest(BaseRecordsIntegrationTest):
 
         us_eastern = pytz.timezone('US/Eastern')
 
-        df = DataFrame.from_dict([odict[
+        df = DataFrame.from_dict([{
             'num': 123,
             'numstr': '123',
             'str': 'foo',
@@ -32,7 +31,7 @@ class RecordsLoadDataframeIntegrationTest(BaseRecordsIntegrationTest):
             'time': datetime.time(0, 0),
             'timestamp': datetime.datetime(2000, 1, 2, 12, 34, 56, 789012),
             'timestamptz': us_eastern.localize(datetime.datetime(2000, 1, 2, 12, 34, 56, 789012))
-        ]])
+        }])
 
         with self.records.sources.dataframe(df=df) as source,\
             self.records.targets.table(schema_name=self.schema_name,
