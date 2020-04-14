@@ -1,32 +1,29 @@
+from typing import Dict, List, Tuple, Union
+
 # Note that Redshift doesn't support TIME type:
 # https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
-expected_column_types = [
-    # Vertica
-    [
+expected_column_types: Dict[Union[str, Tuple[str, str]], List[str]] = {
+    'vertica': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME',
         'TIMESTAMP', 'TIMESTAMP'
     ],
-    # Redshift
-    [
+    'redshift': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    # Postgres
-    [
+    'postgres': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    # Postgres when loaded from a dataframe
-    [
+    ('df', 'postgres'): [
         'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
         'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'TIME WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    # BigQuery
-    [
+    'bigquery': [
         "<class 'sqlalchemy.sql.sqltypes.Integer'>",
         "<class 'sqlalchemy.sql.sqltypes.String'>",
         "<class 'sqlalchemy.sql.sqltypes.String'>",
@@ -39,13 +36,11 @@ expected_column_types = [
         "<class 'sqlalchemy.sql.sqltypes.DATETIME'>",
         "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>"
     ],
-    # MySQL
-    [
+    'mysql': [
         'INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
         'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
     ],
-    # MySQL when loaded from a dataframe
-    [
+    ('df', 'mysql'): [
         'BIGINT(20)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
         'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
     ],
@@ -94,49 +89,41 @@ expected_column_types = [
     #
     #
     #
-    # postgres2postgres
-    [
+    ('postgres', 'postgres'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    # postgres2vertica
-    [
+    ('postgres', 'vertica'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME',
         'TIMESTAMP', 'TIMESTAMP'
     ],
-    # postgres2redshift
-    [
+    ('postgres', 'redshift'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    # redshift2vertica
-    [
+    ('redshift', 'vertica'): [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP', 'TIMESTAMP'
     ],
-    # bigquery2redshift
-    [
+    ('bigquery', 'redshift'): [
         'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    # bigquery2postgres
-    [
+    ('bigquery', 'postgres'): [
         'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    # bigquery2vertica
-    [
+    ('bigquery', 'vertica'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME', 'TIMESTAMP', 'TIMESTAMP'
     ],
-    # redshift2bigquery
-    [
+    ('redshift', 'bigquery'): [
         "<class 'sqlalchemy.sql.sqltypes.Integer'>",
         "<class 'sqlalchemy.sql.sqltypes.String'>",
         "<class 'sqlalchemy.sql.sqltypes.String'>",
@@ -149,8 +136,7 @@ expected_column_types = [
         "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>",
         "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>",
     ],
-    # mysql2bigquery
-    [
+    ('mysql', 'bigquery'): [
         "<class 'sqlalchemy.sql.sqltypes.Integer'>",
         "<class 'sqlalchemy.sql.sqltypes.String'>",
         "<class 'sqlalchemy.sql.sqltypes.String'>",
@@ -163,57 +149,48 @@ expected_column_types = [
         "<class 'sqlalchemy.sql.sqltypes.DATETIME'>",
         "<class 'sqlalchemy.sql.sqltypes.DATETIME'>"
     ],
-    # redshift2mysql
-    [
+    ('redshift', 'mysql'): [
         'INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
         'VARCHAR(111)', 'DATE', 'VARCHAR(8)', 'DATETIME(6)', 'DATETIME(6)'
     ],
-    # postgres2mysql
-    [
+    ('postgres', 'mysql'): [
         'INTEGER(11)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)',
         'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
     ],
-    # bigquery2mysql
-    [
+    ('bigquery', 'mysql'): [
         'BIGINT(20)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)',
         'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
     ],
-    # mysql2postgres
-    [
+    ('mysql', 'postgres'): [
         'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)',
         'VARCHAR(444)', 'DATE', 'TIME WITHOUT TIME ZONE', 'TIMESTAMP WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE'
     ],
-    # mysql2redshift
-    [
+    ('mysql', 'redshift'): [
         'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)',
         'VARCHAR(444)', 'DATE', 'VARCHAR(8)', 'TIMESTAMP WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE'
     ],
-    # vertica2postgres
-    [
+    ('vertica', 'postgres'): [
         'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    # vertica2redshift
-    [
+    ('vertica', 'redshift'): [
         'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    # Vertica when loaded from a dataframe
-    [
+    ('df', 'vertica'): [
         'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
         'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'TIME',
         'TIMESTAMP', 'TIMESTAMP'
     ],
-    # Redshift when loaded from a dataframe
-    [
+    ('df', 'redshift'): [
         'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
         'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-]
+}

@@ -112,7 +112,19 @@ class RecordsTableValidator:
             return str(column['type']) + suffix
 
         actual_column_types = [format_type(column) for column in columns]
-        assert actual_column_types in expected_column_types, actual_column_types
+        if self.source_db_engine is None:
+            if self.file_variant is None:
+                assert actual_column_types ==\
+                    expected_column_types[('df', self.target_db_engine.name)],\
+                    f'Could not find column types filed under ' +\
+                    f"{('df', self.target_db_engine.name)}: " +\
+                    f'{actual_column_types}'
+            else:
+                assert actual_column_types == expected_column_types[self.target_db_engine.name],\
+                    f'Could not find column types filed under {self.target_db_engine.name}: ' +\
+                    f'{actual_column_types}'
+        else:
+            assert False, f'Invalid column types: {actual_column_types}'
 
     def supported_load_variants(self, db_engine: Engine) -> List[DelimitedVariant]:
         if db_engine.name == 'bigquery':
