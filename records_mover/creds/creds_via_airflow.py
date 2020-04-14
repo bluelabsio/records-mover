@@ -1,17 +1,18 @@
 from .base_creds import BaseCreds
-import boto3
 import logging
 from db_facts.db_facts_types import DBFacts
 from typing import Iterable, Optional, Union, TYPE_CHECKING
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
     import google.auth.credentials  # noqa
+    import boto3  # noqa
+
 
 logger = logging.getLogger(__name__)
 
 
 class CredsViaAirflow(BaseCreds):
-    def boto3_session(self, aws_creds_name: str) -> boto3.session.Session:
+    def boto3_session(self, aws_creds_name: str) -> 'boto3.session.Session':
         from airflow.contrib.hooks.aws_hook import AwsHook
         aws_hook = AwsHook(aws_creds_name)
         return aws_hook.get_session()

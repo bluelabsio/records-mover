@@ -8,7 +8,6 @@ from records_mover.records import (
 import tempfile
 import pathlib
 import datetime
-from odictliteral import odict
 
 
 logger = logging.getLogger(__name__)
@@ -25,7 +24,7 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
         if processing_instructions is None:
             processing_instructions = ProcessingInstructions()
         us_eastern = pytz.timezone('US/Eastern')
-        df = DataFrame.from_dict([odict[
+        df = DataFrame.from_dict([{
             'num': 123,
             'numstr': '123',
             'str': 'foo',
@@ -38,7 +37,7 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
             'time': datetime.time(0, 0),
             'timestamp': datetime.datetime(2000, 1, 2, 12, 34, 56, 789012),
             'timestamptz': us_eastern.localize(datetime.datetime(2000, 1, 2, 12, 34, 56, 789012))
-        ]])
+        }])
 
         records_schema = RecordsSchema.from_dataframe(df,
                                                       processing_instructions,

@@ -25,8 +25,8 @@ class TestCredsViaEnv(unittest.TestCase):
         mock_db.assert_called_with(['foo', 'bar', 'baz'])
         self.assertEqual(out, mock_db.return_value)
 
-    @patch('records_mover.creds.creds_via_env.boto3')
-    def test_boto3_session(self, mock_boto3):
+    @patch('boto3.session')
+    def test_boto3_session(self, mock_boto3_session):
         creds_via_env = CredsViaEnv()
         out = creds_via_env.boto3_session(None)
-        self.assertEqual(out, mock_boto3.session.Session.return_value)
+        self.assertEqual(out, mock_boto3_session.Session.return_value)

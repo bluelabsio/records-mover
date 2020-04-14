@@ -1,19 +1,18 @@
 import pathlib
 from ...url.resolver import UrlResolver
-from sqlalchemy.engine import Engine, Connection
-from ...db import DBDriver
 from contextlib import contextmanager
 from ..records_format import BaseRecordsFormat
-from .table import TableRecordsTarget
 from .fileobj import FileobjTarget
 from .directory_from_url import DirectoryFromUrlRecordsTarget
-from .spectrum import SpectrumRecordsTarget
 from .data_url import DataUrlTarget
 from typing import Callable, Iterator, Optional, Union, Dict, List, IO, TYPE_CHECKING
 from ..existing_table_handling import ExistingTableHandling
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
     import google.auth.credentials  # noqa
+    from sqlalchemy.engine import Engine, Connection  # noqa
+    from ...db import DBDriver  # noqa
+    from .spectrum import SpectrumRecordsTarget  # noqa
     from .google_sheets import GoogleSheetsRecordsTarget  # noqa
     from .table import TableRecordsTarget  # noqa
     from .directory_from_url import DirectoryFromUrlRecordsTarget  # noqa
@@ -37,7 +36,7 @@ class RecordsTargets(object):
     """
     def __init__(self,
                  url_resolver: UrlResolver,
-                 db_driver: Callable[[Union[Engine, Connection]], DBDriver]) -> None:
+                 db_driver: Callable[[Union['Engine', 'Connection']], 'DBDriver']) -> None:
         self.url_resolver = url_resolver
         self.db_driver = db_driver
 
@@ -60,7 +59,7 @@ class RecordsTargets(object):
 
     @contextmanager
     def table(self,
-              db_engine: Engine,
+              db_engine: 'Engine',
               schema_name: str,
               table_name: str,
               existing_table_handling: ExistingTableHandling=
@@ -164,7 +163,7 @@ class RecordsTargets(object):
     def spectrum(self,
                  schema_name: str,
                  table_name: str,
-                 db_engine: Engine,
+                 db_engine: 'Engine',
                  spectrum_base_url: Optional[str]=None,
                  spectrum_rdir_url: Optional[str]=None,
                  existing_table_handling: ExistingTableHandling=
@@ -190,6 +189,8 @@ class RecordsTargets(object):
         table, controls how any existing table found will be handled.
 
         """
+        from .spectrum import SpectrumRecordsTarget  # noqa
+
         yield SpectrumRecordsTarget(schema_name=schema_name,
                                     table_name=table_name,
                                     db_engine=db_engine,
