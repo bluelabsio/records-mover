@@ -57,7 +57,7 @@ class RecordsDirectoryValidator:
                 'string', 'string', 'string', 'date', 'time',
                 'datetime', 'datetimetz'
             ]
-            if actual_field_types in ideal_field_types:
+            if actual_field_types == ideal_field_types:
                 field_types_are_ok = True
             else:
                 acceptable_field_types_by_db = {
@@ -70,8 +70,7 @@ class RecordsDirectoryValidator:
                     ]
                 }
                 for db_type in db_types_used_in_process:
-                    if actual_field_types in acceptable_field_types_by_db[db_type]:
-                        nonlocal field_types_are_ok
+                    if actual_field_types == acceptable_field_types_by_db[db_type]:
                         field_types_are_ok = True
 
             assert field_types_are_ok,\
