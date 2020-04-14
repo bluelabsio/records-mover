@@ -71,6 +71,7 @@ class RecordsDirectoryValidator:
                 }
                 for db_type in db_types_used_in_process:
                     if actual_field_types in acceptable_field_types_by_db[db_type]:
+                        nonlocal field_types_are_ok
                         field_types_are_ok = True
 
             assert field_types_are_ok,\
