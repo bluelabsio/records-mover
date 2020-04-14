@@ -131,7 +131,7 @@ class RecordsTableValidator:
                                                 self.target_db_engine.name)),
                      expected_column_types[self.source_db_engine.name],
                      expected_column_types[self.target_db_engine.name],
-                     expected_column_types.get(('df', self.target_db_engine.name),)),\
+                     expected_column_types.get(('df', self.target_db_engine.name))),\
                      f'Could not find column types filed under '\
                      f"{(self.source_db_engine.name, self.target_db_engine.name)} "\
                      'or either individually: '\
