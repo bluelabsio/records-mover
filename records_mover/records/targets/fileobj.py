@@ -6,7 +6,6 @@ from ..results import MoveResult
 from ..processing_instructions import ProcessingInstructions
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from ..hints import complain_on_unhandled_hints
-from records_mover.records.pandas import prep_df_for_csv_output
 import logging
 from typing import IO, Union, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -28,6 +27,7 @@ class FileobjTarget(SupportsMoveFromDataframes):
                                     processing_instructions:
                                     ProcessingInstructions) -> MoveResult:
         from ..pandas import pandas_to_csv_options
+        from records_mover.records.pandas import prep_df_for_csv_output
 
         if not isinstance(self.records_format, DelimitedRecordsFormat):
             raise NotImplementedError("Teach me to export from dataframe to "

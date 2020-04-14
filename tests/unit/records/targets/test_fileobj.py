@@ -6,7 +6,7 @@ from mock import patch, Mock, ANY
 
 
 class TestFileobjTarget(unittest.TestCase):
-    @patch('records_mover.records.targets.fileobj.prep_df_for_csv_output')
+    @patch('records_mover.records.pandas.prep_df_for_csv_output')
     @patch('records_mover.records.targets.fileobj.io')
     @patch('records_mover.records.targets.fileobj.complain_on_unhandled_hints')
     def test_move_from_dataframe_uncompressed_no_header_row(self,
@@ -60,7 +60,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             sep=',')
         self.assertEqual(out, MoveResult(move_count=2, output_urls=None))
 
-    @patch('records_mover.records.targets.fileobj.prep_df_for_csv_output')
+    @patch('records_mover.records.pandas.prep_df_for_csv_output')
     @patch('records_mover.records.targets.fileobj.io')
     @patch('records_mover.records.targets.fileobj.complain_on_unhandled_hints')
     def test_move_from_dataframe_uncompressed_with_header_row(self,
@@ -114,7 +114,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             sep=',')
         self.assertEqual(out, MoveResult(move_count=2, output_urls=None))
 
-    @patch('records_mover.records.targets.fileobj.prep_df_for_csv_output')
+    @patch('records_mover.records.pandas.prep_df_for_csv_output')
     @patch('records_mover.records.targets.fileobj.io')
     @patch('records_mover.records.targets.fileobj.complain_on_unhandled_hints')
     def test_move_from_dataframe_compressed_no_header_row(self,
@@ -169,7 +169,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             sep=',')
         self.assertEqual(out, MoveResult(move_count=2, output_urls=None))
 
-    @patch('records_mover.records.targets.fileobj.prep_df_for_csv_output')
+    @patch('records_mover.records.pandas.prep_df_for_csv_output')
     @patch('records_mover.records.targets.fileobj.io')
     @patch('records_mover.records.targets.fileobj.complain_on_unhandled_hints')
     def test_move_from_dataframe_compressed_with_header_row(self,
