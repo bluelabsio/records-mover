@@ -56,7 +56,7 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
             self.unload(variant, tempdir, hints=hints)
             self.verify_records_directory(format_type, variant, tempdir, hints=hints)
 
-    def unload(self, variant, directory, hints={}):
+    def unload(self, variant, directory, hints={}) -> None:
         records_format = DelimitedRecordsFormat(variant=variant,
                                                 hints=hints)
 
@@ -71,8 +71,8 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
         out = self.records.move(source, target)
         self.assertTrue(out.move_count in [1, None])
 
-    def verify_records_directory(self, format_type, variant, tempdir, hints={}):
+    def verify_records_directory(self, format_type, variant, tempdir, hints={}) -> None:
         validator = RecordsDirectoryValidator(tempdir,
                                               self.resource_name(format_type, variant,
                                                                  hints))
-        validator.validate()
+        validator.validate([self.engine.name])

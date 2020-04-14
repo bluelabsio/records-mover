@@ -6,6 +6,7 @@ import urllib
 import subprocess
 import jsonschema
 from subprocess import CalledProcessError
+from typing import Collection
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,8 @@ class RecordsDirectoryValidator:
         except FileNotFoundError:
             return
 
-    def validate_records_schema(self):
+    def validate_records_schema(self,
+                                db_types_used_in_process: Collection[str]) -> None:
         schema_file = f"{self.records_dir}/_schema.json"
         with open(schema_file) as records_schema_data:
             records_schema = json.load(records_schema_data)
@@ -48,28 +50,37 @@ class RecordsDirectoryValidator:
                                     'timestamp', 'timestamptz']
             assert actual_field_names == expected_field_names, actual_field_names
             actual_field_types = [field['type'] for field in records_schema['fields'].values()]
-            acceptable_field_types = [
-                # gold star if you can do all of this
-                [
-                    'integer', 'string', 'string', 'string',
-                    'string', 'string', 'string', 'date', 'time',
-                    'datetime', 'datetimetz'
-                ],
-                # Redshift doesn't support TIME type:
-                # https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
-                [
-                    'integer', 'string', 'string', 'string',
-                    'string', 'string', 'string', 'date', 'string',
-                    'datetime', 'datetimetz'
-                ]
+            field_types_are_ok = False
+            # gold star if you can do all of this
+            ideal_field_types = [
+                'integer', 'string', 'string', 'string',
+                'string', 'string', 'string', 'date', 'time',
+                'datetime', 'datetimetz'
             ]
-            assert actual_field_types in acceptable_field_types,\
-                f"\nreceived {actual_field_types}, \nexpected {acceptable_field_types}"
+            if actual_field_types in ideal_field_types:
+                field_types_are_ok = True
+            else:
+                acceptable_field_types_by_db = {
+                    # Redshift doesn't support TIME type:
+                    # https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
+                    'redshift': [
+                        'integer', 'string', 'string', 'string',
+                        'string', 'string', 'string', 'date', 'string',
+                        'datetime', 'datetimetz'
+                    ]
+                }
+                for db_type in db_types_used_in_process:
+                    if actual_field_types in acceptable_field_types_by_db[db_type]:
+                        field_types_are_ok = True
 
-    def validate(self):
+            assert field_types_are_ok,\
+                (f"\nreceived {actual_field_types}, "
+                 "\ndatabase types involved: {db_types_used_in_process}")
+
+    def validate(self, db_types_used_in_process: Collection[str]) -> None:
         self.assert_records_file_exists('_manifest')
         self.assert_records_file_exists('_format_delimited')
-        self.validate_records_schema()
+        self.validate_records_schema(db_types_used_in_process)
         with open(f"{self.records_dir}/_manifest") as manifest_data, \
                 open(f"{self.records_dir}/_format_delimited") as format_data:
             manifest = json.load(manifest_data)
