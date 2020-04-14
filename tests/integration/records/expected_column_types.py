@@ -13,12 +13,12 @@ expected_column_types: Dict[Union[str, Tuple[str, str]], List[str]] = {
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    'postgres': [
+    'postgresql': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    ('df', 'postgres'): [
+    ('df', 'postgresql'): [
         'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
         'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'TIME WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
@@ -89,17 +89,17 @@ expected_column_types: Dict[Union[str, Tuple[str, str]], List[str]] = {
     #
     #
     #
-    ('postgres', 'postgres'): [
+    ('postgresql', 'postgresql'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    ('postgres', 'vertica'): [
+    ('postgresql', 'vertica'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME',
         'TIMESTAMP', 'TIMESTAMP'
     ],
-    ('postgres', 'redshift'): [
+    ('postgresql', 'redshift'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
@@ -114,7 +114,7 @@ expected_column_types: Dict[Union[str, Tuple[str, str]], List[str]] = {
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
-    ('bigquery', 'postgres'): [
+    ('bigquery', 'postgresql'): [
         'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
@@ -153,7 +153,7 @@ expected_column_types: Dict[Union[str, Tuple[str, str]], List[str]] = {
         'INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
         'VARCHAR(111)', 'DATE', 'VARCHAR(8)', 'DATETIME(6)', 'DATETIME(6)'
     ],
-    ('postgres', 'mysql'): [
+    ('postgresql', 'mysql'): [
         'INTEGER(11)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)',
         'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
@@ -163,7 +163,7 @@ expected_column_types: Dict[Union[str, Tuple[str, str]], List[str]] = {
         'VARCHAR(256)',
         'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
     ],
-    ('mysql', 'postgres'): [
+    ('mysql', 'postgresql'): [
         'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)',
         'VARCHAR(444)', 'DATE', 'TIME WITHOUT TIME ZONE', 'TIMESTAMP WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE'
@@ -173,7 +173,7 @@ expected_column_types: Dict[Union[str, Tuple[str, str]], List[str]] = {
         'VARCHAR(444)', 'DATE', 'VARCHAR(8)', 'TIMESTAMP WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE'
     ],
-    ('vertica', 'postgres'): [
+    ('vertica', 'postgresql'): [
         'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME WITHOUT TIME ZONE',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
