@@ -50,3 +50,14 @@ class TestSession(unittest.TestCase):
         mock_db_facts_from_env.assert_called_with()
         mock_db_facts = mock_db_facts_from_env.return_value
         mock_engine_from_db_facts.assert_called_with(mock_db_facts)
+
+    @patch('records_mover.session.db_facts_from_env')
+    @patch('records_mover.db.connect.engine_from_db_facts')
+    def test_get_default_db_facts_no_default(self,
+                                             mock_engine_from_db_facts,
+                                             mock_db_facts_from_env,
+                                             mock_os,
+                                             mock_subprocess):
+        session = Session()
+        self.assertEqual(session.get_default_db_facts(), mock_db_facts_from_env.return_value)
+        mock_db_facts_from_env.assert_called_with()
