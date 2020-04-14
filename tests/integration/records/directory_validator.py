@@ -75,7 +75,7 @@ class RecordsDirectoryValidator:
 
             assert field_types_are_ok,\
                 (f"\nreceived {actual_field_types}, "
-                 "\ndatabase types involved: {db_types_used_in_process}")
+                 f"\ndatabase types involved: {db_types_used_in_process}")
 
     def validate(self, db_types_used_in_process: Collection[str]) -> None:
         self.assert_records_file_exists('_manifest')
