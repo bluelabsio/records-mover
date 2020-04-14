@@ -1,3 +1,5 @@
+# Note that Redshift doesn't support TIME type:
+# https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
 expected_single_database_column_types = {
     'vertica': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
@@ -55,8 +57,6 @@ expected_df_loaded_database_column_types = {
     ],
 }
 
-# Note that Redshift doesn't support TIME type:
-# https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
 expected_table2table_column_types = {
     # Notes on table2table triggered results:
     #
