@@ -74,5 +74,6 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
     def verify_records_directory(self, format_type, variant, tempdir, hints={}) -> None:
         validator = RecordsDirectoryValidator(tempdir,
                                               self.resource_name(format_type, variant,
-                                                                 hints))
-        validator.validate([self.engine.name])
+                                                                 hints),
+                                              self.engine.name)
+        validator.validate()

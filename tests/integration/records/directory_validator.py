@@ -6,16 +6,19 @@ import urllib
 import subprocess
 import jsonschema
 from subprocess import CalledProcessError
-from typing import Collection
 
 logger = logging.getLogger(__name__)
 
 
 class RecordsDirectoryValidator:
-    def __init__(self, records_dir, test_name):
+    def __init__(self,
+                 records_dir: str,
+                 test_name: str,
+                 source_db_type: str) -> None:
         self.records_dir = records_dir
         self.test_name = test_name
         self.concatenated_file = f"{self.records_dir}/_concatenated_file"
+        self.source_db_type = source_db_type
         dir_path = os.path.dirname(os.path.realpath(__file__))
         with open(f"{dir_path}/records_schema_v1_schema.json") as records_schema_schema_data:
             self.records_schema_schema = json.load(records_schema_schema_data)
@@ -31,8 +34,7 @@ class RecordsDirectoryValidator:
         except FileNotFoundError:
             return
 
-    def validate_records_schema(self,
-                                db_types_used_in_process: Collection[str]) -> None:
+    def validate_records_schema(self) -> None:
         schema_file = f"{self.records_dir}/_schema.json"
         with open(schema_file) as records_schema_data:
             records_schema = json.load(records_schema_data)
@@ -69,18 +71,17 @@ class RecordsDirectoryValidator:
                         'datetime', 'datetimetz'
                     ]
                 }
-                for db_type in db_types_used_in_process:
-                    if actual_field_types == acceptable_field_types_by_db[db_type]:
-                        field_types_are_ok = True
+                if actual_field_types == acceptable_field_types_by_db[self.source_db_type]:
+                    field_types_are_ok = True
 
             assert field_types_are_ok,\
                 (f"\nreceived {actual_field_types}, "
-                 f"\ndatabase types involved: {db_types_used_in_process}")
+                 f"\nsource database types: {self.source_db_type}")
 
-    def validate(self, db_types_used_in_process: Collection[str]) -> None:
+    def validate(self) -> None:
         self.assert_records_file_exists('_manifest')
         self.assert_records_file_exists('_format_delimited')
-        self.validate_records_schema(db_types_used_in_process)
+        self.validate_records_schema()
         with open(f"{self.records_dir}/_manifest") as manifest_data, \
                 open(f"{self.records_dir}/_format_delimited") as format_data:
             manifest = json.load(manifest_data)

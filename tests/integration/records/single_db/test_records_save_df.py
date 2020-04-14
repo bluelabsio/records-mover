@@ -60,8 +60,9 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
 
     def verify_records_directory(self, format_type, variant, tempdir, hints={}) -> None:
         validator = RecordsDirectoryValidator(tempdir,
-                                              self.resource_name(format_type, variant, hints))
-        validator.validate([self.engine.name])
+                                              self.resource_name(format_type, variant, hints),
+                                              self.engine.name)
+        validator.validate()
 
     def test_save_with_defaults(self):
         hints = {}
