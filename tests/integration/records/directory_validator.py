@@ -11,10 +11,14 @@ logger = logging.getLogger(__name__)
 
 
 class RecordsDirectoryValidator:
-    def __init__(self, records_dir, test_name):
+    def __init__(self,
+                 records_dir: str,
+                 test_name: str,
+                 source_db_type: str) -> None:
         self.records_dir = records_dir
         self.test_name = test_name
         self.concatenated_file = f"{self.records_dir}/_concatenated_file"
+        self.source_db_type = source_db_type
         dir_path = os.path.dirname(os.path.realpath(__file__))
         with open(f"{dir_path}/records_schema_v1_schema.json") as records_schema_schema_data:
             self.records_schema_schema = json.load(records_schema_schema_data)
@@ -30,7 +34,7 @@ class RecordsDirectoryValidator:
         except FileNotFoundError:
             return
 
-    def validate_records_schema(self):
+    def validate_records_schema(self) -> None:
         schema_file = f"{self.records_dir}/_schema.json"
         with open(schema_file) as records_schema_data:
             records_schema = json.load(records_schema_data)
@@ -48,38 +52,46 @@ class RecordsDirectoryValidator:
                                     'timestamp', 'timestamptz']
             assert actual_field_names == expected_field_names, actual_field_names
             actual_field_types = [field['type'] for field in records_schema['fields'].values()]
-            acceptable_field_types = [
-                # gold star if you can do all of this
-                [
-                    'integer', 'string', 'string', 'string',
-                    'string', 'string', 'string', 'date', 'time',
-                    'datetime', 'datetimetz'
-                ],
-                # Redshift doesn't support TIME type:
-                # https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
-                [
-                    'integer', 'string', 'string', 'string',
-                    'string', 'string', 'string', 'date', 'string',
-                    'datetime', 'datetimetz'
-                ],
-                # MySQL's datetimetz type ("TIMESTAMP") doesn't
-                # support dates before the Unix epoch (Jan 1 1970),
-                # and records-mover does not yet support using
-                # inference to determine if the data in question will
-                # fit into it.
-                #
-                # https://app.asana.com/0/1128138765527694/1166526213569051
-                # https://stackoverflow.com/questions/31761047/what-difference-between-the-date-time-datetime-and-timestamp-types/56138746
-                [
-                    'integer', 'string', 'string', 'string',
-                    'string', 'string', 'string', 'date', 'time',
-                    'datetime', 'datetime'
-                ],
+            field_types_are_ok = False
+            # gold star if you can do all of this
+            ideal_field_types = [
+                'integer', 'string', 'string', 'string',
+                'string', 'string', 'string', 'date', 'time',
+                'datetime', 'datetimetz'
             ]
-            assert actual_field_types in acceptable_field_types,\
-                f"\nreceived {actual_field_types}, \nexpected {acceptable_field_types}"
+            if actual_field_types == ideal_field_types:
+                field_types_are_ok = True
+            else:
+                acceptable_field_types_by_db = {
+                    # Redshift doesn't support TIME type:
+                    # https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
+                    'redshift': [
+                        'integer', 'string', 'string', 'string',
+                        'string', 'string', 'string', 'date', 'string',
+                        'datetime', 'datetimetz'
+                    ],
+                    # MySQL's datetimetz type ("TIMESTAMP") doesn't
+                    # support dates before the Unix epoch (Jan 1 1970),
+                    # and records-mover does not yet support using
+                    # inference to determine if the data in question will
+                    # fit into it.
+                    #
+                    # https://app.asana.com/0/1128138765527694/1166526213569051
+                    # https://stackoverflow.com/questions/31761047/what-difference-between-the-date-time-datetime-and-timestamp-types/56138746
+                    'mysql': [
+                        'integer', 'string', 'string', 'string',
+                        'string', 'string', 'string', 'date', 'time',
+                        'datetime', 'datetime'
+                    ],
+                }
+                if actual_field_types == acceptable_field_types_by_db.get(self.source_db_type):
+                    field_types_are_ok = True
 
-    def validate(self):
+            assert field_types_are_ok,\
+                (f"\nreceived {actual_field_types}, "
+                 f"\nsource database types: {self.source_db_type}")
+
+    def validate(self) -> None:
         self.assert_records_file_exists('_manifest')
         self.assert_records_file_exists('_format_delimited')
         self.validate_records_schema()
