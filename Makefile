@@ -11,6 +11,7 @@ clean: coverageclean typecoverageclean
 
 typecheck:
 	mypy --cobertura-xml-report typecover --html-report typecover .
+	mypy tests/integration
 
 typecoverage:
 	python setup.py mypy_ratchet
