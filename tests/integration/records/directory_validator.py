@@ -71,7 +71,7 @@ class RecordsDirectoryValidator:
                         'datetime', 'datetimetz'
                     ]
                 }
-                if actual_field_types == acceptable_field_types_by_db[self.source_db_type]:
+                if actual_field_types == acceptable_field_types_by_db.get(self.source_db_type):
                     field_types_are_ok = True
 
             assert field_types_are_ok,\
