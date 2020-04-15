@@ -103,11 +103,11 @@ class PostgresDBDriver(DBDriver):
                schema: str,
                table: str,
                unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> int:
-        return self._postgres_unloader.unload(schema=schema,
-                                              table=table,
-                                              unload_plan=unload_plan,
-                                              directory=directory)
+               directory: RecordsDirectory) -> None:
+        self._postgres_unloader.unload(schema=schema,
+                                       table=table,
+                                       unload_plan=unload_plan,
+                                       directory=directory)
 
     def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
         return self._postgres_unloader.can_unload_this_format(target_records_format)

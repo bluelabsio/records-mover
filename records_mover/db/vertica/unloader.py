@@ -46,7 +46,7 @@ class VerticaUnloader(Unloader):
                schema: str,
                table: str,
                unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> int:
+               directory: RecordsDirectory) -> Optional[int]:
         if not self.s3_available():
             return super().unload(schema, table, unload_plan, directory)
         try:

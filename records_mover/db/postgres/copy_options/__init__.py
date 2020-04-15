@@ -34,9 +34,25 @@ def needs_csv_format(hints: RecordsHints) -> bool:
     return False
 
 
-def postgres_copy_options(unhandled_hints: Set[str],
-                          load_plan: RecordsLoadPlan) -> Tuple[Optional[DateInputStyle],
-                                                               PostgresCopyOptions]:
+def postgres_copy_to_options(unhandled_hints: Set[str],
+                             delimited_records_format: DelimitedRecordsFormat,
+                             fail_if_cant_handle_hint: bool) -> Tuple[Optional[DateInputStyle],
+                                                                      PostgresCopyOptions]:
+    hints = delimited_records_format.hints
+
+    if needs_csv_format(hints):
+        return postgres_copy_options_csv(unhandled_hints,
+                                         hints,
+                                         fail_if_cant_handle_hint)
+    else:
+        return postgres_copy_options_text(unhandled_hints,
+                                          hints,
+                                          fail_if_cant_handle_hint)
+
+
+def postgres_copy_from_options(unhandled_hints: Set[str],
+                               load_plan: RecordsLoadPlan) -> Tuple[Optional[DateInputStyle],
+                                                                    PostgresCopyOptions]:
     fail_if_cant_handle_hint = load_plan.processing_instructions.fail_if_cant_handle_hint
     if not isinstance(load_plan.records_format, DelimitedRecordsFormat):
         raise NotImplementedError("Not currently able to import "
