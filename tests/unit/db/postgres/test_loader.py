@@ -71,7 +71,7 @@ class TestPostgresLoader(unittest.TestCase):
     @patch('records_mover.db.postgres.loader.complain_on_unhandled_hints')
     @patch('records_mover.db.postgres.loader.Table')
     @patch('records_mover.db.postgres.loader.postgres_copy_from_options')
-    def test_load_from_fileobj_default_date_input_style(self,
+    def test_load_from_fileobj_default_date_order_style(self,
                                                         mock_postgres_copy_from_options,
                                                         mock_Table,
                                                         mock_complain_on_unhandled_hints,
