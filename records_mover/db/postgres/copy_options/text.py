@@ -6,8 +6,6 @@ from .types import PostgresCopyOptions
 from .common import postgres_copy_options_common
 
 
-# TODO: Audit this file
-
 def postgres_copy_options_text(unhandled_hints: Set[str],
                                hints: RecordsHints,
                                fail_if_cant_handle_hint: bool) ->\
@@ -79,6 +77,8 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     #  format.
     #
 
+    # TODO: special case
+
     if hints['quoting'] is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
     else:
@@ -104,6 +104,8 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     # un-backslashed newlines or carriage returns that were meant as
     # data, COPY FROM will complain if the line endings in the input
     # are not all alike.
+
+    # TODO: special case
 
     if hints['record-terminator'] in ["\n", "\r", "\r\n"]:
         quiet_remove(unhandled_hints, 'record-terminator')

@@ -6,8 +6,6 @@ from .common import postgres_copy_options_common
 from .types import PostgresCopyOptions
 
 
-# TODO: Audit this file
-
 def postgres_copy_options_csv(unhandled_hints: Set[str],
                               hints: RecordsHints,
                               fail_if_cant_handle_hint: bool) ->\

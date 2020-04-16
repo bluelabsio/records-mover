@@ -5,9 +5,6 @@ from typing import Set
 from .types import PostgresCopyOptions
 
 
-# TODO: Audit this file
-
-
 # https://www.postgresql.org/docs/9.3/multibyte.html
 postgres_encoding_names = {
     'UTF8': 'UTF8',
