@@ -36,6 +36,16 @@ class TestDateOrderStyle(unittest.TestCase):
                 },
                 NotImplementedError
             ),
+            (
+                # Can't parse MDY and DMY at the same time
+                {
+                    'datetimeformattz': 'MM/DD/YY HH24:MI',
+                    'datetimeformat': "other",
+                    'timeonlyformat': "HH12:MI AM",
+                    'dateformat': "MM-DD-YYYY",
+                },
+                NotImplementedError
+            ),
         ]
         fail_if_cant_handle_hint = True
         for hints, expected_result in tests:
