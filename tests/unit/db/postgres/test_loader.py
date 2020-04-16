@@ -33,12 +33,12 @@ class TestPostgresLoader(unittest.TestCase):
                                    spec=DelimitedRecordsFormat)
         mock_records_format.hints = {}
         mock_load_plan.records_format = mock_records_format
-        mock_date_input_style = "DATE_INPUT_STYLE"
+        mock_date_order_style = "DATE_ORDER_STYLE"
         mock_postgres_options = {
             'abc': 123
         }
         mock_postgres_copy_from_options.return_value = (
-            mock_date_input_style,
+            mock_date_order_style,
             mock_postgres_options,
         )
         mock_quote_value.return_value = "ABC"
@@ -59,7 +59,7 @@ class TestPostgresLoader(unittest.TestCase):
                                       autoload=True,
                                       autoload_with=self.mock_db)
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
-        mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_INPUT_STYLE')
+        mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_ORDER_STYLE')
         mock_conn.execute.assert_called_with('SET LOCAL DateStyle = ABC')
         mock_copy_from.assert_called_with(mock_fileobj,
                                           mock_table_obj,
@@ -86,12 +86,12 @@ class TestPostgresLoader(unittest.TestCase):
                                    spec=DelimitedRecordsFormat)
         mock_records_format.hints = {}
         mock_load_plan.records_format = mock_records_format
-        mock_date_input_style = None
+        mock_date_order_style = None
         mock_postgres_options = {
             'abc': 123
         }
         mock_postgres_copy_from_options.return_value = (
-            mock_date_input_style,
+            mock_date_order_style,
             mock_postgres_options,
         )
         mock_quote_value.return_value = "ABC"
@@ -144,12 +144,12 @@ class TestPostgresLoader(unittest.TestCase):
                                    spec=DelimitedRecordsFormat)
         mock_records_format.hints = {}
         mock_load_plan.records_format = mock_records_format
-        mock_date_input_style = "DATE_INPUT_STYLE"
+        mock_date_order_style = "DATE_ORDER_STYLE"
         mock_postgres_options = {
             'abc': 123
         }
         mock_postgres_copy_from_options.return_value = (
-            mock_date_input_style,
+            mock_date_order_style,
             mock_postgres_options,
         )
         mock_quote_value.return_value = "ABC"
@@ -176,7 +176,7 @@ class TestPostgresLoader(unittest.TestCase):
                                       autoload=True,
                                       autoload_with=self.mock_db)
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
-        mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_INPUT_STYLE')
+        mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_ORDER_STYLE')
         mock_conn.execute.assert_called_with('SET LOCAL DateStyle = ABC')
         mock_copy_from.assert_called_with(mock_fileobj,
                                           mock_table_obj,
