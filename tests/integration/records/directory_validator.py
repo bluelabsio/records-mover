@@ -112,7 +112,8 @@ class RecordsDirectoryValidator:
         outputs = {}
         success = False
 
-        for alt in ['', '-pandas', '-pandas-utc', '-utc']:
+        # See tests/integration/resources/README.md for details on different formats
+        for alt in ['', '-pandas', '-pandas-utc', '-utc', '-postgres', '-postgres-utc']:
             expected_file = f"{dir_path}/../resources/{self.test_name}{alt}.csv"
             logger.info(f"expected_file: {expected_file}")
             try:

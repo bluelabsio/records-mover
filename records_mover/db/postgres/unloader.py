@@ -25,10 +25,13 @@ class PostgresUnloader(Unloader):
 
         unhandled_hints = set(unload_plan.records_format.hints.keys())
         processing_instructions = unload_plan.processing_instructions
-        date_input_style, postgres_options =\
+        date_output_style, date_order_style, postgres_options =\
             postgres_copy_to_options(unhandled_hints,
                                      unload_plan.records_format,
                                      processing_instructions.fail_if_cant_handle_hint)
+        if date_order_style is None:
+            # U-S-A!  U-S-A!
+            date_order_style = 'MDY'
         complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
                                     unhandled_hints,
                                     unload_plan.records_format.hints)
@@ -48,7 +51,7 @@ class PostgresUnloader(Unloader):
             # transaction: the SET LOCAL value will be seen until the end
             # of the transaction, but afterwards (if the transaction is
             # committed) the SET value will take effect.
-            date_style = f"ISO, {date_input_style}"
+            date_style = f"{date_output_style}, {date_order_style}"
             sql = f"SET LOCAL DateStyle = {quote_value(conn, date_style)}"
             logger.info(sql)
             conn.execute(sql)
@@ -79,18 +82,6 @@ class PostgresUnloader(Unloader):
             # dockerized-postgres public test
             # tests/integration/resources/delimited-bluelabs-no-header.csv
             DelimitedRecordsFormat(variant='bluelabs',
-                                   hints={'compression': None}),
-            # mvrec file2table --source.variant csv
-            # --source.no_compression
-            # tests/integration/resources/delimited-csv-with-header.csv
-            # dockerized-postgres public csvformat
-            DelimitedRecordsFormat(variant='csv',
-                                   hints={'compression': None}),
-            # mvrec file2table --source.variant bigquery
-            # --source.no_compression
-            # tests/integration/resources/delimited-bigquery-with-header.csv
-            # dockerized-postgres public bigqueryformat
-            DelimitedRecordsFormat(variant='bigquery',
                                    hints={'compression': None}),
         ]
 

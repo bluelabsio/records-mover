@@ -2,18 +2,19 @@ from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from records_mover.records.types import RecordsHints
 from typing import Set, Optional, Tuple, Union, Literal
-from .date_input_style import DateInputStyle
 from .types import PostgresCopyOptions
 from .mode import CopyOptionsMode
 from .common import postgres_copy_options_common
 
+
+# TODO: Audit this file
 
 def postgres_copy_options_text(unhandled_hints: Set[str],
                                hints: RecordsHints,
                                fail_if_cant_handle_hint: bool,
                                mode: Union[Literal[CopyOptionsMode.LOADING],
                                            Literal[CopyOptionsMode.UNLOADING]]) ->\
-        Tuple[Optional[DateInputStyle], PostgresCopyOptions]:
+        PostgresCopyOptions:
     postgres_options: PostgresCopyOptions = {}
 
     # FORMAT

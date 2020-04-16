@@ -1,11 +1,12 @@
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from records_mover.records.types import RecordsHints
-from typing import Set, Optional, Tuple, Union, Literal
-from .date_input_style import DateInputStyle, determine_date_input_style
+from typing import Set, Tuple, Union, Literal
 from .mode import CopyOptionsMode
 from .types import PostgresCopyOptions
 
+
+# TODO: Audit this file
 
 
 # https://www.postgresql.org/docs/9.3/multibyte.html
@@ -24,12 +25,8 @@ def postgres_copy_options_common(unhandled_hints: Set[str],
                                  original_postgres_options: PostgresCopyOptions,
                                  mode: Union[Literal[CopyOptionsMode.LOADING],
                                              Literal[CopyOptionsMode.UNLOADING]]) ->\
-        Tuple[Optional[DateInputStyle], PostgresCopyOptions]:
+        PostgresCopyOptions:
     postgres_options = original_postgres_options.copy()
-    date_input_style: Optional[DateInputStyle] =\
-        determine_date_input_style(unhandled_hints,
-                                   hints,
-                                   fail_if_cant_handle_hint)
 
     # ENCODING
     #
@@ -80,4 +77,4 @@ def postgres_copy_options_common(unhandled_hints: Set[str],
     postgres_options['delimiter'] = hints['field-delimiter']
     quiet_remove(unhandled_hints, 'field-delimiter')
 
-    return (date_input_style, postgres_options)
+    return postgres_options
