@@ -7,6 +7,8 @@ from .date_input_style import DateInputStyle
 from .csv import postgres_copy_options_csv
 from .text import postgres_copy_options_text
 from .types import PostgresCopyOptions
+from .mode import CopyOptionsMode
+
 
 logger = logging.getLogger(__name__)
 
@@ -36,18 +38,21 @@ def needs_csv_format(hints: RecordsHints) -> bool:
 
 def postgres_copy_to_options(unhandled_hints: Set[str],
                              delimited_records_format: DelimitedRecordsFormat,
-                             fail_if_cant_handle_hint: bool) -> Tuple[Optional[DateInputStyle],
-                                                                      PostgresCopyOptions]:
+                             fail_if_cant_handle_hint: bool) ->\
+                                         Tuple[Optional[DateInputStyle],
+                                               PostgresCopyOptions]:
     hints = delimited_records_format.hints
 
     if needs_csv_format(hints):
         return postgres_copy_options_csv(unhandled_hints,
                                          hints,
-                                         fail_if_cant_handle_hint)
+                                         fail_if_cant_handle_hint,
+                                         CopyOptionsMode.UNLOADING)
     else:
         return postgres_copy_options_text(unhandled_hints,
                                           hints,
-                                          fail_if_cant_handle_hint)
+                                          fail_if_cant_handle_hint,
+                                          CopyOptionsMode.UNLOADING)
 
 
 def postgres_copy_from_options(unhandled_hints: Set[str],
@@ -62,8 +67,10 @@ def postgres_copy_from_options(unhandled_hints: Set[str],
     if needs_csv_format(hints):
         return postgres_copy_options_csv(unhandled_hints,
                                          hints,
-                                         fail_if_cant_handle_hint)
+                                         fail_if_cant_handle_hint,
+                                         CopyOptionsMode.LOADING)
     else:
         return postgres_copy_options_text(unhandled_hints,
                                           hints,
-                                          fail_if_cant_handle_hint)
+                                          fail_if_cant_handle_hint,
+                                          CopyOptionsMode.LOADING)
