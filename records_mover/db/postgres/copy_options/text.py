@@ -1,9 +1,8 @@
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from records_mover.records.types import RecordsHints
-from typing import Set, Optional, Tuple, Union, Literal
+from typing import Set
 from .types import PostgresCopyOptions
-from .mode import CopyOptionsMode
 from .common import postgres_copy_options_common
 
 
@@ -11,9 +10,7 @@ from .common import postgres_copy_options_common
 
 def postgres_copy_options_text(unhandled_hints: Set[str],
                                hints: RecordsHints,
-                               fail_if_cant_handle_hint: bool,
-                               mode: Union[Literal[CopyOptionsMode.LOADING],
-                                           Literal[CopyOptionsMode.UNLOADING]]) ->\
+                               fail_if_cant_handle_hint: bool) ->\
         PostgresCopyOptions:
     postgres_options: PostgresCopyOptions = {}
 
@@ -121,5 +118,4 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     return postgres_copy_options_common(unhandled_hints,
                                         hints,
                                         fail_if_cant_handle_hint,
-                                        postgres_options,
-                                        mode)
+                                        postgres_options)

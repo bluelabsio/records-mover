@@ -1,9 +1,8 @@
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from records_mover.records.types import RecordsHints
-from typing import Set, Union, Literal
+from typing import Set
 from .common import postgres_copy_options_common
-from .mode import CopyOptionsMode
 from .types import PostgresCopyOptions
 
 
@@ -11,9 +10,7 @@ from .types import PostgresCopyOptions
 
 def postgres_copy_options_csv(unhandled_hints: Set[str],
                               hints: RecordsHints,
-                              fail_if_cant_handle_hint: bool,
-                              mode: Union[Literal[CopyOptionsMode.LOADING],
-                                          Literal[CopyOptionsMode.UNLOADING]]) ->\
+                              fail_if_cant_handle_hint: bool) ->\
         PostgresCopyOptions:
     postgres_options: PostgresCopyOptions = {}
     # FORMAT
@@ -122,5 +119,4 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
     return postgres_copy_options_common(unhandled_hints,
                                         hints,
                                         fail_if_cant_handle_hint,
-                                        postgres_options,
-                                        mode)
+                                        postgres_options)

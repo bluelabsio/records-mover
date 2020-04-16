@@ -1,8 +1,7 @@
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from records_mover.records.types import RecordsHints
-from typing import Set, Tuple, Union, Literal
-from .mode import CopyOptionsMode
+from typing import Set
 from .types import PostgresCopyOptions
 
 
@@ -22,9 +21,7 @@ postgres_encoding_names = {
 def postgres_copy_options_common(unhandled_hints: Set[str],
                                  hints: RecordsHints,
                                  fail_if_cant_handle_hint: bool,
-                                 original_postgres_options: PostgresCopyOptions,
-                                 mode: Union[Literal[CopyOptionsMode.LOADING],
-                                             Literal[CopyOptionsMode.UNLOADING]]) ->\
+                                 original_postgres_options: PostgresCopyOptions) ->\
         PostgresCopyOptions:
     postgres_options = original_postgres_options.copy()
 
