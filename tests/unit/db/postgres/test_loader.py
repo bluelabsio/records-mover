@@ -17,9 +17,9 @@ class TestPostgresLoader(unittest.TestCase):
     @patch('records_mover.db.postgres.loader.copy_from')
     @patch('records_mover.db.postgres.loader.complain_on_unhandled_hints')
     @patch('records_mover.db.postgres.loader.Table')
-    @patch('records_mover.db.postgres.loader.postgres_copy_options')
+    @patch('records_mover.db.postgres.loader.postgres_copy_from_options')
     def test_load_from_fileobj(self,
-                               mock_postgres_copy_options,
+                               mock_postgres_copy_from_options,
                                mock_Table,
                                mock_complain_on_unhandled_hints,
                                mock_copy_from,
@@ -37,7 +37,7 @@ class TestPostgresLoader(unittest.TestCase):
         mock_postgres_options = {
             'abc': 123
         }
-        mock_postgres_copy_options.return_value = (
+        mock_postgres_copy_from_options.return_value = (
             mock_date_input_style,
             mock_postgres_options,
         )
@@ -70,9 +70,9 @@ class TestPostgresLoader(unittest.TestCase):
     @patch('records_mover.db.postgres.loader.copy_from')
     @patch('records_mover.db.postgres.loader.complain_on_unhandled_hints')
     @patch('records_mover.db.postgres.loader.Table')
-    @patch('records_mover.db.postgres.loader.postgres_copy_options')
+    @patch('records_mover.db.postgres.loader.postgres_copy_from_options')
     def test_load_from_fileobj_default_date_input_style(self,
-                                                        mock_postgres_copy_options,
+                                                        mock_postgres_copy_from_options,
                                                         mock_Table,
                                                         mock_complain_on_unhandled_hints,
                                                         mock_copy_from,
@@ -90,7 +90,7 @@ class TestPostgresLoader(unittest.TestCase):
         mock_postgres_options = {
             'abc': 123
         }
-        mock_postgres_copy_options.return_value = (
+        mock_postgres_copy_from_options.return_value = (
             mock_date_input_style,
             mock_postgres_options,
         )
@@ -123,9 +123,9 @@ class TestPostgresLoader(unittest.TestCase):
     @patch('records_mover.db.postgres.loader.copy_from')
     @patch('records_mover.db.postgres.loader.complain_on_unhandled_hints')
     @patch('records_mover.db.postgres.loader.Table')
-    @patch('records_mover.db.postgres.loader.postgres_copy_options')
+    @patch('records_mover.db.postgres.loader.postgres_copy_from_options')
     def test_load(self,
-                  mock_postgres_copy_options,
+                  mock_postgres_copy_from_options,
                   mock_Table,
                   mock_complain_on_unhandled_hints,
                   mock_copy_from,
@@ -148,7 +148,7 @@ class TestPostgresLoader(unittest.TestCase):
         mock_postgres_options = {
             'abc': 123
         }
-        mock_postgres_copy_options.return_value = (
+        mock_postgres_copy_from_options.return_value = (
             mock_date_input_style,
             mock_postgres_options,
         )
@@ -184,9 +184,9 @@ class TestPostgresLoader(unittest.TestCase):
                                           abc=123)
 
     @patch('records_mover.db.postgres.loader.complain_on_unhandled_hints')
-    @patch('records_mover.db.postgres.loader.postgres_copy_options')
+    @patch('records_mover.db.postgres.loader.postgres_copy_from_options')
     def test_can_load_this_format_true(self,
-                                       mock_postgres_copy_options,
+                                       mock_postgres_copy_from_options,
                                        mock_complain_on_unhandled_hints):
         source_records_format = Mock(name='source_records_format',
                                      spec=DelimitedRecordsFormat)

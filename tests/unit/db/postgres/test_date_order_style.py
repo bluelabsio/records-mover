@@ -1,9 +1,9 @@
 import unittest
-from records_mover.db.postgres.copy_options.date_input_style import determine_date_input_style
+from records_mover.db.postgres.copy_options.date_input_style import determine_input_date_order_style
 
 
-class TestDateInputStyle(unittest.TestCase):
-    def test_determine_date_input_style_(self):
+class TestDateOrderStyle(unittest.TestCase):
+    def test_determine_date_order_style_(self):
         unhandled_hints = set()
         tests = [
             (
@@ -41,11 +41,11 @@ class TestDateInputStyle(unittest.TestCase):
         for hints, expected_result in tests:
             if expected_result == NotImplementedError:
                 with self.assertRaises(NotImplementedError):
-                    determine_date_input_style(unhandled_hints,
-                                               hints,
-                                               fail_if_cant_handle_hint)
+                    determine_input_date_order_style(unhandled_hints,
+                                                     hints,
+                                                     fail_if_cant_handle_hint)
             else:
-                out = determine_date_input_style(unhandled_hints,
-                                                 hints,
-                                                 fail_if_cant_handle_hint)
+                out = determine_input_date_order_style(unhandled_hints,
+                                                       hints,
+                                                       fail_if_cant_handle_hint)
                 self.assertEqual(out, expected_result)
