@@ -101,64 +101,12 @@ class RecordsTableValidator:
                      'or either individually: '\
                      f'{actual_column_types}'
 
-    def supported_load_variants(self, db_engine: Engine) -> List[DelimitedVariant]:
-        if db_engine.name == 'bigquery':
-            return ['bigquery']
-        elif db_engine.name == 'vertica':
-            return ['bluelabs', 'vertica']
-        elif db_engine.name == 'redshift':
-            # This isn't really true, but is good enough to make the
-            # tests pass for now.  We need to create a new named
-            # variant name for the CSV-esque variant that we now
-            # prefer for Redshift.
-            return ['bluelabs', 'csv', 'bigquery']
-        elif db_engine.name == 'postgresql':
-            return ['bluelabs', 'csv', 'bigquery']
-        elif db_engine.name == 'mysql':
-            return []
-        else:
-            raise NotImplementedError(f"Teach me about database type {db_engine.name}")
-
-    def default_load_variant(self, db_engine: Engine) -> Optional[DelimitedVariant]:
-        supported = self.supported_load_variants(db_engine)
-        if len(supported) == 0:
-            return None
-        return supported[0]
-
-    def determine_load_variant(self) -> Optional[DelimitedVariant]:
-        if self.loaded_from_file():
-            if self.file_variant in self.supported_load_variants(self.target_db_engine):
-                return self.file_variant
-            else:
-                return self.default_load_variant(self.target_db_engine)
-        else:
-            # If we're not loading from a file, we're copying from a database
-            if self.loaded_from_dataframe():
-                # Loading from a dataframe
-                return self.default_load_variant(self.target_db_engine)
-            else:
-                # Loading from a database
-                assert self.source_db_engine is not None
-                if self.source_db_engine.name == 'bigquery':
-                    return 'bigquery'
-                else:
-                    return 'vertica'
-
-    def loaded_from_database(self) -> bool:
-        return self.source_db_engine is not None
-
-    def loaded_from_dataframe(self) -> bool:
-        return self.file_variant is None and self.source_db_engine is None
-
-    def loaded_from_file(self) -> bool:
-        return self.file_variant is not None
-
     def validate_data_values(self,
                              schema_name: str,
                              table_name: str) -> None:
         params = {}
 
-        load_variant = self.determine_load_variant()
+        load_variant = self.tc.determine_load_variant()
 
         with self.target_db_engine.connect() as connection:
             set_session_tz(connection)
@@ -260,7 +208,7 @@ class RecordsTableValidator:
             # timezone parts gets ignored by the database.
             #
             utc_hour = 12
-        elif (self.loaded_from_file() and
+        elif (self.tc.loaded_from_file() and
               self.tc.database_has_no_usable_timestamptz_type(self.target_db_engine)):
             # In this case, we're trying to load a string that looks like this:
             #
@@ -270,7 +218,7 @@ class RecordsTableValidator:
             # doesn't store timezones, the database in question just
             # strips off the timezone and stores the '12'
             utc_hour = 12
-        elif(self.loaded_from_dataframe() and
+        elif(self.tc.loaded_from_dataframe() and
              self.tc.database_has_no_usable_timestamptz_type(self.target_db_engine)):
             #
             # In this case, we correctly tell Pandas that we have are
@@ -282,7 +230,7 @@ class RecordsTableValidator:
             # strips off the timezone and stores the '12'
             #
             utc_hour = 12
-        elif (self.loaded_from_file() and
+        elif (self.tc.loaded_from_file() and
               load_variant != self.file_variant and
               self.tc.variant_doesnt_support_timezones(load_variant) and
               not self.tc.database_default_store_timezone_is_us_eastern()):
@@ -296,7 +244,7 @@ class RecordsTableValidator:
             # you don't specify a timezone as part of that format,
             # Pandas just prints the TZ-naive hour.
             utc_hour = 12
-        elif (self.loaded_from_dataframe() and
+        elif (self.tc.loaded_from_dataframe() and
               self.tc.variant_doesnt_support_timezones(load_variant) and
               not self.tc.database_default_store_timezone_is_us_eastern()):
             #
