@@ -6,11 +6,11 @@ from records_mover.db.postgres.copy_options.mode import CopyOptionsMode
 
 
 class TestCopyOptionsCsvUnload(unittest.TestCase):
-    def test_postgres_copy_options_csv_no_quoting(self):
+    def test_postgres_copy_options_csv_minimal_quoting(self):
         unhandled_hints = set()
         records_format = DelimitedRecordsFormat(variant='csv',
                                                 hints={
-                                                    'quoting': None,
+                                                    'quoting': 'minimal',
                                                     'compression': None,
                                                 })
         fail_if_cant_handle_hint = True
@@ -53,11 +53,11 @@ class TestCopyOptionsCsvUnload(unittest.TestCase):
             'header': True,
         })
 
-    def test_postgres_copy_options_csv_minimal_quoting(self):
+    def test_postgres_copy_options_csv_no_quoting(self):
         unhandled_hints = set()
         records_format = DelimitedRecordsFormat(variant='csv',
                                                 hints={
-                                                    'quoting': 'minimal',
+                                                    'quoting': None,
                                                     'compression': None,
                                                 })
         fail_if_cant_handle_hint = True
