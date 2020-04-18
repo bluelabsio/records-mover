@@ -1,6 +1,6 @@
 import unittest
 from records_mover.db.postgres.copy_options.date_output_style import\
-    determine_output_date_order_style
+    determine_date_output_style
 
 
 class TestPostgresCopyOptionsDateOutputStyle(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestPostgresCopyOptionsDateOutputStyle(unittest.TestCase):
         }
         fail_if_cant_handle_hint = True
 
-        out = determine_output_date_order_style(unhandled_hints,
-                                                hints,
-                                                fail_if_cant_handle_hint)
+        out = determine_date_output_style(unhandled_hints,
+                                          hints,
+                                          fail_if_cant_handle_hint)
         self.assertEqual(out, ('ISO', None))

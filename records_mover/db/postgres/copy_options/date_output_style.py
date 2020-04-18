@@ -5,9 +5,9 @@ from typing import Set, Tuple, Optional
 from .types import DateOrderStyle, DateOutputStyle
 
 
-def determine_output_date_order_style(unhandled_hints: Set[str],
-                                      hints: RecordsHints,
-                                      fail_if_cant_handle_hint: bool) -> \
+def determine_date_output_style(unhandled_hints: Set[str],
+                                hints: RecordsHints,
+                                fail_if_cant_handle_hint: bool) -> \
         Tuple[DateOutputStyle, Optional[DateOrderStyle]]:
 
     # see docs in the types module

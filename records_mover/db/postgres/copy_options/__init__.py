@@ -4,7 +4,7 @@ from records_mover.records.records_format import DelimitedRecordsFormat
 import logging
 from typing import Set, Tuple, Optional
 from .date_input_style import determine_input_date_order_style
-from .date_output_style import determine_output_date_order_style
+from .date_output_style import determine_date_output_style
 from .csv import postgres_copy_options_csv
 from .text import postgres_copy_options_text
 from .types import PostgresCopyOptions, DateOrderStyle, DateOutputStyle
@@ -58,9 +58,9 @@ def postgres_copy_to_options(unhandled_hints: Set[str],
                                                   CopyOptionsMode.UNLOADING)
 
     date_output_style, date_order_style =\
-        determine_output_date_order_style(unhandled_hints,
-                                          hints,
-                                          fail_if_cant_handle_hint)
+        determine_date_output_style(unhandled_hints,
+                                    hints,
+                                    fail_if_cant_handle_hint)
 
     return (date_output_style, date_order_style, copy_options)
 
