@@ -116,7 +116,7 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
         if hints['record-terminator'] == "\n":
             quiet_remove(unhandled_hints, 'record-terminator')
         else:
-            cant_handle_hint(fail_if_cant_handle_hint, 'records-terminator', hints)
+            cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
     else:
         _assert_never(mode)
 
