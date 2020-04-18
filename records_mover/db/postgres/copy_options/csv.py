@@ -77,6 +77,7 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
         else:
             quiet_remove(unhandled_hints, 'quoting')
     elif mode is CopyOptionsMode.UNLOADING:
+        # TODO: Are we sure this doesn't support minimal by default instead of None by default?
         if hints['quoting'] is None:
             pass  # default
         elif hints['quoting'] == 'all':
