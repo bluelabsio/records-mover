@@ -120,7 +120,6 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     else:
         _assert_never(mode)
 
-
     if hints['compression'] is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
     else:
