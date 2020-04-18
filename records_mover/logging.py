@@ -21,16 +21,31 @@ def register_secret(secret: Optional[object]) -> None:
 
 class SecretsRedactingFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
-        redacted = False
+        print(f"VMB: record.msg: [[[{record.msg}]]]")
+        # print(f"VMB: record.sinfo: [[[{record.sinfo}]]]")
+        print(f"VMB: record.args: [[[{record.args}]]]")
+        print(f"VMB: record.exc_info: [[[{record.exc_info}]]]")
+        print(f"VMB: _secrets: [[[{_secrets}]]]")
 
         for secret in _secrets:
-            if secret in record.msg:
+            if secret in str(record.msg):
                 # Try redacting msg alone:
                 replacement = '*' * len(secret)
-                record.msg = record.msg.replace(secret, replacement)
-                redacted = True
+                record.msg = str(record.msg).replace(secret, replacement)
+        if record.exc_info is not None:
+            type_, value_, traceback = record.exc_info
+            print(f"VMB: type(record.exc_info[1]): {type(record.exc_info[1])}")
+            # VMB: type(record.exc_info[1]): <class 'sqlalchemy.exc.ProgrammingError'>
+            # VMB: type(record.exc_info[2]): <class 'traceback'>
+            print(f"VMB: type(record.exc_info[2]): {type(record.exc_info[2])}")
+            pass
+            # for secret in _secrets:
+            #     # Try redacting msg alone:
+            #     replacement = '*' * len(secret)
+            #     record.msg = record.msg.replace(secret, replacement)
+            #     redacted = True
 
-        return redacted
+        return True  # yes, log this
 
 
 def set_stream_logging(name: str = 'records_mover',
@@ -63,8 +78,8 @@ def set_stream_logging(name: str = 'records_mover',
     logger = logging.getLogger(name)
     logger.setLevel(adjusted_level)
     logging_filter = SecretsRedactingFilter()
-    logger.addFilter(logging_filter)
     handler = logging.StreamHandler(stream=stream)
+    handler.addFilter(logging_filter)
     handler.setLevel(adjusted_level)
     formatter = logging.Formatter(fmt, datefmt)
     handler.setFormatter(formatter)
