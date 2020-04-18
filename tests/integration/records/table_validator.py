@@ -17,18 +17,7 @@ from records_mover.records import DelimitedVariant
 logger = logging.getLogger(__name__)
 
 
-#
-# Terminology:
-#
-# unload_variant: Variant exported from the source database, or None
-#                 if source database unloads via SELECT into a dataframe.
-#
-# file_variant: Variant of the file presented to records mover as the
-#               source, or None if the move was from a database instead.
-#
-# load_variant: Variant which the target database will eventually load
-#               from, or None if the database will be loaded via INSERT..
-class RecordsTableValidator:
+class MoverTestCase:
     def __init__(self,
                  target_db_engine: Engine,
                  source_db_engine: Optional[Engine] = None,
@@ -69,7 +58,7 @@ class RecordsTableValidator:
         # servers when integration tests are run by hand does not.
         return False
 
-    def selects_time_types_as_timedelta(self):
+    def selects_time_types_as_timedelta(self) -> bool:
         return self.target_db_engine.name == 'mysql'
 
     def supports_time_without_date(self) -> bool:
@@ -91,6 +80,40 @@ class RecordsTableValidator:
 
     def variant_uses_am_pm(self, variant: DelimitedVariant) -> bool:
         return variant == 'csv'
+
+
+#
+# Terminology:
+#
+# unload_variant: Variant exported from the source database, or None
+#                 if source database unloads via SELECT into a dataframe.
+#
+# file_variant: Variant of the file presented to records mover as the
+#               source, or None if the move was from a database instead.
+#
+# load_variant: Variant which the target database will eventually load
+#               from, or None if the database will be loaded via INSERT..
+class RecordsTableValidator:
+    def __init__(self,
+                 target_db_engine: Engine,
+                 source_db_engine: Optional[Engine] = None,
+                 file_variant: Optional[DelimitedVariant] = None) -> None:
+        """
+        :param db_engine: Target database of the records move.
+
+        :param source_data_db_engine: Source database of the records
+        move.  None if we are loading from a file or a dataframe
+        instead of copying from one database to another.
+
+        :param file_variant: None means the data was given to records mover via a Pandas
+        dataframe or by copying from another database instead of a CSV.
+        """
+        self.target_db_engine = target_db_engine
+        self.source_db_engine = source_db_engine
+        self.file_variant = file_variant
+        self.tc = MoverTestCase(target_db_engine=target_db_engine,
+                                source_db_engine=source_db_engine,
+                                file_variant=file_variant)
 
     def validate(self,
                  schema_name: str,
@@ -268,8 +291,8 @@ class RecordsTableValidator:
         assert ret['date'] == datetime.date(2000, 1, 1),\
             f"Expected datetime.date(2000, 1, 1), got {ret['date']}"
 
-        if self.supports_time_without_date():
-            if self.selects_time_types_as_timedelta():
+        if self.tc.supports_time_without_date():
+            if self.tc.selects_time_types_as_timedelta():
                 assert ret['time'] == datetime.timedelta(0, 0),\
                     f"Incorrect time: {ret['time']} (of type {type(ret['time'])})"
             else:
@@ -277,14 +300,14 @@ class RecordsTableValidator:
                     f"Incorrect time: {ret['time']} (of type {type(ret['time'])})"
         else:
             # fall back to storing as string
-            if load_variant is not None and self.variant_uses_am_pm(load_variant):
+            if load_variant is not None and self.tc.variant_uses_am_pm(load_variant):
                 assert ret['time'] == '12:00 AM', f"time was {ret['time']}"
             else:
                 assert ret['time'] == '00:00:00', f"time was {ret['time']}"
         if (((load_variant is not None) and
-             self.variant_doesnt_support_seconds(load_variant)) or
+             self.tc.variant_doesnt_support_seconds(load_variant)) or
            ((self.file_variant is not None) and
-           self.variant_doesnt_support_seconds(self.file_variant))):
+           self.tc.variant_doesnt_support_seconds(self.file_variant))):
             assert ret['timestamp'] ==\
                 datetime.datetime(2000, 1, 2, 12, 34),\
                 f"Found timestamp {ret['timestamp']}"
@@ -294,7 +317,7 @@ class RecordsTableValidator:
                 f"ret['timestamp'] was {ret['timestamp']} of type {type(ret['timestamp'])}"
 
         if (self.source_db_engine is not None and
-           self.database_has_no_usable_timestamptz_type(self.source_db_engine)):
+           self.tc.database_has_no_usable_timestamptz_type(self.source_db_engine)):
             # The source database doesn't know anything about
             # timezones, and records_database_fixture.py inserts
             # something like "2000-01-02 12:34:56.789012-05" - and the
@@ -302,7 +325,7 @@ class RecordsTableValidator:
             #
             utc_hour = 12
         elif (self.loaded_from_file() and
-              self.database_has_no_usable_timestamptz_type(self.target_db_engine)):
+              self.tc.database_has_no_usable_timestamptz_type(self.target_db_engine)):
             # In this case, we're trying to load a string that looks like this:
             #
             #  2000-01-02 12:34:56.789012-05
@@ -312,7 +335,7 @@ class RecordsTableValidator:
             # strips off the timezone and stores the '12'
             utc_hour = 12
         elif(self.loaded_from_dataframe() and
-             self.database_has_no_usable_timestamptz_type(self.target_db_engine)):
+             self.tc.database_has_no_usable_timestamptz_type(self.target_db_engine)):
             #
             # In this case, we correctly tell Pandas that we have are
             # at noon:34 US/Eastern, and tell Pandas to format the
@@ -325,8 +348,8 @@ class RecordsTableValidator:
             utc_hour = 12
         elif (self.loaded_from_file() and
               load_variant != self.file_variant and
-              self.variant_doesnt_support_timezones(load_variant) and
-              not self.database_default_store_timezone_is_us_eastern()):
+              self.tc.variant_doesnt_support_timezones(load_variant) and
+              not self.tc.database_default_store_timezone_is_us_eastern()):
             # In this case, we're trying to load a string that looks like this:
             #
             #  2000-01-02 12:34:56.789012-05
@@ -338,8 +361,8 @@ class RecordsTableValidator:
             # Pandas just prints the TZ-naive hour.
             utc_hour = 12
         elif (self.loaded_from_dataframe() and
-              self.variant_doesnt_support_timezones(load_variant) and
-              not self.database_default_store_timezone_is_us_eastern()):
+              self.tc.variant_doesnt_support_timezones(load_variant) and
+              not self.tc.database_default_store_timezone_is_us_eastern()):
             #
             # In this case, we correctly tell Pandas that we have are
             # at noon:34 US/Eastern, and tell Pandas to format the
@@ -348,8 +371,8 @@ class RecordsTableValidator:
             # TZ-naive hour.
             #
             utc_hour = 12
-        elif (self.variant_doesnt_support_timezones(self.file_variant) and
-              not self.database_default_store_timezone_is_us_eastern()):
+        elif (self.tc.variant_doesnt_support_timezones(self.file_variant) and
+              not self.tc.database_default_store_timezone_is_us_eastern()):
             # In this case we're loading from one of our example
             # files, but the example file doesn't contain a timezone.
             # Per tests/integration/resources/README.md:
@@ -380,9 +403,9 @@ class RecordsTableValidator:
             # understand that noon on the east coast is hour 17 UTC.
             utc_hour = 17
         if ((load_variant is not None and
-             self.variant_doesnt_support_seconds(load_variant)) or
+             self.tc.variant_doesnt_support_seconds(load_variant)) or
             ((self.file_variant is not None and
-              self.variant_doesnt_support_seconds(self.file_variant)))):
+              self.tc.variant_doesnt_support_seconds(self.file_variant)))):
             seconds = '00'
             micros = '000000'
         else:
@@ -393,7 +416,7 @@ class RecordsTableValidator:
             f"expected '2000-01-02 12:34:{seconds}.{micros}' got '{ret['timestampstr']}'"
 
         if (self.source_db_engine is not None and
-           self.database_has_no_usable_timestamptz_type(self.source_db_engine)):
+           self.tc.database_has_no_usable_timestamptz_type(self.source_db_engine)):
             # Depending on the capabilities of the target database, we
             # may not be able to get a rendered version that includes
             # the UTC tz - but either way we won't have transferred a
@@ -417,9 +440,9 @@ class RecordsTableValidator:
 
         utc = pytz.timezone('UTC')
         if ((load_variant is not None and
-             self.variant_doesnt_support_seconds(load_variant)) or
+             self.tc.variant_doesnt_support_seconds(load_variant)) or
             (self.file_variant is not None and
-             self.variant_doesnt_support_seconds(self.file_variant))):
+             self.tc.variant_doesnt_support_seconds(self.file_variant))):
             utc_naive_expected_time = datetime.datetime(2000, 1, 2, utc_hour, 34)
         else:
             utc_naive_expected_time = datetime.datetime(2000, 1, 2, utc_hour, 34, 56, 789012)
