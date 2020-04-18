@@ -1,7 +1,3 @@
-from .vertica.vertica_db_driver import VerticaDBDriver
-from .redshift.redshift_db_driver import RedshiftDBDriver
-from .bigquery.bigquery_db_driver import BigQueryDBDriver
-from .postgres.postgres_db_driver import PostgresDBDriver
 from .driver import DBDriver
 import sqlalchemy
 from typing import Union
@@ -13,12 +9,20 @@ def db_driver(db: Union[sqlalchemy.engine.Engine,
     engine: sqlalchemy.engine.Engine = db.engine
 
     if engine.name == 'vertica':
+        from .vertica.vertica_db_driver import VerticaDBDriver
+
         return VerticaDBDriver(db, **kwargs)
     elif engine.name == 'redshift':
+        from .redshift.redshift_db_driver import RedshiftDBDriver
+
         return RedshiftDBDriver(db, **kwargs)
     elif engine.name == 'bigquery':
+        from .bigquery.bigquery_db_driver import BigQueryDBDriver
+
         return BigQueryDBDriver(db, **kwargs)
     elif engine.name == 'postgresql':
+        from .postgres.postgres_db_driver import PostgresDBDriver
+
         return PostgresDBDriver(db, **kwargs)
     else:
         return DBDriver(db, **kwargs)

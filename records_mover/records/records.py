@@ -1,6 +1,4 @@
-from sqlalchemy.engine import Engine, Connection
 import logging
-from ..db import DBDriver
 from ..url.resolver import UrlResolver
 from .sources import RecordsSources
 from .targets import RecordsTargets
@@ -8,6 +6,9 @@ from .mover import move
 from enum import Enum
 from typing import Callable, Union, TYPE_CHECKING
 if TYPE_CHECKING:
+    from sqlalchemy.engine import Engine, Connection # noqa
+    from ..db import DBDriver # noqa
+
     from records_mover import Session  # noqa
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ class PleaseInfer(Enum):
 
 class Records:
     def __init__(self,
-                 db_driver: Union[Callable[[Union[Engine, Connection]], DBDriver],
+                 db_driver: Union[Callable[[Union['Engine', 'Connection']], 'DBDriver'],
                                   PleaseInfer] = PleaseInfer.token,
                  url_resolver: Union[UrlResolver, PleaseInfer] = PleaseInfer.token,
                  session: Union['Session', PleaseInfer] = PleaseInfer.token) -> None:

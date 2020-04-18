@@ -1,7 +1,7 @@
 from .constraints import RecordsSchemaFieldConstraints
-import sqlalchemy
 from typing import Optional, cast, TYPE_CHECKING
 if TYPE_CHECKING:
+    import sqlalchemy
     from records_mover.db import DBDriver  # noqa
     from .constraints import FieldIntegerConstraintsDict  # noqa
 
@@ -19,8 +19,10 @@ class RecordsSchemaFieldIntegerConstraints(RecordsSchemaFieldConstraints):
     @staticmethod
     def from_sqlalchemy_type(required: bool,
                              unique: Optional[bool],
-                             type_: sqlalchemy.types.TypeEngine,
+                             type_: 'sqlalchemy.types.TypeEngine',
                              driver: 'DBDriver') -> 'RecordsSchemaFieldIntegerConstraints':
+        import sqlalchemy
+
         if not isinstance(type_, sqlalchemy.types.Integer):
             raise TypeError(f"Unexpected column type: {type_}")
         limits = driver.integer_limits(type_)

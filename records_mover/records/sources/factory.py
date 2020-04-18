@@ -1,11 +1,9 @@
 from ..deprecated import warn_deprecated
 import pathlib
 from contextlib import contextmanager
-from sqlalchemy.engine import Engine
 from ..records_format import BaseRecordsFormat
 from ..schema import RecordsSchema
 from ..records_directory import RecordsDirectory
-from ...db import DBDriver
 from ..processing_instructions import ProcessingInstructions
 from ...url.resolver import UrlResolver
 from .fileobjs import FileobjsSource  # noqa
@@ -19,6 +17,8 @@ from typing import Mapping, IO, Callable, Iterator, Optional, Union, Iterable, T
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
     import google.auth.credentials  # noqa
+    from sqlalchemy.engine import Engine  # noqa
+    from ...db import DBDriver  # noqa
     from .google_sheets import GoogleSheetsRecordsSource  # noqa ditto
     # with pandas, which an optional addition for clients of this
     # library
@@ -44,7 +44,7 @@ class RecordsSources(object):
        results = records.move(source, target)
     """
     def __init__(self,
-                 db_driver: Callable[[Engine], DBDriver],
+                 db_driver: Callable[['Engine'], 'DBDriver'],
                  url_resolver: UrlResolver) -> None:
         self.db_driver = db_driver
         self.url_resolver = url_resolver
@@ -54,7 +54,7 @@ class RecordsSources(object):
                   df: 'DataFrame',
                   schema_name: Optional[str]=None,
                   table_name: Optional[str]=None,
-                  db_engine: Optional[Engine]=None,
+                  db_engine: Optional['Engine']=None,
                   processing_instructions: ProcessingInstructions=
                   ProcessingInstructions(),
                   records_schema: Optional[RecordsSchema]=None,
@@ -152,7 +152,7 @@ class RecordsSources(object):
 
     @contextmanager
     def table(self,
-              db_engine: Engine,
+              db_engine: 'Engine',
               schema_name: str,
               table_name: str) -> Iterator['TableRecordsSource']:
         """
