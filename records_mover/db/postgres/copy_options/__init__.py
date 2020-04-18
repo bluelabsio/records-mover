@@ -8,6 +8,7 @@ from .date_output_style import determine_output_date_order_style
 from .csv import postgres_copy_options_csv
 from .text import postgres_copy_options_text
 from .types import PostgresCopyOptions, DateOrderStyle, DateOutputStyle
+from .mode import CopyOptionsMode
 
 
 logger = logging.getLogger(__name__)
@@ -48,11 +49,13 @@ def postgres_copy_to_options(unhandled_hints: Set[str],
     if needs_csv_format(hints):
         copy_options = postgres_copy_options_csv(unhandled_hints,
                                                  hints,
-                                                 fail_if_cant_handle_hint)
+                                                 fail_if_cant_handle_hint,
+                                                 CopyOptionsMode.UNLOADING)
     else:
         copy_options = postgres_copy_options_text(unhandled_hints,
                                                   hints,
-                                                  fail_if_cant_handle_hint)
+                                                  fail_if_cant_handle_hint,
+                                                  CopyOptionsMode.UNLOADING)
 
     date_output_style, date_order_style =\
         determine_output_date_order_style(unhandled_hints,
@@ -76,11 +79,13 @@ def postgres_copy_from_options(unhandled_hints: Set[str],
     if needs_csv_format(hints):
         postgres_copy_options = postgres_copy_options_csv(unhandled_hints,
                                                           hints,
-                                                          fail_if_cant_handle_hint)
+                                                          fail_if_cant_handle_hint,
+                                                          CopyOptionsMode.LOADING)
     else:
         postgres_copy_options = postgres_copy_options_text(unhandled_hints,
                                                            hints,
-                                                           fail_if_cant_handle_hint)
+                                                           fail_if_cant_handle_hint,
+                                                           CopyOptionsMode.LOADING)
 
     date_order_style: Optional[DateOrderStyle] =\
         determine_input_date_order_style(unhandled_hints,

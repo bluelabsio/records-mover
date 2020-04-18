@@ -2,13 +2,15 @@ from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from records_mover.records.types import RecordsHints
 from typing import Set
+from .mode import CopyOptionsMode
 from .common import postgres_copy_options_common
-from .types import PostgresCopyOptions
+from .types import PostgresCopyOptions, CopyOptionsModeType, _assert_never
 
 
 def postgres_copy_options_csv(unhandled_hints: Set[str],
                               hints: RecordsHints,
-                              fail_if_cant_handle_hint: bool) ->\
+                              fail_if_cant_handle_hint: bool,
+                              mode: CopyOptionsModeType) ->\
         PostgresCopyOptions:
     postgres_options: PostgresCopyOptions = {}
     # FORMAT
@@ -69,12 +71,20 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
     #  specified, non-NULL values will be quoted in all columns. This
     #  option is allowed only in COPY TO, and only when using CSV
     #  format.
-    #
-
-    if hints['quoting'] != 'minimal':
-        cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
+    if mode is CopyOptionsMode.LOADING:
+        if hints['quoting'] != 'minimal':
+            cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
+        else:
+            quiet_remove(unhandled_hints, 'quoting')
+    elif mode is CopyOptionsMode.UNLOADING:
+        if hints['quoting'] is None:
+            pass  # default
+        elif hints['quoting'] == 'all':
+            postgres_options['force_quote'] = '*'
+        else:
+            cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
     else:
-        quiet_remove(unhandled_hints, 'quoting')
+        _assert_never(mode)
 
     # As of the 9.2 release (documentation as of 2019-03-12), there's
     # no statement in the docs on what newline formats are accepted in
@@ -104,10 +114,21 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
     # tests/integration/resources/delimited-bigquery-with-header-dos.csv
     # --target.existing_table drop_and_recreate
     # dockerized-postgres public bigqueryformat # loads fine
-    if hints['record-terminator'] in ("\n", "\r\n", "\r", None):
-        quiet_remove(unhandled_hints, 'record-terminator')
+
+    if mode is CopyOptionsMode.LOADING:
+        if hints['record-terminator'] in ("\n", "\r\n", "\r", None):
+            quiet_remove(unhandled_hints, 'record-terminator')
+        else:
+            cant_handle_hint(fail_if_cant_handle_hint, 'records-terminator', hints)
+    elif mode is CopyOptionsMode.UNLOADING:
+        # No control for this is given - exports appear with unix
+        # newlines.
+        if hints['record-terminator'] == "\n":
+            quiet_remove(unhandled_hints, 'record-terminator')
+        else:
+            cant_handle_hint(fail_if_cant_handle_hint, 'records-terminator', hints)
     else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'records-terminator', hints)
+        _assert_never(mode)
 
     if hints['compression'] is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)

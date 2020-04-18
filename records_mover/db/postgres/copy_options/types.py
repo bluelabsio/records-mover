@@ -1,4 +1,5 @@
-from typing import Dict, Union, TYPE_CHECKING
+from typing import Dict, Union, NoReturn, TYPE_CHECKING
+from .mode import CopyOptionsMode
 if TYPE_CHECKING:
     from typing_extensions import Literal
     # https://www.postgresql.org/docs/9.5/runtime-config-client.html#GUC-DATESTYLE
@@ -61,10 +62,20 @@ if TYPE_CHECKING:
     # The formatting function to_char (see Section 9.8) is also
     # available as a more flexible way to format date/time output.
     DateOutputStyle = Literal["ISO", "SQL", "Postgres", "German"]
-else:
 
+    CopyOptionsModeType = Union[Literal[CopyOptionsMode.LOADING],
+                                Literal[CopyOptionsMode.UNLOADING]]
+else:
     DateOrderStyle = str
     DateOutputStyle = str
+    CopyOptionsModeType = str
 
 
 PostgresCopyOptions = Dict[str, object]
+
+
+# mypy way of validating we're covering all cases of an enum
+#
+# https://github.com/python/mypy/issues/6366#issuecomment-560369716
+def _assert_never(x: NoReturn) -> NoReturn:
+    assert False, "Unhandled type: {}".format(type(x).__name__)
