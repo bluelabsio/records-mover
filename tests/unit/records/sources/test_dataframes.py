@@ -62,16 +62,17 @@ class TestDataframesRecordsSource(unittest.TestCase):
                 assert_called_with(mock_processing_instructions.fail_if_dont_understand,
                                    mock_unhandled_hints,
                                    mock_target_records_format.hints)
+            mock_pi = mock_processing_instructions
             mock_prep_df_for_csv_output.assert_any_call(mock_df_1,
                                                         include_index=mock_include_index,
                                                         records_schema=mock_target_records_schema,
                                                         records_format=mock_target_records_format,
-                                                        processing_instructions=mock_processing_instructions)
+                                                        processing_instructions=mock_pi)
             mock_prep_df_for_csv_output.assert_any_call(mock_df_2,
                                                         include_index=mock_include_index,
                                                         records_schema=mock_target_records_schema,
                                                         records_format=mock_target_records_format,
-                                                        processing_instructions=mock_processing_instructions)
+                                                        processing_instructions=mock_pi)
             mock_formatted_df = mock_prep_df_for_csv_output.return_value
             mock_formatted_df.to_csv.assert_called_with(path_or_buf=mock_output_filename,
                                                         index=mock_include_index,
