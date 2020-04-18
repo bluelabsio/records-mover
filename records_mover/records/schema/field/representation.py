@@ -1,13 +1,12 @@
 from abc import ABCMeta, abstractmethod
-from sqlalchemy.schema import CreateColumn
-from sqlalchemy.engine.interfaces import Dialect
-from sqlalchemy import Column
 import json
 from collections import OrderedDict
 import logging
 import re
 from typing import Optional, Dict, Union, Any, cast, TYPE_CHECKING
 if TYPE_CHECKING:
+    from sqlalchemy.engine.interfaces import Dialect
+    from sqlalchemy import Column
     from typing_extensions import Literal
     from mypy_extensions import TypedDict
     import pandas
@@ -73,9 +72,11 @@ class RecordsSchemaFieldRepresentation(metaclass=ABCMeta):
                                                       pd_df_ftype=index.ftype)
 
     @staticmethod
-    def from_sqlalchemy_column(column: Column, dialect: Dialect,
+    def from_sqlalchemy_column(column: 'Column', dialect: 'Dialect',
                                rep_type: str) ->\
             'RecordsSchemaFieldRepresentation':
+        from sqlalchemy.schema import CreateColumn
+
         statement = CreateColumn(column)
         col_ddl_compiler = statement.compile(dialect=dialect)
         full_col_ddl = str(col_ddl_compiler)

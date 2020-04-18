@@ -1,7 +1,7 @@
 from .constraints import RecordsSchemaFieldConstraints
-import sqlalchemy
 from typing import Optional, Tuple, cast, TYPE_CHECKING
 if TYPE_CHECKING:
+    import sqlalchemy
     from .constraints import FieldStringConstraintsDict  # noqa
     from records_mover.db import DBDriver  # noqa
 
@@ -17,7 +17,7 @@ class RecordsSchemaFieldStringConstraints(RecordsSchemaFieldConstraints):
         self.max_length_chars = max_length_chars
 
     @staticmethod
-    def string_type_constraints(type_: sqlalchemy.types.String,
+    def string_type_constraints(type_: 'sqlalchemy.types.String',
                                 driver: 'DBDriver') ->\
             Tuple[Optional[int], Optional[int]]:
         max_length_bytes = None
@@ -31,8 +31,10 @@ class RecordsSchemaFieldStringConstraints(RecordsSchemaFieldConstraints):
     @staticmethod
     def from_sqlalchemy_type(required: bool,
                              unique: Optional[bool],
-                             type_: sqlalchemy.types.TypeEngine,
+                             type_: 'sqlalchemy.types.TypeEngine',
                              driver: 'DBDriver') -> 'RecordsSchemaFieldStringConstraints':
+        import sqlalchemy
+
         if not isinstance(type_, sqlalchemy.types.String):
             raise TypeError(f"Unexpected column type: {type_}")
         max_length_bytes, max_length_chars =\

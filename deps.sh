@@ -5,6 +5,7 @@
 export SLUGIFY_USES_TEXT_UNIDECODE=yes
 
 brew update && ( brew upgrade pyenv || true )
+pyenv rehash  # needed if pyenv is updated
 
 python_version=3.8.1
 # zipimport.ZipImportError: can't decompress data; zlib not available:
@@ -15,4 +16,4 @@ pyenv virtualenv "${python_version:?}" records-mover-"${python_version:?}" || tr
 pyenv local records-mover-"${python_version:?}"
 
 pip3 install --upgrade pip
-pip3 install -r requirements.txt -e '.[movercli]'
+pip3 install -r requirements.txt -e '.[unittest,itest]'

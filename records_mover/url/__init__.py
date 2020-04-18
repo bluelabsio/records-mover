@@ -1,9 +1,11 @@
 from urllib.parse import urlparse
 from .base import BaseDirectoryUrl, BaseFileUrl
+import logging
 from typing import Dict, Type, Union, Callable, Any
 
-
 CreatesUrls = Callable[..., Union[BaseFileUrl, BaseDirectoryUrl]]
+
+logger = logging.getLogger(__name__)
 
 # These are added as modules are evaluated to avoid circular
 # dependencies
@@ -12,14 +14,20 @@ file_url_ctors: Dict[str, Union[Type[BaseFileUrl], CreatesUrls]] = {}
 
 
 def init_urls() -> None:
-    from .s3.s3_url import S3Url
+    try:
+        from .s3.s3_url import S3Url
+    except ModuleNotFoundError:
+        logger.debug('No S3 support', exc_info=True)
+        S3Url = None  # type: ignore
     from .filesystem import FilesystemDirectoryUrl, FilesystemFileUrl
     from .http import HttpFileUrl
     if len(directory_url_ctors) == 0:
-        directory_url_ctors['s3'] = S3Url
+        if S3Url is not None:
+            directory_url_ctors['s3'] = S3Url
         directory_url_ctors['file'] = FilesystemDirectoryUrl
     if len(file_url_ctors) == 0:
-        file_url_ctors['s3'] = S3Url
+        if S3Url is not None:
+            file_url_ctors['s3'] = S3Url
         file_url_ctors['file'] = FilesystemFileUrl
 
         file_url_ctors['http'] = HttpFileUrl

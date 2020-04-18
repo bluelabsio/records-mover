@@ -1,9 +1,9 @@
-import boto3
 from db_facts.db_facts_types import DBFacts
 from typing import TYPE_CHECKING, Iterable
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
     import google.auth.credentials  # noqa
+    import boto3  # noqa
 
 
 # this interfaces here are probably unstable until we figure out how
@@ -32,5 +32,5 @@ class BaseCreds():
     def db_facts(self, db_creds_name: str) -> DBFacts:
         raise NotImplementedError
 
-    def boto3_session(self, aws_creds_name: str) -> boto3.session.Session:
+    def boto3_session(self, aws_creds_name: str) -> 'boto3.session.Session':
         raise NotImplementedError
