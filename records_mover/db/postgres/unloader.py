@@ -69,6 +69,9 @@ class PostgresUnloader(Unloader):
 
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
         return [
+            # TODO: Document why others won't work, add customized
+            # versions
+
             #
             # To validate that these unload without pandas:
             #

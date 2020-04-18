@@ -77,8 +77,17 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
         else:
             quiet_remove(unhandled_hints, 'quoting')
     elif mode is CopyOptionsMode.UNLOADING:
-        # TODO: Are we sure this doesn't support minimal by default instead of None by default?
-        if hints['quoting'] is None:
+        # The values in each record are separated by the DELIMITER
+        # character. If the value contains the delimiter character,
+        # the QUOTE character, the NULL string, a carriage return, or
+        # line feed character, then the whole value is prefixed and
+        # suffixed by the QUOTE character, and any occurrence within
+        # the value of a QUOTE character or the ESCAPE character is
+        # preceded by the escape character. You can also use
+        # FORCE_QUOTE to force quotes when outputting non-NULL values
+        # in specific columns.
+
+        if hints['quoting'] == 'minimal':
             pass  # default
         elif hints['quoting'] == 'all':
             postgres_options['force_quote'] = '*'
