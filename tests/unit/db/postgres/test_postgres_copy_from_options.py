@@ -58,3 +58,36 @@ class TestPostgresCopyFromOptions(unittest.TestCase):
                                     records_format)
         with self.assertRaises(NotImplementedError):
             postgres_copy_from_options(unhandled_hints, load_plan)
+
+    def test_csv_with_escaping(self):
+        records_format = DelimitedRecordsFormat(variant='csv',
+                                                hints={'compression': None,
+                                                       'escape': '\\'})
+        unhandled_hints = set()
+        processing_instructions = ProcessingInstructions()
+        load_plan = RecordsLoadPlan(processing_instructions,
+                                    records_format)
+        with self.assertRaises(NotImplementedError):
+            postgres_copy_from_options(unhandled_hints, load_plan)
+
+    def test_csv_no_doublequote(self):
+        records_format = DelimitedRecordsFormat(variant='csv',
+                                                hints={'compression': None,
+                                                       'doublequote': None})
+        unhandled_hints = set()
+        processing_instructions = ProcessingInstructions()
+        load_plan = RecordsLoadPlan(processing_instructions,
+                                    records_format)
+        with self.assertRaises(NotImplementedError):
+            postgres_copy_from_options(unhandled_hints, load_plan)
+
+    def test_csv_quote_all(self):
+        records_format = DelimitedRecordsFormat(variant='csv',
+                                                hints={'compression': None,
+                                                       'quoting': 'all'})
+        unhandled_hints = set()
+        processing_instructions = ProcessingInstructions()
+        load_plan = RecordsLoadPlan(processing_instructions,
+                                    records_format)
+        with self.assertRaises(NotImplementedError):
+            postgres_copy_from_options(unhandled_hints, load_plan)
