@@ -1,17 +1,8 @@
 from sqlalchemy.engine import Engine, Connection
-import sqlalchemy_redshift.dialect
-from typing import Optional, Union
+from typing import Union
 
 
-def _dialect(db: Optional[Union[Connection, Engine]]):
-    if db is None:
-        # use a common one which is likely to be compatible
-        return sqlalchemy_redshift.dialect.RedshiftDialect()
-    else:
-        return db.dialect
-
-
-def quote_schema_and_table(db: Optional[Union[Connection, Engine]],
+def quote_schema_and_table(db: Union[Connection, Engine],
                            schema: str,
                            table: str) -> str:
     """
@@ -27,22 +18,22 @@ def quote_schema_and_table(db: Optional[Union[Connection, Engine]],
     quoted_bobby: "Robert'); DROP TABLE Students;--"
 
     """
-    dialect = _dialect(db)
+    dialect = db.dialect
     return (dialect.preparer(dialect).quote(schema) + '.' +
             dialect.preparer(dialect).quote(table))
 
 
-def quote_table_only(db: Optional[Union[Connection, Engine]], table: str) -> str:
-    dialect = _dialect(db)
+def quote_table_only(db: Union[Connection, Engine], table: str) -> str:
+    dialect = db.dialect
     return dialect.preparer(dialect).quote(table)
 
 
-def quote_column_name(db: Optional[Union[Connection, Engine]], column_name: str) -> str:
-    dialect = _dialect(db)
+def quote_column_name(db: Union[Connection, Engine], column_name: str) -> str:
+    dialect = db.dialect
     return dialect.preparer(dialect).quote(column_name)
 
 
-def quote_value(db: Optional[Union[Connection, Engine]], value: str) -> str:
+def quote_value(db: Union[Connection, Engine], value: str) -> str:
     """
     Prevent SQL injection on literal string values in places when we're
     not able to use bind variables (e.g., using weird DB-specific
@@ -57,15 +48,15 @@ def quote_value(db: Optional[Union[Connection, Engine]], value: str) -> str:
     quoted_bobby: 'Robert''); DROP TABLE Students;--'
 
     """
-    dialect = _dialect(db)
+    dialect = db.dialect
     return dialect.preparer(dialect, initial_quote="'").quote(value)
 
 
-def quote_user_name(db: Optional[Union[Connection, Engine]], user_name: str) -> str:
-    dialect = _dialect(db)
+def quote_user_name(db: Union[Connection, Engine], user_name: str) -> str:
+    dialect = db.dialect
     return dialect.preparer(dialect).quote_identifier(user_name)
 
 
-def quote_group_name(db: Optional[Union[Connection, Engine]], group_name: str) -> str:
-    dialect = _dialect(db)
+def quote_group_name(db: Union[Connection, Engine], group_name: str) -> str:
+    dialect = db.dialect
     return dialect.preparer(dialect).quote_identifier(group_name)

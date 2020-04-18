@@ -49,6 +49,13 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
         self.load_and_verify('delimited', 'bluelabs', hints={'compression': None}, broken=True)
 
     def test_load_from_s3_records_directory(self):
+        try:
+            import boto3  # noqa
+        except ModuleNotFoundError:
+            logger.warning("Not running in test environment with boto3, "
+                           "so skipping records directory URL test")
+            return
+
         if not self.has_scratch_bucket():
             logger.warning('No scratch bucket, so skipping records directory URL test')
             return

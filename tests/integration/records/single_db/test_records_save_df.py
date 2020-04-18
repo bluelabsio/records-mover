@@ -8,14 +8,13 @@ from records_mover.records import (
 import tempfile
 import pathlib
 import datetime
-from odictliteral import odict
 
 
 logger = logging.getLogger(__name__)
 
 
 class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
-    def save_and_verify(self, records_format, processing_instructions=None):
+    def save_and_verify(self, records_format, processing_instructions=None) -> None:
         if not self.has_pandas():
             logger.warning("Skipping test as we don't have Pandas to save with.")
             return
@@ -25,7 +24,7 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
         if processing_instructions is None:
             processing_instructions = ProcessingInstructions()
         us_eastern = pytz.timezone('US/Eastern')
-        df = DataFrame.from_dict([odict[
+        df = DataFrame.from_dict([{
             'num': 123,
             'numstr': '123',
             'str': 'foo',
@@ -38,7 +37,7 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
             'time': datetime.time(0, 0),
             'timestamp': datetime.datetime(2000, 1, 2, 12, 34, 56, 789012),
             'timestamptz': us_eastern.localize(datetime.datetime(2000, 1, 2, 12, 34, 56, 789012))
-        ]])
+        }])
 
         records_schema = RecordsSchema.from_dataframe(df,
                                                       processing_instructions,
@@ -59,9 +58,10 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
                                           records_format.hints)
             return out
 
-    def verify_records_directory(self, format_type, variant, tempdir, hints={}):
+    def verify_records_directory(self, format_type, variant, tempdir, hints={}) -> None:
         validator = RecordsDirectoryValidator(tempdir,
-                                              self.resource_name(format_type, variant, hints))
+                                              self.resource_name(format_type, variant, hints),
+                                              self.engine.name)
         validator.validate()
 
     def test_save_with_defaults(self):

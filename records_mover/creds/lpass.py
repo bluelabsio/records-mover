@@ -1,5 +1,4 @@
 from subprocess import check_output
-from records_mover.db.db_type import canonicalize_db_type, db_protocol
 from db_facts.db_facts_types import DBFacts
 
 
@@ -22,6 +21,8 @@ def lpass_field(name: str, field: str) -> str:
 
 
 def db_facts_from_lpass(lpass_entry_name: str) -> DBFacts:
+    from records_mover.db.db_type import canonicalize_db_type, db_protocol
+
     user = lpass_field(lpass_entry_name, 'username')
     password = lpass_field(lpass_entry_name, 'password')
     host = lpass_field(lpass_entry_name, 'Hostname')

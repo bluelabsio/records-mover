@@ -47,8 +47,7 @@ def field_from_sqlalchemy_column(column: Column,
                                  type_=type_,
                                  driver=driver)
     elif (isinstance(type_, (sqlalchemy.sql.sqltypes.Numeric,
-                             sqlalchemy.sql.sqltypes.Float,
-                             sqlalchemy.dialects.postgresql.base.DOUBLE_PRECISION))):
+                             sqlalchemy.sql.sqltypes.Float))):
         field_type = 'decimal'
         constraints = RecordsSchemaFieldDecimalConstraints.\
             from_sqlalchemy_type(required=required,

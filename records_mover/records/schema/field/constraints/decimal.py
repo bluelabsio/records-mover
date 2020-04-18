@@ -1,7 +1,7 @@
 from .constraints import RecordsSchemaFieldConstraints
-import sqlalchemy
 from typing import Optional, cast, TYPE_CHECKING
 if TYPE_CHECKING:
+    import sqlalchemy
     from .constraints import FieldDecimalConstraintsDict  # noqa
     from records_mover.db import DBDriver  # noqa
 
@@ -23,8 +23,10 @@ class RecordsSchemaFieldDecimalConstraints(RecordsSchemaFieldConstraints):
     @staticmethod
     def from_sqlalchemy_type(required: bool,
                              unique: Optional[bool],
-                             type_: sqlalchemy.types.TypeEngine,
+                             type_: 'sqlalchemy.types.TypeEngine',
                              driver: 'DBDriver') -> 'RecordsSchemaFieldDecimalConstraints':
+        import sqlalchemy
+
         if not isinstance(type_, sqlalchemy.types.Numeric):
             raise TypeError(f"Unexpected column type: {type_}")
 

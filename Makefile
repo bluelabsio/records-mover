@@ -11,7 +11,7 @@ clean: coverageclean typecoverageclean
 
 typecheck:
 	mypy --cobertura-xml-report typecover --html-report typecover .
-	mypy tests/integration/records
+	mypy tests/integration
 
 typecoverage:
 	python setup.py mypy_ratchet
@@ -22,10 +22,10 @@ citypecoverage: typecoverage
 	@test -z "$$(git status --porcelain metrics/mypy_high_water_mark)"
 
 test:
-	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive
+	ENV=test nosetests --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive tests/unit
 
 citest:
-	ENV=test nosetests --exclude='tests/integration' --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml
+	ENV=test nosetests --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml tests/unit
 
 coverage:
 	python setup.py coverage_ratchet
