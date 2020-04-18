@@ -1,7 +1,6 @@
 import os
 import sys
 import logging
-import io
 from typing import IO, Set, Optional
 
 
@@ -20,18 +19,18 @@ def register_secret(secret: Optional[object]) -> None:
         _secrets.add(str(secret))
 
 
-# https://stackoverflow.com/questions/45469808/how-to-wrap-a-python-text-stream-to-replace-strings-on-the-fly
-class SecretsRedactingLogStream(io.TextIOBase):
-    def __init__(self, underlying: IO[str]) -> None:
-        self.underlying = underlying
-        self.secrets = ['records']
+class SecretsRedactingFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        redacted = False
 
-    def write(self, s: str) -> int:
         for secret in _secrets:
-            if secret in s:
+            if secret in record.msg:
+                # Try redacting msg alone:
                 replacement = '*' * len(secret)
-                s = s.replace(secret, replacement)
-        return self.underlying.write(s)
+                record.msg = record.msg.replace(secret, replacement)
+                redacted = True
+
+        return redacted
 
 
 def set_stream_logging(name: str = 'records_mover',
@@ -63,15 +62,9 @@ def set_stream_logging(name: str = 'records_mover',
     adjusted_level = _adjusted_log_level(level, name)
     logger = logging.getLogger(name)
     logger.setLevel(adjusted_level)
-    wrapper = SecretsRedactingLogStream(stream)
-    #
-    # I don't understand exactly why, but TextIOBase doesn't seem to
-    # be compatible with IO[str] in mypy's mind.
-    #
-    # https://github.com/python/typeshed/blob/master/stdlib/3/io.pyi
-    # https://github.com/python/typeshed/issues/1229
-    #
-    handler = logging.StreamHandler(stream=wrapper)  # type: ignore
+    logging_filter = SecretsRedactingFilter()
+    logger.addFilter(logging_filter)
+    handler = logging.StreamHandler(stream=stream)
     handler.setLevel(adjusted_level)
     formatter = logging.Formatter(fmt, datefmt)
     handler.setFormatter(formatter)
