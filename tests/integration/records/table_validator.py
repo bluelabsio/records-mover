@@ -6,7 +6,11 @@ from sqlalchemy.sql import text
 from sqlalchemy.sql.elements import TextClause
 from typing import Optional, Dict, Any, Union, List
 from .timezone import set_session_tz
-from .expected_column_types import expected_column_types
+from .expected_column_types import (
+    expected_single_database_column_types,
+    expected_df_loaded_database_column_types,
+    expected_table2table_column_types
+)
 from records_mover.records import DelimitedVariant
 
 
@@ -112,7 +116,31 @@ class RecordsTableValidator:
             return str(column['type']) + suffix
 
         actual_column_types = [format_type(column) for column in columns]
-        assert actual_column_types in expected_column_types, actual_column_types
+        if self.source_db_engine is None:
+            if self.file_variant is None:
+                assert actual_column_types in\
+                    (expected_df_loaded_database_column_types.get(self.target_db_engine.name),
+                     expected_single_database_column_types[self.target_db_engine.name]),\
+                    f'Could not find column types filed under ' \
+                    f"{('df', self.target_db_engine.name)} or : " \
+                    f"{self.target_db_engine.name}: " \
+                    f'{actual_column_types}'
+            else:
+                assert actual_column_types ==\
+                    expected_single_database_column_types[self.target_db_engine.name],\
+                    f'Could not find column types filed under {self.target_db_engine.name}: ' +\
+                    f'{actual_column_types}'
+        else:
+            assert (actual_column_types in
+                    (expected_table2table_column_types.get((self.source_db_engine.name,
+                                                            self.target_db_engine.name)),
+                     expected_single_database_column_types[self.source_db_engine.name],
+                     expected_single_database_column_types[self.target_db_engine.name],
+                     expected_df_loaded_database_column_types.get(self.target_db_engine.name))),\
+                     f'Could not find column types filed under '\
+                     f"{(self.source_db_engine.name, self.target_db_engine.name)} "\
+                     'or either individually: '\
+                     f'{actual_column_types}'
 
     def supported_load_variants(self, db_engine: Engine) -> List[DelimitedVariant]:
         if db_engine.name == 'bigquery':
