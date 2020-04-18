@@ -69,7 +69,6 @@ class PostgresUnloader(Unloader):
 
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
         return [
-            # TODO update these validation instructions and validate each
             #
             # To validate that these unload without pandas:
             #
@@ -77,10 +76,12 @@ class PostgresUnloader(Unloader):
             # pip3 uninstall -y pandas
             # ./itest shell
             #
-            # mvrec table2file --target.variant bluelabs
-            # --target.no_compression
-            # dockerized-postgres public test
-            # tests/integration/resources/delimited-bluelabs-no-header.csv
+            # echo 'create table public.test as select 1 as a;' | db dockerized-postgres
+            #
+            # mvrec table2file --target.variant bluelabs \
+            # --target.no_compression \
+            # dockerized-postgres public test \
+            # foo.csv
             DelimitedRecordsFormat(variant='bluelabs',
                                    hints={'compression': None}),
         ]
