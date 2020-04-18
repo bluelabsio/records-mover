@@ -124,10 +124,6 @@ class TestPostgresUnloader(unittest.TestCase):
                                         mock_conn,
                                         abc=123)
 
-    def test_known_supported_records_formats_for_unload(self):
-        out = self.unloader.known_supported_records_formats_for_unload()
-        self.assertEqual(out, [DelimitedRecordsFormat('bluelabs', {'compression': None})])
-
     @patch('records_mover.db.postgres.unloader.complain_on_unhandled_hints')
     @patch('records_mover.db.postgres.unloader.postgres_copy_to_options')
     def test_can_unload_this_format_true(self,

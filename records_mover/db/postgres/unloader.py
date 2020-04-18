@@ -69,24 +69,36 @@ class PostgresUnloader(Unloader):
 
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
         return [
-            # TODO: Document why others won't work, add customized
-            # versions
-
             #
-            # To validate that these unload without pandas:
+            # Notes:
             #
+            # The 'vertica' variant won't work, as the
+            # record-delimiter in Postgres unloads can't be anything
+            # other than a UNIX newline.
             #
-            # pip3 uninstall -y pandas
-            # ./itest shell
+            # The 'bigquery' variant isn't feasible, as there's no way
+            # to export the datetimetz equivalent type without a
+            # timezone indicator.
             #
-            # echo 'create table public.test as select 1 as a;' | db dockerized-postgres
+            # Postgres doesn't support compression on unload, so we
+            # need to avoid that.
             #
-            # mvrec table2file --target.variant bluelabs \
-            # --target.no_compression \
-            # dockerized-postgres public test \
-            # foo.csv
             DelimitedRecordsFormat(variant='bluelabs',
                                    hints={'compression': None}),
+            #
+            # Postgres supports a limited number of export date
+            # styles, so only a subvariant of the csv variant is
+            # feasible.  See copy_options/date_output_style.py for
+            # details.
+            #
+            DelimitedRecordsFormat(variant='csv',
+                                   hints={
+                                       'compression': None,
+                                       'dateformat': 'YYYY-MM-DD',
+                                       'timeonlyformat': 'HH24:MI:SS',
+                                       'datetimeformattz': 'YYYY-MM-DD HH24:MI:SSOF',
+                                       'datetimeformat': 'YYYY-MM-DD HH24:MI:SS',
+                                   }),
         ]
 
     def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
