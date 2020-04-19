@@ -73,10 +73,11 @@ class TestHints(unittest.TestCase):
                     initial_hints['encoding'] = test_details['initial']
                 out = sniff_hints_from_fileobjs(fileobjs=fileobjs,
                                                 initial_hints=initial_hints)
-            self.assertDictContainsSubset({
+            needed_settings = {
                 'compression': None,
                 'encoding': test_details['hint'],
                 'field-delimiter': ',',
                 'header-row': True,
                 'record-terminator': '\n'
-            }, out)
+            }
+            self.assertTrue(set(needed_settings.items()).issubset(set(out.items())))
