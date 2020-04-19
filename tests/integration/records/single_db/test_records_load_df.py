@@ -41,9 +41,9 @@ class RecordsLoadDataframeIntegrationTest(BaseRecordsIntegrationTest):
             self.verify_db_table()
             return out
 
-    def verify_db_table(self):
+    def verify_db_table(self) -> None:
         validator = RecordsTableValidator(self.engine)
-        validator.validate(None, schema_name=self.schema_name, table_name=self.table_name)
+        validator.validate(schema_name=self.schema_name, table_name=self.table_name)
 
     def test_load_with_defaults(self):
         self.load_and_verify()
