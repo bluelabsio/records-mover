@@ -1,6 +1,6 @@
 from ...utils import quiet_remove
 from ...records.hints import cant_handle_hint
-from sqlalchemy_redshift.commands import Format
+from sqlalchemy_redshift.commands import Format, Encoding, Compression
 from typing import Dict, Optional, Set
 from ...records import RecordsHints
 
@@ -13,18 +13,32 @@ def redshift_copy_options(unhandled_hints: Set[str],
                           fail_if_row_invalid: bool,
                           max_failure_rows: Optional[int]) -> RedshiftCopyOptions:
     redshift_options: RedshiftCopyOptions = {}
-    redshift_options['compression'] = hints['compression']
+    if hints['compression'] == 'GZIP':
+        redshift_options['compression'] = Compression.gzip
+    elif hints['compression'] == 'LZO':
+        redshift_options['compression'] = Compression.lzop
+    elif hints['compression'] == 'BZIP':
+        redshift_options['compression'] = Compression.bzip2
+    else:
+        cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
+        redshift_options['compression'] = hints['compression']
     quiet_remove(unhandled_hints, 'compression')
     if hints['dateformat'] is None:
         redshift_options['date_format'] = 'auto'
     else:
         redshift_options['date_format'] = hints['dateformat']
     quiet_remove(unhandled_hints, 'dateformat')
-    if hints['encoding'] not in ['UTF8', 'UTF16', 'UTF16LE', 'UTF16BE']:
-        cant_handle_hint(fail_if_cant_handle_hint, 'encoding', hints)
-        redshift_options['encoding'] = 'UTF8'
+    if hints['encoding'] == 'UTF8':
+        redshift_options['encoding'] = Encoding.utf8
+    elif hints['encoding'] == 'UTF16':
+        redshift_options['encoding'] = Encoding.utf16
+    elif hints['encoding'] == 'UTF16LE':
+        redshift_options['encoding'] = Encoding.utf16le
+    elif hints['encoding'] == 'UTF16BE':
+        redshift_options['encoding'] = Encoding.utf16be
     else:
-        redshift_options['encoding'] = hints['encoding']
+        cant_handle_hint(fail_if_cant_handle_hint, 'encoding', hints)
+        redshift_options['encoding'] = Encoding.utf8
     quiet_remove(unhandled_hints, 'encoding')
     redshift_options['quote'] = hints['quotechar']
     quiet_remove(unhandled_hints, 'quotechar')
