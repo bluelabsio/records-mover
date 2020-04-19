@@ -5,6 +5,7 @@ from sqlalchemy.sql import text
 from sqlalchemy.schema import Table
 import logging
 from records_mover.db.quoting import quote_schema_and_table
+from records_mover.logging import register_secret
 from .records_unload import redshift_unload_options
 from ...records.unload_plan import RecordsUnloadPlan
 from ...records.records_format import (
@@ -55,6 +56,13 @@ class RedshiftUnloader(Unloader):
             if aws_creds is None:
                 raise CredsDoNotSupportS3Export('Please provide AWS credentials '
                                                 '(run "aws configure")')
+            #
+            # Upon error, an exception is raised with the full SQL -
+            # including the AWS creds inside.  Let's register those
+            # with the logger so they get redacted.
+            #
+            register_secret(aws_creds.token)
+            register_secret(aws_creds.secret_key)
             select = text(f"SELECT * FROM {quote_schema_and_table(self.db, schema, table)}")
             unload = UnloadFromSelect(select=select,
                                       access_key_id=aws_creds.access_key,
