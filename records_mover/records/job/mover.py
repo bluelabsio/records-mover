@@ -35,6 +35,6 @@ def run_records_mover_job(source_method_name: str,
         source = source_method(**source_kwargs)
         target = target_method(**target_kwargs)
         return records.move(source, target, processing_instructions)
-    except Exception as e:
-        logger.error(e)
+    except Exception:
+        logger.error('', exc_info=True)
         raise

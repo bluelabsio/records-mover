@@ -1,7 +1,8 @@
 import os
 import sys
 import logging
-from typing import IO
+import io
+from typing import IO, Set, Optional
 
 
 def _adjusted_log_level(default_log_level: int, name: str) -> int:
@@ -9,6 +10,28 @@ def _adjusted_log_level(default_log_level: int, name: str) -> int:
     if log_level_str is None:
         return default_log_level
     return getattr(logging, log_level_str.upper())
+
+
+_secrets: Set[str] = set()
+
+
+def register_secret(secret: Optional[object]) -> None:
+    if secret is not None:
+        _secrets.add(str(secret))
+
+
+# https://stackoverflow.com/questions/45469808/how-to-wrap-a-python-text-stream-to-replace-strings-on-the-fly
+class SecretsRedactingLogStream(io.TextIOBase):
+    def __init__(self, underlying: IO[str]) -> None:
+        self.underlying = underlying
+        self.secrets = ['records']
+
+    def write(self, s: str) -> int:
+        for secret in _secrets:
+            if secret in s:
+                replacement = '*' * len(secret)
+                s = s.replace(secret, replacement)
+        return self.underlying.write(s)
 
 
 def set_stream_logging(name: str = 'records_mover',
@@ -40,7 +63,15 @@ def set_stream_logging(name: str = 'records_mover',
     adjusted_level = _adjusted_log_level(level, name)
     logger = logging.getLogger(name)
     logger.setLevel(adjusted_level)
-    handler = logging.StreamHandler(stream=stream)
+    wrapper = SecretsRedactingLogStream(stream)
+    #
+    # I don't understand exactly why, but TextIOBase doesn't seem to
+    # be compatible with IO[str] in mypy's mind.
+    #
+    # https://github.com/python/typeshed/blob/master/stdlib/3/io.pyi
+    # https://github.com/python/typeshed/issues/1229
+    #
+    handler = logging.StreamHandler(stream=wrapper)  # type: ignore
     handler.setLevel(adjusted_level)
     formatter = logging.Formatter(fmt, datefmt)
     handler.setFormatter(formatter)
