@@ -68,7 +68,7 @@ class RedshiftLoader:
                                session_token=aws_creds.token, manifest=True,
                                region=directory.loc.region,  # type: ignore
                                empty_as_null=True,
-                               **redshift_options)
+                               **redshift_options)  # type: ignore
             logger.info(f"Starting Redshift COPY from {directory}...")
             self.db.execute(copy)
             logger.info("Redshift COPY complete.")
