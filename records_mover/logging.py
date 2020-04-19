@@ -64,14 +64,7 @@ def set_stream_logging(name: str = 'records_mover',
     logger = logging.getLogger(name)
     logger.setLevel(adjusted_level)
     wrapper = SecretsRedactingLogStream(stream)
-    #
-    # I don't understand exactly why, but TextIOBase doesn't seem to
-    # be compatible with IO[str] in mypy's mind.
-    #
-    # https://github.com/python/typeshed/blob/master/stdlib/3/io.pyi
-    # https://github.com/python/typeshed/issues/1229
-    #
-    handler = logging.StreamHandler(stream=wrapper)  # type: ignore
+    handler = logging.StreamHandler(stream=wrapper)
     handler.setLevel(adjusted_level)
     formatter = logging.Formatter(fmt, datefmt)
     handler.setFormatter(formatter)
