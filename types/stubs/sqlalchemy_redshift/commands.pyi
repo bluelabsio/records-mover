@@ -8,16 +8,27 @@ TOKEN_RE: Any
 AWS_ACCOUNT_ID_RE: Any
 IAM_ROLE_NAME_RE: Any
 
-class _ExecutableClause(sa_expression.Executable, sa_expression.ClauseElement): ...
+
+class _ExecutableClause(sa_expression.Executable,
+                        sa_expression.ClauseElement):
+    ...
+
 
 class AlterTableAppendCommand(_ExecutableClause):
     source: Any = ...
     target: Any = ...
     ignore_extra: Any = ...
     fill_target: Any = ...
-    def __init__(self, source: Any, target: Any, ignore_extra: bool = ..., fill_target: bool = ...) -> None: ...
+
+    def __init__(self,
+                 source: Any,
+                 target: Any,
+                 ignore_extra: bool = ...,
+                 fill_target: bool = ...) -> None: ...
+
 
 def visit_alter_table_append_command(element: Any, compiler: Any, **kw: Any): ...
+
 
 class UnloadFromSelect(_ExecutableClause):
     select: Any = ...
@@ -37,9 +48,34 @@ class UnloadFromSelect(_ExecutableClause):
     parallel: Any = ...
     region: Any = ...
     max_file_size: Any = ...
-    def __init__(self, select: Any, unload_location: Any, access_key_id: Optional[Any] = ..., secret_access_key: Optional[Any] = ..., session_token: Optional[Any] = ..., aws_account_id: Optional[Any] = ..., iam_role_name: Optional[Any] = ..., manifest: bool = ..., delimiter: Optional[Any] = ..., fixed_width: Optional[Any] = ..., encrypted: bool = ..., gzip: bool = ..., add_quotes: bool = ..., null: Optional[Any] = ..., escape: bool = ..., allow_overwrite: bool = ..., parallel: bool = ..., header: bool = ..., region: Optional[Any] = ..., max_file_size: Optional[Any] = ..., format: Optional[Any] = ...) -> None: ...
+
+    def __init__(self,
+                 select: Any,
+                 unload_location: Any,
+                 access_key_id: Optional[Any] = ...,
+                 secret_access_key: Optional[Any] = ...,
+                 session_token: Optional[Any] = ...,
+                 aws_account_id: Optional[Any] = ...,
+                 iam_role_name: Optional[Any] = ...,
+                 manifest: bool = ...,
+                 delimiter: Optional[Any] = ...,
+                 fixed_width: Optional[Any] = ...,
+                 encrypted: bool = ...,
+                 gzip: bool = ...,
+                 add_quotes: bool = ...,
+                 null: Optional[Any] = ...,
+                 escape: bool = ...,
+                 allow_overwrite: bool = ...,
+                 parallel: bool = ...,
+                 header: bool = ...,
+                 region: Optional[Any] = ...,
+                 max_file_size: Optional[Any] = ...,
+                 format: Optional[Any] = ...) -> None:
+        ...
+
 
 def visit_unload_from_select(element: Any, compiler: Any, **kw: Any): ...
+
 
 class Format(enum.Enum):
     csv: str = ...
@@ -49,16 +85,19 @@ class Format(enum.Enum):
     parquet: str = ...
     fixed_width: str = ...
 
+
 class Compression(enum.Enum):
     gzip: str = ...
     lzop: str = ...
     bzip2: str = ...
+
 
 class Encoding(enum.Enum):
     utf8: str = ...
     utf16: str = ...
     utf16le: str = ...
     utf16be: str = ...
+
 
 class CopyCommand(_ExecutableClause):
     table: Any = ...
@@ -95,9 +134,50 @@ class CopyCommand(_ExecutableClause):
     no_load: Any = ...
     stat_update: Any = ...
     region: Any = ...
-    def __init__(self, to: Any, data_location: Any, access_key_id: Optional[Any] = ..., secret_access_key: Optional[Any] = ..., session_token: Optional[Any] = ..., aws_account_id: Optional[Any] = ..., iam_role_name: Optional[Any] = ..., format: Optional[Any] = ..., quote: Optional[Any] = ..., path_file: str = ..., delimiter: Optional[Any] = ..., fixed_width: Optional[Any] = ..., compression: Optional[Any] = ..., accept_any_date: bool = ..., accept_inv_chars: Optional[Any] = ..., blanks_as_null: bool = ..., date_format: Optional[Any] = ..., empty_as_null: bool = ..., encoding: Optional[Any] = ..., escape: bool = ..., explicit_ids: bool = ..., fill_record: bool = ..., ignore_blank_lines: bool = ..., ignore_header: Optional[Any] = ..., dangerous_null_delimiter: Optional[Any] = ..., remove_quotes: bool = ..., roundec: bool = ..., time_format: Optional[Any] = ..., trim_blanks: bool = ..., truncate_columns: bool = ..., comp_rows: Optional[Any] = ..., comp_update: Optional[Any] = ..., max_error: Optional[Any] = ..., no_load: bool = ..., stat_update: Optional[Any] = ..., manifest: bool = ..., region: Optional[Any] = ...) -> None: ...
+
+    def __init__(self,
+                 to: Any,
+                 data_location: Any,
+                 access_key_id: Optional[Any] = ...,
+                 secret_access_key: Optional[Any] = ...,
+                 session_token: Optional[Any] = ...,
+                 aws_account_id: Optional[Any] = ...,
+                 iam_role_name: Optional[Any] = ...,
+                 format: Optional[Any] = ...,
+                 quote: Optional[Any] = ...,
+                 path_file: str = ...,
+                 delimiter: Optional[Any] = ...,
+                 fixed_width: Optional[Any] = ...,
+                 compression: Optional[Any] = ...,
+                 accept_any_date: bool = ...,
+                 accept_inv_chars: Optional[Any] = ...,
+                 blanks_as_null: bool = ...,
+                 date_format: Optional[Any] = ...,
+                 empty_as_null: bool = ...,
+                 encoding: Optional[Any] = ...,
+                 escape: bool = ...,
+                 explicit_ids: bool = ...,
+                 fill_record: bool = ...,
+                 ignore_blank_lines: bool = ...,
+                 ignore_header: Optional[Any] = ...,
+                 dangerous_null_delimiter: Optional[Any] = ...,
+                 remove_quotes: bool = ...,
+                 roundec: bool = ...,
+                 time_format: Optional[Any] = ...,
+                 trim_blanks: bool = ...,
+                 truncate_columns: bool = ...,
+                 comp_rows: Optional[Any] = ...,
+                 comp_update: Optional[Any] = ...,
+                 max_error: Optional[Any] = ...,
+                 no_load: bool = ...,
+                 stat_update: Optional[Any] = ...,
+                 manifest: bool = ...,
+                 region: Optional[Any] = ...) -> None:
+        ...
+
 
 def visit_copy_command(element: Any, compiler: Any, **kw: Any): ...
+
 
 class CreateLibraryCommand(_ExecutableClause):
     library_name: Any = ...
@@ -105,6 +185,18 @@ class CreateLibraryCommand(_ExecutableClause):
     credentials: Any = ...
     replace: Any = ...
     region: Any = ...
-    def __init__(self, library_name: Any, location: Any, access_key_id: Optional[Any] = ..., secret_access_key: Optional[Any] = ..., session_token: Optional[Any] = ..., aws_account_id: Optional[Any] = ..., iam_role_name: Optional[Any] = ..., replace: bool = ..., region: Optional[Any] = ...) -> None: ...
+
+    def __init__(self,
+                 library_name: Any,
+                 location: Any,
+                 access_key_id: Optional[Any] = ...,
+                 secret_access_key: Optional[Any] = ...,
+                 session_token: Optional[Any] = ...,
+                 aws_account_id: Optional[Any] = ...,
+                 iam_role_name: Optional[Any] = ...,
+                 replace: bool = ...,
+                 region: Optional[Any] = ...) -> None:
+        ...
+
 
 def visit_create_library_command(element: Any, compiler: Any, **kw: Any): ...
