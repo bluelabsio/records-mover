@@ -35,11 +35,11 @@ class RecordsTableValidator:
                  file_variant: Optional[DelimitedVariant] = None) -> None:
         """
         :param db_engine: Target database of the records move.
-
-        :param source_data_db_engine: Source database of the records
+        :param source_db_engine: Source database of the records
         move.  None if we are loading from a file or a dataframe
         instead of copying from one database to another.
-
+        :param target_db_engine: Target database of the records
+        move.
         :param file_variant: None means the data was given to records mover via a Pandas
         dataframe or by copying from another database instead of a CSV.
         """
