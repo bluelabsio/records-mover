@@ -21,7 +21,7 @@ def redshift_copy_options(unhandled_hints: Set[str],
         redshift_options['compression'] = Compression.bzip2
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
-        redshift_options['compression'] = hints['compression']
+        redshift_options['compression'] = Compression(hints['compression'])
     quiet_remove(unhandled_hints, 'compression')
     if hints['dateformat'] is None:
         redshift_options['date_format'] = 'auto'
@@ -38,7 +38,7 @@ def redshift_copy_options(unhandled_hints: Set[str],
         redshift_options['encoding'] = Encoding.utf16be
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'encoding', hints)
-        redshift_options['encoding'] = Encoding.utf8
+        redshift_options['encoding'] = Encoding(hints['encoding'])
     quiet_remove(unhandled_hints, 'encoding')
     redshift_options['quote'] = hints['quotechar']
     quiet_remove(unhandled_hints, 'quotechar')
