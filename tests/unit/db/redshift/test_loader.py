@@ -107,7 +107,6 @@ class TestRedshiftLoader(unittest.TestCase):
                                abc=123)
         self.mock_db.execute.assert_called_with(mock_copy)
 
-
     @patch('records_mover.db.redshift.loader.CopyCommand')
     @patch('records_mover.db.redshift.loader.complain_on_unhandled_hints')
     @patch('records_mover.db.redshift.loader.redshift_copy_options')
@@ -125,11 +124,9 @@ class TestRedshiftLoader(unittest.TestCase):
         mock_directory = Mock(name='directory')
         mock_directory.scheme = 'mumble'
 
-        mock_temp_s3_loc = self.mock_temporary_s3_directory_loc.return_value.__enter__.return_value
         mock_s3_directory = mock_directory.copy_to.return_value
         mock_s3_directory.scheme = 's3'
 
-        mock_aws_creds = mock_s3_directory.loc.aws_creds.return_value
         mock_redshift_options = {'abc': 123}
         mock_redshift_copy_options.return_value = mock_redshift_options
         mock_copy = mock_CopyCommand.return_value
