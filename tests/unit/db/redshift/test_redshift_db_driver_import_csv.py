@@ -3,6 +3,7 @@ from .base_test_redshift_db_driver import BaseTestRedshiftDBDriver
 from ...records.format_hints import (csv_format_hints)
 from records_mover.db.redshift.redshift_db_driver import Table
 from records_mover.db.redshift.records_copy import Format
+from sqlalchemy_redshift.commands import Compression, Encoding
 
 
 class TestRedshiftDBDriverImport(BaseTestRedshiftDBDriver):
@@ -12,10 +13,10 @@ class TestRedshiftDBDriverImport(BaseTestRedshiftDBDriver):
 
         expected_args = {
             'access_key_id': 'fake_aws_id',
-            'compression': 'GZIP',
+            'compression': Compression.gzip,
             'data_location': 's3://mybucket/myparent/mychild/_manifest',
             'date_format': 'MM/DD/YY',
-            'encoding': 'UTF8',
+            'encoding': Encoding.utf8,
             'format': Format.csv,
             'ignore_header': 1,
             'manifest': True,

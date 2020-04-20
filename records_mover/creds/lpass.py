@@ -1,4 +1,5 @@
 from subprocess import check_output
+from records_mover.logging import register_secret
 from db_facts.db_facts_types import DBFacts
 
 
@@ -25,6 +26,7 @@ def db_facts_from_lpass(lpass_entry_name: str) -> DBFacts:
 
     user = lpass_field(lpass_entry_name, 'username')
     password = lpass_field(lpass_entry_name, 'password')
+    register_secret(password)
     host = lpass_field(lpass_entry_name, 'Hostname')
     port = int(lpass_field(lpass_entry_name, 'Port'))
     raw_db_type = lpass_field(lpass_entry_name, 'Type')

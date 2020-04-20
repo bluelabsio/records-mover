@@ -58,6 +58,8 @@ if TYPE_CHECKING:
                                           total=False)
 
     RecordsFormatType = Literal['delimited', 'parquet']
+
+    DelimitedVariant = Literal['dumb', 'csv', 'bigquery', 'bluelabs', 'vertica']
 else:
     RecordsManifestEntryMetadata = Mapping[str, int]
     LegacyRecordsManifestEntry = Mapping[str, Union[str, bool, int, RecordsManifestEntryMetadata]]
@@ -72,3 +74,5 @@ else:
     BootstrappingRecordsHints = RecordsHints
 
     RecordsFormatType = str
+
+    DelimitedVariant = str
