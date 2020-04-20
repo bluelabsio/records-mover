@@ -79,7 +79,7 @@ class RedshiftLoader:
                                empty_as_null=True,
                                **redshift_options)  # type: ignore
             logger.info(f"Starting Redshift COPY from {directory}...")
-            redshift_pid = self.db.execute("SELECT pg_backend_pid();").fetchone()[0]
+            redshift_pid: int = self.db.execute("SELECT pg_backend_pid();").scalar()
             try:
                 self.db.execute(copy)
             except sqlalchemy.exc.InternalError:
