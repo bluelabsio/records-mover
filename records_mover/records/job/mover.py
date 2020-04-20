@@ -36,5 +36,5 @@ def run_records_mover_job(source_method_name: str,
         target = target_method(**target_kwargs)
         return records.move(source, target, processing_instructions)
     except Exception:
-        logger.exception('Error while processing')
+        logger.error('', exc_info=True)
         raise

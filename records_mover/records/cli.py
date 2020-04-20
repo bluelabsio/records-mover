@@ -11,6 +11,7 @@ from records_mover.logging import set_stream_logging
 from typing import Callable, Dict, Any
 from ..types import JsonSchema, JobConfig
 from ..version import __version__
+import sys
 
 
 def populate_subparser(sub_parser: argparse.ArgumentParser,
@@ -101,4 +102,8 @@ def main() -> None:
         parser.print_help()
     else:
         set_stream_logging()
-        func(raw_config)
+        try:
+            func(raw_config)
+        except Exception:
+            # This is logged above using a redacting logger
+            sys.exit(1)

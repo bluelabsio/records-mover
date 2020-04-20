@@ -4,6 +4,7 @@ from mock import call, patch
 from records_mover.records.hints import logger as driver_logger
 from ...records.format_hints import (christmas_tree_format_1_hints,
                                      christmas_tree_format_2_hints)
+from sqlalchemy_redshift.commands import Encoding, Compression
 
 
 class TestRedshiftDBDriverImportBlueLabs(BaseTestRedshiftDBDriver):
@@ -20,10 +21,10 @@ class TestRedshiftDBDriverImportBlueLabs(BaseTestRedshiftDBDriver):
 
         expected_best_effort_args = {
             'access_key_id': 'fake_aws_id',
-            'compression': 'LZO',
+            'compression': Compression.lzop,
             'data_location': 's3://mybucket/myparent/mychild/_manifest',
             'date_format': 'auto',
-            'encoding': 'UTF8',
+            'encoding': Encoding.utf8,
             'delimiter': '\x01',
             'escape': True,
             'ignore_header': 1,
@@ -54,11 +55,11 @@ class TestRedshiftDBDriverImportBlueLabs(BaseTestRedshiftDBDriver):
 
         expected_best_effort_args = {
             'access_key_id': 'fake_aws_id',
-            'compression': 'BZIP',
+            'compression': Compression.bzip2,
             'data_location': 's3://mybucket/myparent/mychild/_manifest',
             'date_format': 'MM-DD-YYYY',
             'delimiter': '\x01',
-            'encoding': 'UTF8',
+            'encoding': Encoding.utf8,
             'escape': False,
             'ignore_header': 0,
             'manifest': True,

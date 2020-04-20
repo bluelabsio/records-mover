@@ -2,6 +2,7 @@ from unittest.mock import patch
 from .base_test_redshift_db_driver import BaseTestRedshiftDBDriver
 from ...records.format_hints import bluelabs_format_hints
 from records_mover.db.redshift.redshift_db_driver import Table
+from sqlalchemy_redshift.commands import Encoding, Compression
 
 
 class TestRedshiftDBDriverImportBlueLabs(BaseTestRedshiftDBDriver):
@@ -12,11 +13,11 @@ class TestRedshiftDBDriverImportBlueLabs(BaseTestRedshiftDBDriver):
 
         expected_args = {
             'access_key_id': 'fake_aws_id',
-            'compression': 'GZIP',
+            'compression': Compression.gzip,
             'data_location': 's3://mybucket/myparent/mychild/_manifest',
             'date_format': 'YYYY-MM-DD',
             'delimiter': ',',
-            'encoding': 'UTF8',
+            'encoding': Encoding.utf8,
             'escape': True,
             'ignore_header': 0,
             'manifest': True,

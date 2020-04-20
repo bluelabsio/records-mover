@@ -1,4 +1,5 @@
 from sqlalchemy_redshift.commands import CopyCommand
+from records_mover.logging import register_secret
 from ...records.records_directory import RecordsDirectory
 from ...records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
@@ -62,13 +63,21 @@ class RedshiftLoader:
             if aws_creds is None:
                 raise CredsDoNotSupportS3Import('Please provide AWS credentials '
                                                 '(run "aws configure")')
+            #
+            # Upon error, an exception is raised with the full SQL -
+            # including the AWS creds inside.  Let's register those
+            # with the logger so they get redacted.
+            #
+            register_secret(aws_creds.token)
+            register_secret(aws_creds.secret_key)
+
             copy = CopyCommand(to=to, data_location=directory.loc.url + '_manifest',
                                access_key_id=aws_creds.access_key,
                                secret_access_key=aws_creds.secret_key,
                                session_token=aws_creds.token, manifest=True,
                                region=directory.loc.region,  # type: ignore
                                empty_as_null=True,
-                               **redshift_options)
+                               **redshift_options)  # type: ignore
             logger.info(f"Starting Redshift COPY from {directory}...")
             self.db.execute(copy)
             logger.info("Redshift COPY complete.")

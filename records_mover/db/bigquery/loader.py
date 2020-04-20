@@ -47,8 +47,6 @@ class BigQueryLoader:
         # https://google-cloud.readthedocs.io/en/latest/bigquery/generated/google.cloud.bigquery.client.Client.html
         client: Client = connection._client
         project_id, dataset_id = self._parse_bigquery_schema_name(schema)
-        dataset_ref = client.dataset(dataset_id, project_id)
-        table_ref = dataset_ref.table(table)
         # https://googleapis.github.io/google-cloud-python/latest/bigquery/generated/google.cloud.bigquery.job.LoadJobConfig.html
 
         target_records_format = load_plan.records_format
@@ -61,8 +59,9 @@ class BigQueryLoader:
             complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
                                         unhandled_hints, target_records_format.hints)
         logger.info(f"Using BigQuery load options: {job_config.to_api_repr()}")
+        # https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.client.Client.html#google.cloud.bigquery.client.Client.load_table_from_file
         job = client.load_table_from_file(fileobj,
-                                          table_ref,
+                                          f"{schema}.{table}",
                                           # Must match the destination dataset location.
                                           location="US",
                                           job_config=job_config)

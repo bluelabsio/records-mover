@@ -95,6 +95,13 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
         out = self.vertica_db_driver.can_load_from_fileobjs()
         self.assertEqual(True, out)
 
+    def test_can_load_this_format(self):
+        mock_source_records_format = Mock(name='source_records_format')
+        out = self.vertica_db_driver.can_load_this_format(mock_source_records_format)
+        self.assertEqual(self.mock_vertica_loader.can_load_this_format.return_value,
+                         out)
+        self.mock_vertica_loader.can_load_this_format.assert_called_with(mock_source_records_format)
+
     def test_best_records_format_variant(self):
         out = self.vertica_db_driver.best_records_format_variant('blah')
         self.assertEqual(None, out)

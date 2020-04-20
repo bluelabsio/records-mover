@@ -35,7 +35,7 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_file_url = mock_url_resolver.file_url
         big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver)
         mock_schema = 'my_dataset'
-        mock_table = Mock(name='mock_table')
+        mock_table = 'my_table'
         mock_load_plan = Mock(name='mock_load_plan')
         mock_load_plan.records_format = Mock(name='records_format', spec=DelimitedRecordsFormat)
         mock_target_records_format = mock_load_plan.records_format
@@ -47,8 +47,6 @@ class TestBigQueryLoader(unittest.TestCase):
 
         mock_connection = mock_db.engine.raw_connection.return_value.connection
         mock_client = mock_connection._client
-        mock_dataset_ref = mock_client.dataset.return_value
-        mock_table_ref = mock_dataset_ref.table.return_value
         mock_job = mock_client.load_table_from_file.return_value
         mock_job.output_rows = 42
         mock_loc = mock_file_url.return_value
@@ -56,12 +54,10 @@ class TestBigQueryLoader(unittest.TestCase):
         out = big_query_loader.load(schema=mock_schema, table=mock_table,
                                     load_plan=mock_load_plan,
                                     directory=mock_directory)
-        mock_client.dataset.assert_called_with('my_dataset', None)
-        mock_dataset_ref.table.assert_called_with(mock_table)
         mock_file_url.assert_called_with(mock_url)
         mock_client.load_table_from_file.\
             assert_called_with(mock_f,
-                               mock_table_ref,
+                               'my_dataset.my_table',
                                location="US",
                                job_config=mock_load_job_config.return_value)
         mock_job.result.assert_called_with()
@@ -75,7 +71,7 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_file_url = mock_url_resolver.file_url
         big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver)
         mock_schema = 'my_project.my_dataset'
-        mock_table = Mock(name='mock_table')
+        mock_table = 'mytable'
         mock_load_plan = Mock(name='mock_load_plan')
         mock_load_plan.records_format = Mock(name='records_format', spec=DelimitedRecordsFormat)
         mock_target_records_format = mock_load_plan.records_format
@@ -87,8 +83,6 @@ class TestBigQueryLoader(unittest.TestCase):
 
         mock_connection = mock_db.engine.raw_connection.return_value.connection
         mock_client = mock_connection._client
-        mock_dataset_ref = mock_client.dataset.return_value
-        mock_table_ref = mock_dataset_ref.table.return_value
         mock_job = mock_client.load_table_from_file.return_value
         mock_job.output_rows = 42
         mock_loc = mock_file_url.return_value
@@ -96,12 +90,10 @@ class TestBigQueryLoader(unittest.TestCase):
         out = big_query_loader.load(schema=mock_schema, table=mock_table,
                                     load_plan=mock_load_plan,
                                     directory=mock_directory)
-        mock_client.dataset.assert_called_with('my_dataset', 'my_project')
-        mock_dataset_ref.table.assert_called_with(mock_table)
         mock_file_url.assert_called_with(mock_url)
         mock_client.load_table_from_file.\
             assert_called_with(mock_f,
-                               mock_table_ref,
+                               'my_project.my_dataset.mytable',
                                location="US",
                                job_config=mock_load_job_config.return_value)
         mock_job.result.assert_called_with()
