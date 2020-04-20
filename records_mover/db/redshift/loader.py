@@ -79,7 +79,19 @@ class RedshiftLoader:
                                empty_as_null=True,
                                **redshift_options)  # type: ignore
             logger.info(f"Starting Redshift COPY from {directory}...")
-            self.db.execute(copy)
+            redshift_pid: int = self.db.execute("SELECT pg_backend_pid();").scalar()
+            try:
+                self.db.execute(copy)
+            except sqlalchemy.exc.InternalError:
+                # Upon a load erorr, we receive:
+                #
+                #  sqlalchemy.exc.InternalError:
+                #  (psycopg2.errors.InternalError_) Load into table 'tablename'
+                #    failed.  Check 'stl_load_errors' system table for details.
+                logger.warning("Caught load error - "
+                               "for details, run this query: "
+                               f"SELECT * FROM stl_load_errors WHERE session={redshift_pid}")
+                raise
             logger.info("Redshift COPY complete.")
             return None  # redshift doesn't give reliable info on load results
 
