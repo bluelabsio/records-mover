@@ -5,7 +5,6 @@ from ...records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 import sqlalchemy
 from sqlalchemy.schema import Table
-import psycopg2
 import logging
 from .records_copy import redshift_copy_options
 from ...records.load_plan import RecordsLoadPlan
