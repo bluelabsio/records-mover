@@ -80,57 +80,15 @@ class RedshiftLoader:
                                empty_as_null=True,
                                **redshift_options)  # type: ignore
             logger.info(f"Starting Redshift COPY from {directory}...")
-# analytics=> \d+ stl_load_errors
-#                                            Table "pg_catalog.stl_load_errors"
-#      Column      |            Type             | Collation | Nullable | Default | Storage  | Stats target | Description
-# -----------------+-----------------------------+-----------+----------+---------+----------+--------------+-------------
-#  userid          | integer                     |           | not null |         | plain    |              |
-#  slice           | integer                     |           | not null |         | plain    |              |
-#  tbl             | integer                     |           | not null |         | plain    |              |
-#  starttime       | timestamp without time zone |           | not null |         | plain    |              |
-#  session         | integer                     |           | not null |         | plain    |              |
-#  query           | integer                     |           | not null |         | plain    |              |
-#  filename        | character(256)              |           | not null |         | extended |              |
-#  line_number     | bigint                      |           | not null |         | plain    |              |
-#  colname         | character(127)              |           | not null |         | extended |              |
-#  type            | character(10)               |           | not null |         | extended |              |
-#  col_length      | character(10)               |           | not null |         | extended |              |
-#  position        | integer                     |           | not null |         | plain    |              |
-#  raw_line        | character(1024)             |           | not null |         | extended |              |
-#  raw_field_value | character(1024)             |           | not null |         | extended |              |
-#  err_code        | integer                     |           | not null |         | plain    |              |
-#  err_reason      | character(100)              |           | not null |         | extended |              |
-# Replica Identity: ???
-
-# analytics=>
-
-# analytics=> select * from stl_load_errors where session=11400;
-# -[ RECORD 1 ]---+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# userid          | 149
-# slice           | 4
-# tbl             | 5544604
-# starttime       | 2020-04-16 18:58:17.742116
-# session         | 11400
-# query           | 9694339
-# filename        | s3://vince-scratch/V0_cRRU9Tb0/data013.csv.gz
-# line_number     | 2
-# colname         | election_date
-# type            | int8
-# col_length      | 0
-# position        | 45
-# raw_line        | WI,WI-8848269,20200317.0,,,Absentee,20200416,20200407.0,,,
-# raw_field_value | 20200407.0
-# err_code        | 1207
-# err_reason      | Invalid digit, Value '.', Pos 8, Type: Long
-
-# analytics=> \q
-
-
-            # TODO: sqlalchemy.exc.InternalError: (psycopg2.errors.InternalError_) Load into table 'ts_early_and_absentee_0416' failed.  Check 'stl_load_errors' system table for details.
             redshift_pid = self.db.execute("SELECT pg_backend_pid();").fetchone()[0]
             try:
-                self.db.execute(copy) # TODO: handle and report back
+                self.db.execute(copy)
             except sqlalchemy.exc.InternalError:
+                # Upon a load erorr, we receive:
+                #
+                #  sqlalchemy.exc.InternalError:
+                #  (psycopg2.errors.InternalError_) Load into table 'tablename'
+                #    failed.  Check 'stl_load_errors' system table for details.
                 logger.warning("Caught load error - "
                                "for details, run this query: "
                                f"SELECT * FROM stl_load_errors WHERE session={redshift_pid}")
