@@ -10,6 +10,7 @@ from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
 from records_mover.logging import set_stream_logging
+from config_resolver import get_config
 import subprocess
 import os
 import sys
@@ -40,6 +41,33 @@ def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
 
     if "SCRATCH_S3_URL" in os.environ:
         return os.environ["SCRATCH_S3_URL"]
+
+    # TODO: do I want this in 'app.ini'?
+    # TODO: where else to document this?
+
+    # config_resolver.get_config() will by default pull from the
+    # following files (latter files override earlier ones):
+    #
+    #   /etc/bluelabs/records_mover/app.ini
+    #   /etc/xdg/bluelabs/records_mover/app.ini
+    #   $HOME/.config/bluelabs/records_mover/app.ini
+    #   ./.bluelabs/records_mover/app.ini
+    #
+    # There's also ability to configure this via env variables per the
+    # XDG spec and config-resolver features:
+    #
+    # https://config-resolver.readthedocs.io/en/latest/intro.html#environment-variables
+    #
+    # Example file:
+    #
+    # [aws]
+    # s3_scratch_url = s3://mybucket/
+
+    result = get_config('records_mover', 'bluelabs')
+    cfg = result.config
+    s3_scratch_url = cfg.get('aws', {}).get('s3_scratch_url')
+    if s3_scratch_url is not None:
+        return s3_scratch_url
 
     if session_type == 'cli':
         try:

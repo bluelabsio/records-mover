@@ -252,7 +252,8 @@ setup(name='records-mover',
           # let's be conservative about what we're specifying for now.
           'db-facts>=3,<4',
           'chardet',
-          'tenacity>=6<7'
+          'tenacity>=6<7',
+          'config-resolver>=5,<6',
       ],
       extras_require={
           'airflow': airflow_dependencies,
