@@ -94,6 +94,8 @@ future, add them to this document!
     match.
   * `NotImplementedError: Please teach me how to integration test
     mysql`: Add information for your new database in
+    `tests/integration/records/expected_column_types.py`,
+    `tests/integration/records/mover_test_case.py`,
     `tests/integration/records/records_database_fixture.py` and
     `tests/integration/records/records_numeric_database_fixture.py`.
     This is where you'll start to get familiar with the different
