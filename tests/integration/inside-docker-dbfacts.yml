@@ -18,6 +18,15 @@ dbs:
       protocol: postgres
       user: postgres
       password: hunter2
+  dockerized-mysql:
+    exports:
+      host: mysqldb
+      port: 3306
+      database: mysqlitest
+      type: mysql
+      protocol: mysql
+      user: mysqluser
+      password: hunter2
   bltoolsdevbq-bq_itest:
     jinja_context_name: standard
     exports:

@@ -1,0 +1,2 @@
+123,123,foo,",","""",""",""","* SQL unload would generate multiple files (one for each slice/part)
+* Filecat would produce a single data file",2000-01-01,00:00:00,2000-01-02 12:34:56.789012,2000-01-02 12:34:56.789012

@@ -35,6 +35,17 @@ def cant_handle_hint(fail_if_cant_handle_hint: bool, hint_name: str, hints: Reco
                                   "or try again with fail_if_cant_handle_hint=False")
 
 
+python_date_format_from_hints = {
+    'YYYY-MM-DD': '%Y-%m-%d',
+    'MM/DD/YY': '%m/%d/%Y',
+    'DD/MM/YY': '%d/%m/%Y',
+}
+
+python_time_format_from_hints = {
+    'HH24:MI:SS': '%H:%M:%S',
+    'HH12:MI AM': '%I:%M:%S %p',
+}
+
 hint_encoding_from_pandas = {
     'utf-8': 'UTF8',
     'utf-16': 'UTF16',

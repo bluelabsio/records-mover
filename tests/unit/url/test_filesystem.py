@@ -79,7 +79,8 @@ class TestFilesystemFileUrl(unittest.TestCase):
                          repr(self.filesystem_file_url))
 
     def test_wait_to_exist(self):
-        self.assertTrue(self.filesystem_file_url.wait_to_exist())
+        self.filesystem_file_url.wait_to_exist()
+        # ensure it returns
 
     def test_is_directory(self):
         self.assertFalse(self.filesystem_file_url.is_directory())

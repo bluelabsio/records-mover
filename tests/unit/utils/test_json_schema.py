@@ -37,7 +37,7 @@ class TestJSONSchema(unittest.TestCase):
               a_ignorable: int,
               a_special: int,
               a_optional_impractical_type: Optional[Callable[[int], int]],
-              a_defaulted_string: str="foo") -> None:
+              a_defaulted_string: str = "foo") -> None:
             """
             :param a_str: a_str desc
             :param a_int: a_int desc

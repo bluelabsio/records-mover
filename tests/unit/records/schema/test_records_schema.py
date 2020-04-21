@@ -164,10 +164,9 @@ class TestRecordsSchema(unittest.TestCase):
         schema = RecordsSchema(fields=mock_fields,
                                known_representations=mock_known_representations)
         mock_df = Mock(name='df')
-        mock_col_mappings = {mock_field_a.name: mock_field_a.to_numpy_dtype.return_value}
         out = schema.cast_dataframe_types(mock_df)
-        mock_df.astype.assert_called_with(mock_col_mappings)
-        self.assertEqual(out, mock_df.astype.return_value)
+        mock_df.apply.assert_called()
+        self.assertEqual(out, mock_df.apply.return_value)
 
     def test_cast_dataframe_types_no_fields(self):
         mock_fields = []
@@ -176,7 +175,7 @@ class TestRecordsSchema(unittest.TestCase):
                                known_representations=mock_known_representations)
         mock_df = Mock(name='df')
         out = schema.cast_dataframe_types(mock_df)
-        self.assertEqual(out, mock_df)
+        self.assertEqual(out, mock_df.apply.return_value)
 
     def test_assign_dataframe_names_no_index(self):
         data = [{'a': 1}]
