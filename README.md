@@ -40,6 +40,7 @@ TODO
 
 Moving between a Redshift and PostgreSQL database:
 
+```sh
 mvrec --help
 mvrec table2table postgresdb1 myschema1 mytable1 redshiftdb2 myschema2 mytable2
 ```
@@ -73,6 +74,7 @@ Now we can run this code:
 from records_mover import sources, targets, move
 from pandas import DataFrame
 import sqlalchemy
+import os
 
 sqlalchemy_url = f"postgresql+psycopg2://username:{os.environ['DB_PASSWORD']}@hostname/database_name"
 db_engine = sqlalchemy.create_engine(sqlalchemy_url)
