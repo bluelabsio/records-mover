@@ -69,7 +69,20 @@ class RecordsDirectoryValidator:
                         'integer', 'string', 'string', 'string',
                         'string', 'string', 'string', 'date', 'string',
                         'datetime', 'datetimetz'
-                    ]
+                    ],
+                    # MySQL's datetimetz type ("TIMESTAMP") doesn't
+                    # support dates before the Unix epoch (Jan 1 1970),
+                    # and records-mover does not yet support using
+                    # inference to determine if the data in question will
+                    # fit into it.
+                    #
+                    # https://app.asana.com/0/1128138765527694/1166526213569051
+                    # https://stackoverflow.com/questions/31761047/what-difference-between-the-date-time-datetime-and-timestamp-types/56138746
+                    'mysql': [
+                        'integer', 'string', 'string', 'string',
+                        'string', 'string', 'string', 'date', 'time',
+                        'datetime', 'datetime'
+                    ],
                 }
                 if actual_field_types == acceptable_field_types_by_db.get(self.source_db_type):
                     field_types_are_ok = True
@@ -112,8 +125,8 @@ class RecordsDirectoryValidator:
         outputs = {}
         success = False
 
-        # See tests/integration/resources/README.md for details on different formats
-        for alt in ['', '-pandas', '-pandas-utc', '-utc', '-postgres', '-postgres-utc']:
+        for alt in ['', '-pandas', '-pandas-utc', '-utc',
+                    '-pandas-notz', '-postgres', '-postgres-utc']:
             expected_file = f"{dir_path}/../resources/{self.test_name}{alt}.csv"
             logger.info(f"expected_file: {expected_file}")
             try:

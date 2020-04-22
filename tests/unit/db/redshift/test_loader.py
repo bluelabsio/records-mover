@@ -1,4 +1,5 @@
 import unittest
+import sqlalchemy
 from records_mover.db.redshift.loader import RedshiftLoader
 from records_mover.records.records_format import DelimitedRecordsFormat
 from mock import patch, Mock, MagicMock
@@ -105,3 +106,44 @@ class TestRedshiftLoader(unittest.TestCase):
                                empty_as_null=True,
                                abc=123)
         self.mock_db.execute.assert_called_with(mock_copy)
+
+    @patch('records_mover.db.redshift.loader.CopyCommand')
+    @patch('records_mover.db.redshift.loader.complain_on_unhandled_hints')
+    @patch('records_mover.db.redshift.loader.redshift_copy_options')
+    @patch('records_mover.db.redshift.loader.Table')
+    def test_load_load_error(self,
+                             mock_Table,
+                             mock_redshift_copy_options,
+                             mock_complain_on_unhandled_hints,
+                             mock_CopyCommand):
+        mock_schema = Mock(name='schema')
+        mock_table = Mock(name='table')
+        mock_load_plan = Mock(name='load_plan')
+        mock_load_plan.records_format = Mock(name='records_format', spec=DelimitedRecordsFormat)
+        mock_load_plan.records_format.hints = {}
+        mock_directory = Mock(name='directory')
+        mock_directory.scheme = 'mumble'
+
+        mock_s3_directory = mock_directory.copy_to.return_value
+        mock_s3_directory.scheme = 's3'
+
+        mock_redshift_options = {'abc': 123}
+        mock_redshift_copy_options.return_value = mock_redshift_options
+        mock_copy = mock_CopyCommand.return_value
+        mock_s3_directory.loc.url = 's3://foo/bar/baz/'
+
+        def db_execute(command):
+            if command == 'SELECT pg_backend_pid();':
+                mock_result_proxy = Mock(name='result_proxy')
+                mock_result_proxy.scalar.return_value = 123
+                return mock_result_proxy
+            elif command == mock_copy:
+                raise sqlalchemy.exc.InternalError(command, {}, '')
+            raise NotImplementedError(command)
+
+        self.mock_db.execute.side_effect = db_execute
+        with self.assertRaises(sqlalchemy.exc.InternalError):
+            self.redshift_loader.load(schema=mock_schema,
+                                      table=mock_table,
+                                      load_plan=mock_load_plan,
+                                      directory=mock_directory)

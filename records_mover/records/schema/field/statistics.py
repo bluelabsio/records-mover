@@ -48,7 +48,7 @@ class RecordsSchemaFieldStatistics:
             return RecordsSchemaFieldStatistics(rows_sampled=rows_sampled,
                                                 total_rows=total_rows)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{type(self)}({self.to_data()})"
 
 

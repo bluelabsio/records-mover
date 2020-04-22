@@ -2,6 +2,7 @@ import unittest
 from mock import Mock, patch  # , ANY
 from records_mover.records.schema.field import RecordsSchemaField
 import numpy as np
+import pandas as pd
 
 
 class TestField(unittest.TestCase):
@@ -209,3 +210,35 @@ class TestField(unittest.TestCase):
         mock_unknown_type = Mock(name='unknown_type')
         out = RecordsSchemaField.python_type_to_field_type(mock_unknown_type)
         self.assertIsNone(out)
+
+    def test_cast_series_type_time_empty(self):
+        mock_name = Mock(name='name')
+        mock_field_type = 'time'
+        mock_constraints = Mock(name='constraints')
+        mock_statistics = Mock(name='statistics')
+        mock_representations = Mock(name='representations')
+        field = RecordsSchemaField(name=mock_name,
+                                   field_type=mock_field_type,
+                                   constraints=mock_constraints,
+                                   statistics=mock_statistics,
+                                   representations=mock_representations)
+        data = np.array([])
+        series = pd.Series(data)
+        new_series = field.cast_series_type(series)
+        self.assertIsNotNone(new_series)
+
+    def test_cast_series_type_time_timedelta_entries(self):
+        mock_name = Mock(name='name')
+        mock_field_type = 'time'
+        mock_constraints = Mock(name='constraints')
+        mock_statistics = Mock(name='statistics')
+        mock_representations = Mock(name='representations')
+        field = RecordsSchemaField(name=mock_name,
+                                   field_type=mock_field_type,
+                                   constraints=mock_constraints,
+                                   statistics=mock_statistics,
+                                   representations=mock_representations)
+        data = np.array([pd.Timedelta(hours=1, minutes=23, seconds=45)])
+        series = pd.Series(data)
+        new_series = field.cast_series_type(series)
+        self.assertEqual(new_series[0], '01:23:45')

@@ -123,7 +123,10 @@ class TestFileobjsSource(unittest.TestCase):
     @patch('records_mover.records.sources.fileobjs.io')
     @patch('pandas.read_csv')
     def test_to_dataframes_source(self, mock_read_csv, mock_io, mock_pandas_read_csv_options):
-        def read_csv_options(records_format, unhandled_hints, processing_instructions):
+        def read_csv_options(records_format,
+                             records_schema,
+                             unhandled_hints,
+                             processing_instructions):
             unhandled_hints.clear()
             return {}
 

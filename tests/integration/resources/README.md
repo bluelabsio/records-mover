@@ -67,3 +67,10 @@ timezones in timestamps are expressed.
 Postgres (in the "text" mode we use for 'bluelabs' format, at least)
 represents newlines as '\n' instead of '\' with an actual newline
 afterwards like other databases do.
+
+### notz
+
+* Some databases (e.g., MySQL) don't have a generally usable column
+  type for our `datetimetz` type.  As a result, when data is exported
+  from a table without a records schema defined, it's of course not
+  going to have a timezone offset recorded.

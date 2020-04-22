@@ -2,10 +2,11 @@ from ...utils import quiet_remove
 from ...records.hints import cant_handle_hint
 from ...records.unload_plan import RecordsUnloadPlan
 from ...records.records_format import DelimitedRecordsFormat
-from typing import Set
+from typing import Set, Dict, Any
 
 
-def vertica_export_options(unhandled_hints: Set[str], unload_plan: RecordsUnloadPlan):
+def vertica_export_options(unhandled_hints: Set[str],
+                           unload_plan: RecordsUnloadPlan) -> Dict[str, Any]:
     if not isinstance(unload_plan.records_format, DelimitedRecordsFormat):
         raise NotImplementedError("Not currently able to export "
                                   f"{unload_plan.records_format.format_type}")

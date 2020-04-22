@@ -6,7 +6,7 @@ from typing import Any
 
 # http://stackoverflow.com/questions/27050108/convert-numpy-type-to-python
 class NumPyJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
+    def default(self, obj: object) -> object:
         if isinstance(obj, np.integer):
             return int(obj)
         elif isinstance(obj, np.floating):

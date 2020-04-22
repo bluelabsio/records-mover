@@ -35,6 +35,17 @@ def cant_handle_hint(fail_if_cant_handle_hint: bool, hint_name: str, hints: Reco
                                   "or try again with fail_if_cant_handle_hint=False")
 
 
+python_date_format_from_hints = {
+    'YYYY-MM-DD': '%Y-%m-%d',
+    'MM/DD/YY': '%m/%d/%Y',
+    'DD/MM/YY': '%d/%m/%Y',
+}
+
+python_time_format_from_hints = {
+    'HH24:MI:SS': '%H:%M:%S',
+    'HH12:MI AM': '%I:%M:%S %p',
+}
+
 hint_encoding_from_pandas = {
     'utf-8': 'UTF8',
     'utf-16': 'UTF16',
@@ -52,6 +63,8 @@ hint_encoding_from_chardet = {
     # But let's be ready if they change their minds:
     'UTF-8': 'UTF8',
     'Windows-1252': 'CP1252',
+    # even if the only data it saw was in ASCII, let's be ready to see more
+    'ascii': 'UTF8',
 }
 
 hint_compression_from_pandas = {

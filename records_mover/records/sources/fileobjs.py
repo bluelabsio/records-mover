@@ -115,6 +115,7 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
                                       f"{self.records_format.format_type} to dataframe")
         unhandled_hints = set(self.records_format.hints.keys())
         options = pandas_read_csv_options(self.records_format,
+                                          self.records_schema,
                                           unhandled_hints,
                                           processing_instructions)
         complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,

@@ -1,5 +1,5 @@
 from records_mover.db.quoting import quote_schema_and_table
-from records_mover import Session
+from records_mover import Session, set_stream_logging
 from records_mover.records import ExistingTableHandling
 import logging
 import time
@@ -16,13 +16,14 @@ BUILD_NUM = os.environ.get("CIRCLE_BUILD_NUM", "local")
 TARGET_TABLE_NAME_PREFIX = "itest_target"
 TARGET_TABLE_NAME = f'{TARGET_TABLE_NAME_PREFIX}_{BUILD_NUM}_{CURRENT_EPOCH}'
 
-DB_TYPES = ['vertica', 'redshift', 'bigquery', 'postgres']
+DB_TYPES = ['vertica', 'redshift', 'bigquery', 'postgres', 'mysql']
 
 DB_NAMES = {
     'vertica': 'dockerized-vertica',
     'redshift': 'demo-itest',
     'bigquery': 'bltoolsdevbq-bq_itest',
     'postgres': 'dockerized-postgres',
+    'mysql': 'dockerized-mysql',
 }
 
 
@@ -31,6 +32,8 @@ def schema_name(db_name):
         return 'itest'
     elif db_name == 'dockerized-vertica':
         return 'public'
+    elif db_name == 'dockerized-mysql':
+        return 'mysqlitest'
     elif db_name == 'dockerized-postgres':
         return 'public'
     elif db_name == 'bltoolsdevbq-bq_itest':
@@ -53,7 +56,7 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
             purge_old_tables(schema_name(db_name), TARGET_TABLE_NAME_PREFIX,
                              db_name=db_name)
 
-    def move_and_verify(self, source_dbname, target_dbname, variant_used_internally):
+    def move_and_verify(self, source_dbname: str, target_dbname: str) -> None:
         session = Session()
         records = session.records
         targets = records.targets
@@ -82,9 +85,8 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
         # will be None or 1
         self.assertNotEqual(0, out.move_count)
         validator = RecordsTableValidator(target_engine,
-                                          source_data_db_engine=source_engine)
-        validator.validate(variant=variant_used_internally,
-                           schema_name=target_schema_name,
+                                          source_db_engine=source_engine)
+        validator.validate(schema_name=target_schema_name,
                            table_name=TARGET_TABLE_NAME)
 
         quoted_target = quote_schema_and_table(target_engine, target_schema_name, TARGET_TABLE_NAME)
@@ -96,18 +98,15 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
 
 def create_test_func(source_name, target_name):
     def source2target(self):
-        self.move_and_verify(source_name, target_name,
-                             variant_used_internally='vertica')
+        self.move_and_verify(source_name, target_name)
     return source2target
 
 
 if __name__ == '__main__':
+    set_stream_logging()
+
     for source in DB_TYPES:
         for target in DB_TYPES:
-            variant_used_internally = 'bluelabs'
-            if 'vertica' in [source, target]:
-                variant_used_internally = 'vertica'
-
             source_name = DB_NAMES[source]
             target_name = DB_NAMES[target]
             f = create_test_func(source_name, target_name)
