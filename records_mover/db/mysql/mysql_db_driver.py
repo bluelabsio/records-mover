@@ -1,6 +1,9 @@
 import sqlalchemy
 import sqlalchemy.dialects.mysql
 import logging
+from records_mover.records.records_format import BaseRecordsFormat
+from records_mover.records.load_plan import RecordsLoadPlan
+from records_mover.records.records_directory import RecordsDirectory
 from ...utils.limits import (INT8_MIN, INT8_MAX,
                              UINT8_MIN, UINT8_MAX,
                              INT16_MIN, INT16_MAX,
@@ -15,13 +18,20 @@ from ...utils.limits import (INT8_MIN, INT8_MAX,
                              FLOAT64_SIGNIFICAND_BITS,
                              num_digits)
 from ..driver import DBDriver
-from typing import Optional, Tuple
+from .loader import MySQLLoader
+from typing import Optional, Tuple, Union, List
 
 
 logger = logging.getLogger(__name__)
 
 
 class MySQLDBDriver(DBDriver):
+    def __init__(self,
+                 db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
+                 **kwargs) -> None:
+        super().__init__(db)
+        self._mysql_loader = MySQLLoader(db=db)
+
     # https://dev.mysql.com/doc/refman/8.0/en/integer-types.html
     def integer_limits(self,
                        type_: sqlalchemy.types.Integer) ->\
@@ -147,3 +157,19 @@ class MySQLDBDriver(DBDriver):
         # (TIMESTAMP) doesn't allow for dates before Jan 1, 1970, so
         # it's not generally useful.
         return sqlalchemy.dialects.mysql.DATETIME(fsp=6)
+
+    def load(self,
+             schema: str,
+             table: str,
+             load_plan: RecordsLoadPlan,
+             directory: RecordsDirectory) -> Optional[int]:
+        return self._mysql_loader.load(schema=schema,
+                                       table=table,
+                                       load_plan=load_plan,
+                                       directory=directory)
+
+    def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
+        return self._mysql_loader.can_load_this_format(source_records_format)
+
+    def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
+        return self._mysql_loader.known_supported_records_formats_for_load()

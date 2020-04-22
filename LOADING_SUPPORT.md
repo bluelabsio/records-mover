@@ -31,3 +31,15 @@ Some key things to look for as you start in:
 Create a small Python file that tries to load a trivial file into a
 table to show you can get a file off of your local machine and into
 the database.
+
+## Create an inital loading subclass
+
+1. Modify your DBDriver subclass in `records_mover.db.your_db_type` to
+   implement `load()`, `can_load_this_format()` and
+   `known_supported_records_formats_for_load()` by deferring the calls
+   to a new class we'll create in a bit.  You can crib this from an existing Make sure to include mypy
+   types on all the calls.
+2. Using the mypy errors as a driver (run `make` to get mypy to run),
+   create these methods in the DBDriver subclass - initially with
+   `raise NotImplementedError` as the body.  Focus for now at getting
+   the right methods in place and wired up.
