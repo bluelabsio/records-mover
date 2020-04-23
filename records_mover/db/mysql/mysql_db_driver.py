@@ -19,7 +19,7 @@ from ...utils.limits import (INT8_MIN, INT8_MAX,
                              num_digits)
 from ..driver import DBDriver
 from .loader import MySQLLoader
-from typing import Optional, Tuple, Union, List
+from typing import Optional, Tuple, Union, List, IO
 
 
 logger = logging.getLogger(__name__)
@@ -171,5 +171,16 @@ class MySQLDBDriver(DBDriver):
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         return self._mysql_loader.can_load_this_format(source_records_format)
 
+    def can_load_from_fileobjs(self) -> bool:
+        return self._mysql_loader.can_load_from_fileobjs()
+
+
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
         return self._mysql_loader.known_supported_records_formats_for_load()
+
+    def load_from_fileobj(self, schema: str, table: str,
+                          load_plan: RecordsLoadPlan, fileobj: IO[bytes]) -> Optional[int]:
+        return self._mysql_loader.load_from_fileobj(schema=schema,
+                                                    table=table,
+                                                    load_plan=load_plan,
+                                                    fileobj=fileobj)
