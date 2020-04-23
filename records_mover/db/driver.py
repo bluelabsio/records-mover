@@ -13,6 +13,7 @@ from ..records.load_plan import RecordsLoadPlan
 from ..records.types import RecordsFormatType
 from ..records.records_directory import RecordsDirectory
 from records_mover.db.quoting import quote_group_name, quote_user_name, quote_schema_and_table
+from abc import ABCMeta, abstractmethod
 from records_mover.records import RecordsSchema
 from typing import Union, Dict, List, IO, Tuple, Iterator, Optional, Type, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -21,42 +22,33 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class DBDriver:
-    def __init__(self,
-                 db: Union[sqlalchemy.engine.Engine,
-                           sqlalchemy.engine.Connection], **kwargs) -> None:
-        self.db = db
-        self.db_engine = db.engine
-        self.meta = MetaData()
+class NegotiatesLoadFormat(metaclass=ABCMeta):
+    def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
+        """Return true if the specified format is compatible with the load()
+        method"""
+        return False
 
-    def best_scheme_to_load_from(self) -> str:
-        return 'file'
-
-    def has_table(self, schema: str, table: str) -> bool:
-        return self.db.dialect.has_table(self.db, table_name=table, schema=schema)
-
-    def table(self,
-              schema: str,
-              table: str) -> Table:
-        return Table(table, self.meta, schema=schema, autoload=True, autoload_with=self.db_engine)
-
-    def schema_sql(self,
-                   schema: str,
-                   table: str) -> str:
-        """Generate DDL which will recreate the specified table and return it
-        as a string.  Returns None if database or permissions don't
-        support operation.
-
+    # TODO: Is this still used?  Is this for load or unload or both?
+    def best_records_format_variant(self,
+                                    records_format_type: RecordsFormatType) -> \
+            Optional[str]:
+        """Return the most suitable records format delimited variant for
+        loading and unloading.  This is generally the format that the
+        database unloading and loading natively, which won't require
+        translation before loading or after unloading.
         """
-        # http://docs.sqlalchemy.org/en/latest/core/reflection.html
-        table_obj = self.table(schema, table)
-        return str(CreateTable(table_obj, bind=self.db))
+        if records_format_type == 'delimited':
+            return 'bluelabs'
+        else:
+            return None
 
+
+class UnloadsToRecordsDirectory(metaclass=ABCMeta):
     def unload(self,
                schema: str,
                table: str,
                unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> int:
+               directory: RecordsDirectory) -> Optional[int]:
         """Writes table specified to the RecordsDirectory instance named 'directory'
         per the UnloadPlan named 'unload_plan'.  Guarantees a manifest
         file named 'manifest' is written to the target directory pointing
@@ -79,6 +71,11 @@ class DBDriver:
         with a records target"""
         return []
 
+
+class LoadsFromRecordsDirectory(metaclass=ABCMeta):
+    def best_scheme_to_load_from(self) -> str:
+        return 'file'
+
     def load(self,
              schema: str,
              table: str,
@@ -94,11 +91,6 @@ class DBDriver:
         """
         raise NotImplementedError(f"load not implemented for this database type")
 
-    def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
-        """Return true if the specified format is compatible with the load()
-        method"""
-        return False
-
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
         """Candidates to look through when negotiating a common records format
         with a records source.  Will be looked through in order, so
@@ -107,24 +99,14 @@ class DBDriver:
         """
         return []
 
-    def best_records_format_variant(self,
-                                    records_format_type: RecordsFormatType) -> \
-            Optional[str]:
-        """Return the most suitable records format delimited variant for
-        loading and unloading.  This is generally the format that the
-        database unloading and loading natively, which won't require
-        translation before loading or after unloading.
-        """
-        if records_format_type == 'delimited':
-            return 'bluelabs'
-        else:
-            return None
+    @contextmanager
+    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        with TemporaryDirectory(prefix='temporary_loadable_directory_loc') as dirname:
+            yield FilesystemDirectoryUrl(dirname)
 
-    def best_records_format(self) -> BaseRecordsFormat:
-        variant = self.best_records_format_variant('delimited')
-        assert variant is not None  # always provided for 'delimited'
-        return DelimitedRecordsFormat(variant=variant)
 
+
+class LoadsFromFileobj(metaclass=ABCMeta):
     def can_load_from_fileobjs(self) -> bool:
         return False
 
@@ -133,6 +115,49 @@ class DBDriver:
         """Loads the data from the file stream provided.
         """
         raise NotImplementedError(f"load_from_fileobj not implemented for this database type")
+
+
+
+
+
+
+
+class DBDriver(LoadsFromRecordsDirectory,
+               NegotiatesLoadFormat,
+               UnloadsToRecordsDirectory,
+               LoadsFromFileobj):
+    def __init__(self,
+                 db: Union[sqlalchemy.engine.Engine,
+                           sqlalchemy.engine.Connection], **kwargs) -> None:
+        self.db = db
+        self.db_engine = db.engine
+        self.meta = MetaData()
+
+    def has_table(self, schema: str, table: str) -> bool:
+        return self.db.dialect.has_table(self.db, table_name=table, schema=schema)
+
+    def table(self,
+              schema: str,
+              table: str) -> Table:
+        return Table(table, self.meta, schema=schema, autoload=True, autoload_with=self.db_engine)
+
+    def schema_sql(self,
+                   schema: str,
+                   table: str) -> str:
+        """Generate DDL which will recreate the specified table and return it
+        as a string.  Returns None if database or permissions don't
+        support operation.
+
+        """
+        # http://docs.sqlalchemy.org/en/latest/core/reflection.html
+        table_obj = self.table(schema, table)
+        return str(CreateTable(table_obj, bind=self.db))
+
+    # TODO: Is this for load or unload?
+    def best_records_format(self) -> BaseRecordsFormat:
+        variant = self.best_records_format_variant('delimited')
+        assert variant is not None  # always provided for 'delimited'
+        return DelimitedRecordsFormat(variant=variant)
 
     def varchar_length_is_in_chars(self) -> bool:
         """True if the 'n' in VARCHAR(n) is represented in natural language
@@ -170,13 +195,9 @@ class DBDriver:
                 perms_sql = f'GRANT {perm_type} ON TABLE {schema_and_table} TO {user_name}'
                 db.execute(perms_sql)
 
+    # TODO: which interface should this be on?
     def load_failure_exception(self) -> Type[Exception]:
         return sqlalchemy.exc.InternalError
-
-    @contextmanager
-    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
-        with TemporaryDirectory(prefix='temporary_loadable_directory_loc') as dirname:
-            yield FilesystemDirectoryUrl(dirname)
 
     def supports_time_type(self):
         return True
