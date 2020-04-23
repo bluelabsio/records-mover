@@ -28,7 +28,11 @@ class NegotiatesLoadFormat(metaclass=ABCMeta):
         method"""
         return False
 
-    # TODO: Is this still used?  Is this for load or unload or both?
+    def best_records_format(self) -> BaseRecordsFormat:
+        variant = self.best_records_format_variant('delimited')
+        assert variant is not None  # always provided for 'delimited'
+        return DelimitedRecordsFormat(variant=variant)
+
     def best_records_format_variant(self,
                                     records_format_type: RecordsFormatType) -> \
             Optional[str]:
@@ -72,7 +76,12 @@ class UnloadsToRecordsDirectory(metaclass=ABCMeta):
         return []
 
 
-class LoadsFromRecordsDirectory(metaclass=ABCMeta):
+class Loads:
+    def load_failure_exception(self) -> Type[Exception]:
+        return sqlalchemy.exc.InternalError
+
+
+class LoadsFromRecordsDirectory(Loads, metaclass=ABCMeta):
     def best_scheme_to_load_from(self) -> str:
         return 'file'
 
@@ -105,8 +114,7 @@ class LoadsFromRecordsDirectory(metaclass=ABCMeta):
             yield FilesystemDirectoryUrl(dirname)
 
 
-
-class LoadsFromFileobj(metaclass=ABCMeta):
+class LoadsFromFileobj(Loads, metaclass=ABCMeta):
     def can_load_from_fileobjs(self) -> bool:
         return False
 
@@ -115,11 +123,6 @@ class LoadsFromFileobj(metaclass=ABCMeta):
         """Loads the data from the file stream provided.
         """
         raise NotImplementedError(f"load_from_fileobj not implemented for this database type")
-
-
-
-
-
 
 
 class DBDriver(LoadsFromRecordsDirectory,
@@ -152,12 +155,6 @@ class DBDriver(LoadsFromRecordsDirectory,
         # http://docs.sqlalchemy.org/en/latest/core/reflection.html
         table_obj = self.table(schema, table)
         return str(CreateTable(table_obj, bind=self.db))
-
-    # TODO: Is this for load or unload?
-    def best_records_format(self) -> BaseRecordsFormat:
-        variant = self.best_records_format_variant('delimited')
-        assert variant is not None  # always provided for 'delimited'
-        return DelimitedRecordsFormat(variant=variant)
 
     def varchar_length_is_in_chars(self) -> bool:
         """True if the 'n' in VARCHAR(n) is represented in natural language
@@ -194,10 +191,6 @@ class DBDriver(LoadsFromRecordsDirectory,
                                     " are an acceptable value.")
                 perms_sql = f'GRANT {perm_type} ON TABLE {schema_and_table} TO {user_name}'
                 db.execute(perms_sql)
-
-    # TODO: which interface should this be on?
-    def load_failure_exception(self) -> Type[Exception]:
-        return sqlalchemy.exc.InternalError
 
     def supports_time_type(self):
         return True
