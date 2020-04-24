@@ -1,0 +1,13 @@
+{
+  "required": {
+    "header-row": false,
+    "escape": "\\",
+    "quoting": null
+  },
+  "initial_hints": {
+    "header-row": false,
+    "escape": "\\",
+    "quoting": null
+  },
+  "notes": "Nothing here is correctly guessed by our current system.  Boo."
+}

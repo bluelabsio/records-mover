@@ -1,12 +1,32 @@
-from records_mover.records.hints import sniff_hints_from_fileobjs, sniff_encoding_hint
+from records_mover.records.hints import sniff_hints, sniff_hints_from_fileobjs, sniff_encoding_hint
 from records_mover.records import BootstrappingRecordsHints
 from mock import MagicMock, patch
 import io
 import unittest
+import json
+import os
 
 
 class TestHints(unittest.TestCase):
     maxDiff = None
+
+    def test_sniff_hints(self):
+        resources_dir = os.path.dirname(os.path.abspath(__file__)) + '/../resources'
+        basename = 'delimited-bluelabs-no-header-pandas-utc'
+        csv_filename =\
+            f'{resources_dir}/hint_sniffing/{basename}.csv'
+        config_filename =\
+            f'{resources_dir}/hint_sniffing/{basename}.json'
+        with open(config_filename, 'r') as config_fileobj:
+            config = json.load(config_fileobj)
+        required_hints = config['required']
+        initial_hints = config['initial_hints']
+
+        with open(csv_filename, 'rb') as fileobj:
+            hints = sniff_hints(fileobj, initial_hints=initial_hints)
+            self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
+                            f"Expected at least these hints while reading {basename}: {required_hints}, "
+                            f"found these hints: {hints}")
 
     @patch('records_mover.records.hints.stream_csv')
     @patch('records_mover.records.hints.io')
