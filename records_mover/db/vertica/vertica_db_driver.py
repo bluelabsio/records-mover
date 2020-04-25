@@ -65,7 +65,7 @@ class VerticaDBDriver(DBDriver):
                schema: str,
                table: str,
                unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> int:
+               directory: RecordsDirectory) -> Optional[int]:
         return self._vertica_unloader.unload(schema=schema,
                                              table=table,
                                              unload_plan=unload_plan,

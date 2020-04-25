@@ -1,6 +1,6 @@
 import unittest
 from records_mover.db.postgres.loader import PostgresLoader
-from records_mover.db.postgres.copy_options import postgres_copy_options
+from records_mover.db.postgres.copy_options import postgres_copy_from_options
 from records_mover.records import ProcessingInstructions, DelimitedRecordsFormat
 from records_mover.records.load_plan import RecordsLoadPlan
 from mock import Mock
@@ -21,8 +21,8 @@ class TestPostgresCopyOptionsLoadKnown(unittest.TestCase):
             load_plan = RecordsLoadPlan(processing_instructions,
                                         records_format)
             # ensure no exception thrown
-            postgres_copy_options(unhandled_hints,
-                                  load_plan)
+            postgres_copy_from_options(unhandled_hints,
+                                       load_plan)
 
     def test_bluelabs_uncompressed(self):
         records_format = DelimitedRecordsFormat(variant='bluelabs',
@@ -31,8 +31,8 @@ class TestPostgresCopyOptionsLoadKnown(unittest.TestCase):
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
-        date_input_style, copy_options = postgres_copy_options(unhandled_hints,
-                                                               load_plan)
+        date_input_style, copy_options = postgres_copy_from_options(unhandled_hints,
+                                                                    load_plan)
         self.assertEqual(date_input_style, None)
         self.assertEqual(copy_options, {
             'format': 'text',
@@ -48,8 +48,8 @@ class TestPostgresCopyOptionsLoadKnown(unittest.TestCase):
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
-        date_input_style, copy_options = postgres_copy_options(unhandled_hints,
-                                                               load_plan)
+        date_input_style, copy_options = postgres_copy_from_options(unhandled_hints,
+                                                                    load_plan)
         self.assertEqual(date_input_style, 'MDY')
         self.assertEqual(copy_options, {
             'format': 'csv',
@@ -66,8 +66,8 @@ class TestPostgresCopyOptionsLoadKnown(unittest.TestCase):
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
-        date_input_style, copy_options = postgres_copy_options(unhandled_hints,
-                                                               load_plan)
+        date_input_style, copy_options = postgres_copy_from_options(unhandled_hints,
+                                                                    load_plan)
         self.assertEqual(date_input_style, None)
         self.assertEqual(copy_options, {
             'format': 'csv',

@@ -56,7 +56,7 @@ class DBDriver:
                schema: str,
                table: str,
                unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> int:
+               directory: RecordsDirectory) -> Optional[int]:
         """Writes table specified to the RecordsDirectory instance named 'directory'
         per the UnloadPlan named 'unload_plan'.  Guarantees a manifest
         file named 'manifest' is written to the target directory pointing
