@@ -29,7 +29,8 @@ class DoMoveFromTempLocAfterFillingIt(BaseTableMoveAlgorithm):
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         driver = self.tbl.db_driver(self.tbl.db_engine)
         loader = driver.loader()
-        # TODO: Should force null check
+        # TODO: Should force null check - can this object take in a loader?
+        assert loader is not None
         with loader.temporary_loadable_directory_loc() as loc:
             yield loc
 

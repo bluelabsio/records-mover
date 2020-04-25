@@ -29,9 +29,10 @@ class DoMoveFromFileobjsSource(BaseTableMoveAlgorithm):
                                     processing_instructions=processing_instructions)
         super().__init__(prep, target_table_details, processing_instructions)
 
-    # TODO: Should this take a loader?
     def load(self, driver: DBDriver) -> Optional[int]:
         loader = driver.loader_from_fileobj()
+        # TODO: Should this take a loader?
+        assert loader is not None
         return loader.load_from_fileobj(schema=self.tbl.schema_name,
                                         table=self.tbl.table_name,
                                         load_plan=self.plan, fileobj=self.fileobj)

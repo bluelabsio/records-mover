@@ -141,15 +141,15 @@ class DBDriver(UnloadsToRecordsDirectory,
                                                scale=scale)
 
     @abstractmethod
-    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
+    def loader(self) -> Optional[Union[LoaderFromFileobj, LoaderFromRecordsDirectory]]:
         ...
 
     @abstractmethod
-    def loader_from_fileobj(self) -> LoaderFromFileobj:
+    def loader_from_fileobj(self) -> Optional[LoaderFromFileobj]:
         ...
 
     @abstractmethod
-    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
+    def loader_from_records_directory(self) -> Optional[LoaderFromRecordsDirectory]:
         ...
 
     def type_for_floating_point(self,

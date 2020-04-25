@@ -51,6 +51,8 @@ class DoMoveFromRecordsDirectory(BaseTableMoveAlgorithm):
     def load(self, driver: DBDriver) -> Optional[int]:
         plan = self.load_plan
         loader = driver.loader_from_records_directory()
+        # TODO: Can this take in a loader so we don't have to do this assertion here?
+        assert loader is not None
         return loader.load(schema=self.tbl.schema_name, table=self.tbl.table_name,
                            load_plan=plan, directory=self.directory)
 
