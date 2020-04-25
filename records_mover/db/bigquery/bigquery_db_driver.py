@@ -12,17 +12,30 @@ from typing import Union, Optional, List, Tuple, IO
 from ...url.resolver import UrlResolver
 import sqlalchemy
 from .loader import BigQueryLoader
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
 
 logger = logging.getLogger(__name__)
 
 
-class BigQueryDBDriver(DBDriver):
+class BigQueryDBDriver(DBDriver,
+                       LoaderFromFileobj,
+                       LoaderFromRecordsDirectory,
+                       NegotiatesLoadFormatImpl):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
                  url_resolver: UrlResolver,
                  **kwargs: object) -> None:
         super().__init__(db)
         self._bigquery_loader = BigQueryLoader(db=self.db, url_resolver=url_resolver)
+
+    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
+        return self
+
+    def loader_from_fileobj(self) -> LoaderFromFileobj:
+        return self
+
+    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
+        return self
 
     def load(self,
              schema: str,

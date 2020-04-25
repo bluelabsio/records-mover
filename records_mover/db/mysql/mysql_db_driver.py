@@ -15,13 +15,26 @@ from ...utils.limits import (INT8_MIN, INT8_MAX,
                              FLOAT64_SIGNIFICAND_BITS,
                              num_digits)
 from ..driver import DBDriver
-from typing import Optional, Tuple
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
+from typing import Optional, Tuple, Union
 
 
 logger = logging.getLogger(__name__)
 
 
-class MySQLDBDriver(DBDriver):
+class MySQLDBDriver(DBDriver,
+                    LoaderFromFileobj,
+                    LoaderFromRecordsDirectory,
+                    NegotiatesLoadFormatImpl):
+    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
+        return self
+
+    def loader_from_fileobj(self) -> LoaderFromFileobj:
+        return self
+
+    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
+        return self
+
     # https://dev.mysql.com/doc/refman/8.0/en/integer-types.html
     def integer_limits(self,
                        type_: sqlalchemy.types.Integer) ->\

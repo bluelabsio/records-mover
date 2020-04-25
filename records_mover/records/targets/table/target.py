@@ -81,22 +81,26 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
 
     def can_move_from_fileobjs_source(self) -> bool:
         driver = self.db_driver(self.db_engine)
-        return driver.can_load_from_fileobjs()
+        loader = driver.loader_from_fileobj()
+        return loader.can_load_from_fileobjs()
 
     def can_load_direct(self, scheme: str) -> bool:
         driver = self.db_driver(self.db_engine)
-        return driver.best_scheme_to_load_from() == scheme
+        loader = driver.loader_from_records_directory()
+        return loader.best_scheme_to_load_from() == scheme
 
     def known_supported_records_formats(self) -> List[BaseRecordsFormat]:
         driver = self.db_driver(self.db_engine)
-        return driver.known_supported_records_formats_for_load()
+        loader = driver.loader()
+        return loader.known_supported_records_formats_for_load()
 
     def can_move_from_this_format(self,
                                   source_records_format: BaseRecordsFormat) -> bool:
         """Return true if writing the specified format satisfies our format
         needs"""
         driver = self.db_driver(self.db_engine)
-        return driver.can_load_this_format(source_records_format)
+        loader = driver.loader()
+        return loader.can_load_this_format(source_records_format)
 
     def move_from_temp_loc_after_filling_it(self,
                                             records_source:

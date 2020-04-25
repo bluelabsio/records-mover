@@ -20,12 +20,16 @@ from ...url.base import BaseDirectoryUrl
 from records_mover.db.quoting import quote_group_name, quote_schema_and_table
 from .unloader import RedshiftUnloader
 from .loader import RedshiftLoader
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
 from ..errors import NoTemporaryBucketConfiguration
 
 logger = logging.getLogger(__name__)
 
 
-class RedshiftDBDriver(DBDriver):
+class RedshiftDBDriver(DBDriver,
+                       LoaderFromFileobj,
+                       LoaderFromRecordsDirectory,
+                       NegotiatesLoadFormatImpl):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
                  s3_temp_base_loc: Optional[BaseDirectoryUrl]=None,
@@ -196,3 +200,12 @@ class RedshiftDBDriver(DBDriver):
             return sqlalchemy.sql.sqltypes.Float(precision=FLOAT64_SIGNIFICAND_BITS)
         return super().type_for_floating_point(fp_total_bits=fp_total_bits,
                                                fp_significand_bits=fp_significand_bits)
+
+    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
+        return self
+
+    def loader_from_fileobj(self) -> LoaderFromFileobj:
+        return self
+
+    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
+        return self

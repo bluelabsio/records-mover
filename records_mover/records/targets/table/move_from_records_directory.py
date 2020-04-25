@@ -50,7 +50,8 @@ class DoMoveFromRecordsDirectory(BaseTableMoveAlgorithm):
 
     def load(self, driver: DBDriver) -> Optional[int]:
         plan = self.load_plan
-        return driver.load(schema=self.tbl.schema_name, table=self.tbl.table_name,
+        loader = driver.loader_from_records_directory()
+        return loader.load(schema=self.tbl.schema_name, table=self.tbl.table_name,
                            load_plan=plan, directory=self.directory)
 
     def move(self) -> MoveResult:

@@ -13,6 +13,7 @@ from records_mover.utils.limits import (INT16_MIN, INT16_MAX,
                                         num_digits)
 from ..driver import DBDriver
 from .loader import PostgresLoader
+from ..loader import LoaderFromFileobj, NegotiatesLoadFormatImpl, LoaderFromRecordsDirectory
 from .unloader import PostgresUnloader
 from typing import Optional, Tuple, Union, List
 
@@ -20,7 +21,10 @@ from typing import Optional, Tuple, Union, List
 logger = logging.getLogger(__name__)
 
 
-class PostgresDBDriver(DBDriver):
+class PostgresDBDriver(DBDriver,
+                       LoaderFromFileobj,
+                       LoaderFromRecordsDirectory,
+                       NegotiatesLoadFormatImpl):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
                  url_resolver: UrlResolver,
@@ -30,6 +34,15 @@ class PostgresDBDriver(DBDriver):
                                                meta=self.meta,
                                                db=self.db)
         self._postgres_unloader = PostgresUnloader(db=self.db)
+
+    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
+        return self
+
+    def loader_from_fileobj(self) -> LoaderFromFileobj:
+        return self
+
+    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
+        return self
 
     # https://www.postgresql.org/docs/10/datatype-numeric.html
     def integer_limits(self,

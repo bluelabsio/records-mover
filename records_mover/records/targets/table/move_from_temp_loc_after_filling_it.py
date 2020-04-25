@@ -28,7 +28,9 @@ class DoMoveFromTempLocAfterFillingIt(BaseTableMoveAlgorithm):
     @contextmanager
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         driver = self.tbl.db_driver(self.tbl.db_engine)
-        with driver.temporary_loadable_directory_loc() as loc:
+        loader = driver.loader()
+        # TODO: Should force null check
+        with loader.temporary_loadable_directory_loc() as loc:
             yield loc
 
     def move(self) -> MoveResult:

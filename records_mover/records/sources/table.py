@@ -23,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 class TableRecordsSource(SupportsMoveToRecordsDirectory,
                          SupportsToDataframesSource):
+    records_format: Optional[BaseRecordsFormat]
+
     def __init__(self,
                  schema_name: str,
                  table_name: str,
@@ -31,7 +33,11 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         self.schema_name = schema_name
         self.table_name = table_name
         self.driver = driver
-        self.records_format = driver.best_records_format()
+        self.loader = driver.loader()
+        if self.loader is not None:
+            self.records_format = self.loader.best_records_format()
+        else:
+            self.records_format = None
         self.url_resolver = url_resolver
 
     def known_supported_records_formats(self) -> List[BaseRecordsFormat]:

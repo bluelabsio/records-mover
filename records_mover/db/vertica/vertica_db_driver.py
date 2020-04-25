@@ -16,6 +16,7 @@ from ...url.base import BaseDirectoryUrl
 from ...records.unload_plan import RecordsUnloadPlan
 from ...records.load_plan import RecordsLoadPlan
 from .loader import VerticaLoader
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
 from .unloader import VerticaUnloader
 from ...utils.limits import (INT64_MIN, INT64_MAX,
                              FLOAT64_SIGNIFICAND_BITS,
@@ -25,7 +26,10 @@ from ...utils.limits import (INT64_MIN, INT64_MAX,
 logger = logging.getLogger(__name__)
 
 
-class VerticaDBDriver(DBDriver):
+class VerticaDBDriver(DBDriver,
+                      LoaderFromFileobj,
+                      LoaderFromRecordsDirectory,
+                      NegotiatesLoadFormatImpl):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
                  url_resolver: UrlResolver,
@@ -34,6 +38,15 @@ class VerticaDBDriver(DBDriver):
         self._vertica_loader = VerticaLoader(url_resolver=url_resolver, db=self.db)
         self._vertica_unloader = VerticaUnloader(s3_temp_base_loc=s3_temp_base_loc, db=db)
         self.url_resolver = url_resolver
+
+    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
+        return self
+
+    def loader_from_fileobj(self) -> LoaderFromFileobj:
+        return self
+
+    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
+        return self
 
     def load(self,
              schema: str,

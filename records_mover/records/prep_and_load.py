@@ -15,6 +15,7 @@ def prep_and_load(tbl: TargetTableDetails,
                   load: Callable[[DBDriver], Optional[int]],
                   reset_before_reload: Callable[[], None] = lambda: None) -> MoveResult:
     logger.info(f"Connecting to database...")
+    # TODO: Can this method maybe take a loader rather than a driver?
     with tbl.db_engine.begin() as db:
         driver = tbl.db_driver(db)
         prep.prep(schema_sql=schema_sql, driver=driver)
@@ -25,9 +26,10 @@ def prep_and_load(tbl: TargetTableDetails,
         #
         #  Cannot COPY into nonexistent table
         driver = tbl.db_driver(db)
+        loader = driver.loader()
         try:
             import_count = load(driver)
-        except driver.load_failure_exception():
+        except loader.load_failure_exception():
             if not tbl.drop_and_recreate_on_load_error:
                 raise
             reset_before_reload()

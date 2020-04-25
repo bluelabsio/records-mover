@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from sqlalchemy.schema import CreateTable
 from ..records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
+from .loader import NegotiatesLoadFormat, LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
 from tempfile import TemporaryDirectory
 from ..url.filesystem import FilesystemDirectoryUrl
 import logging
@@ -10,7 +11,6 @@ from sqlalchemy.schema import Table
 from ..url.base import BaseDirectoryUrl
 from ..records.unload_plan import RecordsUnloadPlan
 from ..records.load_plan import RecordsLoadPlan
-from ..records.types import RecordsFormatType
 from ..records.records_directory import RecordsDirectory
 from records_mover.db.quoting import quote_group_name, quote_user_name, quote_schema_and_table
 from abc import ABCMeta, abstractmethod
@@ -20,31 +20,6 @@ if TYPE_CHECKING:
     from typing_extensions import Literal  # noqa
 
 logger = logging.getLogger(__name__)
-
-
-class NegotiatesLoadFormat(metaclass=ABCMeta):
-    def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
-        """Return true if the specified format is compatible with the load()
-        method"""
-        return False
-
-    def best_records_format(self) -> BaseRecordsFormat:
-        variant = self.best_records_format_variant('delimited')
-        assert variant is not None  # always provided for 'delimited'
-        return DelimitedRecordsFormat(variant=variant)
-
-    def best_records_format_variant(self,
-                                    records_format_type: RecordsFormatType) -> \
-            Optional[str]:
-        """Return the most suitable records format delimited variant for
-        loading and unloading.  This is generally the format that the
-        database unloading and loading natively, which won't require
-        translation before loading or after unloading.
-        """
-        if records_format_type == 'delimited':
-            return 'bluelabs'
-        else:
-            return None
 
 
 class UnloadsToRecordsDirectory(metaclass=ABCMeta):
@@ -76,59 +51,9 @@ class UnloadsToRecordsDirectory(metaclass=ABCMeta):
         return []
 
 
-class Loads:
-    def load_failure_exception(self) -> Type[Exception]:
-        return sqlalchemy.exc.InternalError
-
-
-class LoadsFromRecordsDirectory(Loads, metaclass=ABCMeta):
-    def best_scheme_to_load_from(self) -> str:
-        return 'file'
-
-    def load(self,
-             schema: str,
-             table: str,
-             load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> Optional[int]:
-        """Loads the data from the data specified to the RecordsDirectory
-        instance named 'directory'.  Guarantees a manifest file named
-        'manifest' is written to the target directory pointing to the
-        target records.
-
-        Returns number of rows loaded (if database provides that
-        info).
-        """
-        raise NotImplementedError(f"load not implemented for this database type")
-
-    def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
-        """Candidates to look through when negotiating a common records format
-        with a records source.  Will be looked through in order, so
-        the better formats (higher fidelity and/or more efficient to
-        process) should appear first in the list.
-        """
-        return []
-
-    @contextmanager
-    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
-        with TemporaryDirectory(prefix='temporary_loadable_directory_loc') as dirname:
-            yield FilesystemDirectoryUrl(dirname)
-
-
-class LoadsFromFileobj(Loads, metaclass=ABCMeta):
-    def can_load_from_fileobjs(self) -> bool:
-        return False
-
-    def load_from_fileobj(self, schema: str, table: str,
-                          load_plan: RecordsLoadPlan, fileobj: IO[bytes]) -> Optional[int]:
-        """Loads the data from the file stream provided.
-        """
-        raise NotImplementedError(f"load_from_fileobj not implemented for this database type")
-
-
-class DBDriver(LoadsFromRecordsDirectory,
-               NegotiatesLoadFormat,
-               UnloadsToRecordsDirectory,
-               LoadsFromFileobj):
+# TODO: remove UnloadsToRecordsDirectory
+class DBDriver(UnloadsToRecordsDirectory,
+               metaclass=ABCMeta):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine,
                            sqlalchemy.engine.Connection], **kwargs) -> None:
@@ -215,6 +140,18 @@ class DBDriver(LoadsFromRecordsDirectory,
         return sqlalchemy.sql.sqltypes.Numeric(precision=precision,
                                                scale=scale)
 
+    @abstractmethod
+    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
+        ...
+
+    @abstractmethod
+    def loader_from_fileobj(self) -> LoaderFromFileobj:
+        ...
+
+    @abstractmethod
+    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
+        ...
+
     def type_for_floating_point(self,
                                 fp_total_bits: int,
                                 fp_significand_bits: int) -> sqlalchemy.sql.sqltypes.Numeric:
@@ -287,3 +224,17 @@ class DBDriver(LoadsFromRecordsDirectory,
                                       records_schema: RecordsSchema,
                                       records_format: BaseRecordsFormat) -> RecordsSchema:
         return records_schema
+
+
+class GenericDBDriver(DBDriver,
+                      LoaderFromFileobj,
+                      LoaderFromRecordsDirectory,
+                      NegotiatesLoadFormatImpl):
+    def loader_from_fileobj(self) -> LoaderFromFileobj:
+        return self
+
+    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
+        return self
+
+    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
+        return self
