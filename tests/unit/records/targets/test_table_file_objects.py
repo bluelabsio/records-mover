@@ -18,7 +18,9 @@ class TestTableFileObjects(unittest.TestCase):
         self.mock_existing_table_handling = Mock(name='existing_table_handling')
         mock_driver = self.mock_db_driver.return_value
         mock_records_format = Mock(name='records_format')
-        mock_driver.known_supported_records_formats_for_load.return_value = [mock_records_format]
+        self.mock_loader = mock_driver.loader.return_value
+        self.mock_loader_from_fileobj = mock_driver.loader_from_fileobj.return_value
+        self.mock_loader.known_supported_records_formats_for_load.return_value = [mock_records_format]
         self.table = TableRecordsTarget(self.mock_schema_name,
                                         self.mock_table_name,
                                         self.mock_db_engine,
@@ -29,11 +31,12 @@ class TestTableFileObjects(unittest.TestCase):
 
     def test_can_move_from_fileobjs_source(self):
         out = self.table.can_move_from_fileobjs_source()
-        self.assertEqual(out, self.mock_db_driver.return_value.can_load_from_fileobjs.return_value)
+        self.assertEqual(out, self.mock_loader_from_fileobj.can_load_from_fileobjs.return_value)
 
     def test_can_load_direct(self):
         mock_scheme = Mock(name='scheme')
         mock_driver = self.mock_db_driver.return_value
-        mock_driver.best_scheme_to_load_from.return_value = mock_scheme
+        mock_loader_from_records_directory = mock_driver.loader_from_records_directory.return_value
+        mock_loader_from_records_directory.best_scheme_to_load_from.return_value = mock_scheme
         self.assertEqual(True, self.table.can_load_direct(mock_scheme))
         self.mock_db_driver.assert_called_with(self.mock_db_engine)

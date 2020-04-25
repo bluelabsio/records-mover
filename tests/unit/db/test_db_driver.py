@@ -1,7 +1,7 @@
 from .fakes import fake_text
 import unittest
 from mock import Mock, MagicMock, patch, call
-from records_mover.db import DBDriver
+from records_mover.db.driver import GenericDBDriver
 import sqlalchemy
 
 
@@ -11,10 +11,10 @@ class TestDBDriver(unittest.TestCase):
         self.mock_url_resolver = Mock(name='url_resolver')
         self.mock_s3_temp_base_loc = MagicMock(name='s3_temp_base_loc')
         self.mock_s3_temp_base_loc.url = 's3://fakebucket/fakedir/fakesubdir/'
-        self.db_driver = DBDriver(db=self.mock_db_engine,
-                                  s3_temp_base_loc=self.mock_s3_temp_base_loc,
-                                  url_resolver=self.mock_url_resolver,
-                                  text=fake_text)
+        self.db_driver = GenericDBDriver(db=self.mock_db_engine,
+                                         s3_temp_base_loc=self.mock_s3_temp_base_loc,
+                                         url_resolver=self.mock_url_resolver,
+                                         text=fake_text)
 
     def test_best_scheme_to_load_from(self):
         out = self.db_driver.best_scheme_to_load_from()
@@ -164,8 +164,8 @@ class TestDBDriver(unittest.TestCase):
             call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_user_name}"),
         ])
 
-    @patch('records_mover.db.driver.TemporaryDirectory')
-    @patch('records_mover.db.driver.FilesystemDirectoryUrl')
+    @patch('records_mover.db.loader.TemporaryDirectory')
+    @patch('records_mover.db.loader.FilesystemDirectoryUrl')
     def test_temporary_loadable_directory_loc(self,
                                               mock_FilesystemDirectoryUrl,
                                               mock_TemporaryDirectory):
