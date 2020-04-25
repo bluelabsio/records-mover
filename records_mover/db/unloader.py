@@ -2,7 +2,7 @@ from sqlalchemy import MetaData
 from ..records.unload_plan import RecordsUnloadPlan
 from ..records.records_format import BaseRecordsFormat
 from ..records.records_directory import RecordsDirectory
-from typing import Union, List
+from typing import Union, List, Optional
 import sqlalchemy
 
 
@@ -16,7 +16,7 @@ class Unloader:
                schema: str,
                table: str,
                unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> int:
+               directory: RecordsDirectory) -> Optional[int]:
         raise NotImplementedError(f"Teach me how to bulk export from {self.db.engine.name}")
 
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:

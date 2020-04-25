@@ -4,6 +4,7 @@ from records_mover.url.resolver import UrlResolver
 from records_mover.records.records_format import BaseRecordsFormat
 from records_mover.records.records_directory import RecordsDirectory
 from records_mover.records.load_plan import RecordsLoadPlan
+from records_mover.records.unload_plan import RecordsUnloadPlan
 from records_mover.utils.limits import (INT16_MIN, INT16_MAX,
                                         INT32_MIN, INT32_MAX,
                                         INT64_MIN, INT64_MAX,
@@ -12,6 +13,7 @@ from records_mover.utils.limits import (INT16_MIN, INT16_MAX,
                                         num_digits)
 from ..driver import DBDriver
 from .loader import PostgresLoader
+from .unloader import PostgresUnloader
 from typing import Optional, Tuple, Union, List
 
 
@@ -27,6 +29,7 @@ class PostgresDBDriver(DBDriver):
         self._postgres_loader = PostgresLoader(url_resolver=url_resolver,
                                                meta=self.meta,
                                                db=self.db)
+        self._postgres_unloader = PostgresUnloader(db=self.db)
 
     # https://www.postgresql.org/docs/10/datatype-numeric.html
     def integer_limits(self,
@@ -95,3 +98,19 @@ class PostgresDBDriver(DBDriver):
                                    table=table,
                                    load_plan=load_plan,
                                    directory=directory)
+
+    def unload(self,
+               schema: str,
+               table: str,
+               unload_plan: RecordsUnloadPlan,
+               directory: RecordsDirectory) -> None:
+        self._postgres_unloader.unload(schema=schema,
+                                       table=table,
+                                       unload_plan=unload_plan,
+                                       directory=directory)
+
+    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
+        return self._postgres_unloader.can_unload_this_format(target_records_format)
+
+    def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
+        return self._postgres_unloader.known_supported_records_formats_for_unload()

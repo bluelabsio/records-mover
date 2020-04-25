@@ -17,9 +17,9 @@ class TestPostgresLoader(unittest.TestCase):
     @patch('records_mover.db.postgres.loader.copy_from')
     @patch('records_mover.db.postgres.loader.complain_on_unhandled_hints')
     @patch('records_mover.db.postgres.loader.Table')
-    @patch('records_mover.db.postgres.loader.postgres_copy_options')
+    @patch('records_mover.db.postgres.loader.postgres_copy_from_options')
     def test_load_from_fileobj(self,
-                               mock_postgres_copy_options,
+                               mock_postgres_copy_from_options,
                                mock_Table,
                                mock_complain_on_unhandled_hints,
                                mock_copy_from,
@@ -33,12 +33,12 @@ class TestPostgresLoader(unittest.TestCase):
                                    spec=DelimitedRecordsFormat)
         mock_records_format.hints = {}
         mock_load_plan.records_format = mock_records_format
-        mock_date_input_style = "DATE_INPUT_STYLE"
+        mock_date_order_style = "DATE_ORDER_STYLE"
         mock_postgres_options = {
             'abc': 123
         }
-        mock_postgres_copy_options.return_value = (
-            mock_date_input_style,
+        mock_postgres_copy_from_options.return_value = (
+            mock_date_order_style,
             mock_postgres_options,
         )
         mock_quote_value.return_value = "ABC"
@@ -59,7 +59,7 @@ class TestPostgresLoader(unittest.TestCase):
                                       autoload=True,
                                       autoload_with=self.mock_db)
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
-        mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_INPUT_STYLE')
+        mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_ORDER_STYLE')
         mock_conn.execute.assert_called_with('SET LOCAL DateStyle = ABC')
         mock_copy_from.assert_called_with(mock_fileobj,
                                           mock_table_obj,
@@ -70,9 +70,9 @@ class TestPostgresLoader(unittest.TestCase):
     @patch('records_mover.db.postgres.loader.copy_from')
     @patch('records_mover.db.postgres.loader.complain_on_unhandled_hints')
     @patch('records_mover.db.postgres.loader.Table')
-    @patch('records_mover.db.postgres.loader.postgres_copy_options')
-    def test_load_from_fileobj_default_date_input_style(self,
-                                                        mock_postgres_copy_options,
+    @patch('records_mover.db.postgres.loader.postgres_copy_from_options')
+    def test_load_from_fileobj_default_date_order_style(self,
+                                                        mock_postgres_copy_from_options,
                                                         mock_Table,
                                                         mock_complain_on_unhandled_hints,
                                                         mock_copy_from,
@@ -86,12 +86,12 @@ class TestPostgresLoader(unittest.TestCase):
                                    spec=DelimitedRecordsFormat)
         mock_records_format.hints = {}
         mock_load_plan.records_format = mock_records_format
-        mock_date_input_style = None
+        mock_date_order_style = None
         mock_postgres_options = {
             'abc': 123
         }
-        mock_postgres_copy_options.return_value = (
-            mock_date_input_style,
+        mock_postgres_copy_from_options.return_value = (
+            mock_date_order_style,
             mock_postgres_options,
         )
         mock_quote_value.return_value = "ABC"
@@ -123,9 +123,9 @@ class TestPostgresLoader(unittest.TestCase):
     @patch('records_mover.db.postgres.loader.copy_from')
     @patch('records_mover.db.postgres.loader.complain_on_unhandled_hints')
     @patch('records_mover.db.postgres.loader.Table')
-    @patch('records_mover.db.postgres.loader.postgres_copy_options')
+    @patch('records_mover.db.postgres.loader.postgres_copy_from_options')
     def test_load(self,
-                  mock_postgres_copy_options,
+                  mock_postgres_copy_from_options,
                   mock_Table,
                   mock_complain_on_unhandled_hints,
                   mock_copy_from,
@@ -144,12 +144,12 @@ class TestPostgresLoader(unittest.TestCase):
                                    spec=DelimitedRecordsFormat)
         mock_records_format.hints = {}
         mock_load_plan.records_format = mock_records_format
-        mock_date_input_style = "DATE_INPUT_STYLE"
+        mock_date_order_style = "DATE_ORDER_STYLE"
         mock_postgres_options = {
             'abc': 123
         }
-        mock_postgres_copy_options.return_value = (
-            mock_date_input_style,
+        mock_postgres_copy_from_options.return_value = (
+            mock_date_order_style,
             mock_postgres_options,
         )
         mock_quote_value.return_value = "ABC"
@@ -176,7 +176,7 @@ class TestPostgresLoader(unittest.TestCase):
                                       autoload=True,
                                       autoload_with=self.mock_db)
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
-        mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_INPUT_STYLE')
+        mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_ORDER_STYLE')
         mock_conn.execute.assert_called_with('SET LOCAL DateStyle = ABC')
         mock_copy_from.assert_called_with(mock_fileobj,
                                           mock_table_obj,
@@ -184,9 +184,9 @@ class TestPostgresLoader(unittest.TestCase):
                                           abc=123)
 
     @patch('records_mover.db.postgres.loader.complain_on_unhandled_hints')
-    @patch('records_mover.db.postgres.loader.postgres_copy_options')
+    @patch('records_mover.db.postgres.loader.postgres_copy_from_options')
     def test_can_load_this_format_true(self,
-                                       mock_postgres_copy_options,
+                                       mock_postgres_copy_from_options,
                                        mock_complain_on_unhandled_hints):
         source_records_format = Mock(name='source_records_format',
                                      spec=DelimitedRecordsFormat)
