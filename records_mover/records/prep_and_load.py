@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Type
 from records_mover.records.results import MoveResult
 from records_mover.db import DBDriver
 from records_mover.records.prep import TablePrep
@@ -14,6 +14,7 @@ def prep_and_load(tbl: TargetTableDetails,
                   prep: TablePrep,
                   schema_sql: str,
                   load: Callable[[DBDriver], Optional[int]],
+                  load_exception_type: Type[Exception],
                   reset_before_reload: Callable[[], None] = lambda: None) -> MoveResult:
     logger.info(f"Connecting to database...")
     with tbl.db_engine.begin() as db:
@@ -26,16 +27,9 @@ def prep_and_load(tbl: TargetTableDetails,
         #
         #  Cannot COPY into nonexistent table
         driver = tbl.db_driver(db)
-        loader = driver.loader()
-        # TODO: Can this exception be passed in so we can skip this logic here?
-        if loader is not None:
-            exception_type = loader.load_failure_exception()
-        else:
-            # This is also used when doing loads via INSERT
-            exception_type = sqlalchemy.exc.InternalError
         try:
             import_count = load(driver)
-        except exception_type:
+        except load_exception_type:
             if not tbl.drop_and_recreate_on_load_error:
                 raise
             reset_before_reload()

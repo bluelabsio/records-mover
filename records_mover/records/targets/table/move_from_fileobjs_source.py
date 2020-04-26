@@ -49,6 +49,10 @@ class DoMoveFromFileobjsSource(BaseTableMoveAlgorithm):
     def move(self) -> MoveResult:
         with self.tbl.db_engine.begin() as db:
             driver = self.tbl.db_driver(db)
+            # TODO: Can this take in a loader so we don't have to do this assertion here?
+            loader = driver.loader()
+            assert loader is not None
             schema_obj = self.fileobjs_source.records_schema
             schema_sql = self.schema_sql_for_load(schema_obj, self.records_format, driver)
-        return prep_and_load(self.tbl, self.prep, schema_sql, self.load, self.reset_before_reload)
+        return prep_and_load(self.tbl, self.prep, schema_sql, self.load,
+                             loader.load_failure_exception(), self.reset_before_reload)

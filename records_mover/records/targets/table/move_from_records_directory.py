@@ -58,7 +58,13 @@ class DoMoveFromRecordsDirectory(BaseTableMoveAlgorithm):
 
     def move(self) -> MoveResult:
         logger.info(f"Connecting to database...")
+
         with self.tbl.db_engine.begin() as db:
             driver = self.tbl.db_driver(db)
+            # TODO: Can this take in a loader so we don't have to do this assertion here?
+            loader = driver.loader()
+            assert loader is not None
+            load_exception_type = loader.load_failure_exception()
             schema_sql = self.load_schema_sql(driver)
-        return prep_and_load(self.tbl, self.prep, schema_sql, self.load)
+        return prep_and_load(self.tbl, self.prep, schema_sql, self.load,
+                             load_exception_type)
