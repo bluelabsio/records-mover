@@ -1,4 +1,5 @@
 from records_mover.db import DBDriver
+from records_mover.db.loader import LoaderFromFileobj
 from records_mover.records.prep import TablePrep, TargetTableDetails
 from records_mover.records.processing_instructions import ProcessingInstructions
 from records_mover.records.results import MoveResult
@@ -16,10 +17,12 @@ class DoMoveFromFileobjsSource(BaseTableMoveAlgorithm):
     def __init__(self,
                  prep: TablePrep,
                  target_table_details: TargetTableDetails,
+                 loader_from_fileobj: LoaderFromFileobj,
                  fileobjs_source: FileobjsSource,
                  processing_instructions: ProcessingInstructions) -> None:
         self.fileobjs_source = fileobjs_source
         all_fileobjs = list(self.fileobjs_source.target_names_to_input_fileobjs.values())
+        self.loader_from_fileobj = loader_from_fileobj
         if len(all_fileobjs) != 1:
             raise NotImplementedError("Teach me how to append and load more than one "
                                       "file into same table")
@@ -30,12 +33,10 @@ class DoMoveFromFileobjsSource(BaseTableMoveAlgorithm):
         super().__init__(prep, target_table_details, processing_instructions)
 
     def load(self, driver: DBDriver) -> Optional[int]:
-        loader = driver.loader_from_fileobj()
-        # TODO: Should this class take in a loader?
-        assert loader is not None
-        return loader.load_from_fileobj(schema=self.tbl.schema_name,
-                                        table=self.tbl.table_name,
-                                        load_plan=self.plan, fileobj=self.fileobj)
+        return self.loader_from_fileobj.load_from_fileobj(schema=self.tbl.schema_name,
+                                                          table=self.tbl.table_name,
+                                                          load_plan=self.plan,
+                                                          fileobj=self.fileobj)
 
     def reset_before_reload(self) -> None:
         if not self.tbl.drop_and_recreate_on_load_error:
@@ -49,10 +50,8 @@ class DoMoveFromFileobjsSource(BaseTableMoveAlgorithm):
     def move(self) -> MoveResult:
         with self.tbl.db_engine.begin() as db:
             driver = self.tbl.db_driver(db)
-            # TODO: Can this take in a loader so we don't have to do this assertion here?
-            loader = driver.loader()
-            assert loader is not None
             schema_obj = self.fileobjs_source.records_schema
             schema_sql = self.schema_sql_for_load(schema_obj, self.records_format, driver)
         return prep_and_load(self.tbl, self.prep, schema_sql, self.load,
-                             loader.load_failure_exception(), self.reset_before_reload)
+                             self.loader_from_fileobj.load_failure_exception(),
+                             self.reset_before_reload)
