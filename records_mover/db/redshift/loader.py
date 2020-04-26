@@ -143,3 +143,6 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
             # Supports newlines in strings, but not empty strings.
             DelimitedRecordsFormat(variant='bluelabs'),
         ]
+
+    def best_scheme_to_load_from(self) -> str:
+        return 's3'

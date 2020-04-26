@@ -39,7 +39,7 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
             f'GRANT all ON TABLE {mock_schema}.{mock_table} TO GROUP "a_group"')
 
     def test_best_scheme_to_load_from(self):
-        out = self.redshift_db_driver.best_scheme_to_load_from()
+        out = self.redshift_db_driver.loader().best_scheme_to_load_from()
         self.assertEqual(out, "s3")
 
     def test_supports_time_type(self):

@@ -26,10 +26,6 @@ class MySQLDBDriver(DBDriver):
     def loader(self) -> Optional[Union[LoaderFromFileobj, LoaderFromRecordsDirectory]]:
         return None
 
-    # TODO: There's a defacto constraint that you could have either
-    # neither, a LoaderFromRecordsDirectory, or a
-    # LoaderFromRecordsDirectory and a LoaderFromFileobj.  Maybe
-    # extend classes accordingly?
     def loader_from_fileobj(self) -> Optional[LoaderFromFileobj]:
         return None
 

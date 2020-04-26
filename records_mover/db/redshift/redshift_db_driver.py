@@ -43,10 +43,6 @@ class RedshiftDBDriver(DBDriver):
                              table=self.table,
                              temporary_s3_directory_loc=self.temporary_s3_directory_loc)
 
-    # TODO: this should be in loader class
-    def best_scheme_to_load_from(self) -> str:
-        return 's3'
-
     def schema_sql(self, schema: str, table: str) -> str:
         out = schema_sql_from_admin_views(schema, table, self.db)
         if out is None:
