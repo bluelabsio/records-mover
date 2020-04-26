@@ -4,7 +4,6 @@ from ...records import RecordsSchema
 from ...records.unload_plan import RecordsUnloadPlan
 from ...records.load_plan import RecordsLoadPlan
 from ...records.records_format import BaseRecordsFormat, ParquetRecordsFormat
-from ...records.types import RecordsFormatType
 from ...records.records_directory import RecordsDirectory
 from ...utils.limits import INT64_MAX, INT64_MIN, FLOAT64_SIGNIFICAND_BITS, num_digits
 import re
@@ -38,14 +37,6 @@ class BigQueryDBDriver(DBDriver):
 
     def unloader(self) -> None:
         return None
-
-    # TODO: This next one shouldn't be in this class
-    def best_records_format_variant(self, records_format_type: RecordsFormatType) ->\
-            Optional[str]:
-        if records_format_type == 'delimited':
-            return 'bigquery'
-        else:
-            return None
 
     def type_for_date_plus_time(self, has_tz: bool=False) -> sqlalchemy.sql.sqltypes.DateTime:
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types

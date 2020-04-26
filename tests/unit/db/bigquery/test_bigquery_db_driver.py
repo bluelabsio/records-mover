@@ -46,13 +46,6 @@ class TestBigQueryDBDriver(unittest.TestCase):
                          self.mock_BigQueryLoader.return_value.
                          known_supported_records_formats_for_load.return_value)
 
-    def test_best_records_format_variant_delimited(self):
-        out = self.bigquery_db_driver.best_records_format_variant('delimited')
-        self.assertEqual(out, 'bigquery')
-
-    def test_best_records_format_variant_non_delimited(self):
-        out = self.bigquery_db_driver.best_records_format_variant('whatevs')
-        self.assertIsNone(out)
 
     def test_type_for_date_plus_time_with_tz(self):
         out = self.bigquery_db_driver.type_for_date_plus_time(has_tz=True)
