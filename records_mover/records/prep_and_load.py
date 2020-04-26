@@ -4,6 +4,7 @@ from records_mover.db import DBDriver
 from records_mover.records.prep import TablePrep
 from records_mover.records.table import TargetTableDetails
 from records_mover.records.existing_table_handling import ExistingTableHandling
+import sqlalchemy
 import logging
 
 logger = logging.getLogger(__name__)
@@ -26,13 +27,15 @@ def prep_and_load(tbl: TargetTableDetails,
         #  Cannot COPY into nonexistent table
         driver = tbl.db_driver(db)
         loader = driver.loader()
-        # TODO: Can this method maybe take a loader rather than a
-        # driver so we can push this assertion up to somewhere that
-        # it's more obvious?
-        assert loader is not None
+        # TODO: Can this exception be passed in so we can skip this logic here?
+        if loader is not None:
+            exception_type = loader.load_failure_exception()
+        else:
+            # This is also used when doing loads via INSERT
+            exception_type = sqlalchemy.exc.InternalError
         try:
             import_count = load(driver)
-        except loader.load_failure_exception():
+        except exception_type:
             if not tbl.drop_and_recreate_on_load_error:
                 raise
             reset_before_reload()
