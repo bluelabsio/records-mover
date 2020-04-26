@@ -68,10 +68,8 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
         self.assertEqual(False,
                          self.vertica_db_driver.has_table(mock_schema, mock_table))
 
-    def test_best_scheme_to_load_from(self):
-        self.assertEqual(self.vertica_db_driver.best_scheme_to_load_from(), 'file')
-
     def test_load_failure_exception(self):
+        # TODO: Fix this test to use loader()
         out = self.vertica_db_driver.load_failure_exception()
         self.assertEqual(vertica_python.errors.CopyRejected, out)
 
@@ -89,11 +87,6 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
     def test_best_records_format_variant_delimited(self):
         out = self.vertica_db_driver.best_records_format_variant('delimited')
         self.assertEqual('vertica', out)
-
-    def test_temporary_loadable_directory_loc(self):
-        with self.vertica_db_driver.temporary_loadable_directory_loc() as loc:
-            expected = self.mock_directory_url.return_value
-            self.assertEqual(loc, expected)
 
     def test_integer_limits(self):
         int_min, int_max = self.vertica_db_driver.integer_limits(sqlalchemy.sql.sqltypes.INTEGER())

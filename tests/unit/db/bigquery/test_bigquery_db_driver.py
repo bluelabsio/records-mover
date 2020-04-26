@@ -29,17 +29,6 @@ class TestBigQueryDBDriver(unittest.TestCase):
                  directory=mock_directory)
         self.assertEqual(ret, self.mock_BigQueryLoader.return_value.load.return_value)
 
-    def test_unload_not_implemented(self):
-        mock_schema = Mock(name='mock_schema')
-        mock_table = Mock(name='mock_table')
-        mock_unload_plan = Mock(name='mock_unload_plan')
-        mock_directory = Mock(name='mock_directory')
-        with self.assertRaises(NotImplementedError):
-            self.bigquery_db_driver.unload(schema=mock_schema,
-                                           table=mock_table,
-                                           unload_plan=mock_unload_plan,
-                                           directory=mock_directory)
-
     def test_can_load_this_format(self):
         mock_source_records_format = Mock(name='source_records_format', spec=DelimitedRecordsFormat)
         out = self.bigquery_db_driver.loader_from_fileobj().\
@@ -56,15 +45,6 @@ class TestBigQueryDBDriver(unittest.TestCase):
         self.assertEqual(out,
                          self.mock_BigQueryLoader.return_value.
                          known_supported_records_formats_for_load.return_value)
-
-    def test_can_unload_this_format(self):
-        mock_target_records_format = Mock(name='target_records_format', spec=DelimitedRecordsFormat)
-        out = self.bigquery_db_driver.can_unload_this_format(mock_target_records_format)
-        self.assertFalse(out, False)
-
-    def test_known_supported_records_formats_for_unload(self):
-        out = self.bigquery_db_driver.known_supported_records_formats_for_unload()
-        self.assertEqual(out, [])
 
     def test_best_records_format_variant_delimited(self):
         out = self.bigquery_db_driver.best_records_format_variant('delimited')
