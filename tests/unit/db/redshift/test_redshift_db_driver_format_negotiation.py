@@ -28,7 +28,7 @@ class TestRedshiftDBDriverFormatNegotiation(unittest.TestCase):
 
     def test_can_load_this_format(self):
         mock_source_records_format = Mock(name='source_records_format', spec=DelimitedRecordsFormat)
-        out = self.redshift_db_driver.can_load_this_format(mock_source_records_format)
+        out = self.redshift_db_driver.loader().can_load_this_format(mock_source_records_format)
         self.mock_redshift_loader.can_load_this_format.\
             assert_called_with(mock_source_records_format)
         self.assertEqual(out, self.mock_redshift_loader.can_load_this_format.return_value)
