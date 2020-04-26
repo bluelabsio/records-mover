@@ -39,7 +39,7 @@ class BigQueryDBDriver(DBDriver):
     def unloader(self) -> None:
         return None
 
-    # TODO: These next two shouldn't be in this class
+    # TODO: This next one shouldn't be in this class
     def best_records_format_variant(self, records_format_type: RecordsFormatType) ->\
             Optional[str]:
         if records_format_type == 'delimited':

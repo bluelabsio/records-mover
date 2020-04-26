@@ -68,11 +68,6 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
         self.assertEqual(False,
                          self.vertica_db_driver.has_table(mock_schema, mock_table))
 
-    def test_load_failure_exception(self):
-        # TODO: Fix this test to use loader()
-        out = self.vertica_db_driver.load_failure_exception()
-        self.assertEqual(vertica_python.errors.CopyRejected, out)
-
     def test_can_load_this_format(self):
         mock_source_records_format = Mock(name='source_records_format')
         out = self.vertica_db_driver.loader().can_load_this_format(mock_source_records_format)

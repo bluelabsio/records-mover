@@ -16,6 +16,7 @@ class NegotiatesLoadFormat(metaclass=ABCMeta):
     def best_records_format(self) -> BaseRecordsFormat:
         ...
 
+    # TODO: Should these be part of other interface?  nothing to do with negotiation
     @abstractmethod
     def load_failure_exception(self) -> Type[Exception]:
         ...
@@ -58,7 +59,6 @@ class NegotiatesLoadFormatImpl(NegotiatesLoadFormat):
         else:
             return None
 
-    # TODO: Should these be part of other interface?
     def load_failure_exception(self) -> Type[Exception]:
         return sqlalchemy.exc.InternalError
 

@@ -1,4 +1,5 @@
 import urllib
+import vertica_python
 import sqlalchemy
 from contextlib import ExitStack
 from .import_sql import vertica_import_sql
@@ -12,7 +13,7 @@ from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from ...utils.concat_files import ConcatFiles
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
-from typing import IO, Union, List
+from typing import IO, Union, List, Type
 import logging
 
 logger = logging.getLogger(__name__)
@@ -69,7 +70,10 @@ class VerticaLoader(LoaderFromFileobj,
             if rawconn is not None:
                 rawconn.close()
 
-    # TODO: Do I really need this?  Or could I declare records directory as none?
+    def load_failure_exception(self) -> Type[Exception]:
+        return vertica_python.errors.CopyRejected
+
+    # TODO: Can't this be part of something inherited?
     def load(self,
              schema: str,
              table: str,

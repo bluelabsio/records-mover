@@ -1,6 +1,5 @@
 from ..driver import DBDriver
 import sqlalchemy
-import vertica_python
 import tempfile
 import pathlib
 from sqlalchemy.sql import text
@@ -72,9 +71,6 @@ class VerticaDBDriver(DBDriver):
         if records_format_type == 'delimited':
             return 'vertica'
         return None
-
-    def load_failure_exception(self) -> Type[Exception]:
-        return vertica_python.errors.CopyRejected
 
     def table(self,
               schema: str,
