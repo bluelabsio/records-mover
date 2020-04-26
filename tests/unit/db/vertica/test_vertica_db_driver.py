@@ -75,10 +75,6 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
         out = self.vertica_db_driver.load_failure_exception()
         self.assertEqual(vertica_python.errors.CopyRejected, out)
 
-    def test_can_load_from_fileobjs(self):
-        out = self.vertica_db_driver.can_load_from_fileobjs()
-        self.assertEqual(True, out)
-
     def test_can_load_this_format(self):
         mock_source_records_format = Mock(name='source_records_format')
         out = self.vertica_db_driver.loader().can_load_this_format(mock_source_records_format)

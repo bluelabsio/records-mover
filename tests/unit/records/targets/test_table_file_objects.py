@@ -29,10 +29,6 @@ class TestTableFileObjects(unittest.TestCase):
                                         add_group_perms_for=self.mock_permissions_groups,
                                         existing_table_handling=self.mock_existing_table_handling)
 
-    def test_can_move_from_fileobjs_source(self):
-        out = self.table.can_move_from_fileobjs_source()
-        self.assertEqual(out, self.mock_loader_from_fileobj.can_load_from_fileobjs.return_value)
-
     def test_can_load_direct(self):
         mock_scheme = Mock(name='scheme')
         mock_driver = self.mock_db_driver.return_value

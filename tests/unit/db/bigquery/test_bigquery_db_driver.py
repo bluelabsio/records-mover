@@ -134,10 +134,6 @@ class TestBigQueryDBDriver(unittest.TestCase):
                                                                   mock_fileobj)
         self.assertEqual(out, mock_bigquery_loader.load_from_fileobj.return_value)
 
-    def test_can_load_from_fileobjs(self):
-        out = self.bigquery_db_driver.can_load_from_fileobjs()
-        self.assertEqual(out, True)
-
     def test_type_for_integer_small_type(self):
         INT64_MIN = -9223372036854775808
         min_value = INT64_MIN - 100
