@@ -26,10 +26,7 @@ from ..errors import NoTemporaryBucketConfiguration
 logger = logging.getLogger(__name__)
 
 
-class RedshiftDBDriver(DBDriver,
-                       LoaderFromFileobj,
-                       LoaderFromRecordsDirectory,
-                       NegotiatesLoadFormatImpl):
+class RedshiftDBDriver(DBDriver):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
                  s3_temp_base_loc: Optional[BaseDirectoryUrl]=None,
@@ -45,6 +42,7 @@ class RedshiftDBDriver(DBDriver,
                              table=self.table,
                              temporary_s3_directory_loc=self.temporary_s3_directory_loc)
 
+    # TODO: this should be in loader class
     def best_scheme_to_load_from(self) -> str:
         return 's3'
 
@@ -55,6 +53,7 @@ class RedshiftDBDriver(DBDriver,
         else:
             return out
 
+    # TODO: this should be in loader class
     @contextmanager
     def temporary_s3_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         if self.s3_temp_base_loc is None:
@@ -63,6 +62,7 @@ class RedshiftDBDriver(DBDriver,
             with self.s3_temp_base_loc.temporary_directory() as temp_loc:
                 yield temp_loc
 
+    # TODO: this should be in loader class
     @contextmanager
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         with self.temporary_s3_directory_loc() as temp_loc:
@@ -89,22 +89,6 @@ class RedshiftDBDriver(DBDriver,
                 #      94723ec6437c5e5197fcf785845499e81640b167
                 return Table(table, self.meta, schema=schema, autoload=True, autoload_with=conn)
 
-    def load(self,
-             schema: str,
-             table: str,
-             load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> Optional[int]:
-        return self._redshift_loader.load(schema=schema,
-                                          table=table,
-                                          load_plan=load_plan,
-                                          directory=directory)
-
-    def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
-        return self._redshift_loader.can_load_this_format(source_records_format)
-
-    def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
-        return self._redshift_loader.known_supported_records_formats_for_load()
-
     def unload(self,
                schema: str,
                table: str,
@@ -114,12 +98,6 @@ class RedshiftDBDriver(DBDriver,
                                               table=table,
                                               unload_plan=unload_plan,
                                               directory=directory)
-
-    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
-        return self._redshift_unloader.can_unload_this_format(target_records_format)
-
-    def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
-        return self._redshift_unloader.known_supported_records_formats_for_unload()
 
     def set_grant_permissions_for_groups(self, schema_name: str, table: str,
                                          groups: Dict[str, List[str]],
@@ -202,10 +180,10 @@ class RedshiftDBDriver(DBDriver,
                                                fp_significand_bits=fp_significand_bits)
 
     def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
-        return self
+        return self._redshift_loader
 
     def loader_from_fileobj(self) -> LoaderFromFileobj:
-        return self
+        return self._redshift_loader
 
     def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
-        return self
+        return self._redshift_loader

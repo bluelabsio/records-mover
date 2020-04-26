@@ -20,7 +20,7 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
         self.assertEqual(sql, mock_schema_sql)
 
     def test_best_records_format_variant(self):
-        variant = self.redshift_db_driver.best_records_format_variant('delimited')
+        variant = self.redshift_db_driver.loader().best_records_format_variant('delimited')
         self.assertEqual(variant, "bluelabs")
 
     @patch('records_mover.db.redshift.redshift_db_driver.quote_group_name')
