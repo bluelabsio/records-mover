@@ -38,8 +38,8 @@ class PostgresDBDriver(DBDriver):
     def loader_from_fileobj(self) -> LoaderFromFileobj:
         return self._postgres_loader
 
-    def loader_from_records_directory(self) -> None:
-        return None
+    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
+        return self._postgres_loader
 
     # https://www.postgresql.org/docs/10/datatype-numeric.html
     def integer_limits(self,

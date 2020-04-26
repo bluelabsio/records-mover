@@ -69,6 +69,7 @@ class VerticaLoader(LoaderFromFileobj,
             if rawconn is not None:
                 rawconn.close()
 
+    # TODO: Do I really need this?  Or could I declare records directory as none?
     def load(self,
              schema: str,
              table: str,
