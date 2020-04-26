@@ -53,7 +53,7 @@ class BaseTestRedshiftDBDriver(unittest.TestCase):
         processing_instructions.fail_if_row_invalid = fail_if
         self.mock_records_load_plan.records_format.hints = hints
         self.mock_records_load_plan.processing_instructions = processing_instructions
-        return self.redshift_db_driver.loader_from_fileobj().\
+        return self.redshift_db_driver.loader().\
             load(schema='myschema',
                  table='mytable',
                  load_plan=self.mock_records_load_plan,
