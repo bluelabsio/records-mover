@@ -149,7 +149,7 @@ class DBDriver(UnloadsToRecordsDirectory,
         ...
 
     @abstractmethod
-    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
+    def loader_from_records_directory(self) -> Optional[LoaderFromRecordsDirectory]:
         ...
 
     def type_for_floating_point(self,

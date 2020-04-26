@@ -26,14 +26,18 @@ class MySQLDBDriver(DBDriver,
                     LoaderFromFileobj,
                     LoaderFromRecordsDirectory,
                     NegotiatesLoadFormatImpl):
-    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
-        return self
+    def loader(self) -> Optional[Union[LoaderFromFileobj, LoaderFromRecordsDirectory]]:
+        return None
 
-    def loader_from_fileobj(self) -> LoaderFromFileobj:
-        return self
+    # TODO: There's a defacto constraint that you could have either
+    # neither, a LoaderFromRecordsDirectory, or a
+    # LoaderFromRecordsDirectory and a LoaderFromFileobj.  Maybe
+    # extend classes accordingly?
+    def loader_from_fileobj(self) -> Optional[LoaderFromFileobj]:
+        return None
 
-    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
-        return self
+    def loader_from_records_directory(self) -> Optional[LoaderFromRecordsDirectory]:
+        return None
 
     # https://dev.mysql.com/doc/refman/8.0/en/integer-types.html
     def integer_limits(self,
