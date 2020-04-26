@@ -16,7 +16,7 @@ from ...url.base import BaseDirectoryUrl
 from ...records.unload_plan import RecordsUnloadPlan
 from ...records.load_plan import RecordsLoadPlan
 from .loader import VerticaLoader
-from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from .unloader import VerticaUnloader
 from ...utils.limits import (INT64_MIN, INT64_MAX,
                              FLOAT64_SIGNIFICAND_BITS,
@@ -26,10 +26,7 @@ from ...utils.limits import (INT64_MIN, INT64_MAX,
 logger = logging.getLogger(__name__)
 
 
-class VerticaDBDriver(DBDriver,
-                      LoaderFromFileobj,
-                      LoaderFromRecordsDirectory,
-                      NegotiatesLoadFormatImpl):
+class VerticaDBDriver(DBDriver):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
                  url_resolver: UrlResolver,
@@ -40,39 +37,13 @@ class VerticaDBDriver(DBDriver,
         self.url_resolver = url_resolver
 
     def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
-        return self
+        return self._vertica_loader
 
     def loader_from_fileobj(self) -> LoaderFromFileobj:
-        return self
+        return self._vertica_loader
 
     def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
-        return self
-
-    def load(self,
-             schema: str,
-             table: str,
-             load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> None:
-        self._vertica_loader.load(schema=schema,
-                                  table=table,
-                                  load_plan=load_plan,
-                                  directory=directory)
-
-    def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
-        return self._vertica_loader.can_load_this_format(source_records_format)
-
-    def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
-        return self._vertica_loader.known_supported_records_formats_for_load()
-
-    def load_from_fileobj(self,
-                          schema: str,
-                          table: str,
-                          load_plan: RecordsLoadPlan,
-                          fileobj: IO[bytes]) -> None:
-        self._vertica_loader.load_from_fileobj(schema=schema,
-                                               table=table,
-                                               load_plan=load_plan,
-                                               fileobj=fileobj)
+        return self._vertica_loader
 
     def unload(self,
                schema: str,
@@ -98,15 +69,6 @@ class VerticaDBDriver(DBDriver,
         except sqlalchemy.exc.ProgrammingError:
             return False
 
-    @contextmanager
-    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
-        with tempfile.TemporaryDirectory(prefix='vertica_load_location') as tempdir:
-            output_url = pathlib.Path(tempdir).resolve().as_uri() + '/'
-            yield self.url_resolver.directory_url(output_url)
-
-    def best_scheme_to_load_from(self) -> str:
-        return 'file'
-
     def schema_sql(self, schema: str, table: str) -> str:
         sql = text("SELECT EXPORT_OBJECTS('', :schema_and_table, false)")
         result = self.db.execute(sql, schema_and_table=f"{schema}.{table}").fetchall()
@@ -116,6 +78,16 @@ class VerticaDBDriver(DBDriver,
         else:
             # maybe a permission error?
             return super().schema_sql(schema, table)
+
+    # TODO: next 5 methods should be in loader - why aren't tests teling me that?
+    @contextmanager
+    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        with tempfile.TemporaryDirectory(prefix='vertica_load_location') as tempdir:
+            output_url = pathlib.Path(tempdir).resolve().as_uri() + '/'
+            yield self.url_resolver.directory_url(output_url)
+
+    def best_scheme_to_load_from(self) -> str:
+        return 'file'
 
     def best_records_format_variant(self,
                                     records_format_type: str) -> Optional[str]:
