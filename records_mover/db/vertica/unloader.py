@@ -48,7 +48,7 @@ class VerticaUnloader(Unloader):
                unload_plan: RecordsUnloadPlan,
                directory: RecordsDirectory) -> Optional[int]:
         if not self.s3_available():
-            return super().unload(schema, table, unload_plan, directory)
+            raise NotImplementedError('S3 currently required for Vertica bulk unload')
         try:
             if directory.scheme == 's3':
                 return self.unload_to_s3_directory(schema, table, unload_plan, directory)
@@ -62,8 +62,7 @@ class VerticaUnloader(Unloader):
             msg = str(e)
             if msg:
                 logger.warning(msg)
-            logger.warning(f"Could not export to S3 directly, falling back to SELECT")
-            return super().unload(schema, table, unload_plan, directory)
+            raise NotImplementedError('S3 currently required for Vertica bulk unload')
 
     def s3_available(self) -> bool:
         if self.s3_temp_base_loc is None:
@@ -123,11 +122,11 @@ class VerticaUnloader(Unloader):
         if self.s3_available():
             return [DelimitedRecordsFormat(variant='vertica')]
         else:
-            return super().known_supported_records_formats_for_unload()
+            return []
 
     def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
         if not self.s3_available():
-            return super().can_unload_this_format(target_records_format)
+            return False
 
         try:
             unload_plan = RecordsUnloadPlan(records_format=target_records_format)
