@@ -16,10 +16,10 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
         self.mock_records_unload_plan.records_format.hints = vertica_format_hints
         self.mock_directory.scheme = 's3'
         export_count = self.vertica_db_driver\
-            .unload(schema='myschema',
-                    table='mytable',
-                    unload_plan=self.mock_records_unload_plan,
-                    directory=self.mock_directory)
+            .unloader().unload(schema='myschema',
+                               table='mytable',
+                               unload_plan=self.mock_records_unload_plan,
+                               directory=self.mock_directory)
 
         self.assertEqual(579, export_count)
 
@@ -36,10 +36,10 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
         mock_load_creds = mock_load_loc.aws_creds()
         mock_load_creds.token = None
         export_count = self.vertica_db_driver\
-            .unload(schema='myschema',
-                    table='mytable',
-                    unload_plan=self.mock_records_unload_plan,
-                    directory=self.mock_directory)
+            .unloader().unload(schema='myschema',
+                               table='mytable',
+                               unload_plan=self.mock_records_unload_plan,
+                               directory=self.mock_directory)
 
         self.assertEqual(579, export_count)
 

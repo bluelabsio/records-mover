@@ -49,22 +49,6 @@ class VerticaDBDriver(DBDriver):
     def unloader(self) -> Optional[Unloader]:
         return self._vertica_unloader
 
-    def unload(self,
-               schema: str,
-               table: str,
-               unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> Optional[int]:
-        return self._vertica_unloader.unload(schema=schema,
-                                             table=table,
-                                             unload_plan=unload_plan,
-                                             directory=directory)
-
-    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
-        return self._vertica_unloader.can_unload_this_format(target_records_format)
-
-    def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
-        return self._vertica_unloader.known_supported_records_formats_for_unload()
-
     def has_table(self, schema: str, table: str) -> bool:
         try:
             sql = f"SELECT 1 from {quote_schema_and_table(self.db, schema, table)} limit 0;"

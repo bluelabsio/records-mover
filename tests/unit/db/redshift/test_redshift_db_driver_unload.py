@@ -24,10 +24,11 @@ class TestRedshiftDBDriverUnload(BaseTestRedshiftDBDriver):
         self.mock_records_unload_plan.records_format.hints = bluelabs_format_hints
         self.mock_directory.scheme = 'mumble'
         self.mock_db_engine.execute.return_value.scalar.return_value = 456
-        rows = self.redshift_db_driver.unload(schema='myschema',
-                                              table='mytable',
-                                              unload_plan=self.mock_records_unload_plan,
-                                              directory=self.mock_directory)
+        rows = self.redshift_db_driver.unloader().\
+            unload(schema='myschema',
+                   table='mytable',
+                   unload_plan=self.mock_records_unload_plan,
+                   directory=self.mock_directory)
 
         mock_aws_creds = self.mock_s3_temp_base_loc.temporary_directory().__enter__().aws_creds()
         mock_access_key_id = mock_aws_creds.access_key
@@ -59,10 +60,11 @@ class TestRedshiftDBDriverUnload(BaseTestRedshiftDBDriver):
         self.mock_records_unload_plan.records_format.hints = bluelabs_format_hints
         self.mock_directory.scheme = 's3'
         self.mock_db_engine.execute.return_value.scalar.return_value = 456
-        rows = self.redshift_db_driver.unload(schema='myschema',
-                                              table='mytable',
-                                              unload_plan=self.mock_records_unload_plan,
-                                              directory=self.mock_directory)
+        rows = self.redshift_db_driver.unloader().\
+            unload(schema='myschema',
+                   table='mytable',
+                   unload_plan=self.mock_records_unload_plan,
+                   directory=self.mock_directory)
 
         expected_args = {
             'access_key_id': 'fake_aws_id',
@@ -92,10 +94,11 @@ class TestRedshiftDBDriverUnload(BaseTestRedshiftDBDriver):
 
             self.mock_records_unload_plan.records_format.hints = christmas_tree_format_1_hints
             self.mock_db_engine.execute.return_value.scalar.return_value = 456
-            rows = self.redshift_db_driver.unload(schema='myschema',
-                                                  table='mytable',
-                                                  unload_plan=self.mock_records_unload_plan,
-                                                  directory=self.mock_directory)
+            rows = self.redshift_db_driver.unloader().\
+                unload(schema='myschema',
+                       table='mytable',
+                       unload_plan=self.mock_records_unload_plan,
+                       directory=self.mock_directory)
             self.assertCountEqual(mock_warning.mock_calls,
                                   [call("Ignoring hint record-terminator = '\\x02'"),
                                    call("Ignoring hint quoting = 'nonnumeric'"),
@@ -131,10 +134,11 @@ class TestRedshiftDBDriverUnload(BaseTestRedshiftDBDriver):
 
             self.mock_records_unload_plan.records_format.hints = christmas_tree_format_2_hints
             self.mock_db_engine.execute.return_value.scalar.return_value = 456
-            rows = self.redshift_db_driver.unload(schema='myschema',
-                                                  table='mytable',
-                                                  unload_plan=self.mock_records_unload_plan,
-                                                  directory=self.mock_directory)
+            rows = self.redshift_db_driver.unloader().\
+                unload(schema='myschema',
+                       table='mytable',
+                       unload_plan=self.mock_records_unload_plan,
+                       directory=self.mock_directory)
             self.assertCountEqual(mock_warning.mock_calls,
                                   [call("Ignoring hint escape = '@'"),
                                    call("Ignoring hint doublequote = True"),

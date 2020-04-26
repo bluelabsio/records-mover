@@ -90,22 +90,6 @@ class RedshiftDBDriver(DBDriver):
                 #      94723ec6437c5e5197fcf785845499e81640b167
                 return Table(table, self.meta, schema=schema, autoload=True, autoload_with=conn)
 
-    def unload(self,
-               schema: str,
-               table: str,
-               unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> int:
-        return self._redshift_unloader.unload(schema=schema,
-                                              table=table,
-                                              unload_plan=unload_plan,
-                                              directory=directory)
-
-    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
-        return self._redshift_unloader.can_unload_this_format(target_records_format)
-
-    def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
-        return self._redshift_unloader.known_supported_records_formats_for_unload()
-
     def set_grant_permissions_for_groups(self, schema_name: str, table: str,
                                          groups: Dict[str, List[str]],
                                          db: Union[sqlalchemy.engine.Engine,
