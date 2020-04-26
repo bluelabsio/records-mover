@@ -97,8 +97,8 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
     def known_supported_records_formats(self) -> List[BaseRecordsFormat]:
         driver = self.db_driver(self.db_engine)
         loader = driver.loader()
-        # TODO: What can we do to make this more typesafe?
-        assert loader is not None
+        if loader is None:
+            return []
         return loader.known_supported_records_formats_for_load()
 
     def can_move_from_this_format(self,
