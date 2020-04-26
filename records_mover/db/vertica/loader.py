@@ -1,7 +1,6 @@
 import urllib
 import vertica_python
 import sqlalchemy
-from contextlib import ExitStack
 from .import_sql import vertica_import_sql
 from .records_import_options import vertica_import_options
 from .io_base_wrapper import IOBaseWrapper
@@ -11,7 +10,6 @@ from ...records.hints import complain_on_unhandled_hints
 from ...records.records_directory import RecordsDirectory
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
-from ...utils.concat_files import ConcatFiles
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from typing import IO, Union, List, Type
 import logging
@@ -71,24 +69,6 @@ class VerticaLoader(LoaderFromFileobj,
 
     def load_failure_exception(self) -> Type[Exception]:
         return vertica_python.errors.CopyRejected
-
-    # TODO: Can't this be part of something inherited?
-    def load(self,
-             schema: str,
-             table: str,
-             load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> None:
-        all_urls = directory.manifest_entry_urls()
-
-        locs = [self.url_resolver.file_url(url) for url in all_urls]
-        fileobjs: List[IO[bytes]] = []
-        with ExitStack() as stack:
-            fileobjs = [stack.enter_context(loc.open()) for loc in locs]
-            concatted_fileobj: IO[bytes] = ConcatFiles(fileobjs)  # type: ignore
-            return self.load_from_fileobj(schema,
-                                          table,
-                                          load_plan,
-                                          concatted_fileobj)
 
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         try:

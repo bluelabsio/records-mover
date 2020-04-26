@@ -119,6 +119,7 @@ class TestPostgresLoader(unittest.TestCase):
                                           mock_conn,
                                           abc=123)
 
+    @patch('records_mover.db.loader.ConcatFiles')
     @patch('records_mover.db.postgres.loader.quote_value')
     @patch('records_mover.db.postgres.loader.copy_from')
     @patch('records_mover.db.postgres.loader.complain_on_unhandled_hints')
@@ -129,7 +130,8 @@ class TestPostgresLoader(unittest.TestCase):
                   mock_Table,
                   mock_complain_on_unhandled_hints,
                   mock_copy_from,
-                  mock_quote_value):
+                  mock_quote_value,
+                  mock_ConcatFiles):
         mock_directory = Mock(name='directory')
         mock_url = Mock(name='url')
         mock_directory.manifest_entry_urls.return_value = [mock_url]
@@ -178,7 +180,7 @@ class TestPostgresLoader(unittest.TestCase):
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
         mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_ORDER_STYLE')
         mock_conn.execute.assert_called_with('SET LOCAL DateStyle = ABC')
-        mock_copy_from.assert_called_with(mock_fileobj,
+        mock_copy_from.assert_called_with(mock_ConcatFiles.return_value,
                                           mock_table_obj,
                                           mock_conn,
                                           abc=123)

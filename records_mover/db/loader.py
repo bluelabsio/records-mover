@@ -1,4 +1,7 @@
+from contextlib import ExitStack
+from ..url.resolver import UrlResolver
 from ..records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
+from ..utils.concat_files import ConcatFiles
 from ..records.types import RecordsFormatType
 from ..records.load_plan import RecordsLoadPlan
 from ..records.records_directory import RecordsDirectory
@@ -71,9 +74,30 @@ class LoaderFromRecordsDirectory(metaclass=ABCMeta):
 
 
 class LoaderFromFileobj(LoaderFromRecordsDirectory, metaclass=ABCMeta):
+    url_resolver: UrlResolver
+
     @abstractmethod
     def load_from_fileobj(self, schema: str, table: str,
                           load_plan: RecordsLoadPlan, fileobj: IO[bytes]) -> Optional[int]:
         """Loads the data from the file stream provided.
         """
         ...
+
+    # Implement load() in terms of load_from_fileobj()
+    def load(self,
+             schema: str,
+             table: str,
+             load_plan: RecordsLoadPlan,
+             directory: RecordsDirectory) -> Optional[int]:
+        all_urls = directory.manifest_entry_urls()
+
+        locs = [self.url_resolver.file_url(url) for url in all_urls]
+        fileobjs: List[IO[bytes]] = []
+        with ExitStack() as stack:
+            fileobjs = [stack.enter_context(loc.open()) for loc in locs]
+            concatted_fileobj: IO[bytes] = ConcatFiles(fileobjs)  # type: ignore
+            return self.load_from_fileobj(schema,
+                                          table,
+                                          load_plan,
+                                          concatted_fileobj)
+        return None  # make mypy happy

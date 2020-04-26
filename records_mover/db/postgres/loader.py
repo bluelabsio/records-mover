@@ -92,19 +92,6 @@ class PostgresLoader(LoaderFromFileobj,
                           **postgres_options)
         logger.info('Copy complete')
 
-    def load(self,
-             schema: str,
-             table: str,
-             load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> None:
-        all_urls = directory.manifest_entry_urls()
-
-        with ExitStack() as stack:
-            all_locs = [self.url_resolver.file_url(url) for url in all_urls]
-            all_fileobjs = [stack.enter_context(loc.open()) for loc in all_locs]
-            logger.info(f"Loading {directory.loc.url} into {schema}.{table}")
-            self.load_from_fileobjs(schema, table, load_plan, all_fileobjs)
-
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         try:
             processing_instructions = ProcessingInstructions()
