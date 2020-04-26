@@ -67,16 +67,6 @@ class VerticaDBDriver(DBDriver):
             # maybe a permission error?
             return super().schema_sql(schema, table)
 
-    # TODO: next 5 methods should be in loader - why aren't tests teling me that?
-    @contextmanager
-    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
-        with tempfile.TemporaryDirectory(prefix='vertica_load_location') as tempdir:
-            output_url = pathlib.Path(tempdir).resolve().as_uri() + '/'
-            yield self.url_resolver.directory_url(output_url)
-
-    def best_scheme_to_load_from(self) -> str:
-        return 'file'
-
     def best_records_format_variant(self,
                                     records_format_type: str) -> Optional[str]:
         if records_format_type == 'delimited':

@@ -47,29 +47,6 @@ class BigQueryDBDriver(DBDriver):
         else:
             return None
 
-    def unload(self,
-               schema: str,
-               table: str,
-               unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> int:
-        """Writes table specified to the RecordsDirectory instance named 'directory'
-        per the UnloadPlan named 'unload_plan'.  Guarantees a manifest
-        file named 'manifest' is written to the target directory pointing
-        to the target records.  After ensuring other records-related
-        metadata is provided, you can call directory.finalize_manifest()
-        to move this to the final location of _manifest, signaling to
-        readers that the Records directory is finalized.
-
-        Returns number of rows unloaded.
-        """
-        raise NotImplementedError(f"unload not implemented for this database type")
-
-    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
-        return False
-
-    def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
-        return []
-
     def type_for_date_plus_time(self, has_tz: bool=False) -> sqlalchemy.sql.sqltypes.DateTime:
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types
         if has_tz:
