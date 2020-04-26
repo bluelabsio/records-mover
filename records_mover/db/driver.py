@@ -201,18 +201,15 @@ class DBDriver(metaclass=ABCMeta):
         return records_schema
 
 
-class GenericDBDriver(DBDriver,
-                      LoaderFromFileobj,
-                      LoaderFromRecordsDirectory,
-                      NegotiatesLoadFormatImpl):
-    def loader_from_fileobj(self) -> LoaderFromFileobj:
-        return self
+class GenericDBDriver(DBDriver):
+    def loader_from_fileobj(self) -> None:
+        return None
 
-    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
-        return self
+    def loader_from_records_directory(self) -> None:
+        return None
 
-    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
-        return self
+    def loader(self) -> None:
+        return None
 
     def unloader(self) -> Optional[Unloader]:
         return None

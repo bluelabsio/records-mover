@@ -16,54 +16,14 @@ class TestDBDriver(unittest.TestCase):
                                          url_resolver=self.mock_url_resolver,
                                          text=fake_text)
 
-    def test_best_scheme_to_load_from(self):
-        out = self.db_driver.best_scheme_to_load_from()
-        self.assertEqual(out, 'file')
-
     def test_table(self):
         out = self.db_driver.table('my_schema', 'my_table')
         self.assertEqual(out.name, 'my_table')
         self.assertEqual(out.schema, 'my_schema')
 
-    def test_can_load_from_fileobjs(self):
-        out = self.db_driver.loader_from_fileobj().can_load_from_fileobjs()
-        self.assertEqual(out, False)
-
-    def test_load_failure_exception(self):
-        out = self.db_driver.loader().load_failure_exception()
-        self.assertEqual(out, sqlalchemy.exc.InternalError)
-
-    def test_best_records_format_variant_non_delimited(self):
-        records_format_type = 'avro'
-        out = self.db_driver.loader().best_records_format_variant(records_format_type)
-        self.assertEqual(out, None)
-
-    def test_best_records_format(self):
-        out = self.db_driver.loader().best_records_format()
-        self.assertEqual(out.format_type, 'delimited')
-        self.assertEqual(out.variant, 'bluelabs')
-
-    def test_can_unload_this_format(self):
-        mock_records_format = Mock(name='records_format')
-        out = self.db_driver.can_unload_this_format(mock_records_format)
-        self.assertEqual(out, False)
-
-    def test_can_load_this_format(self):
-        mock_records_format = Mock(name='records_format')
-        out = self.db_driver.loader().can_load_this_format(mock_records_format)
-        self.assertEqual(out, False)
-
     def test_supports_time_type(self):
         out = self.db_driver.supports_time_type()
         self.assertEqual(out, True)
-
-    def test_known_supported_records_formats_for_unload(self):
-        out = self.db_driver.known_supported_records_formats_for_unload()
-        self.assertEqual(out, [])
-
-    def test_known_supported_records_formats_for_load(self):
-        out = self.db_driver.loader().known_supported_records_formats_for_load()
-        self.assertEqual(out, [])
 
     def test_varchar_length_is_in_chars(self):
         out = self.db_driver.varchar_length_is_in_chars()
@@ -163,14 +123,3 @@ class TestDBDriver(unittest.TestCase):
             call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_user_name}"),
             call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_user_name}"),
         ])
-
-    @patch('records_mover.db.loader.TemporaryDirectory')
-    @patch('records_mover.db.loader.FilesystemDirectoryUrl')
-    def test_temporary_loadable_directory_loc(self,
-                                              mock_FilesystemDirectoryUrl,
-                                              mock_TemporaryDirectory):
-        mock_dirname = mock_TemporaryDirectory.return_value.__enter__.return_value
-        with self.db_driver.temporary_loadable_directory_loc() as loc:
-            mock_TemporaryDirectory.assert_called_with(prefix='temporary_loadable_directory_loc')
-            mock_FilesystemDirectoryUrl.assert_called_with(mock_dirname)
-            self.assertEqual(loc, mock_FilesystemDirectoryUrl.return_value)
