@@ -18,7 +18,7 @@ from ...records.hints import complain_on_unhandled_hints
 logger = logging.getLogger(__name__)
 
 
-class RedshiftLoader(LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl):
+class RedshiftLoader(LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
                  meta: sqlalchemy.MetaData,

@@ -76,13 +76,13 @@ class NegotiatesLoadFormatImpl(NegotiatesLoadFormat):
         return []
 
 
-
 class LoaderFromFileobj(NegotiatesLoadFormat, metaclass=ABCMeta):
+    @abstractmethod
     def load_from_fileobj(self, schema: str, table: str,
                           load_plan: RecordsLoadPlan, fileobj: IO[bytes]) -> Optional[int]:
         """Loads the data from the file stream provided.
         """
-        raise NotImplementedError(f"load_from_fileobj not implemented for this database type")
+        ...
 
 
 class LoaderFromRecordsDirectory(NegotiatesLoadFormat, metaclass=ABCMeta):

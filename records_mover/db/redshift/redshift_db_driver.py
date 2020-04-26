@@ -173,8 +173,8 @@ class RedshiftDBDriver(DBDriver):
     def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
         return self._redshift_loader
 
-    def loader_from_fileobj(self) -> LoaderFromFileobj:
-        return self._redshift_loader
+    def loader_from_fileobj(self) -> None:
+        return None
 
     def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
         return self._redshift_loader

@@ -22,10 +22,7 @@ from typing import Optional, Tuple, Union
 logger = logging.getLogger(__name__)
 
 
-class MySQLDBDriver(DBDriver,
-                    LoaderFromFileobj,
-                    LoaderFromRecordsDirectory,
-                    NegotiatesLoadFormatImpl):
+class MySQLDBDriver(DBDriver):
     def loader(self) -> Optional[Union[LoaderFromFileobj, LoaderFromRecordsDirectory]]:
         return None
 
