@@ -26,20 +26,20 @@ class TestDBDriver(unittest.TestCase):
         self.assertEqual(out.schema, 'my_schema')
 
     def test_can_load_from_fileobjs(self):
-        out = self.db_driver.can_load_from_fileobjs()
+        out = self.db_driver.loader_from_fileobj().can_load_from_fileobjs()
         self.assertEqual(out, False)
 
     def test_load_failure_exception(self):
-        out = self.db_driver.load_failure_exception()
+        out = self.db_driver.loader().load_failure_exception()
         self.assertEqual(out, sqlalchemy.exc.InternalError)
 
     def test_best_records_format_variant_non_delimited(self):
         records_format_type = 'avro'
-        out = self.db_driver.best_records_format_variant(records_format_type)
+        out = self.db_driver.loader().best_records_format_variant(records_format_type)
         self.assertEqual(out, None)
 
     def test_best_records_format(self):
-        out = self.db_driver.best_records_format()
+        out = self.db_driver.loader().best_records_format()
         self.assertEqual(out.format_type, 'delimited')
         self.assertEqual(out.variant, 'bluelabs')
 
@@ -50,7 +50,7 @@ class TestDBDriver(unittest.TestCase):
 
     def test_can_load_this_format(self):
         mock_records_format = Mock(name='records_format')
-        out = self.db_driver.can_load_this_format(mock_records_format)
+        out = self.db_driver.loader().can_load_this_format(mock_records_format)
         self.assertEqual(out, False)
 
     def test_supports_time_type(self):
@@ -62,7 +62,7 @@ class TestDBDriver(unittest.TestCase):
         self.assertEqual(out, [])
 
     def test_known_supported_records_formats_for_load(self):
-        out = self.db_driver.known_supported_records_formats_for_load()
+        out = self.db_driver.loader().known_supported_records_formats_for_load()
         self.assertEqual(out, [])
 
     def test_varchar_length_is_in_chars(self):
