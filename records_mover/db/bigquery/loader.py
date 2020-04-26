@@ -13,11 +13,14 @@ from google.cloud.bigquery.dbapi.connection import Connection
 from google.cloud.bigquery.client import Client
 from .load_job_config_options import load_job_config
 import logging
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
 
 logger = logging.getLogger(__name__)
 
 
-class BigQueryLoader:
+class BigQueryLoader(LoaderFromFileobj,
+                     LoaderFromRecordsDirectory,
+                     NegotiatesLoadFormatImpl):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
                  url_resolver: UrlResolver) -> None:

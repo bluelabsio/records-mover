@@ -17,10 +17,7 @@ from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLo
 logger = logging.getLogger(__name__)
 
 
-class BigQueryDBDriver(DBDriver,
-                       LoaderFromFileobj,
-                       LoaderFromRecordsDirectory,
-                       NegotiatesLoadFormatImpl):
+class BigQueryDBDriver(DBDriver):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
                  url_resolver: UrlResolver,
@@ -29,48 +26,24 @@ class BigQueryDBDriver(DBDriver,
         self._bigquery_loader = BigQueryLoader(db=self.db, url_resolver=url_resolver)
 
     def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
-        return self
+        return self._bigquery_loader
 
     def loader_from_fileobj(self) -> LoaderFromFileobj:
-        return self
+        return self._bigquery_loader
 
     def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
-        return self
+        return self._bigquery_loader
 
-    def load(self,
-             schema: str,
-             table: str,
-             load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> int:
-        """Loads the data from the RecordsDirectory instance named
-        'directory'.  Guarantees a manifest file named 'manifest' is
-        written to the target directory pointing to the target
-        records.
-
-        Returns number of rows loaded (if database provides that
-        info).
-
-        """
-        return self._bigquery_loader.load(schema=schema,
-                                          table=table,
-                                          load_plan=load_plan,
-                                          directory=directory)
-
-    def load_from_fileobj(self, schema: str, table: str,
-                          load_plan: RecordsLoadPlan, fileobj: IO[bytes]) -> Optional[int]:
-        return self._bigquery_loader.load_from_fileobj(schema=schema,
-                                                       table=table,
-                                                       load_plan=load_plan,
-                                                       fileobj=fileobj)
-
+    # TODO: These next two shouldn't be in this class
     def can_load_from_fileobjs(self) -> bool:
         return True
 
-    def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
-        return self._bigquery_loader.can_load_this_format(source_records_format)
-
-    def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
-        return self._bigquery_loader.known_supported_records_formats_for_load()
+    def best_records_format_variant(self, records_format_type: RecordsFormatType) ->\
+            Optional[str]:
+        if records_format_type == 'delimited':
+            return 'bigquery'
+        else:
+            return None
 
     def unload(self,
                schema: str,
@@ -94,13 +67,6 @@ class BigQueryDBDriver(DBDriver,
 
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
         return []
-
-    def best_records_format_variant(self, records_format_type: RecordsFormatType) ->\
-            Optional[str]:
-        if records_format_type == 'delimited':
-            return 'bigquery'
-        else:
-            return None
 
     def type_for_date_plus_time(self, has_tz: bool=False) -> sqlalchemy.sql.sqltypes.DateTime:
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types
