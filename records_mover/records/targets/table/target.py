@@ -82,10 +82,7 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
     def can_move_from_fileobjs_source(self) -> bool:
         driver = self.db_driver(self.db_engine)
         loader = driver.loader_from_fileobj()
-        if loader is None:
-            return False
-        # TODO: why do we need can_load_from_fileobjs if we can just return None?
-        return loader.can_load_from_fileobjs()
+        return loader is not None
 
     def can_load_direct(self, scheme: str) -> bool:
         driver = self.db_driver(self.db_engine)

@@ -40,9 +40,6 @@ class BigQueryDBDriver(DBDriver):
         return None
 
     # TODO: These next two shouldn't be in this class
-    def can_load_from_fileobjs(self) -> bool:
-        return True
-
     def best_records_format_variant(self, records_format_type: RecordsFormatType) ->\
             Optional[str]:
         if records_format_type == 'delimited':

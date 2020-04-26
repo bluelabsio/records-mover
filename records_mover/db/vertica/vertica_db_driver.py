@@ -83,9 +83,6 @@ class VerticaDBDriver(DBDriver):
             return 'vertica'
         return None
 
-    def can_load_from_fileobjs(self) -> bool:
-        return True
-
     def load_failure_exception(self) -> Type[Exception]:
         return vertica_python.errors.CopyRejected
 

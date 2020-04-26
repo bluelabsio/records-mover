@@ -78,9 +78,6 @@ class NegotiatesLoadFormatImpl(NegotiatesLoadFormat):
 
 
 class LoaderFromFileobj(NegotiatesLoadFormat, metaclass=ABCMeta):
-    def can_load_from_fileobjs(self) -> bool:
-        return False
-
     def load_from_fileobj(self, schema: str, table: str,
                           load_plan: RecordsLoadPlan, fileobj: IO[bytes]) -> Optional[int]:
         """Loads the data from the file stream provided.
