@@ -15,7 +15,7 @@ from ...utils.limits import (INT8_MIN, INT8_MAX,
                              FLOAT64_SIGNIFICAND_BITS,
                              num_digits)
 from ..driver import DBDriver
-from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from typing import Optional, Tuple, Union
 
 

@@ -22,7 +22,7 @@ class TestBigQueryDBDriver(unittest.TestCase):
         mock_load_plan.records_format = Mock(name='records_format', spec=DelimitedRecordsFormat)
         mock_load_plan.records_format.hints = {}
         mock_directory = Mock(name='mock_directory')
-        ret = self.bigquery_db_driver.loader_from_records_directory().\
+        ret = self.bigquery_db_driver.loader().\
             load(schema=mock_schema,
                  table=mock_table,
                  load_plan=mock_load_plan,

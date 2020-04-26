@@ -12,15 +12,14 @@ from ...records.processing_instructions import ProcessingInstructions
 from .sqlalchemy_postgres_copy import copy_from
 from .copy_options import postgres_copy_from_options
 from typing import IO, Union, List, Iterable
-from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 class PostgresLoader(LoaderFromFileobj,
-                     LoaderFromRecordsDirectory,
-                     NegotiatesLoadFormatImpl):
+                     LoaderFromRecordsDirectory):
     def __init__(self,
                  url_resolver: UrlResolver,
                  meta: MetaData,

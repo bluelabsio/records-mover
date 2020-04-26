@@ -11,7 +11,7 @@ from typing import Union, Optional, List, Tuple, IO
 from ...url.resolver import UrlResolver
 import sqlalchemy
 from .loader import BigQueryLoader
-from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from ..unloader import Unloader
 
 

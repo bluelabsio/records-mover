@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from sqlalchemy.schema import CreateTable
 from ..records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
-from .loader import NegotiatesLoadFormat, LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
+from .loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from .unloader import Unloader
 from tempfile import TemporaryDirectory
 from ..url.filesystem import FilesystemDirectoryUrl
@@ -111,11 +111,7 @@ class DBDriver(metaclass=ABCMeta):
                                                scale=scale)
 
     @abstractmethod
-    def loader(self) -> Optional[Union[LoaderFromFileobj, LoaderFromRecordsDirectory]]:
-        ...
-
-    @abstractmethod
-    def unloader(self) -> Optional[Unloader]:
+    def loader(self) -> Optional[LoaderFromRecordsDirectory]:
         ...
 
     @abstractmethod
@@ -123,7 +119,7 @@ class DBDriver(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def loader_from_records_directory(self) -> Optional[LoaderFromRecordsDirectory]:
+    def unloader(self) -> Optional[Unloader]:
         ...
 
     def type_for_floating_point(self,

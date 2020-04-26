@@ -1,6 +1,6 @@
 from sqlalchemy_redshift.commands import CopyCommand
 from records_mover.logging import register_secret
-from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from ...records.records_directory import RecordsDirectory
 from ...records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
@@ -18,7 +18,7 @@ from ...records.hints import complain_on_unhandled_hints
 logger = logging.getLogger(__name__)
 
 
-class RedshiftLoader(LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl):
+class RedshiftLoader(LoaderFromRecordsDirectory):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
                  meta: sqlalchemy.MetaData,

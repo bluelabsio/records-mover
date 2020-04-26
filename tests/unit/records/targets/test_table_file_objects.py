@@ -32,7 +32,7 @@ class TestTableFileObjects(unittest.TestCase):
     def test_can_load_direct(self):
         mock_scheme = Mock(name='scheme')
         mock_driver = self.mock_db_driver.return_value
-        mock_loader_from_records_directory = mock_driver.loader_from_records_directory.return_value
-        mock_loader_from_records_directory.best_scheme_to_load_from.return_value = mock_scheme
+        mock_loader = mock_driver.loader.return_value
+        mock_loader.best_scheme_to_load_from.return_value = mock_scheme
         self.assertEqual(True, self.table.can_load_direct(mock_scheme))
         self.mock_db_driver.assert_called_with(self.mock_db_engine)

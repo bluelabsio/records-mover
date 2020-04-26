@@ -12,7 +12,7 @@ from ...records.records_directory import RecordsDirectory
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from ...utils.concat_files import ConcatFiles
-from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from typing import IO, Union, List, Type
 import logging
 
@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class VerticaLoader(LoaderFromFileobj,
-                    LoaderFromRecordsDirectory,
-                    NegotiatesLoadFormatImpl):
+                    LoaderFromRecordsDirectory):
     def __init__(self,
                  url_resolver: UrlResolver,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]) -> None:

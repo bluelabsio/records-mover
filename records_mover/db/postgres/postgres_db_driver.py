@@ -13,7 +13,7 @@ from records_mover.utils.limits import (INT16_MIN, INT16_MAX,
                                         num_digits)
 from ..driver import DBDriver
 from .loader import PostgresLoader
-from ..loader import LoaderFromFileobj, NegotiatesLoadFormatImpl, LoaderFromRecordsDirectory
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from .unloader import PostgresUnloader
 from ..unloader import Unloader
 from typing import Optional, Tuple, Union, List

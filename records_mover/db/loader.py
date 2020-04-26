@@ -11,31 +11,28 @@ from typing import Optional, Type, Iterator, IO, List
 import sqlalchemy
 
 
-class NegotiatesLoadFormat(metaclass=ABCMeta):
-    @abstractmethod
-    def best_records_format(self) -> BaseRecordsFormat:
-        ...
-
-    # TODO: Should these be part of other interface?  nothing to do with negotiation
-    @abstractmethod
+class LoaderFromRecordsDirectory(metaclass=ABCMeta):
     def load_failure_exception(self) -> Type[Exception]:
-        ...
+        return sqlalchemy.exc.InternalError
 
-    @abstractmethod
-    @contextmanager
-    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
-        ...
+    def best_scheme_to_load_from(self) -> str:
+        return 'file'
 
-    @abstractmethod
-    def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
-        ...
+    def load(self,
+             schema: str,
+             table: str,
+             load_plan: RecordsLoadPlan,
+             directory: RecordsDirectory) -> Optional[int]:
+        """Loads the data from the data specified to the RecordsDirectory
+        instance named 'directory'.  Guarantees a manifest file named
+        'manifest' is written to the target directory pointing to the
+        target records.
 
-    @abstractmethod
-    def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
-        ...
+        Returns number of rows loaded (if database provides that
+        info).
+        """
+        raise NotImplementedError(f"load not implemented for this database type")
 
-
-class NegotiatesLoadFormatImpl(NegotiatesLoadFormat):
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         """Return true if the specified format is compatible with the load()
         method"""
@@ -59,9 +56,6 @@ class NegotiatesLoadFormatImpl(NegotiatesLoadFormat):
         else:
             return None
 
-    def load_failure_exception(self) -> Type[Exception]:
-        return sqlalchemy.exc.InternalError
-
     @contextmanager
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         with TemporaryDirectory(prefix='temporary_loadable_directory_loc') as dirname:
@@ -76,30 +70,10 @@ class NegotiatesLoadFormatImpl(NegotiatesLoadFormat):
         return []
 
 
-class LoaderFromFileobj(NegotiatesLoadFormat, metaclass=ABCMeta):
+class LoaderFromFileobj(LoaderFromRecordsDirectory, metaclass=ABCMeta):
     @abstractmethod
     def load_from_fileobj(self, schema: str, table: str,
                           load_plan: RecordsLoadPlan, fileobj: IO[bytes]) -> Optional[int]:
         """Loads the data from the file stream provided.
         """
         ...
-
-
-class LoaderFromRecordsDirectory(NegotiatesLoadFormat, metaclass=ABCMeta):
-    def best_scheme_to_load_from(self) -> str:
-        return 'file'
-
-    def load(self,
-             schema: str,
-             table: str,
-             load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> Optional[int]:
-        """Loads the data from the data specified to the RecordsDirectory
-        instance named 'directory'.  Guarantees a manifest file named
-        'manifest' is written to the target directory pointing to the
-        target records.
-
-        Returns number of rows loaded (if database provides that
-        info).
-        """
-        raise NotImplementedError(f"load not implemented for this database type")
