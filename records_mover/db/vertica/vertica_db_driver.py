@@ -18,6 +18,7 @@ from ...records.load_plan import RecordsLoadPlan
 from .loader import VerticaLoader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from .unloader import VerticaUnloader
+from ..unloader import Unloader
 from ...utils.limits import (INT64_MIN, INT64_MAX,
                              FLOAT64_SIGNIFICAND_BITS,
                              num_digits)
@@ -44,6 +45,9 @@ class VerticaDBDriver(DBDriver):
 
     def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
         return self._vertica_loader
+
+    def unloader(self) -> Optional[Unloader]:
+        return self._vertica_unloader
 
     def unload(self,
                schema: str,

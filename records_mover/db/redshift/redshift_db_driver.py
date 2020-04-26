@@ -19,6 +19,7 @@ from typing import Iterator, Optional, Union, Dict, List, Tuple
 from ...url.base import BaseDirectoryUrl
 from records_mover.db.quoting import quote_group_name, quote_schema_and_table
 from .unloader import RedshiftUnloader
+from ..unloader import Unloader
 from .loader import RedshiftLoader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
 from ..errors import NoTemporaryBucketConfiguration
@@ -193,3 +194,6 @@ class RedshiftDBDriver(DBDriver):
 
     def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
         return self._redshift_loader
+
+    def unloader(self) -> Optional[Unloader]:
+        return self._redshift_unloader

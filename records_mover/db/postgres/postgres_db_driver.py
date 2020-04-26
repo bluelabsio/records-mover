@@ -15,6 +15,7 @@ from ..driver import DBDriver
 from .loader import PostgresLoader
 from ..loader import LoaderFromFileobj, NegotiatesLoadFormatImpl, LoaderFromRecordsDirectory
 from .unloader import PostgresUnloader
+from ..unloader import Unloader
 from typing import Optional, Tuple, Union, List
 
 
@@ -40,6 +41,9 @@ class PostgresDBDriver(DBDriver):
 
     def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
         return self._postgres_loader
+
+    def unloader(self) -> Optional[Unloader]:
+        return self._postgres_unloader
 
     # https://www.postgresql.org/docs/10/datatype-numeric.html
     def integer_limits(self,

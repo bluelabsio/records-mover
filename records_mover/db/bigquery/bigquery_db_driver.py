@@ -13,6 +13,8 @@ from ...url.resolver import UrlResolver
 import sqlalchemy
 from .loader import BigQueryLoader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
+from ..unloader import Unloader
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +35,9 @@ class BigQueryDBDriver(DBDriver):
 
     def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
         return self._bigquery_loader
+
+    def unloader(self) -> None:
+        return None
 
     # TODO: These next two shouldn't be in this class
     def can_load_from_fileobjs(self) -> bool:

@@ -39,6 +39,9 @@ class MySQLDBDriver(DBDriver,
     def loader_from_records_directory(self) -> Optional[LoaderFromRecordsDirectory]:
         return None
 
+    def unloader(self) -> None:
+        return None
+
     # https://dev.mysql.com/doc/refman/8.0/en/integer-types.html
     def integer_limits(self,
                        type_: sqlalchemy.types.Integer) ->\

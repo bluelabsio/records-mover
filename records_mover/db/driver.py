@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from sqlalchemy.schema import CreateTable
 from ..records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from .loader import NegotiatesLoadFormat, LoaderFromFileobj, LoaderFromRecordsDirectory, NegotiatesLoadFormatImpl
+from .unloader import Unloader
 from tempfile import TemporaryDirectory
 from ..url.filesystem import FilesystemDirectoryUrl
 import logging
@@ -22,37 +23,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class UnloadsToRecordsDirectory(metaclass=ABCMeta):
-    def unload(self,
-               schema: str,
-               table: str,
-               unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> Optional[int]:
-        """Writes table specified to the RecordsDirectory instance named 'directory'
-        per the UnloadPlan named 'unload_plan'.  Guarantees a manifest
-        file named 'manifest' is written to the target directory pointing
-        to the target records.  After ensuring other records-related
-        metadata is provided, you can call directory.finalize_manifest()
-        to move this to the final location of _manifest, signaling to
-        readers that the Records directory is finalized.
-
-        Returns number of rows unloaded.
-        """
-        raise NotImplementedError(f"unload not implemented for this database type")
-
-    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
-        """Return true if the specified format is compatible with the unload()
-        method"""
-        return False
-
-    def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
-        """Candidates to look through when negotiating a common records format
-        with a records target"""
-        return []
-
-
 # TODO: remove UnloadsToRecordsDirectory
-class DBDriver(UnloadsToRecordsDirectory,
+class DBDriver(Unloader,
                metaclass=ABCMeta):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine,
@@ -142,6 +114,10 @@ class DBDriver(UnloadsToRecordsDirectory,
 
     @abstractmethod
     def loader(self) -> Optional[Union[LoaderFromFileobj, LoaderFromRecordsDirectory]]:
+        ...
+
+    @abstractmethod
+    def unloader(self) -> Optional[Unloader]:
         ...
 
     @abstractmethod
@@ -238,3 +214,6 @@ class GenericDBDriver(DBDriver,
 
     def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
         return self
+
+    def unloader(self) -> Optional[Unloader]:
+        return None
