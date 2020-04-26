@@ -50,7 +50,6 @@ class RedshiftDBDriver(DBDriver):
         else:
             return out
 
-    # TODO: this should be in loader class
     @contextmanager
     def temporary_s3_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         if self.s3_temp_base_loc is None:
@@ -58,12 +57,6 @@ class RedshiftDBDriver(DBDriver):
         else:
             with self.s3_temp_base_loc.temporary_directory() as temp_loc:
                 yield temp_loc
-
-    # TODO: this should be in loader class
-    @contextmanager
-    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
-        with self.temporary_s3_directory_loc() as temp_loc:
-            yield temp_loc
 
     # if this timeout goes off (at least for Redshift), it's probably
     # because memory is filling because sqlalchemy's cache of all

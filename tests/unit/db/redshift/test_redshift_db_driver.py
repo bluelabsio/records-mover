@@ -47,7 +47,7 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
         self.assertEqual(out, False)
 
     def test_temporary_loadable_directory_loc(self):
-        with self.redshift_db_driver.temporary_loadable_directory_loc() as loc:
+        with self.redshift_db_driver.loader().temporary_loadable_directory_loc() as loc:
             self.assertEqual(loc,
                              self.mock_s3_temp_base_loc.temporary_directory.return_value.
                              __enter__.return_value)

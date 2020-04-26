@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from sqlalchemy_redshift.commands import CopyCommand
 from records_mover.logging import register_secret
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
@@ -10,7 +11,7 @@ import logging
 from .records_copy import redshift_copy_options
 from ...records.load_plan import RecordsLoadPlan
 from ..errors import CredsDoNotSupportS3Import
-from typing import Optional, Union, Callable, ContextManager, List
+from typing import Optional, Union, Callable, ContextManager, List, Iterator
 from ...url import BaseDirectoryUrl
 from botocore.credentials import Credentials
 from ...records.hints import complain_on_unhandled_hints
@@ -146,3 +147,8 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
 
     def best_scheme_to_load_from(self) -> str:
         return 's3'
+
+    @contextmanager
+    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        with self.temporary_s3_directory_loc() as temp_loc:
+            yield temp_loc
