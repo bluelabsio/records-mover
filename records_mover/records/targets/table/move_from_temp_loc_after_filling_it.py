@@ -29,7 +29,10 @@ class DoMoveFromTempLocAfterFillingIt(BaseTableMoveAlgorithm):
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         driver = self.tbl.db_driver(self.tbl.db_engine)
         loader = driver.loader()
-        # TODO: Should force null check - can this object take in a loader?
+        # This will only be reached in move() if
+        # Source#has_compatible_format(records_target) returns true,
+        # which means we were able to get a laoder and call
+        # can_load_this_format() previously.
         assert loader is not None
         with loader.temporary_loadable_directory_loc() as loc:
             yield loc

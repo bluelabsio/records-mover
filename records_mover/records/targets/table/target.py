@@ -74,13 +74,8 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
     def move_from_fileobjs_source(self,
                                   fileobjs_source: FileobjsSource,
                                   processing_instructions: ProcessingInstructions) -> MoveResult:
-        # TODO: Can this take in a loader so we don't have to do this assertion here?
-        driver = self.db_driver(self.db_engine)
-        loader_from_fileobj = driver.loader_from_fileobj()
-        assert loader_from_fileobj is not None
         return DoMoveFromFileobjsSource(self.prep,
                                         self,
-                                        loader_from_fileobj,
                                         fileobjs_source,
                                         processing_instructions).move()
 

@@ -51,7 +51,9 @@ class DoMoveFromRecordsDirectory(BaseTableMoveAlgorithm):
     def load(self, driver: DBDriver) -> Optional[int]:
         plan = self.load_plan
         loader = driver.loader()
-        # TODO: Can this take in a loader so we don't have to do this assertion here?
+        # If we've gotten here, .can_move_from_this_format() has
+        # returned True in the move() method, and that can only happen
+        # if we have a valid loader.
         assert loader is not None
         return loader.load(schema=self.tbl.schema_name, table=self.tbl.table_name,
                            load_plan=plan, directory=self.directory)
@@ -61,8 +63,10 @@ class DoMoveFromRecordsDirectory(BaseTableMoveAlgorithm):
 
         with self.tbl.db_engine.begin() as db:
             driver = self.tbl.db_driver(db)
-            # TODO: Can this take in a loader so we don't have to do this assertion here?
             loader = driver.loader()
+            # If we've gotten here, .can_move_from_this_format() has
+            # returned True in the move() method, and that can only happen
+            # if we have a valid loader.
             assert loader is not None
             load_exception_type = loader.load_failure_exception()
             schema_sql = self.load_schema_sql(driver)
