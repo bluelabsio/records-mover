@@ -87,8 +87,9 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
     def can_load_direct(self, scheme: str) -> bool:
         driver = self.db_driver(self.db_engine)
         loader = driver.loader()
-        # TODO: What can we do to make this more typesafe?
-        assert loader is not None
+        if loader is None:
+            # can't bulk load at all, so can't load direct!
+            return False
         return loader.best_scheme_to_load_from() == scheme
 
     def known_supported_records_formats(self) -> List[BaseRecordsFormat]:
