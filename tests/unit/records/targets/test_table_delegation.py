@@ -53,10 +53,8 @@ class TestTableFileObjects(unittest.TestCase):
         out = self.table.move_from_fileobjs_source(mock_fileobjs_source,
                                                    mock_processing_instructions)
         self.assertEqual(out, mock_DoMoveFromFileobjsSource.return_value.move.return_value)
-        mock_loader_from_fileobj = self.mock_db_driver.return_value.loader_from_fileobj.return_value
         mock_DoMoveFromFileobjsSource.assert_called_with(self.mock_prep,
                                                          self.table,
-                                                         mock_loader_from_fileobj,
                                                          mock_fileobjs_source,
                                                          mock_processing_instructions)
         mock_DoMoveFromFileobjsSource.return_value.move.assert_called_with()
