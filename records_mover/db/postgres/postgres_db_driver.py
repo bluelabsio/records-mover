@@ -29,13 +29,10 @@ class PostgresDBDriver(DBDriver):
                                                db=self.db)
         self._postgres_unloader = PostgresUnloader(db=self.db)
 
-    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
+    def loader(self) -> Optional[LoaderFromRecordsDirectory]:
         return self._postgres_loader
 
     def loader_from_fileobj(self) -> LoaderFromFileobj:
-        return self._postgres_loader
-
-    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
         return self._postgres_loader
 
     def unloader(self) -> Optional[Unloader]:

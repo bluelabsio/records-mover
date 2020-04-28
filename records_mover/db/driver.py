@@ -193,9 +193,6 @@ class GenericDBDriver(DBDriver):
     def loader_from_fileobj(self) -> None:
         return None
 
-    def loader_from_records_directory(self) -> None:
-        return None
-
     def loader(self) -> None:
         return None
 

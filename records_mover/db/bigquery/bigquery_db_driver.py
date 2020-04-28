@@ -22,13 +22,10 @@ class BigQueryDBDriver(DBDriver):
         super().__init__(db)
         self._bigquery_loader = BigQueryLoader(db=self.db, url_resolver=url_resolver)
 
-    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
+    def loader(self) -> Optional[LoaderFromRecordsDirectory]:
         return self._bigquery_loader
 
     def loader_from_fileobj(self) -> LoaderFromFileobj:
-        return self._bigquery_loader
-
-    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
         return self._bigquery_loader
 
     def unloader(self) -> None:

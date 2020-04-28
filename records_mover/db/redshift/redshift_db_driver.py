@@ -155,14 +155,11 @@ class RedshiftDBDriver(DBDriver):
         return super().type_for_floating_point(fp_total_bits=fp_total_bits,
                                                fp_significand_bits=fp_significand_bits)
 
-    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
+    def loader(self) -> Optional[LoaderFromRecordsDirectory]:
         return self._redshift_loader
 
     def loader_from_fileobj(self) -> None:
         return None
-
-    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
-        return self._redshift_loader
 
     def unloader(self) -> Optional[Unloader]:
         return self._redshift_unloader

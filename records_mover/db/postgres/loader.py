@@ -26,9 +26,6 @@ class PostgresLoader(LoaderFromFileobj,
         self.db = db
         self.meta = meta
 
-    def loader(self) -> LoaderFromFileobj:
-        return self
-
     def load_from_fileobj(self,
                           schema: str,
                           table: str,

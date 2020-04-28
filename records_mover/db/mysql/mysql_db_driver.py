@@ -23,13 +23,10 @@ logger = logging.getLogger(__name__)
 
 
 class MySQLDBDriver(DBDriver):
-    def loader(self) -> Optional[Union[LoaderFromFileobj, LoaderFromRecordsDirectory]]:
+    def loader(self) -> Optional[LoaderFromRecordsDirectory]:
         return None
 
     def loader_from_fileobj(self) -> Optional[LoaderFromFileobj]:
-        return None
-
-    def loader_from_records_directory(self) -> Optional[LoaderFromRecordsDirectory]:
         return None
 
     def unloader(self) -> None:

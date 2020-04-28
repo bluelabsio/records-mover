@@ -29,13 +29,10 @@ class VerticaDBDriver(DBDriver):
         self._vertica_unloader = VerticaUnloader(s3_temp_base_loc=s3_temp_base_loc, db=db)
         self.url_resolver = url_resolver
 
-    def loader(self) -> Union[LoaderFromFileobj, LoaderFromRecordsDirectory]:
+    def loader(self) -> Optional[LoaderFromRecordsDirectory]:
         return self._vertica_loader
 
     def loader_from_fileobj(self) -> LoaderFromFileobj:
-        return self._vertica_loader
-
-    def loader_from_records_directory(self) -> LoaderFromRecordsDirectory:
         return self._vertica_loader
 
     def unloader(self) -> Optional[Unloader]:
