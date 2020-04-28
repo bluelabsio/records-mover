@@ -50,12 +50,25 @@ class DoMoveFromRecordsDirectory(BaseTableMoveAlgorithm):
 
     def load(self, driver: DBDriver) -> Optional[int]:
         plan = self.load_plan
-        return driver.load(schema=self.tbl.schema_name, table=self.tbl.table_name,
+        loader = driver.loader()
+        # If we've gotten here, .can_move_from_this_format() has
+        # returned True in the move() method, and that can only happen
+        # if we have a valid loader.
+        assert loader is not None
+        return loader.load(schema=self.tbl.schema_name, table=self.tbl.table_name,
                            load_plan=plan, directory=self.directory)
 
     def move(self) -> MoveResult:
         logger.info(f"Connecting to database...")
+
         with self.tbl.db_engine.begin() as db:
             driver = self.tbl.db_driver(db)
+            loader = driver.loader()
+            # If we've gotten here, .can_move_from_this_format() has
+            # returned True in the move() method, and that can only happen
+            # if we have a valid loader.
+            assert loader is not None
+            load_exception_type = loader.load_failure_exception()
             schema_sql = self.load_schema_sql(driver)
-        return prep_and_load(self.tbl, self.prep, schema_sql, self.load)
+        return prep_and_load(self.tbl, self.prep, schema_sql, self.load,
+                             load_exception_type)

@@ -22,55 +22,29 @@ class TestBigQueryDBDriver(unittest.TestCase):
         mock_load_plan.records_format = Mock(name='records_format', spec=DelimitedRecordsFormat)
         mock_load_plan.records_format.hints = {}
         mock_directory = Mock(name='mock_directory')
-        ret = self.bigquery_db_driver.load(schema=mock_schema,
-                                           table=mock_table,
-                                           load_plan=mock_load_plan,
-                                           directory=mock_directory)
+        ret = self.bigquery_db_driver.loader().\
+            load(schema=mock_schema,
+                 table=mock_table,
+                 load_plan=mock_load_plan,
+                 directory=mock_directory)
         self.assertEqual(ret, self.mock_BigQueryLoader.return_value.load.return_value)
-
-    def test_unload_not_implemented(self):
-        mock_schema = Mock(name='mock_schema')
-        mock_table = Mock(name='mock_table')
-        mock_unload_plan = Mock(name='mock_unload_plan')
-        mock_directory = Mock(name='mock_directory')
-        with self.assertRaises(NotImplementedError):
-            self.bigquery_db_driver.unload(schema=mock_schema,
-                                           table=mock_table,
-                                           unload_plan=mock_unload_plan,
-                                           directory=mock_directory)
 
     def test_can_load_this_format(self):
         mock_source_records_format = Mock(name='source_records_format', spec=DelimitedRecordsFormat)
-        out = self.bigquery_db_driver.can_load_this_format(mock_source_records_format)
+        out = self.bigquery_db_driver.loader_from_fileobj().\
+            can_load_this_format(mock_source_records_format)
         self.mock_BigQueryLoader.return_value.can_load_this_format.\
             assert_called_with(mock_source_records_format)
         self.assertEqual(out,
                          self.mock_BigQueryLoader.return_value.can_load_this_format.return_value)
 
     def test_known_supported_records_formats_for_load(self):
-        out = self.bigquery_db_driver.known_supported_records_formats_for_load()
+        out = self.bigquery_db_driver.loader().known_supported_records_formats_for_load()
         self.mock_BigQueryLoader.return_value.known_supported_records_formats_for_load.\
             assert_called_with()
         self.assertEqual(out,
                          self.mock_BigQueryLoader.return_value.
                          known_supported_records_formats_for_load.return_value)
-
-    def test_can_unload_this_format(self):
-        mock_target_records_format = Mock(name='target_records_format', spec=DelimitedRecordsFormat)
-        out = self.bigquery_db_driver.can_unload_this_format(mock_target_records_format)
-        self.assertFalse(out, False)
-
-    def test_known_supported_records_formats_for_unload(self):
-        out = self.bigquery_db_driver.known_supported_records_formats_for_unload()
-        self.assertEqual(out, [])
-
-    def test_best_records_format_variant_delimited(self):
-        out = self.bigquery_db_driver.best_records_format_variant('delimited')
-        self.assertEqual(out, 'bigquery')
-
-    def test_best_records_format_variant_non_delimited(self):
-        out = self.bigquery_db_driver.best_records_format_variant('whatevs')
-        self.assertIsNone(out)
 
     def test_type_for_date_plus_time_with_tz(self):
         out = self.bigquery_db_driver.type_for_date_plus_time(has_tz=True)
@@ -123,17 +97,14 @@ class TestBigQueryDBDriver(unittest.TestCase):
         mock_load_plan = Mock(name='load_plan')
         mock_fileobj = Mock(name='fileobj')
         mock_bigquery_loader = self.mock_BigQueryLoader.return_value
-        out = self.bigquery_db_driver.load_from_fileobj(mock_schema, mock_table,
-                                                        mock_load_plan, mock_fileobj)
-        mock_bigquery_loader.load_from_fileobj.assert_called_with(schema=mock_schema,
-                                                                  table=mock_table,
-                                                                  load_plan=mock_load_plan,
-                                                                  fileobj=mock_fileobj)
+        out = self.bigquery_db_driver.loader_from_fileobj().\
+            load_from_fileobj(mock_schema, mock_table,
+                              mock_load_plan, mock_fileobj)
+        mock_bigquery_loader.load_from_fileobj.assert_called_with(mock_schema,
+                                                                  mock_table,
+                                                                  mock_load_plan,
+                                                                  mock_fileobj)
         self.assertEqual(out, mock_bigquery_loader.load_from_fileobj.return_value)
-
-    def test_can_load_from_fileobjs(self):
-        out = self.bigquery_db_driver.can_load_from_fileobjs()
-        self.assertEqual(out, True)
 
     def test_type_for_integer_small_type(self):
         INT64_MIN = -9223372036854775808

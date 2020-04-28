@@ -31,11 +31,11 @@ class TestFactory(unittest.TestCase):
         out = db_driver(mock_db)
         self.assertEqual(out, mock_BigQueryDBDriver.return_value)
 
-    @patch('records_mover.db.factory.DBDriver')
+    @patch('records_mover.db.factory.GenericDBDriver')
     def test_db_driver_other(self,
-                             mock_DBDriver):
+                             mock_GenericDBDriver):
         mock_db = Mock(name='db')
         mock_engine = mock_db.engine
         mock_engine.name = 'somaskdfaksjf'
         out = db_driver(mock_db)
-        self.assertEqual(out, mock_DBDriver.return_value)
+        self.assertEqual(out, mock_GenericDBDriver.return_value)

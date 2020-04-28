@@ -3,10 +3,13 @@ from records_mover.records.types import RecordsHints
 from records_mover.records.records_format import DelimitedRecordsFormat
 import logging
 from typing import Set, Tuple, Optional
-from .date_input_style import DateInputStyle
+from .date_input_style import determine_input_date_order_style
+from .date_output_style import determine_date_output_style
 from .csv import postgres_copy_options_csv
 from .text import postgres_copy_options_text
-from .types import PostgresCopyOptions
+from .types import PostgresCopyOptions, DateOrderStyle, DateOutputStyle
+from .mode import CopyOptionsMode
+
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +37,39 @@ def needs_csv_format(hints: RecordsHints) -> bool:
     return False
 
 
-def postgres_copy_options(unhandled_hints: Set[str],
-                          load_plan: RecordsLoadPlan) -> Tuple[Optional[DateInputStyle],
-                                                               PostgresCopyOptions]:
+# unloading
+def postgres_copy_to_options(unhandled_hints: Set[str],
+                             delimited_records_format: DelimitedRecordsFormat,
+                             fail_if_cant_handle_hint: bool) ->\
+                                         Tuple[DateOutputStyle,
+                                               Optional[DateOrderStyle],
+                                               PostgresCopyOptions]:
+    hints = delimited_records_format.hints
+
+    if needs_csv_format(hints):
+        copy_options = postgres_copy_options_csv(unhandled_hints,
+                                                 hints,
+                                                 fail_if_cant_handle_hint,
+                                                 CopyOptionsMode.UNLOADING)
+    else:
+        copy_options = postgres_copy_options_text(unhandled_hints,
+                                                  hints,
+                                                  fail_if_cant_handle_hint,
+                                                  CopyOptionsMode.UNLOADING)
+
+    date_output_style, date_order_style =\
+        determine_date_output_style(unhandled_hints,
+                                    hints,
+                                    fail_if_cant_handle_hint)
+
+    return (date_output_style, date_order_style, copy_options)
+
+
+# loading
+def postgres_copy_from_options(unhandled_hints: Set[str],
+                               load_plan: RecordsLoadPlan) ->\
+                               Tuple[Optional[DateOrderStyle],
+                                     PostgresCopyOptions]:
     fail_if_cant_handle_hint = load_plan.processing_instructions.fail_if_cant_handle_hint
     if not isinstance(load_plan.records_format, DelimitedRecordsFormat):
         raise NotImplementedError("Not currently able to import "
@@ -44,10 +77,19 @@ def postgres_copy_options(unhandled_hints: Set[str],
     hints = load_plan.records_format.hints
 
     if needs_csv_format(hints):
-        return postgres_copy_options_csv(unhandled_hints,
+        postgres_copy_options = postgres_copy_options_csv(unhandled_hints,
+                                                          hints,
+                                                          fail_if_cant_handle_hint,
+                                                          CopyOptionsMode.LOADING)
+    else:
+        postgres_copy_options = postgres_copy_options_text(unhandled_hints,
+                                                           hints,
+                                                           fail_if_cant_handle_hint,
+                                                           CopyOptionsMode.LOADING)
+
+    date_order_style: Optional[DateOrderStyle] =\
+        determine_input_date_order_style(unhandled_hints,
                                          hints,
                                          fail_if_cant_handle_hint)
-    else:
-        return postgres_copy_options_text(unhandled_hints,
-                                          hints,
-                                          fail_if_cant_handle_hint)
+
+    return (date_order_style, postgres_copy_options)

@@ -1,16 +1,17 @@
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from records_mover.records.types import RecordsHints
-from typing import Set, Optional, Tuple
-from .date_input_style import DateInputStyle
-from .types import PostgresCopyOptions
+from typing import Set
+from .mode import CopyOptionsMode
+from .types import PostgresCopyOptions, CopyOptionsModeType, _assert_never
 from .common import postgres_copy_options_common
 
 
 def postgres_copy_options_text(unhandled_hints: Set[str],
                                hints: RecordsHints,
-                               fail_if_cant_handle_hint: bool) ->\
-        Tuple[Optional[DateInputStyle], PostgresCopyOptions]:
+                               fail_if_cant_handle_hint: bool,
+                               mode: CopyOptionsModeType) ->\
+        PostgresCopyOptions:
     postgres_options: PostgresCopyOptions = {}
 
     # FORMAT
@@ -104,10 +105,20 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     # data, COPY FROM will complain if the line endings in the input
     # are not all alike.
 
-    if hints['record-terminator'] in ["\n", "\r", "\r\n"]:
-        quiet_remove(unhandled_hints, 'record-terminator')
+    if mode is CopyOptionsMode.LOADING:
+        if hints['record-terminator'] in ["\n", "\r", "\r\n"]:
+            quiet_remove(unhandled_hints, 'record-terminator')
+        else:
+            cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
+    elif mode is CopyOptionsMode.UNLOADING:
+        # No control for this is given - exports appear with unix
+        # newlines.
+        if hints['record-terminator'] == "\n":
+            quiet_remove(unhandled_hints, 'record-terminator')
+        else:
+            cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
     else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
+        _assert_never(mode)
 
     if hints['compression'] is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
