@@ -16,7 +16,7 @@ from ...utils.limits import (INT8_MIN, INT8_MAX,
                              num_digits)
 from ..driver import DBDriver
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple
 
 
 logger = logging.getLogger(__name__)

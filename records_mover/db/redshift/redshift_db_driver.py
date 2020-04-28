@@ -17,7 +17,7 @@ from records_mover.db.quoting import quote_group_name, quote_schema_and_table
 from .unloader import RedshiftUnloader
 from ..unloader import Unloader
 from .loader import RedshiftLoader
-from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
+from ..loader import LoaderFromRecordsDirectory
 from ..errors import NoTemporaryBucketConfiguration
 
 logger = logging.getLogger(__name__)

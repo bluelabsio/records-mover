@@ -74,7 +74,6 @@ class TestDBDriver(unittest.TestCase):
                                                                  schema=mock_schema,
                                                                  table_name=mock_table)
 
-
     @patch('records_mover.db.driver.quote_group_name')
     @patch('records_mover.db.driver.quote_schema_and_table')
     def test_set_grant_permissions_for_groups(self,

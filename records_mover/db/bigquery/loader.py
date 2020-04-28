@@ -2,7 +2,6 @@ from typing import Union, List, IO, Tuple, Optional
 from ...records.hints import complain_on_unhandled_hints
 import pprint
 import sqlalchemy
-from ...records.types import RecordsFormatType
 from ...records.load_plan import RecordsLoadPlan
 from ...records.records_format import (
     BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
