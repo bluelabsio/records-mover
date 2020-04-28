@@ -29,9 +29,8 @@ class Unloader(metaclass=ABCMeta):
     def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
         ...
 
-    def best_records_format(self) -> BaseRecordsFormat:
+    def best_records_format(self) -> Optional[BaseRecordsFormat]:
         supported_formats = self.known_supported_records_formats_for_unload()
-        # these are in priority of quality, and at least one must be
-        # provided, or this interface should not be implemented to
-        # begin with.
+        if len(supported_formats) == 0:
+            return None
         return supported_formats[0]
