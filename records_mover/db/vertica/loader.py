@@ -9,15 +9,14 @@ from ...records.load_plan import RecordsLoadPlan
 from ...records.hints import complain_on_unhandled_hints
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
-from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
+from ..loader import LoaderFromFileobj
 from typing import IO, Union, List, Type
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-class VerticaLoader(LoaderFromFileobj,
-                    LoaderFromRecordsDirectory):
+class VerticaLoader(LoaderFromFileobj):
     def __init__(self,
                  url_resolver: UrlResolver,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]) -> None:
