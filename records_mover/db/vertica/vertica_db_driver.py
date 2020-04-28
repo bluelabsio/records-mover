@@ -56,12 +56,6 @@ class VerticaDBDriver(DBDriver):
             # maybe a permission error?
             return super().schema_sql(schema, table)
 
-    def best_records_format_variant(self,
-                                    records_format_type: str) -> Optional[str]:
-        if records_format_type == 'delimited':
-            return 'vertica'
-        return None
-
     def table(self,
               schema: str,
               table: str) -> Table:

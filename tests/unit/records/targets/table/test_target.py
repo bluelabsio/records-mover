@@ -38,3 +38,25 @@ class TestTarget(unittest.TestCase):
         self.assertTrue(self.target.can_move_from_fileobjs_source())
 
         self.mock_db_driver.assert_called_with(self.mock_db_engine)
+
+    def test_can_load_direct_no_loader(self):
+        mock_driver = self.mock_db_driver.return_value
+        mock_driver.loader.return_value = None
+        self.assertFalse(self.target.can_load_direct('whatever'))
+
+        self.mock_db_driver.assert_called_with(self.mock_db_engine)
+
+    def test_known_supported_records_formats_no_loader(self):
+        mock_driver = self.mock_db_driver.return_value
+        mock_driver.loader.return_value = None
+        self.assertEqual([], self.target.known_supported_records_formats())
+
+        self.mock_db_driver.assert_called_with(self.mock_db_engine)
+
+    def test_can_move_from_this_format_no_loader(self):
+        mock_driver = self.mock_db_driver.return_value
+        mock_source_records_format = Mock(name='source_records_format')
+        mock_driver.loader.return_value = None
+        self.assertFalse(self.target.can_move_from_this_format(mock_source_records_format))
+
+        self.mock_db_driver.assert_called_with(self.mock_db_engine)

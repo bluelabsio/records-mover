@@ -44,22 +44,11 @@ class LoaderFromRecordsDirectory(metaclass=ABCMeta):
         ...
 
     def best_records_format(self) -> BaseRecordsFormat:
-        variant = self.best_records_format_variant('delimited')
-        assert variant is not None  # always provided for 'delimited'
-        return DelimitedRecordsFormat(variant=variant)
-
-    def best_records_format_variant(self,
-                                    records_format_type: RecordsFormatType) -> \
-            Optional[str]:
-        """Return the most suitable records format delimited variant for
-        loading and unloading.  This is generally the format that the
-        database unloading and loading natively, which won't require
-        translation before loading or after unloading.
-        """
-        if records_format_type == 'delimited':
-            return 'bluelabs'
-        else:
-            return None
+        supported_formats = self.known_supported_records_formats_for_load()
+        # these are in priority of quality, and at least one must be
+        # provided, or this interface should not be implemented to
+        # begin with.
+        return supported_formats[0]
 
     @contextmanager
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:

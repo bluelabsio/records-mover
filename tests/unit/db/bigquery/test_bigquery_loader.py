@@ -158,17 +158,3 @@ class TestBigQueryLoader(unittest.TestCase):
         self.assertEqual('bigquery', delimited_records_format.variant)
         parquet_records_format = out[1]
         self.assertEqual(type(parquet_records_format), ParquetRecordsFormat)
-
-    def test_best_records_format_variant_delimited(self):
-        mock_db = Mock(name='db')
-        mock_url_resolver = Mock(name='url_resolver')
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver)
-        out = bigquery_loader.best_records_format_variant('delimited')
-        self.assertEqual(out, 'bigquery')
-
-    def test_best_records_format_variant_non_delimited(self):
-        mock_db = Mock(name='db')
-        mock_url_resolver = Mock(name='url_resolver')
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver)
-        out = bigquery_loader.best_records_format_variant('whatevs')
-        self.assertIsNone(out)

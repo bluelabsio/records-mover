@@ -202,3 +202,10 @@ class TestPostgresLoader(unittest.TestCase):
     def test_best_scheme_to_load_from(self):
         self.assertEqual('file',
                          self.loader.best_scheme_to_load_from())
+
+    def test_best_records_format(self):
+        self.assertEqual(DelimitedRecordsFormat(variant='bluelabs',
+                                                hints={
+                                                    'compression': None
+                                                }),
+                         self.loader.best_records_format())

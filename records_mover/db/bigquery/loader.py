@@ -117,10 +117,3 @@ class BigQueryLoader(LoaderFromFileobj,
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
         return [DelimitedRecordsFormat(variant='bigquery'), ParquetRecordsFormat()]
-
-    def best_records_format_variant(self, records_format_type: RecordsFormatType) ->\
-            Optional[str]:
-        if records_format_type == 'delimited':
-            return 'bigquery'
-        else:
-            return None

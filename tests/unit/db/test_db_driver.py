@@ -74,6 +74,7 @@ class TestDBDriver(unittest.TestCase):
                                                                  schema=mock_schema,
                                                                  table_name=mock_table)
 
+
     @patch('records_mover.db.driver.quote_group_name')
     @patch('records_mover.db.driver.quote_schema_and_table')
     def test_set_grant_permissions_for_groups(self,
@@ -123,3 +124,44 @@ class TestDBDriver(unittest.TestCase):
             call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_user_name}"),
             call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_user_name}"),
         ])
+
+    @patch('records_mover.db.driver.quote_user_name')
+    @patch('records_mover.db.driver.quote_schema_and_table')
+    def test_set_grant_permissions_for_users_bobby_tables(self,
+                                                          mock_quote_schema_and_table,
+                                                          mock_quote_user_name):
+        mock_schema_name = Mock(name='schema_name')
+        mock_table = Mock(name='table')
+        mock_db = Mock(name='db')
+        users = {
+            '; DESTROY ALL MY DATA MUHAHAHAH;': ['user_a', 'user_b']
+        }
+        with self.assertRaises(TypeError):
+            self.db_driver.set_grant_permissions_for_users(mock_schema_name,
+                                                           mock_table,
+                                                           users,
+                                                           mock_db)
+
+    @patch('records_mover.db.driver.quote_user_name')
+    @patch('records_mover.db.driver.quote_schema_and_table')
+    def test_set_grant_permissions_for_groups_bobby_tables(self,
+                                                           mock_quote_schema_and_table,
+                                                           mock_quote_user_name):
+        mock_schema_name = Mock(name='schema_name')
+        mock_table = Mock(name='table')
+        mock_db = Mock(name='db')
+        groups = {
+            '; DESTROY ALL MY DATA MUHAHAHAH;': ['group_a', 'group_b']
+        }
+        with self.assertRaises(TypeError):
+            self.db_driver.set_grant_permissions_for_groups(mock_schema_name,
+                                                            mock_table,
+                                                            groups,
+                                                            mock_db)
+
+    def test_tweak_records_schema_for_load_no_tweak(self):
+        mock_records_schema = Mock(name='records_schema')
+        mock_records_format = Mock(name='records_format')
+        self.assertEqual(mock_records_schema,
+                         self.db_driver.tweak_records_schema_for_load(mock_records_schema,
+                                                                      mock_records_format))

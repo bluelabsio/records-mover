@@ -74,14 +74,6 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
                          out)
         self.mock_vertica_loader.can_load_this_format.assert_called_with(mock_source_records_format)
 
-    def test_best_records_format_variant(self):
-        out = self.vertica_db_driver.best_records_format_variant('blah')
-        self.assertEqual(None, out)
-
-    def test_best_records_format_variant_delimited(self):
-        out = self.vertica_db_driver.best_records_format_variant('delimited')
-        self.assertEqual('vertica', out)
-
     def test_integer_limits(self):
         int_min, int_max = self.vertica_db_driver.integer_limits(sqlalchemy.sql.sqltypes.INTEGER())
         self.assertEqual(int_min, -9223372036854775808)

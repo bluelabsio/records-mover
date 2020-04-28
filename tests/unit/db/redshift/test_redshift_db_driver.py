@@ -19,10 +19,6 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
         sql = self.redshift_db_driver.schema_sql('myschema', 'mytable')
         self.assertEqual(sql, mock_schema_sql)
 
-    def test_best_records_format_variant(self):
-        variant = self.redshift_db_driver.loader().best_records_format_variant('delimited')
-        self.assertEqual(variant, "bluelabs")
-
     @patch('records_mover.db.redshift.redshift_db_driver.quote_group_name')
     @patch('records_mover.db.redshift.redshift_db_driver.quote_schema_and_table')
     def test_set_grant_permissions_for_group(self, mock_quote_schema_and_table,

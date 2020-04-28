@@ -155,3 +155,7 @@ class TestTableRecordsSource(unittest.TestCase):
         self.mock_unloader.known_supported_records_formats_for_unload.assert_called_with()
         mock_records_target.known_supported_records_formats.assert_called_with()
         self.assertEqual(True, out)
+
+    def test_known_supported_records_formats_no_unloader(self):
+        self.mock_driver.unloader.return_value = None
+        self.assertEqual([], self.table_records_source.known_supported_records_formats())
