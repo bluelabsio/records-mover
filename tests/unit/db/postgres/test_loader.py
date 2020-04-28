@@ -163,8 +163,6 @@ class TestPostgresLoader(unittest.TestCase):
 
         self.mock_url_resolver.file_url.assert_called_with(mock_url)
 
-        mock_fileobj = mock_loc.open.return_value.__enter__.return_value
-
         mock_processing_instructions = mock_load_plan.processing_instructions
         mock_unhandled_hints = set(mock_records_format.hints.keys())
         mock_complain_on_unhandled_hints.\

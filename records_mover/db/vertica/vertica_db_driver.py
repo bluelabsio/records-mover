@@ -1,19 +1,12 @@
 from ..driver import DBDriver
 import sqlalchemy
-import tempfile
-import pathlib
 from sqlalchemy.sql import text
 from records_mover.db.quoting import quote_schema_and_table
-from ...records.records_directory import RecordsDirectory
-from ...records.records_format import BaseRecordsFormat
-from contextlib import contextmanager
 from sqlalchemy.schema import Table, Column
 import logging
-from typing import Iterator, Optional, IO, Union, List, Tuple, Type
+from typing import Optional, Union, Tuple
 from ...url.resolver import UrlResolver
 from ...url.base import BaseDirectoryUrl
-from ...records.unload_plan import RecordsUnloadPlan
-from ...records.load_plan import RecordsLoadPlan
 from .loader import VerticaLoader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from .unloader import VerticaUnloader

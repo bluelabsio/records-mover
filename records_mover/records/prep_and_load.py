@@ -4,7 +4,6 @@ from records_mover.db import DBDriver
 from records_mover.records.prep import TablePrep
 from records_mover.records.table import TargetTableDetails
 from records_mover.records.existing_table_handling import ExistingTableHandling
-import sqlalchemy
 import logging
 
 logger = logging.getLogger(__name__)

@@ -20,7 +20,9 @@ class TestTableFileObjects(unittest.TestCase):
         mock_records_format = Mock(name='records_format')
         self.mock_loader = mock_driver.loader.return_value
         self.mock_loader_from_fileobj = mock_driver.loader_from_fileobj.return_value
-        self.mock_loader.known_supported_records_formats_for_load.return_value = [mock_records_format]
+        self.mock_loader.known_supported_records_formats_for_load.return_value = [
+            mock_records_format
+        ]
         self.table = TableRecordsTarget(self.mock_schema_name,
                                         self.mock_table_name,
                                         self.mock_db_engine,

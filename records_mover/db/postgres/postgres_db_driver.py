@@ -1,10 +1,6 @@
 import sqlalchemy
 import logging
 from records_mover.url.resolver import UrlResolver
-from records_mover.records.records_format import BaseRecordsFormat
-from records_mover.records.records_directory import RecordsDirectory
-from records_mover.records.load_plan import RecordsLoadPlan
-from records_mover.records.unload_plan import RecordsUnloadPlan
 from records_mover.utils.limits import (INT16_MIN, INT16_MAX,
                                         INT32_MIN, INT32_MAX,
                                         INT64_MIN, INT64_MAX,
@@ -16,7 +12,7 @@ from .loader import PostgresLoader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from .unloader import PostgresUnloader
 from ..unloader import Unloader
-from typing import Optional, Tuple, Union, List
+from typing import Optional, Tuple, Union
 
 
 logger = logging.getLogger(__name__)

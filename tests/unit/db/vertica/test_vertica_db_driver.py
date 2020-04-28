@@ -2,7 +2,6 @@ from .base_test_vertica_db_driver import BaseTestVerticaDBDriver
 from mock import Mock
 from ...records.format_hints import (vertica_format_hints)
 import sqlalchemy
-import vertica_python
 
 
 class TestVerticaDBDriver(BaseTestVerticaDBDriver):

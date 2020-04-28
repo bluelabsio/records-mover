@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from sqlalchemy_redshift.commands import CopyCommand
 from records_mover.logging import register_secret
-from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
+from ..loader import LoaderFromRecordsDirectory
 from ...records.records_directory import RecordsDirectory
 from ...records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions

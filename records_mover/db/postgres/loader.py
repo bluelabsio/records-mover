@@ -1,12 +1,10 @@
 import sqlalchemy
 from sqlalchemy import MetaData
-from contextlib import ExitStack
 from sqlalchemy.schema import Table
 from ..quoting import quote_value
 from ...url.resolver import UrlResolver
 from ...records.load_plan import RecordsLoadPlan
 from ...records.hints import complain_on_unhandled_hints
-from ...records.records_directory import RecordsDirectory
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from .sqlalchemy_postgres_copy import copy_from

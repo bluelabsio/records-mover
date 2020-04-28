@@ -7,7 +7,6 @@ from .io_base_wrapper import IOBaseWrapper
 from ...url.resolver import UrlResolver
 from ...records.load_plan import RecordsLoadPlan
 from ...records.hints import complain_on_unhandled_hints
-from ...records.records_directory import RecordsDirectory
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
