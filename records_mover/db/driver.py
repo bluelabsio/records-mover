@@ -80,7 +80,7 @@ class DBDriver(metaclass=ABCMeta):
                 perms_sql = f'GRANT {perm_type} ON TABLE {schema_and_table} TO {user_name}'
                 db.execute(perms_sql)
 
-    def supports_time_type(self):
+    def supports_time_type(self) -> bool:
         return True
 
     def type_for_date_plus_time(self, has_tz: bool=False) -> sqlalchemy.sql.sqltypes.DateTime:

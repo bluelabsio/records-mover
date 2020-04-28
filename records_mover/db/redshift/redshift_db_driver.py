@@ -91,7 +91,7 @@ class RedshiftDBDriver(DBDriver):
                 db.execute(perms_sql)
         return None
 
-    def supports_time_type(self):
+    def supports_time_type(self) -> bool:
         return False
 
     def integer_limits(self,
