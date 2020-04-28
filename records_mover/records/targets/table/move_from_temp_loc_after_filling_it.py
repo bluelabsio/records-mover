@@ -31,7 +31,7 @@ class DoMoveFromTempLocAfterFillingIt(BaseTableMoveAlgorithm):
         loader = driver.loader()
         # This will only be reached in move() if
         # Source#has_compatible_format(records_target) returns true,
-        # which means we were able to get a laoder and call
+        # which means we were able to get a loader and call
         # can_load_this_format() previously.
         assert loader is not None
         with loader.temporary_loadable_directory_loc() as loc:
