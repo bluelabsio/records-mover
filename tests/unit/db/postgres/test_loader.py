@@ -1,4 +1,5 @@
 import unittest
+import sqlalchemy
 from records_mover.db.postgres.loader import PostgresLoader
 from records_mover.records import DelimitedRecordsFormat
 from mock import MagicMock, Mock, patch
@@ -119,6 +120,7 @@ class TestPostgresLoader(unittest.TestCase):
                                           mock_conn,
                                           abc=123)
 
+    @patch('records_mover.db.loader.ConcatFiles')
     @patch('records_mover.db.postgres.loader.quote_value')
     @patch('records_mover.db.postgres.loader.copy_from')
     @patch('records_mover.db.postgres.loader.complain_on_unhandled_hints')
@@ -129,7 +131,8 @@ class TestPostgresLoader(unittest.TestCase):
                   mock_Table,
                   mock_complain_on_unhandled_hints,
                   mock_copy_from,
-                  mock_quote_value):
+                  mock_quote_value,
+                  mock_ConcatFiles):
         mock_directory = Mock(name='directory')
         mock_url = Mock(name='url')
         mock_directory.manifest_entry_urls.return_value = [mock_url]
@@ -161,8 +164,6 @@ class TestPostgresLoader(unittest.TestCase):
 
         self.mock_url_resolver.file_url.assert_called_with(mock_url)
 
-        mock_fileobj = mock_loc.open.return_value.__enter__.return_value
-
         mock_processing_instructions = mock_load_plan.processing_instructions
         mock_unhandled_hints = set(mock_records_format.hints.keys())
         mock_complain_on_unhandled_hints.\
@@ -178,7 +179,7 @@ class TestPostgresLoader(unittest.TestCase):
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
         mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_ORDER_STYLE')
         mock_conn.execute.assert_called_with('SET LOCAL DateStyle = ABC')
-        mock_copy_from.assert_called_with(mock_fileobj,
+        mock_copy_from.assert_called_with(mock_ConcatFiles.return_value,
                                           mock_table_obj,
                                           mock_conn,
                                           abc=123)
@@ -193,3 +194,19 @@ class TestPostgresLoader(unittest.TestCase):
         source_records_format.hints = {}
         out = self.loader.can_load_this_format(source_records_format)
         self.assertTrue(out)
+
+    def test_load_failure_exception(self):
+        self.assertEqual(sqlalchemy.exc.InternalError,
+                         self.loader.load_failure_exception())
+
+    def test_best_scheme_to_load_from(self):
+        self.assertEqual('file',
+                         self.loader.best_scheme_to_load_from())
+
+    @patch('records_mover.db.loader.TemporaryDirectory')
+    @patch('records_mover.db.loader.FilesystemDirectoryUrl')
+    def test_temporary_loadable_directory_loc(self,
+                                              mock_FilesystemDirectoryUrl,
+                                              mock_TemporaryDirectory):
+        with self.loader.temporary_loadable_directory_loc() as loc:
+            self.assertEqual(loc, mock_FilesystemDirectoryUrl.return_value)

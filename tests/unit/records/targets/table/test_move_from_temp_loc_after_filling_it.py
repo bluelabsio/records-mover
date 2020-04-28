@@ -25,8 +25,9 @@ class TestDoMoveFromTempLocAfterFillingIt(unittest.TestCase):
         mock_records_format = mock_records_source.compatible_format.return_value
         mock_pis = mock_processing_instructions
         mock_driver = mock_tbl.db_driver.return_value
+        mock_loader = mock_driver.loader.return_value
         mock_temp_loc =\
-            mock_driver.temporary_loadable_directory_loc.return_value.__enter__.return_value
+            mock_loader.temporary_loadable_directory_loc.return_value.__enter__.return_value
         mock_directory = mock_RecordsDirectory.return_value
         out = algo.move()
         mock_records_source.compatible_format.assert_called_with(mock_table_target)

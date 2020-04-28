@@ -1,23 +1,22 @@
 import sqlalchemy
 from sqlalchemy import MetaData
-from contextlib import ExitStack
 from sqlalchemy.schema import Table
 from ..quoting import quote_value
 from ...url.resolver import UrlResolver
 from ...records.load_plan import RecordsLoadPlan
 from ...records.hints import complain_on_unhandled_hints
-from ...records.records_directory import RecordsDirectory
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from .sqlalchemy_postgres_copy import copy_from
 from .copy_options import postgres_copy_from_options
 from typing import IO, Union, List, Iterable
+from ..loader import LoaderFromFileobj
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-class PostgresLoader:
+class PostgresLoader(LoaderFromFileobj):
     def __init__(self,
                  url_resolver: UrlResolver,
                  meta: MetaData,
@@ -86,19 +85,6 @@ class PostgresLoader:
                           conn,
                           **postgres_options)
         logger.info('Copy complete')
-
-    def load(self,
-             schema: str,
-             table: str,
-             load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> None:
-        all_urls = directory.manifest_entry_urls()
-
-        with ExitStack() as stack:
-            all_locs = [self.url_resolver.file_url(url) for url in all_urls]
-            all_fileobjs = [stack.enter_context(loc.open()) for loc in all_locs]
-            logger.info(f"Loading {directory.loc.url} into {schema}.{table}")
-            self.load_from_fileobjs(schema, table, load_plan, all_fileobjs)
 
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         try:

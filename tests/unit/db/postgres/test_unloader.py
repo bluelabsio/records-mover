@@ -134,3 +134,10 @@ class TestPostgresUnloader(unittest.TestCase):
         source_records_format.hints = {}
         out = self.unloader.can_unload_this_format(source_records_format)
         self.assertTrue(out)
+
+    def test_best_records_format(self):
+        self.assertEqual(DelimitedRecordsFormat(variant='bluelabs',
+                                                hints={
+                                                    'compression': None
+                                                }),
+                         self.unloader.best_records_format())

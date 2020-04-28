@@ -1,4 +1,4 @@
-from .driver import DBDriver
+from .driver import GenericDBDriver, DBDriver
 import sqlalchemy
 from typing import Union
 
@@ -29,4 +29,4 @@ def db_driver(db: Union[sqlalchemy.engine.Engine,
 
         return MySQLDBDriver(db, **kwargs)
     else:
-        return DBDriver(db, **kwargs)
+        return GenericDBDriver(db, **kwargs)

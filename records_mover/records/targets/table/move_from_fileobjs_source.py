@@ -30,9 +30,15 @@ class DoMoveFromFileobjsSource(BaseTableMoveAlgorithm):
         super().__init__(prep, target_table_details, processing_instructions)
 
     def load(self, driver: DBDriver) -> Optional[int]:
-        return driver.load_from_fileobj(schema=self.tbl.schema_name,
-                                        table=self.tbl.table_name,
-                                        load_plan=self.plan, fileobj=self.fileobj)
+        loader_from_fileobj = driver.loader_from_fileobj()
+        # This is only reached in move() when
+        # records_target.can_move_from_fileobjs_source() is true,
+        # which is only true when .load_from_fileobj() is not None.
+        assert loader_from_fileobj is not None
+        return loader_from_fileobj.load_from_fileobj(schema=self.tbl.schema_name,
+                                                     table=self.tbl.table_name,
+                                                     load_plan=self.plan,
+                                                     fileobj=self.fileobj)
 
     def reset_before_reload(self) -> None:
         if not self.tbl.drop_and_recreate_on_load_error:
@@ -48,4 +54,13 @@ class DoMoveFromFileobjsSource(BaseTableMoveAlgorithm):
             driver = self.tbl.db_driver(db)
             schema_obj = self.fileobjs_source.records_schema
             schema_sql = self.schema_sql_for_load(schema_obj, self.records_format, driver)
-        return prep_and_load(self.tbl, self.prep, schema_sql, self.load, self.reset_before_reload)
+            loader_from_fileobj = driver.loader_from_fileobj()
+            # This is only reached in move() when
+            # records_target.can_move_from_fileobjs_source() is true,
+            # which is only true when .load_from_fileobj() is not None.
+            assert loader_from_fileobj is not None
+            load_exception = loader_from_fileobj.load_failure_exception()
+
+        return prep_and_load(self.tbl, self.prep, schema_sql, self.load,
+                             load_exception,
+                             self.reset_before_reload)

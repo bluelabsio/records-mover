@@ -9,6 +9,7 @@ from records_mover.records.results import MoveResult
 from records_mover.records.targets.table.base import BaseTableMoveAlgorithm
 from records_mover.records.sources.dataframes import DataframesRecordsSource
 import logging
+import sqlalchemy
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .target import TableRecordsTarget  # Dodge circular dependency
@@ -86,7 +87,8 @@ class DoMoveFromDataframesSource(BaseTableMoveAlgorithm):
         schema_sql = self.records_schema.to_schema_sql(driver,
                                                        self.tbl.schema_name,
                                                        self.tbl.table_name)
-        out = prep_and_load(self.tbl, self.prep, schema_sql, self.load)
+        out = prep_and_load(self.tbl, self.prep, schema_sql, self.load,
+                            sqlalchemy.exc.InternalError)
         logger.info(f"Loaded {out.move_count} rows into "
                     f"{self.tbl.schema_name}.{self.tbl.table_name} via INSERT statement")
         return out
