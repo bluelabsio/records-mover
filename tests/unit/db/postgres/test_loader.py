@@ -209,3 +209,16 @@ class TestPostgresLoader(unittest.TestCase):
                                                     'compression': None
                                                 }),
                          self.loader.best_records_format())
+
+    @patch('records_mover.db.loader.TemporaryDirectory')
+    @patch('records_mover.db.loader.FilesystemDirectoryUrl')
+    def test_temporary_loadable_directory_loc(self,
+                                              mock_FilesystemDirectoryUrl,
+                                              mock_TemporaryDirectory):
+        with self.loader.temporary_loadable_directory_loc() as loc:
+            self.assertEqual(DelimitedRecordsFormat(variant='bluelabs',
+                                                    hints={
+                                                        'compression': None
+                                                    }),
+                             self.loader.best_records_format())
+            self.assertEqual(loc, mock_FilesystemDirectoryUrl.return_value)

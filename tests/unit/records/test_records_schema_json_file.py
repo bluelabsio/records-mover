@@ -1,24 +1,14 @@
+import unittest
+from mock import Mock
+from records_mover.records.records_schema_json_file import RecordsSchemaJsonFile
 
-# import unittest
-# from mock import patch, call
-# from records_mover.records.cli import main
 
-
-# @patch('records_mover.records.cli.argparse')
-# @patch('records_mover.records.cli.method_to_json_schema')
-# @patch('records_mover.records.cli.run_records_mover_job')
-# @patch('records_mover.records.cli.JobConfigSchemaAsArgsParser')
-# @patch('records_mover.records.cli.arguments_output_to_config')
-# class TestCLI(unittest.TestCase):
-#     def test_main(self, mock_arguments_output_to_config,
-#                   mock_JobConfigSchemaAsArgsParser,
-#                   mock_run_records_mover_job,
-#                   mock_method_to_json_schema,
-#                   mock_argparse):
-#         mock_parser = mock_argparse.ArgumentParser.return_value
-#         mock_subparsers = mock_parser.add_subparsers.return_value
-#         main()
-#         # pick an example
-#         mock_subparsers.add_parser.assert_has_calls([call('table2recordsdir',
-#                                                           help='Copy from table to recordsdir')])
-#         mock_parser.parse_args.assert_called_with()
+class TestRecordsSchemaJsonFile(unittest.TestCase):
+    def test_save_schema_json(self):
+        mock_records_loc = Mock(name='records_loc')
+        records_schema_json_file = RecordsSchemaJsonFile(mock_records_loc)
+        mock_schema_loc = mock_records_loc.file_in_this_directory.return_value
+        mock_json = Mock(name='json')
+        records_schema_json_file.save_schema_json(mock_json)
+        mock_schema_loc.store_string.assert_called_with(mock_json)
+        mock_records_loc.file_in_this_directory.assert_called_with('_schema.json')
