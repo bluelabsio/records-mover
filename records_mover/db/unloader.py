@@ -28,3 +28,10 @@ class Unloader(metaclass=ABCMeta):
     @abstractmethod
     def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
         ...
+
+    def best_records_format(self) -> BaseRecordsFormat:
+        supported_formats = self.known_supported_records_formats_for_unload()
+        # these are in priority of quality, and at least one must be
+        # provided, or this interface should not be implemented to
+        # begin with.
+        return supported_formats[0]

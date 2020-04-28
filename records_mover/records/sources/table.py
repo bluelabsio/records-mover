@@ -33,9 +33,9 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         self.schema_name = schema_name
         self.table_name = table_name
         self.driver = driver
-        self.loader = driver.loader()
-        if self.loader is not None:
-            self.records_format = self.loader.best_records_format()
+        self.unloader = driver.unloader()
+        if self.unloader is not None:
+            self.records_format = self.unloader.best_records_format()
         else:
             self.records_format = None
         self.url_resolver = url_resolver

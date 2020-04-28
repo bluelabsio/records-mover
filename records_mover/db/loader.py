@@ -42,13 +42,6 @@ class LoaderFromRecordsDirectory(metaclass=ABCMeta):
         method"""
         ...
 
-    def best_records_format(self) -> BaseRecordsFormat:
-        supported_formats = self.known_supported_records_formats_for_load()
-        # these are in priority of quality, and at least one must be
-        # provided, or this interface should not be implemented to
-        # begin with.
-        return supported_formats[0]
-
     @contextmanager
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         with TemporaryDirectory(prefix='temporary_loadable_directory_loc') as dirname:
