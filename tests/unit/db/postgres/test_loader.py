@@ -1,4 +1,5 @@
 import unittest
+import sqlalchemy
 from records_mover.db.postgres.loader import PostgresLoader
 from records_mover.records import DelimitedRecordsFormat
 from mock import MagicMock, Mock, patch
@@ -193,3 +194,15 @@ class TestPostgresLoader(unittest.TestCase):
         source_records_format.hints = {}
         out = self.loader.can_load_this_format(source_records_format)
         self.assertTrue(out)
+
+    def test_load_failure_exception(self):
+        self.assertEqual(sqlalchemy.exc.InternalError,
+                         self.loader.load_failure_exception())
+
+    def test_best_scheme_to_load_from(self):
+        self.assertEqual('file',
+                         self.loader.best_scheme_to_load_from())
+
+    def test_best_scheme_to_load_from(self):
+        self.assertEqual('file',
+                         self.loader.best_scheme_to_load_from())
