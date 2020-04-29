@@ -107,9 +107,6 @@ Along the way, figure out which one of of these your database wants most to do:
    `RedshiftUnloadOptions` output of the function you wrote before.
    This new function should just `raise NotImplementedError` for now.
 
-
-
-
 3. Now we're going to create a first unit test, modeled on
    `unit/db/postgres/test_postgres_copy_options_load_known.py`.
    Verify that it fails due to the plethora of `NotImplementedError`s
