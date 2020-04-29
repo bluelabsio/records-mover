@@ -60,6 +60,9 @@ if TYPE_CHECKING:
     RecordsFormatType = Literal['delimited', 'parquet']
 
     DelimitedVariant = Literal['dumb', 'csv', 'bigquery', 'bluelabs', 'vertica']
+
+    HintEncoding = Literal["UTF8", "UTF16", "UTF16LE", "UTF16BE",
+                           "UTF16BOM", "UTF8BOM", "LATIN1", "CP1252"]
 else:
     RecordsManifestEntryMetadata = Mapping[str, int]
     LegacyRecordsManifestEntry = Mapping[str, Union[str, bool, int, RecordsManifestEntryMetadata]]
@@ -76,3 +79,5 @@ else:
     RecordsFormatType = str
 
     DelimitedVariant = str
+
+    HintEncoding = str

@@ -91,7 +91,6 @@ Along the way, figure out which one of of these your database wants most to do:
 
    You should make the `records_format` argument a `Union` of whatever
    specific formats your database supports.
-[done to here]
 
 2. Go ahead and either write the top-level `load()` or
    `load_from_fileobj()` function in your loader - depending on
@@ -108,14 +107,17 @@ Along the way, figure out which one of of these your database wants most to do:
    This new function should just `raise NotImplementedError` for now.
 
 3. Now we're going to create a first unit test, modeled on
-   `unit/db/postgres/test_postgres_copy_options_load_known.py`.
+   `tests/unit/db/postgres/test_postgres_copy_from_options_load_known.py#test_load_known_formats`.
    Verify that it fails due to the plethora of `NotImplementedError`s
    raised.
+
+[done to here]
+
 4. Start by resolving the NotImplementedError raised from your
    `known_supported_records_formats_for_load()` method.  For now we're
    going to assume the very best case - that your database will
    support every single records format we support--or at least the
-   particularly good ones.  This will no doubt not be true by the time
+   particularly useful ones.  This will no doubt not be true by the time
    we get done implementing - but the tests will catch that and we'll
    tweak this down to what's actually supported by the time we're
    done.  No need to implement anything else yet.
@@ -130,7 +132,13 @@ Along the way, figure out which one of of these your database wants most to do:
    ]
    ```
 
-and follow other drivers' use of `cant_handle_hint()` and `quiet_remove()` as
+5. Run the test and start addressing issues one by one by implementing
+   the function in question.  This will be slow, finicky work - do
+   yourself a favor and leave yourself copious notes as comments
+   pointing back to the original online documentation for the database
+   in question as you go.  Follow the other drivers' use of
+   `cant_handle_hint()` and `quiet_remove()`, and use MyPy to your
+   advantage with features like Literal[] in dealing with
 
 ## Start
 

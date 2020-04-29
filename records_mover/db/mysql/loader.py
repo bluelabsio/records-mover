@@ -2,7 +2,7 @@ import sqlalchemy
 from records_mover.db.loader import LoaderFromRecordsDirectory
 from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.records.records_directory import RecordsDirectory
-from records_mover.records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
+from records_mover.records.records_format import BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
 from .load_options import mysql_load_options, MySqlLoadOptions
 from ...records.hints import complain_on_unhandled_hints
 from typing import Union, Optional, List
@@ -52,4 +52,9 @@ class MySQLLoader(LoaderFromRecordsDirectory):
         raise NotImplementedError
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
-        raise NotImplementedError
+        return [
+            DelimitedRecordsFormat(variant='bluelabs'),
+            DelimitedRecordsFormat(variant='csv'),
+            DelimitedRecordsFormat(variant='bigquery'),
+            DelimitedRecordsFormat(variant='vertica'),
+        ]
