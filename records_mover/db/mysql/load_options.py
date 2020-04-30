@@ -53,7 +53,6 @@ class MySqlLoadOptions(NamedTuple):
     ignore_n_lines: int
 
     def generate_load_data_sql(self, filename: str) -> TextClause:
-        # TODO: Base example where almost everything set
         # TODO: Field enclosed by set to None
         # TODO: Field optionally enclosed by set to None
         # TODO: Field enclosed by and Field optionally enclosed by set to None
@@ -63,27 +62,38 @@ class MySqlLoadOptions(NamedTuple):
         # TODO: Line terminated by set to other control characters (look up docs)
         # TODO: Line terminated by set to something else
         # TODO: Filenames with all kinds of interesting issues
-        return text(f"""
-        LOAD DATA
-        LOCAL INFILE :filename
-        CHARACTER SET :character_set
-        FIELDS
-            TERMINATED_BY :fields_terminated_by
-            ENCLOSED_BY :fields_enclosed_by
-            ESCAPED BY :fields_escaped_by
-        LINES
-            STARTING BY :lines_starting_by
-            TERMINATED BY :lines_terminated_by
-        IGNORE :ignore_n_lines LINES
-        """).bindparams(filename=filename,
-                        character_set=self.character_set,
-                        fields_terminated_by=self.fields_terminated_by.encode('unicode-escape'),
-                        fields_enclosed_by=self.fields_enclosed_by.encode('unicode-escape'),
-                        fields_escaped_by=self.fields_escaped_by.encode('unicode-escape'),
-                        lines_starting_by=self.lines_starting_by.encode('unicode-escape'),
-                        lines_terminated_by=self.lines_terminated_by.encode('unicode-escape'),
-                        ignore_n_lines=self.ignore_n_lines,
-        )
+        sql = f"""\
+LOAD DATA
+LOCAL INFILE :filename
+CHARACTER SET :character_set
+FIELDS
+    TERMINATED_BY :fields_terminated_by
+"""
+        if self.fields_enclosed_by is not None:
+            sql += "    ENCLOSED_BY :fields_enclosed_by\n"
+        if self.fields_escaped_by is not None:
+            sql += "    ESCAPED BY :fields_escaped_by\n"
+        sql += """\
+LINES
+    STARTING BY :lines_starting_by
+    TERMINATED BY :lines_terminated_by
+IGNORE :ignore_n_lines LINES
+"""
+        clause = text(sql)
+        clause = clause.\
+            bindparams(filename=filename,
+                       character_set=self.character_set,
+                       fields_terminated_by=self.fields_terminated_by.encode('unicode-escape'),
+                       lines_starting_by=self.lines_starting_by.encode('unicode-escape'),
+                       lines_terminated_by=self.lines_terminated_by.encode('unicode-escape'),
+                       ignore_n_lines=self.ignore_n_lines)
+        if self.fields_enclosed_by is not None:
+            clause = clause.bindparams(fields_enclosed_by=self.
+                                       fields_enclosed_by.encode('unicode-escape'))
+        if self.fields_escaped_by is not None:
+            clause = clause.bindparams(fields_escaped_by=self.
+                                       fields_escaped_by.encode('unicode-escape'))
+        return clause
 
 
 def mysql_load_options(unhandled_hints: Set[str],
