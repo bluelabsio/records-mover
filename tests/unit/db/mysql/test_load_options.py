@@ -9,12 +9,12 @@ class TestMySQLLoadOptions(unittest.TestCase):
 
     def test_generate_load_data_sql_boring(self) -> None:
         options = MySqlLoadOptions(character_set="utf8",
-                                   field_terminator="\t",
-                                   field_enclosed_by='',
-                                   field_optionally_enclosed_by=None,
-                                   field_escaped_by='\\',
-                                   line_starting_by='',
-                                   line_terminated_by='\n',
+                                   fields_terminated_by="\t",
+                                   fields_enclosed_by='',
+                                   fields_optionally_enclosed_by=None,
+                                   fields_escaped_by='\\',
+                                   lines_starting_by='',
+                                   lines_terminated_by='\n',
                                    ignore_n_lines=0)
         sql = options.generate_load_data_sql("my_filename.txt")
         expected_sql = """
@@ -24,22 +24,24 @@ class TestMySQLLoadOptions(unittest.TestCase):
         FIELDS
             TERMINATED_BY '\\t'
             ENCLOSED_BY ''
-            ESCAPED BY '\\'
+            ESCAPED BY '\\\\'
         LINES
             STARTING BY ''
             TERMINATED BY '\\n'
         IGNORE 0 LINES
         """
-        self.assertEqual(str(sql), expected_sql)
+        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
+
+        self.assertEqual(sqltext, expected_sql)
 
     def test_generate_load_data_sql_different_constants(self) -> None:
         options = MySqlLoadOptions(character_set="utf16",
-                                   field_terminator=",",
-                                   field_enclosed_by='"',
-                                   field_optionally_enclosed_by=None,
-                                   field_escaped_by='\\',
-                                   line_starting_by='',
-                                   line_terminated_by='\r\n',
+                                   fields_terminated_by=",",
+                                   fields_enclosed_by='"',
+                                   fields_optionally_enclosed_by=None,
+                                   fields_escaped_by='\\',
+                                   lines_starting_by='abc',
+                                   lines_terminated_by='\r\n',
                                    ignore_n_lines=1)
         sql = options.generate_load_data_sql("another_filename.txt")
         expected_sql = """
@@ -49,10 +51,12 @@ class TestMySQLLoadOptions(unittest.TestCase):
         FIELDS
             TERMINATED_BY ','
             ENCLOSED_BY '"'
-            ESCAPED BY '\\'
+            ESCAPED BY '\\\\'
         LINES
             STARTING BY 'abc'
-            TERMINATED BY '\r\n'
+            TERMINATED BY '\\r\\n'
         IGNORE 1 LINES
         """
-        self.assertEqual(str(sql), expected_sql)
+        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
+
+        self.assertEqual(sqltext, expected_sql)

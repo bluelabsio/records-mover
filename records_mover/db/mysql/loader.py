@@ -59,7 +59,7 @@ class MySQLLoader(LoaderFromRecordsDirectory):
             filename = loc.filename()
             sql = load_options.generate_load_data_sql(filename)
             logger.info(f"Loading to MySQL with options: {load_options}")
-            logger.info(sql)
+            logger.info(str(sql))
             out = self.db.execute(sql)
             logger.info("MySQL LOAD DATA complete.")
             rows_so_far += out.scalar()

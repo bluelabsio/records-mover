@@ -1,5 +1,5 @@
 from sqlalchemy.dialects.mysql.base import MySQLDialect
-from sqlalchemy.sql.expression import text
+from sqlalchemy.sql.expression import text, TextClause
 import sqlalchemy.types as sqltypes
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
@@ -44,15 +44,15 @@ MYSQL_CHARACTER_SETS_FOR_LOAD: Dict[HintEncoding, MySqlCharacterSet] = {
 # Mark as total=False so we can create this incrementally
 class MySqlLoadOptions(NamedTuple):
     character_set: MySqlCharacterSet
-    field_terminator: str  # default '\t'
-    field_enclosed_by: Optional[str]  # default ''  # TODO: should this be optional?
-    field_optionally_enclosed_by: Optional[str]  # default None
-    field_escaped_by: Optional[str]  # default '\'
-    line_starting_by: str  # default ''
-    line_terminated_by: str  # default '\n'
+    fields_terminated_by: str  # default '\t'
+    fields_enclosed_by: Optional[str]  # default ''  # TODO: should this be optional?
+    fields_optionally_enclosed_by: Optional[str]  # default None
+    fields_escaped_by: Optional[str]  # default '\'
+    lines_starting_by: str  # default ''
+    lines_terminated_by: str  # default '\n'
     ignore_n_lines: int
 
-    def generate_load_data_sql(self, filename: str) -> str:
+    def generate_load_data_sql(self, filename: str) -> TextClause:
         # TODO: Base example where almost everything set
         # TODO: Field enclosed by set to None
         # TODO: Field optionally enclosed by set to None
@@ -65,25 +65,25 @@ class MySqlLoadOptions(NamedTuple):
         # TODO: Filenames with all kinds of interesting issues
         return text(f"""
         LOAD DATA
-        LOCAL INFILE 'my_filename.txt'
-        CHARACTER SET 'utf8'
+        LOCAL INFILE :filename
+        CHARACTER SET :character_set
         FIELDS
-            TERMINATED_BY '\\t'
-            ENCLOSED_BY ''
-            ESCAPED BY '\\'
+            TERMINATED_BY :fields_terminated_by
+            ENCLOSED_BY :fields_enclosed_by
+            ESCAPED BY :fields_escaped_by
         LINES
-            STARTING BY ''
-            TERMINATED BY '\\n'
-        IGNORE 0 LINES
-        """)
-    # .bindparams(filename=filename,
-    #                     encoding='utf8',
-    #                     field_terminated_by='\\t',
-    #                     enclosed_by='',
-    #                     escaped_by='\\',
-    #                     lines_starting_by='',
-    #                     lines_terminated_by='\\n',
-    #     )
+            STARTING BY :lines_starting_by
+            TERMINATED BY :lines_terminated_by
+        IGNORE :ignore_n_lines LINES
+        """).bindparams(filename=filename,
+                        character_set=self.character_set,
+                        fields_terminated_by=self.fields_terminated_by.encode('unicode-escape'),
+                        fields_enclosed_by=self.fields_enclosed_by.encode('unicode-escape'),
+                        fields_escaped_by=self.fields_escaped_by.encode('unicode-escape'),
+                        lines_starting_by=self.lines_starting_by.encode('unicode-escape'),
+                        lines_terminated_by=self.lines_terminated_by.encode('unicode-escape'),
+                        ignore_n_lines=self.ignore_n_lines,
+        )
 
 
 def mysql_load_options(unhandled_hints: Set[str],
@@ -227,10 +227,10 @@ def mysql_load_options(unhandled_hints: Set[str],
     quiet_remove(unhandled_hints, 'datetimeformattz')
 
     return MySqlLoadOptions(character_set=mysql_character_set,
-                            field_terminator=mysql_field_terminator,
-                            field_enclosed_by=mysql_field_enclosed_by,
-                            field_optionally_enclosed_by=mysql_field_optionally_enclosed_by,
-                            field_escaped_by=mysql_field_escaped_by,
-                            line_starting_by=mysql_line_starting_by,
-                            line_terminated_by=mysql_line_terminated_by,
+                            fields_terminated_by=mysql_field_terminator,
+                            fields_enclosed_by=mysql_field_enclosed_by,
+                            fields_optionally_enclosed_by=mysql_field_optionally_enclosed_by,
+                            fields_escaped_by=mysql_field_escaped_by,
+                            lines_starting_by=mysql_line_starting_by,
+                            lines_terminated_by=mysql_line_terminated_by,
                             ignore_n_lines=mysql_ignore_n_lines)
