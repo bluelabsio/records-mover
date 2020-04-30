@@ -1,3 +1,6 @@
+from sqlalchemy.dialects.mysql.base import MySQLDialect
+from sqlalchemy.sql.expression import text
+import sqlalchemy.types as sqltypes
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from typing import TypedDict, Optional, Set, Dict, Any, Literal, NamedTuple
@@ -60,7 +63,27 @@ class MySqlLoadOptions(NamedTuple):
         # TODO: Line terminated by set to other control characters (look up docs)
         # TODO: Line terminated by set to something else
         # TODO: Filenames with all kinds of interesting issues
-        raise NotImplementedError
+        return text(f"""
+        LOAD DATA
+        LOCAL INFILE 'my_filename.txt'
+        CHARACTER SET 'utf8'
+        FIELDS
+            TERMINATED_BY '\\t'
+            ENCLOSED_BY ''
+            ESCAPED BY '\\'
+        LINES
+            STARTING BY ''
+            TERMINATED BY '\\n'
+        IGNORE 0 LINES
+        """)
+    # .bindparams(filename=filename,
+    #                     encoding='utf8',
+    #                     field_terminated_by='\\t',
+    #                     enclosed_by='',
+    #                     escaped_by='\\',
+    #                     lines_starting_by='',
+    #                     lines_terminated_by='\\n',
+    #     )
 
 
 def mysql_load_options(unhandled_hints: Set[str],

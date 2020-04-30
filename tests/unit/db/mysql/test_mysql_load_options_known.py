@@ -8,7 +8,9 @@ from mock import Mock
 class TestMySQLLoadOptionsKnown(unittest.TestCase):
     def test_load_known_formats(self):
         mock_db = Mock(name='db')
-        loader = MySQLLoader(db=mock_db)
+        mock_url_resolver = Mock(name='url_resolver')
+        loader = MySQLLoader(db=mock_db,
+                             url_resolver=mock_url_resolver)
         known_load_formats = loader.known_supported_records_formats_for_load()
         for records_format in known_load_formats:
             unhandled_hints = set()

@@ -6,9 +6,11 @@ from records_mover.db.mysql.loader import MySQLLoader
 
 class TestLoader(unittest.TestCase):
     def setUp(self):
+        self.url_resolver = Mock(name='url_resolver')
         self.mock_db_engine = MagicMock(name='db_engine')
         self.mock_db_engine.engine = self.mock_db_engine
-        self.loader = MySQLLoader(db=self.mock_db_engine)
+        self.loader = MySQLLoader(db=self.mock_db_engine,
+                                  url_resolver=self.url_resolver)
 
     @patch('records_mover.db.mysql.loader.complain_on_unhandled_hints')
     @patch('records_mover.db.mysql.loader.mysql_load_options')
