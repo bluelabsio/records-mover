@@ -61,7 +61,7 @@ IGNORE 1 LINES
 
         self.assertEqual(sqltext, expected_sql)
 
-    def test_generate_load_data_sql_field_enlosed_by_None(self) -> None:
+    def test_generate_load_data_sql_field_enclosed_by_None(self) -> None:
         options = MySqlLoadOptions(character_set="utf16",
                                    fields_terminated_by=",",
                                    fields_enclosed_by=None,
@@ -81,6 +81,106 @@ FIELDS
 LINES
     STARTING BY 'abc'
     TERMINATED BY '\\r\\n'
+IGNORE 1 LINES
+"""
+        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
+
+        self.assertEqual(sqltext, expected_sql)
+
+    def test_generate_load_data_sql_field_optionally_enclosed_by(self) -> None:
+        options = MySqlLoadOptions(character_set="utf16",
+                                   fields_terminated_by=",",
+                                   fields_enclosed_by=None,
+                                   fields_optionally_enclosed_by='"',
+                                   fields_escaped_by='\\',
+                                   lines_starting_by='abc',
+                                   lines_terminated_by='\r\n',
+                                   ignore_n_lines=1)
+        sql = options.generate_load_data_sql("another_filename.txt")
+        expected_sql = """\
+LOAD DATA
+LOCAL INFILE 'another_filename.txt'
+CHARACTER SET 'utf16'
+FIELDS
+    TERMINATED_BY ','
+    OPTIONALLY ENCLOSED_BY '"'
+    ESCAPED BY '\\\\'
+LINES
+    STARTING BY 'abc'
+    TERMINATED BY '\\r\\n'
+IGNORE 1 LINES
+"""
+        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
+
+        self.assertEqual(sqltext, expected_sql)
+
+    def test_generate_load_data_sql_field_optionally_enclosed_by_and_enclosed_by_set(self) -> None:
+        with self.assertRaises(SyntaxError):
+            options = MySqlLoadOptions(character_set="utf16",
+                                       fields_terminated_by=",",
+                                       fields_enclosed_by='"',
+                                       fields_optionally_enclosed_by='"',
+                                       fields_escaped_by='\\',
+                                       lines_starting_by='abc',
+                                       lines_terminated_by='\r\n',
+                                       ignore_n_lines=1)
+            options.generate_load_data_sql("another_filename.txt")
+
+    def test_generate_load_data_sql_windows_filename(self) -> None:
+        options = MySqlLoadOptions(character_set="utf16",
+                                   fields_terminated_by=",",
+                                   fields_enclosed_by=None,
+                                   fields_optionally_enclosed_by='"',
+                                   fields_escaped_by='\\',
+                                   lines_starting_by='abc',
+                                   lines_terminated_by='\r\n',
+                                   ignore_n_lines=1)
+        sql = options.generate_load_data_sql("c:\\Some Path\\OH GOD LET IT END~1.CSV")
+        # https://dev.mysql.com/doc/refman/8.0/en/load-data.html
+        #
+        # The file name must be given as a literal string. On Windows,
+        # specify backslashes in path names as forward slashes or
+        # doubled backslashes.
+        #
+        expected_sql = """\
+LOAD DATA
+LOCAL INFILE 'c:\\\\Some Path\\\\OH GOD LET IT END~1.CSV'
+CHARACTER SET 'utf16'
+FIELDS
+    TERMINATED_BY ','
+    OPTIONALLY ENCLOSED_BY '"'
+    ESCAPED BY '\\\\'
+LINES
+    STARTING BY 'abc'
+    TERMINATED BY '\\r\\n'
+IGNORE 1 LINES
+"""
+        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
+
+        self.assertEqual(sqltext, expected_sql)
+
+    def test_vertica_dialect_style_terminators(self) -> None:
+        options = MySqlLoadOptions(character_set="utf16",
+                                   fields_terminated_by="\002",
+                                   fields_enclosed_by=None,
+                                   fields_optionally_enclosed_by='"',
+                                   fields_escaped_by='\\',
+                                   lines_starting_by='abc',
+                                   lines_terminated_by="\001",
+                                   ignore_n_lines=1)
+        sql = options.generate_load_data_sql("another_filename.txt")
+        # TODO: Verify that these work
+        expected_sql = """\
+LOAD DATA
+LOCAL INFILE 'another_filename.txt'
+CHARACTER SET 'utf16'
+FIELDS
+    TERMINATED_BY '\\x02'
+    OPTIONALLY ENCLOSED_BY '"'
+    ESCAPED BY '\\\\'
+LINES
+    STARTING BY 'abc'
+    TERMINATED BY '\\x01'
 IGNORE 1 LINES
 """
         sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))

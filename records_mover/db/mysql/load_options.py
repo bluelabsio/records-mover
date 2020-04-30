@@ -53,15 +53,6 @@ class MySqlLoadOptions(NamedTuple):
     ignore_n_lines: int
 
     def generate_load_data_sql(self, filename: str) -> TextClause:
-        # TODO: Field enclosed by set to None
-        # TODO: Field optionally enclosed by set to None
-        # TODO: Field enclosed by and Field optionally enclosed by set to None
-        # TODO: Line starting by set to ''
-        # TODO: Line starting by set to something real ''
-        # TODO: Line terminated by set to '\n'
-        # TODO: Line terminated by set to other control characters (look up docs)
-        # TODO: Line terminated by set to something else
-        # TODO: Filenames with all kinds of interesting issues
         sql = f"""\
 LOAD DATA
 LOCAL INFILE :filename
@@ -69,8 +60,13 @@ CHARACTER SET :character_set
 FIELDS
     TERMINATED_BY :fields_terminated_by
 """
-        if self.fields_enclosed_by is not None:
+        if self.fields_enclosed_by is not None and self.fields_optionally_enclosed_by is None:
             sql += "    ENCLOSED_BY :fields_enclosed_by\n"
+        elif self.fields_enclosed_by is None and self.fields_optionally_enclosed_by is not None:
+            sql += "    OPTIONALLY ENCLOSED_BY :fields_optionally_enclosed_by\n"
+        elif self.fields_enclosed_by is not None and self.fields_optionally_enclosed_by is not None:
+            raise SyntaxError('fields_enclosed_by and optionally_fields_enclosed_by '
+                              'cannot both be set')
         if self.fields_escaped_by is not None:
             sql += "    ESCAPED BY :fields_escaped_by\n"
         sql += """\
@@ -81,7 +77,7 @@ IGNORE :ignore_n_lines LINES
 """
         clause = text(sql)
         clause = clause.\
-            bindparams(filename=filename,
+            bindparams(filename=filename.encode('unicode-escape'),
                        character_set=self.character_set,
                        fields_terminated_by=self.fields_terminated_by.encode('unicode-escape'),
                        lines_starting_by=self.lines_starting_by.encode('unicode-escape'),
@@ -90,6 +86,9 @@ IGNORE :ignore_n_lines LINES
         if self.fields_enclosed_by is not None:
             clause = clause.bindparams(fields_enclosed_by=self.
                                        fields_enclosed_by.encode('unicode-escape'))
+        if self.fields_optionally_enclosed_by is not None:
+            clause = clause.bindparams(fields_optionally_enclosed_by=self.
+                                       fields_optionally_enclosed_by.encode('unicode-escape'))
         if self.fields_escaped_by is not None:
             clause = clause.bindparams(fields_escaped_by=self.
                                        fields_escaped_by.encode('unicode-escape'))
