@@ -1,5 +1,6 @@
 import unittest
 from records_mover.db.mysql.mysql_db_driver import MySQLDBDriver
+from records_mover.records import DelimitedRecordsFormat
 from mock import MagicMock, Mock
 import sqlalchemy
 

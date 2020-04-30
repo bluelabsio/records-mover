@@ -10,7 +10,7 @@ from records_mover.records.types import (
     HintDoublequote,
 )
 
-# httpsutf://dev.mysql.com/doc/refman/8.0/en/charset-mysql.html
+# http://dev.mysql.com/doc/refman/8.0/en/charset-mysql.html
 MySqlCharacterSet = Literal['big5', 'binary', 'latin1', 'ucs2',
                             'utf8', 'utf8mb4', 'utf16', 'utf16le',
                             'utf32']
@@ -42,12 +42,25 @@ MYSQL_CHARACTER_SETS_FOR_LOAD: Dict[HintEncoding, MySqlCharacterSet] = {
 class MySqlLoadOptions(NamedTuple):
     character_set: MySqlCharacterSet
     field_terminator: str  # default '\t'
-    field_enclosed_by: Optional[str]  # default ''
+    field_enclosed_by: Optional[str]  # default ''  # TODO: should this be optional?
     field_optionally_enclosed_by: Optional[str]  # default None
     field_escaped_by: Optional[str]  # default '\'
     line_starting_by: str  # default ''
     line_terminated_by: str  # default '\n'
     ignore_n_lines: int
+
+    def generate_load_data_sql(self, filename: str) -> str:
+        # TODO: Base example where almost everything set
+        # TODO: Field enclosed by set to None
+        # TODO: Field optionally enclosed by set to None
+        # TODO: Field enclosed by and Field optionally enclosed by set to None
+        # TODO: Line starting by set to ''
+        # TODO: Line starting by set to something real ''
+        # TODO: Line terminated by set to '\n'
+        # TODO: Line terminated by set to other control characters (look up docs)
+        # TODO: Line terminated by set to something else
+        # TODO: Filenames with all kinds of interesting issues
+        raise NotImplementedError
 
 
 def mysql_load_options(unhandled_hints: Set[str],

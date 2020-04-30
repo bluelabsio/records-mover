@@ -149,6 +149,21 @@ Along the way, figure out which one of of these your database wants most to do:
    formats at all - leave a comment in the method documenting all of
    these situations and describing why.
 
+6. Write a unit test for `can_load_this_format()` - see
+   `tests/unit/db/mysql/test_mysql_db_driver.py` for an example.  Now
+   implement `can_load_this_format()` in a similar way to other
+   drivers and verify the tests pass.
+
+[done to here]
+7. Figure out which functions are left raising NotImplementedError, if
+   any.  Write a bunch of TODO comments documenting the different
+   cases that need to be handled.  Include cases for invalid
+   combinations (expect them to raise exceptions).  Write a test for
+   the first one.  Implement enough to get that test to pass, and then
+   lather, rinse and repeat.
+
+8. Run `./itest` with your database target and work through any issues found.
+
 [done to here]
 
 
