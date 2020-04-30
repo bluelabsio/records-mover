@@ -1,4 +1,5 @@
 import unittest
+from records_mover.records.hints import complain_on_unhandled_hints
 from records_mover.db.mysql.loader import MySQLLoader
 from records_mover.db.mysql.load_options import mysql_load_options
 from mock import Mock
@@ -10,9 +11,11 @@ class TestMySQLLoadOptionsKnown(unittest.TestCase):
         loader = MySQLLoader(db=mock_db)
         known_load_formats = loader.known_supported_records_formats_for_load()
         for records_format in known_load_formats:
-            unhandled_hints = set(records_format.hints.keys())
+            unhandled_hints = set()
             # ensure no exception thrown
             mysql_load_options(unhandled_hints,
                                records_format,
                                fail_if_cant_handle_hint=True)
-            self.assertEqual(len(unhandled_hints), 0)
+            complain_on_unhandled_hints(fail_if_dont_understand=True,
+                                        unhandled_hints=unhandled_hints,
+                                        hints=records_format.hints)

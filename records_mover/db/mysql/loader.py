@@ -53,8 +53,20 @@ class MySQLLoader(LoaderFromRecordsDirectory):
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
         return [
-            DelimitedRecordsFormat(variant='bluelabs'),
-            DelimitedRecordsFormat(variant='csv'),
-            DelimitedRecordsFormat(variant='bigquery'),
-            DelimitedRecordsFormat(variant='vertica'),
+            DelimitedRecordsFormat(variant='bluelabs',
+                                   hints={
+                                       'compression': None
+                                   }),
+            DelimitedRecordsFormat(variant='csv',
+                                   hints={
+                                       'compression': None
+                                   }),
+            DelimitedRecordsFormat(variant='bigquery',
+                                   hints={
+                                       'compression': None
+                                   }),
+            DelimitedRecordsFormat(variant='vertica',
+                                   hints={
+                                       'compression': None
+                                   }),
         ]

@@ -1,8 +1,14 @@
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
-from typing import TypedDict, Optional, Set, Dict, Any, Literal
+from typing import TypedDict, Optional, Set, Dict, Any, Literal, NamedTuple
 from records_mover.records import DelimitedRecordsFormat
-from records_mover.records.types import HintEncoding
+from records_mover.records.types import (
+    HintEncoding, HintRecordTerminator,
+    HintFieldDelimiter, HintQuoteChar,
+    HintQuoting, HintEscape,
+    HintHeaderRow, HintCompression,
+    HintDoublequote,
+)
 
 # httpsutf://dev.mysql.com/doc/refman/8.0/en/charset-mysql.html
 MySqlCharacterSet = Literal['big5', 'binary', 'latin1', 'ucs2',
@@ -33,12 +39,12 @@ MYSQL_CHARACTER_SETS_FOR_LOAD: Dict[HintEncoding, MySqlCharacterSet] = {
 
 
 # Mark as total=False so we can create this incrementally
-class MySqlLoadOptions(TypedDict, total=False):
+class MySqlLoadOptions(NamedTuple):
     character_set: MySqlCharacterSet
     field_terminator: str  # default '\t'
     field_enclosed_by: Optional[str]  # default ''
     field_optionally_enclosed_by: Optional[str]  # default None
-    field_escaped_by: str  # default '\'
+    field_escaped_by: Optional[str]  # default '\'
     line_starting_by: str  # default ''
     line_terminated_by: str  # default '\n'
     ignore_n_lines: int
@@ -47,18 +53,148 @@ class MySqlLoadOptions(TypedDict, total=False):
 def mysql_load_options(unhandled_hints: Set[str],
                        records_format: DelimitedRecordsFormat,
                        fail_if_cant_handle_hint: bool) -> MySqlLoadOptions:
-    load_options: MySqlLoadOptions = {}
     hints = records_format.hints
 
+    #
+    # The server uses the character set indicated by the
+    # character_set_database system variable to interpret the
+    # information in the file. SET NAMES and the setting of
+    # character_set_client do not affect interpretation of input. If
+    # the contents of the input file use a character set that differs
+    # from the default, it is usually preferable to specify the
+    # character set of the file by using the CHARACTER SET clause. A
+    # character set of binary specifies “no conversion.”
+    #
     hint_encoding: HintEncoding = hints['encoding']  # type: ignore
     character_set = MYSQL_CHARACTER_SETS_FOR_LOAD.get(hint_encoding)
     if character_set is not None:
-        load_options['character_set'] = character_set
-        quiet_remove(unhandled_hints, 'encoding')
+        mysql_character_set = character_set
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'encoding', hints)
-        load_options['character_set'] = 'utf8'
+        mysql_character_set = 'utf8'
+    quiet_remove(unhandled_hints, 'encoding')
 
-    # :  hints['record-terminator'] # HintsRecordTerminator
+    field_terminator: HintFieldDelimiter = hints['field-delimiter']  # type: ignore
+    mysql_field_terminator = field_terminator
+    quiet_remove(unhandled_hints, 'field-delimiter')
 
-    return load_options
+    # https://dev.mysql.com/doc/refman/8.0/en/load-data.html
+    #
+    #
+    # LOAD DATA can be used to read files obtained from external
+    # sources. For example, many programs can export data in
+    # comma-separated values (CSV) format, such that lines have fields
+    # separated by commas and enclosed within double quotation marks,
+    # with an initial line of column names. If the lines in such a
+    # file are terminated by carriage return/newline pairs, the
+    # statement shown here illustrates the field- and line-handling
+    # options you would use to load the file:
+    #
+    # LOAD DATA INFILE 'data.txt' INTO TABLE tbl_name
+    #  FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+    #  LINES TERMINATED BY '\r\n'
+    #  IGNORE 1 LINES;
+    #
+    #
+    mysql_field_enclosed_by = None
+    mysql_field_optionally_enclosed_by = None
+    hint_quotechar: HintQuoteChar = hints['quotechar']  # type: ignore
+    hint_quoting: HintQuoting = hints['quoting']  # type: ignore
+    if hint_quoting == 'all':
+        mysql_field_enclosed_by = hint_quotechar
+    elif hint_quoting == 'minimal':
+        # "If the input values are not necessarily enclosed within
+        # quotation marks, use OPTIONALLY before the ENCLOSED BY option."
+        #
+        # This implies to me that parsing here is permissive -
+        # otherwise unambiguous strings without double quotes around
+        # them will be understood as a string, not rejected.
+        mysql_field_optionally_enclosed_by = hint_quotechar
+    elif hint_quoting == 'nonnumeric':
+        mysql_field_optionally_enclosed_by = hint_quotechar
+    elif hint_quoting is None:
+        pass
+    else:
+        # TODO: Have this be more like _assert_never(hint_quoting)?
+        cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
+        # TODO: Can we do this here?  Does it make sense?   _assert_never(hint_quoting)
+    quiet_remove(unhandled_hints, 'quoting')
+    quiet_remove(unhandled_hints, 'quotechar')
+
+    # If the field begins with the ENCLOSED BY character, instances of
+    # that character are recognized as terminating a field value only
+    # if followed by the field or line TERMINATED BY sequence. To
+    # avoid ambiguity, occurrences of the ENCLOSED BY character within
+    # a field value can be doubled and are interpreted as a single
+    # instance of the character. For example, if ENCLOSED BY '"' is
+    # specified, quotation marks are handled as shown here:
+    hint_doublequote: HintDoublequote = hints['doublequote']  # type: ignore
+    if hint_quoting is not None:
+        if hint_doublequote is True:
+            pass
+        elif hint_doublequote is False:
+            cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
+        else:
+            # TODO: Have this be more like _assert_never(hint_quoting)?
+            cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
+    quiet_remove(unhandled_hints, 'doublequote')
+
+    # FIELDS ESCAPED BY controls how to read or write special characters:
+    #
+    # * For input, if the FIELDS ESCAPED BY character is not empty,
+    #   occurrences of that character are stripped and the following
+    #   character is taken literally as part of a field value. Some
+    #   two-character sequences that are exceptions, where the first
+    #   character is the escape character.
+    #
+    # [...]
+    #
+    # If the FIELDS ESCAPED BY character is empty, escape-sequence
+    # interpretation does not occur.
+    hint_escape: HintEscape = hints['escape']  # type: ignore
+    if hint_escape is None:
+        mysql_field_escaped_by = None
+    elif hint_escape == '\\':
+        mysql_field_escaped_by = '\\'
+    else:
+        cant_handle_hint(fail_if_cant_handle_hint, 'escape', hints)
+        # TODO: Can we do this here?  Does it make sense?   _assert_never(hint_quoting)
+    quiet_remove(unhandled_hints, 'escape')
+
+    mysql_line_starting_by = ''
+
+    hint_record_terminator: HintRecordTerminator = hints['record-terminator']  # type: ignore
+    mysql_line_terminated_by = hint_record_terminator
+    quiet_remove(unhandled_hints, 'record-terminator')
+
+    hint_header_row: HintHeaderRow = hints['header-row']  # type: ignore
+    if hint_header_row is True:
+        mysql_ignore_n_lines = 1
+    elif hint_header_row is False:
+        mysql_ignore_n_lines = 0
+    else:
+        cant_handle_hint(fail_if_cant_handle_hint, 'header-row', hints)
+        # TODO: Can we do this here?  Does it make sense?   _assert_never(hint_quoting)
+    quiet_remove(unhandled_hints, 'header-row')
+
+    hint_compression: HintCompression = hints['compression']  # type: ignore
+    if hint_compression is not None:
+        cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
+    quiet_remove(unhandled_hints, 'compression')
+
+
+    # TODO: Find out what works via integration tests...and prove to
+    # myself they are integration testeed..
+    quiet_remove(unhandled_hints, 'dateformat')
+    quiet_remove(unhandled_hints, 'timeonlyformat')
+    quiet_remove(unhandled_hints, 'datetimeformat')
+    quiet_remove(unhandled_hints, 'datetimeformattz')
+
+    return MySqlLoadOptions(character_set=mysql_character_set,
+                            field_terminator=mysql_field_terminator,
+                            field_enclosed_by=mysql_field_enclosed_by,
+                            field_optionally_enclosed_by=mysql_field_optionally_enclosed_by,
+                            field_escaped_by=mysql_field_escaped_by,
+                            line_starting_by=mysql_line_starting_by,
+                            line_terminated_by=mysql_line_terminated_by,
+                            ignore_n_lines=mysql_ignore_n_lines)

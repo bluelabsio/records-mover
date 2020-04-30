@@ -63,6 +63,12 @@ if TYPE_CHECKING:
 
     HintEncoding = Literal["UTF8", "UTF16", "UTF16LE", "UTF16BE",
                            "UTF16BOM", "UTF8BOM", "LATIN1", "CP1252"]
+
+    HintQuoting = Literal["all", "minimal", "nonnumeric", None]
+
+    HintEscape = Literal["\\", None]
+
+    HintCompression = Literal['GZIP', 'BZIP', 'LZO', None]
 else:
     RecordsManifestEntryMetadata = Mapping[str, int]
     LegacyRecordsManifestEntry = Mapping[str, Union[str, bool, int, RecordsManifestEntryMetadata]]
@@ -81,3 +87,19 @@ else:
     DelimitedVariant = str
 
     HintEncoding = str
+
+    HintQuoting = Optional[str]
+
+    HintEscape = Optional[str]
+
+    HintCompression = Optional[str]
+
+HintFieldDelimiter = str
+
+HintRecordTerminator = str
+
+HintQuoteChar = str
+
+HintHeaderRow = bool
+
+HintDoublequote = bool

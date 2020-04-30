@@ -59,22 +59,19 @@ Along the way, figure out which one of of these your database wants most to do:
    see a lot of errors from your NotImplementedErrors.  Great!  That
    means you wired things up correctly to use your loader, which is
    all we're testing at this point.
-
-[done to here]
-
 2. Assuming your database uses SQL or maybe a driver function call to
    initiate bulk loads, this is your chance to figure out how how
    you're going to generate the different SQL or function call
    arguments based on what different RecordsFormat options out there.
 
    Create a function signature describing that approach, in a new file
-   (e.g., `records_mover.db.your_db_type.load_bunoptions`) in your Loader
+   (e.g., `records_mover.db.your_db_type.load_options`) in your Loader
    class.  Name it (and the file it's in) after the SQL or function call
    syntax specific to your database - e.g., the Redshift function is named
    after Redshift's `UNLOAD` statement.
 
-   it's named 'unload function should just raise `NotImplementedError`
-   for now.  Example:
+   Thisf unction should just raise `NotImplementedError` for now.
+   Example:
 
    ```python
    def redshift_unload_options(unhandled_hints: Set[str],
@@ -82,12 +79,18 @@ Along the way, figure out which one of of these your database wants most to do:
                                fail_if_cant_handle_hint: bool) -> RedshiftUnloadOptions:
    ```
 
-   If you're going to e.g. be using a key/value dictionary describing
-   the bulk unload options, please try to create a MyPy `TypedDict`
-   describing it.  If this handles any RecordsFormats which include
-   hints (e.g., `DelimitedRecordsFormat`), have this method also
-   accept arguments of `unhandled_hints: Set[str]` and
-   `fail_if_cant_handle_hint: bool`.
+   In the case above, there was an existing function to do unloading,
+   and `RedshiftUnloadOptions` is a MyPy `TypedDict` describing the
+   keyword arguments to that function.
+
+   If you're constructing SQL yourself, you might consider making a
+   class to do it, perhaps subclassed from `typing.NamedTuple`.  See
+   `db.mysql.load_options.MySqlLoadOptions` for an example of that.
+
+   If this handles any RecordsFormats which include hints (e.g., for
+   `DelimitedRecordsFormat`), have this method also accept arguments
+   of `unhandled_hints: Set[str]` and `fail_if_cant_handle_hint:
+   bool`.
 
    You should make the `records_format` argument a `Union` of whatever
    specific formats your database supports.
@@ -107,13 +110,11 @@ Along the way, figure out which one of of these your database wants most to do:
    This new function should just `raise NotImplementedError` for now.
 
 3. Now we're going to create a first unit test, modeled on
-   `tests/unit/db/postgres/test_postgres_copy_from_options_load_known.py#test_load_known_formats`.
+   `tests/unit/db/mysql/test_mysql_load_options_known#test_load_known_formats`.
    Verify that it fails due to the plethora of `NotImplementedError`s
    raised.
 
-[done to here]
-
-4. Start by resolving the NotImplementedError raised from your
+4. Start by resolving the `NotImplementedError` raised from your
    `known_supported_records_formats_for_load()` method.  For now we're
    going to assume the very best case - that your database will
    support every single records format we support--or at least the
@@ -137,8 +138,19 @@ Along the way, figure out which one of of these your database wants most to do:
    yourself a favor and leave yourself copious notes as comments
    pointing back to the original online documentation for the database
    in question as you go.  Follow the other drivers' use of
-   `cant_handle_hint()` and `quiet_remove()`, and use MyPy to your
-   advantage with features like Literal[] in dealing with
+   `cant_handle_hint()` and `quiet_remove()`.  The MySQL loader in
+   particular uses hint typing to ensure we are covering cases
+   correctly, and has written types for the valid input into MySQL's
+   LOAD statement as well.
+
+   To get the test to pass, you may need to tweak the formats slightly
+   (e.g., changing date formats to ones supported or specifying no
+   compression).  You may not be able to support certain variants or
+   formats at all - leave a comment in the method documenting all of
+   these situations and describing why.
+
+[done to here]
+
 
 ## Start
 

@@ -24,6 +24,7 @@ QUOTING_DESCRIPTION =\
          'delimiter, the escape character, or a line terminator). '
          'default: never quote fields.')
 
+# TODO: Can these list be unified with the ones in records.types?
 SUPPORTED_HINTS = [
     SupportedHint(
         JsonParameter('field-delimiter',
