@@ -2,7 +2,7 @@ import sqlalchemy
 from pathlib import Path
 from records_mover.records import ProcessingInstructions
 from records_mover.db.loader import LoaderFromRecordsDirectory
-from records_mover.url.filesystem import FilesystemDirectoryUrl
+from records_mover.url.filesystem import FilesystemDirectoryUrl, FilesystemFileUrl
 from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.records.records_directory import RecordsDirectory
 from records_mover.records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
@@ -56,6 +56,9 @@ class MySQLLoader(LoaderFromRecordsDirectory):
         with self.db.connect() as conn:
             dbapi_conn = conn.connection
             for loc in locs:
+                # This came from a FilesystemDirectoryUrl, so it had better be...
+                # TODO: Can I make records directory a type class?
+                assert isinstance(directory.loc, FilesystemFileUrl)
                 # TODO: What about loading multiple files?
                 # TODO: Verify this is appending
                 filename = loc.local_file_path
