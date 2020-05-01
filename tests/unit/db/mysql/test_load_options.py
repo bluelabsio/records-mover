@@ -16,10 +16,13 @@ class TestMySQLLoadOptions(unittest.TestCase):
                                    lines_starting_by='',
                                    lines_terminated_by='\n',
                                    ignore_n_lines=0)
-        sql = options.generate_load_data_sql("my_filename.txt")
+        sql = options.generate_load_data_sql(filename="my_filename.txt",
+                                             schema_name='myschema',
+                                             table_name='mytable')
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'my_filename.txt'
+INTO TABLE myschema.mytable
 CHARACTER SET 'utf8'
 FIELDS
     TERMINATED_BY '\\t'
@@ -43,10 +46,13 @@ IGNORE 0 LINES
                                    lines_starting_by='abc',
                                    lines_terminated_by='\r\n',
                                    ignore_n_lines=1)
-        sql = options.generate_load_data_sql("another_filename.txt")
+        sql = options.generate_load_data_sql(filename="another_filename.txt",
+                                             schema_name='myschema',
+                                             table_name='mytable')
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'another_filename.txt'
+INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
     TERMINATED_BY ','
@@ -70,10 +76,13 @@ IGNORE 1 LINES
                                    lines_starting_by='abc',
                                    lines_terminated_by='\r\n',
                                    ignore_n_lines=1)
-        sql = options.generate_load_data_sql("another_filename.txt")
+        sql = options.generate_load_data_sql(filename="another_filename.txt",
+                                             schema_name='myschema',
+                                             table_name='mytable')
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'another_filename.txt'
+INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
     TERMINATED_BY ','
@@ -96,10 +105,13 @@ IGNORE 1 LINES
                                    lines_starting_by='abc',
                                    lines_terminated_by='\r\n',
                                    ignore_n_lines=1)
-        sql = options.generate_load_data_sql("another_filename.txt")
+        sql = options.generate_load_data_sql(filename="another_filename.txt",
+                                             schema_name='myschema',
+                                             table_name='mytable')
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'another_filename.txt'
+INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
     TERMINATED_BY ','
@@ -124,7 +136,9 @@ IGNORE 1 LINES
                                        lines_starting_by='abc',
                                        lines_terminated_by='\r\n',
                                        ignore_n_lines=1)
-            options.generate_load_data_sql("another_filename.txt")
+            options.generate_load_data_sql(filename="another_filename.txt",
+                                           schema_name='myschema',
+                                           table_name='mytable')
 
     def test_generate_load_data_sql_windows_filename(self) -> None:
         options = MySqlLoadOptions(character_set="utf16",
@@ -135,7 +149,9 @@ IGNORE 1 LINES
                                    lines_starting_by='abc',
                                    lines_terminated_by='\r\n',
                                    ignore_n_lines=1)
-        sql = options.generate_load_data_sql("c:\\Some Path\\OH GOD LET IT END~1.CSV")
+        sql = options.generate_load_data_sql("c:\\Some Path\\OH GOD LET IT END~1.CSV",
+                                             schema_name='myschema',
+                                             table_name='mytable')
         # https://dev.mysql.com/doc/refman/8.0/en/load-data.html
         #
         # The file name must be given as a literal string. On Windows,
@@ -145,6 +161,7 @@ IGNORE 1 LINES
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'c:\\\\Some Path\\\\OH GOD LET IT END~1.CSV'
+INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
     TERMINATED_BY ','
@@ -168,11 +185,14 @@ IGNORE 1 LINES
                                    lines_starting_by='abc',
                                    lines_terminated_by="\001",
                                    ignore_n_lines=1)
-        sql = options.generate_load_data_sql("another_filename.txt")
+        sql = options.generate_load_data_sql(filename="another_filename.txt",
+                                             schema_name='myschema',
+                                             table_name='mytable')
         # TODO: Verify that these work
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'another_filename.txt'
+INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
     TERMINATED_BY '\\x02'

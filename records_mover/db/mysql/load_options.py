@@ -52,10 +52,15 @@ class MySqlLoadOptions(NamedTuple):
     lines_terminated_by: str  # default '\n'
     ignore_n_lines: int
 
-    def generate_load_data_sql(self, filename: str) -> TextClause:
+    def generate_load_data_sql(self,
+                               filename: str,
+                               schema_name: str,
+                               table_name: str) -> TextClause:
+        # TODO: Add tests resulting in table/schema quoting
         sql = f"""\
 LOAD DATA
 LOCAL INFILE :filename
+INTO TABLE {schema_name}.{table_name}
 CHARACTER SET :character_set
 FIELDS
     TERMINATED_BY :fields_terminated_by

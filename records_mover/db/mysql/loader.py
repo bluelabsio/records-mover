@@ -56,8 +56,10 @@ class MySQLLoader(LoaderFromRecordsDirectory):
         for loc in locs:
             # TODO: What about loading multiple files?
             # TODO: Verify this is appending
-            filename = loc.filename()
-            sql = load_options.generate_load_data_sql(filename)
+            filename = loc.local_file_path
+            sql = load_options.generate_load_data_sql(filename=filename,
+                                                      table_name=table,
+                                                      schema_name=schema)
             logger.info(f"Loading to MySQL with options: {load_options}")
             logger.info(str(sql))
             out = self.db.execute(sql)
