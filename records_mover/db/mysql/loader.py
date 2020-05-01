@@ -53,19 +53,22 @@ class MySQLLoader(LoaderFromRecordsDirectory):
 
         locs = [self.url_resolver.file_url(url) for url in all_urls]
         rows_so_far = 0
-        for loc in locs:
-            # TODO: What about loading multiple files?
-            # TODO: Verify this is appending
-            filename = loc.local_file_path
-            sql = load_options.generate_load_data_sql(filename=filename,
-                                                      table_name=table,
-                                                      schema_name=schema)
-            logger.info(f"Loading to MySQL with options: {load_options}")
-            logger.info(str(sql))
-            out = self.db.execute(sql)
-            logger.info("MySQL LOAD DATA complete.")
-            rows_so_far += out.scalar()
-        return rows_so_far
+        with self.db.connect() as conn:
+            dbapi_conn = conn.connection
+            for loc in locs:
+                # TODO: What about loading multiple files?
+                # TODO: Verify this is appending
+                filename = loc.local_file_path
+                with dbapi_conn.cursor() as cursor:
+                    sql = load_options.generate_load_data_sql(filename=filename,
+                                                              table_name=table,
+                                                              schema_name=schema)
+                    logger.info(f"Loading to MySQL with options: {load_options}")
+                    logger.info(str(sql))
+                    out = cursor.execute(sql)
+                logger.info("MySQL LOAD DATA complete.")
+                rows_so_far += out
+            return rows_so_far
 
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         try:

@@ -56,6 +56,10 @@ class MySqlLoadOptions(NamedTuple):
                                filename: str,
                                schema_name: str,
                                table_name: str) -> TextClause:
+        # TODO: Look into "set trade_date" per
+        # https://stackoverflow.com/questions/44171283/load-data-local-infile-with-sqlalchemy-and-pymysql
+        # along with the list of columns..
+        #
         # TODO: Add tests resulting in table/schema quoting
         sql = f"""\
 LOAD DATA
