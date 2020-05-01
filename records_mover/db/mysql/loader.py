@@ -63,9 +63,11 @@ class MySQLLoader(LoaderFromRecordsDirectory):
                     sql = load_options.generate_load_data_sql(filename=filename,
                                                               table_name=table,
                                                               schema_name=schema)
+                    sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
+
                     logger.info(f"Loading to MySQL with options: {load_options}")
-                    logger.info(str(sql))
-                    out = cursor.execute(sql)
+                    logger.info(sqltext)
+                    out = cursor.execute(sqltext)
                 logger.info("MySQL LOAD DATA complete.")
                 rows_so_far += out
             return rows_so_far
