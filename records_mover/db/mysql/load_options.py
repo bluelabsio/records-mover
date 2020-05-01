@@ -67,7 +67,7 @@ LOCAL INFILE :filename
 INTO TABLE {schema_name}.{table_name}
 CHARACTER SET :character_set
 FIELDS
-    TERMINATED_BY :fields_terminated_by
+    TERMINATED BY :fields_terminated_by
 """
         if self.fields_enclosed_by is not None and self.fields_optionally_enclosed_by is None:
             sql += "    ENCLOSED BY :fields_enclosed_by\n"
