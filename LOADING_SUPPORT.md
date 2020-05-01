@@ -169,9 +169,14 @@ Along the way, figure out which one of of these your database wants most to do:
 9. Run `./itest` with your database target and work through any issues
    found.
 
-10.
-
 [done to here]
+
+10. Get unit tests passing by updating to match whatever changes you
+    needed to make for the integration tests.
+
+11. Increase unit test coverage to match or exceed the current high water mark.
+
+
 
 
 ## Start

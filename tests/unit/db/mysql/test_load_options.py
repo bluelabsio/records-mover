@@ -25,8 +25,8 @@ LOCAL INFILE 'my_filename.txt'
 INTO TABLE myschema.mytable
 CHARACTER SET 'utf8'
 FIELDS
-    TERMINATED_BY '\\t'
-    ENCLOSED_BY ''
+    TERMINATED BY '\\t'
+    ENCLOSED BY ''
     ESCAPED BY '\\\\'
 LINES
     STARTING BY ''
@@ -55,8 +55,8 @@ LOCAL INFILE 'another_filename.txt'
 INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
-    TERMINATED_BY ','
-    ENCLOSED_BY '"'
+    TERMINATED BY ','
+    ENCLOSED BY '"'
     ESCAPED BY '\\\\'
 LINES
     STARTING BY 'abc'
@@ -85,7 +85,7 @@ LOCAL INFILE 'another_filename.txt'
 INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
-    TERMINATED_BY ','
+    TERMINATED BY ','
     ESCAPED BY '\\\\'
 LINES
     STARTING BY 'abc'
@@ -114,8 +114,8 @@ LOCAL INFILE 'another_filename.txt'
 INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
-    TERMINATED_BY ','
-    OPTIONALLY ENCLOSED_BY '"'
+    TERMINATED BY ','
+    OPTIONALLY ENCLOSED BY '"'
     ESCAPED BY '\\\\'
 LINES
     STARTING BY 'abc'
@@ -164,8 +164,8 @@ LOCAL INFILE 'c:\\\\Some Path\\\\OH GOD LET IT END~1.CSV'
 INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
-    TERMINATED_BY ','
-    OPTIONALLY ENCLOSED_BY '"'
+    TERMINATED BY ','
+    OPTIONALLY ENCLOSED BY '"'
     ESCAPED BY '\\\\'
 LINES
     STARTING BY 'abc'
@@ -195,8 +195,8 @@ LOCAL INFILE 'another_filename.txt'
 INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
-    TERMINATED_BY '\\x02'
-    OPTIONALLY ENCLOSED_BY '"'
+    TERMINATED BY '\\x02'
+    OPTIONALLY ENCLOSED BY '"'
     ESCAPED BY '\\\\'
 LINES
     STARTING BY 'abc'
