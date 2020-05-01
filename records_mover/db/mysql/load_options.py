@@ -66,9 +66,9 @@ FIELDS
     TERMINATED_BY :fields_terminated_by
 """
         if self.fields_enclosed_by is not None and self.fields_optionally_enclosed_by is None:
-            sql += "    ENCLOSED_BY :fields_enclosed_by\n"
+            sql += "    ENCLOSED BY :fields_enclosed_by\n"
         elif self.fields_enclosed_by is None and self.fields_optionally_enclosed_by is not None:
-            sql += "    OPTIONALLY ENCLOSED_BY :fields_optionally_enclosed_by\n"
+            sql += "    OPTIONALLY ENCLOSED BY :fields_optionally_enclosed_by\n"
         elif self.fields_enclosed_by is not None and self.fields_optionally_enclosed_by is not None:
             raise SyntaxError('fields_enclosed_by and optionally_fields_enclosed_by '
                               'cannot both be set')
