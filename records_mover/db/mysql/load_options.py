@@ -80,10 +80,6 @@ class MySqlLoadOptions(NamedTuple):
                                filename: str,
                                schema_name: str,
                                table_name: str) -> TextClause:
-        # TODO: Look into "set trade_date" per
-        # https://stackoverflow.com/questions/44171283/load-data-local-infile-with-sqlalchemy-and-pymysql
-        # along with the list of columns..
-        #
         sql = f"""\
 LOAD DATA
 LOCAL INFILE :filename
@@ -266,8 +262,18 @@ def mysql_load_options(unhandled_hints: Set[str],
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
     quiet_remove(unhandled_hints, 'compression')
 
-    # TODO: Find out what works via integration tests...and prove to
-    # myself they are integration testeed..
+    #
+    # Date/time parsing in MySQL seems to be permissive enough to
+    # accept all formats we've sent at it in integration tests.  That
+    # said, DD/MM support is unlikely to work if the server isn't set
+    # to a compatible locale.  This is true for a number of the
+    # database drivers; the backlog item to address is here:
+    #
+    # https://app.asana.com/0/1128138765527694/1173779659264666
+    #
+    # To address, we'll want to look into "set trade_date" per
+    # https://stackoverflow.com/questions/44171283/load-data-local-infile-with-sqlalchemy-and-pymysql
+    #
     quiet_remove(unhandled_hints, 'dateformat')
     quiet_remove(unhandled_hints, 'timeonlyformat')
     quiet_remove(unhandled_hints, 'datetimeformat')
