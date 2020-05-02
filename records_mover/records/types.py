@@ -69,6 +69,13 @@ if TYPE_CHECKING:
     HintEscape = Literal["\\", None]
 
     HintCompression = Literal['GZIP', 'BZIP', 'LZO', None]
+
+    # The trick here works on Literal[True, False] but not on bool:
+    #
+    # https://github.com/python/mypy/issues/6366#issuecomment-560369716
+    HintHeaderRow = Literal[True, False]
+
+    HintDoublequote = Literal[True, False]
 else:
     RecordsManifestEntryMetadata = Mapping[str, int]
     LegacyRecordsManifestEntry = Mapping[str, Union[str, bool, int, RecordsManifestEntryMetadata]]
@@ -94,12 +101,12 @@ else:
 
     HintCompression = Optional[str]
 
+    HintHeaderRow = bool
+
+    HintDoublequote = bool
+
 HintFieldDelimiter = str
 
 HintRecordTerminator = str
 
 HintQuoteChar = str
-
-HintHeaderRow = bool
-
-HintDoublequote = bool

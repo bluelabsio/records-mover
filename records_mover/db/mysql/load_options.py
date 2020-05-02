@@ -1,4 +1,5 @@
 from sqlalchemy.sql.expression import text, TextClause
+from records_mover.records import RecordsHints
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from records_mover.records import DelimitedRecordsFormat
@@ -9,15 +10,37 @@ from records_mover.records.types import (
     HintHeaderRow, HintCompression,
     HintDoublequote,
 )
-from typing import Optional, Set, Dict, NamedTuple, TYPE_CHECKING
+from typing import Optional, Set, Dict, NamedTuple, NoReturn, TYPE_CHECKING
 if TYPE_CHECKING:
     from typing_extensions import Literal
     # http://dev.mysql.com/doc/refman/8.0/en/charset-mysql.html
     MySqlCharacterSet = Literal['big5', 'binary', 'latin1', 'ucs2',
                                 'utf8', 'utf8mb4', 'utf16', 'utf16le',
                                 'utf32']
+
+    # The NoReturn annotations are the mypy way of validating we're
+    # covering all officially approved cases of an the hint at
+    # typechecking time.
+    #
+    # https://github.com/python/mypy/issues/6366#issuecomment-560369716
+    def invalid_hint(fail_if_cant_handle_hint: bool,
+                     hint_name: str,
+                     hints: RecordsHints,
+                     the_bad_hint: NoReturn) -> NoReturn:
+        assert False
+
 else:
     MySqlCharacterSet = str
+
+    # The cant_handle_hint at runtime is to cover cases that slip
+    # through due to our use of "type: ignore" rather than run-time
+    # validation below.
+    def invalid_hint(fail_if_cant_handle_hint: bool,
+                     hint_name: str,
+                     hints: RecordsHints,
+                     the_bad_hint: NoReturn) -> NoReturn:
+        cant_handle_hint(fail_if_cant_handle_hint, hint_name, hints)
+
 
 MYSQL_CHARACTER_SETS_FOR_LOAD: Dict[HintEncoding, MySqlCharacterSet] = {
     "UTF8": 'utf8',
@@ -105,6 +128,7 @@ IGNORE :ignore_n_lines LINES
         return clause
 
 
+
 def mysql_load_options(unhandled_hints: Set[str],
                        records_format: DelimitedRecordsFormat,
                        fail_if_cant_handle_hint: bool) -> MySqlLoadOptions:
@@ -170,9 +194,7 @@ def mysql_load_options(unhandled_hints: Set[str],
     elif hint_quoting is None:
         pass
     else:
-        # TODO: Have this be more like _assert_never(hint_quoting)?
-        cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
-        # TODO: Can we do this here?  Does it make sense?   _assert_never(hint_quoting)
+        invalid_hint(fail_if_cant_handle_hint, 'quoting', hints, hint_quotechar)
     quiet_remove(unhandled_hints, 'quoting')
     quiet_remove(unhandled_hints, 'quotechar')
 
@@ -185,13 +207,12 @@ def mysql_load_options(unhandled_hints: Set[str],
     # specified, quotation marks are handled as shown here:
     hint_doublequote: HintDoublequote = hints['doublequote']  # type: ignore
     if hint_quoting is not None:
-        if hint_doublequote is True:
+        if hint_doublequote == True:
             pass
-        elif hint_doublequote is False:
+        elif hint_doublequote == False:
             cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
         else:
-            # TODO: Have this be more like _assert_never(hint_quoting)?
-            cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
+            invalid_hint(fail_if_cant_handle_hint, 'doublequote', hints, hint_doublequote)
     quiet_remove(unhandled_hints, 'doublequote')
 
     # FIELDS ESCAPED BY controls how to read or write special characters:
@@ -212,8 +233,7 @@ def mysql_load_options(unhandled_hints: Set[str],
     elif hint_escape == '\\':
         mysql_field_escaped_by = '\\'
     else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'escape', hints)
-        # TODO: Can we do this here?  Does it make sense?   _assert_never(hint_quoting)
+        invalid_hint(fail_if_cant_handle_hint, 'escape', hints, hint_quoting)
     quiet_remove(unhandled_hints, 'escape')
 
     mysql_line_starting_by = ''
@@ -223,13 +243,12 @@ def mysql_load_options(unhandled_hints: Set[str],
     quiet_remove(unhandled_hints, 'record-terminator')
 
     hint_header_row: HintHeaderRow = hints['header-row']  # type: ignore
-    if hint_header_row is True:
+    if hint_header_row == True:
         mysql_ignore_n_lines = 1
-    elif hint_header_row is False:
+    elif hint_header_row == False:
         mysql_ignore_n_lines = 0
     else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'header-row', hints)
-        # TODO: Can we do this here?  Does it make sense?   _assert_never(hint_quoting)
+        invalid_hint(fail_if_cant_handle_hint, 'header-row', hints, hint_header_row)
     quiet_remove(unhandled_hints, 'header-row')
 
     hint_compression: HintCompression = hints['compression']  # type: ignore
