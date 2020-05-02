@@ -108,9 +108,8 @@ LINES
 IGNORE :ignore_n_lines LINES
 """
         clause = text(sql)
-        # TODO: Test need for and write up comment explaining need for unicode-escape encoding
         clause = clause.\
-            bindparams(filename=filename.encode('unicode-escape'),
+            bindparams(filename=filename,
                        character_set=self.character_set,
                        fields_terminated_by=self.fields_terminated_by,
                        lines_starting_by=self.lines_starting_by,
@@ -118,15 +117,22 @@ IGNORE :ignore_n_lines LINES
                        ignore_n_lines=self.ignore_n_lines)
         if self.fields_enclosed_by is not None:
             clause = clause.bindparams(fields_enclosed_by=self.
-                                       fields_enclosed_by.encode('unicode-escape'))
+                                       fields_enclosed_by)
         if self.fields_optionally_enclosed_by is not None:
             clause = clause.bindparams(fields_optionally_enclosed_by=self.
-                                       fields_optionally_enclosed_by.encode('unicode-escape'))
+                                       fields_optionally_enclosed_by)
         if self.fields_escaped_by is not None:
+            # Backslashes need to be pre-escaped when bound in here in
+            # practice - without it, you get this error:
+            #
+            #  MySQLdb._exceptions.ProgrammingError: (1064,
+            #  "You have an error in your SQL syntax; check the manual that corresponds
+            #   to your MySQL server version for the right syntax to use near
+            #   ''\nIGNORE 0 LINES' at line 8")
+            #
             clause = clause.bindparams(fields_escaped_by=self.
                                        fields_escaped_by.encode('unicode-escape'))
         return clause
-
 
 
 def mysql_load_options(unhandled_hints: Set[str],

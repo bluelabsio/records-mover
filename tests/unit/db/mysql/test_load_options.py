@@ -6,7 +6,6 @@ from records_mover.db.mysql.load_options import MySqlLoadOptions, mysql_load_opt
 class TestMySQLLoadOptions(unittest.TestCase):
     maxDiff = None
 
-    # TODO: Should ESCAPED BY be...ESCAPED?
     # TODO: Maybe we should escape only specific things, and write a function to do that?
     def test_generate_load_data_sql_boring(self) -> None:
         options = MySqlLoadOptions(character_set="utf8",
@@ -161,7 +160,7 @@ IGNORE 1 LINES
         #
         expected_sql = """\
 LOAD DATA
-LOCAL INFILE 'c:\\\\Some Path\\\\OH GOD LET IT END~1.CSV'
+LOCAL INFILE 'c:\\Some Path\\OH GOD LET IT END~1.CSV'
 INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
@@ -189,7 +188,6 @@ IGNORE 1 LINES
         sql = options.generate_load_data_sql(filename="another_filename.txt",
                                              schema_name='myschema',
                                              table_name='mytable')
-        # TODO: Verify that these work
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'another_filename.txt'
