@@ -169,24 +169,13 @@ Along the way, figure out which one of of these your database wants most to do:
 9. Run `./itest` with your database target and work through any issues
    found.
 
-[done to here]
-
 10. Get unit tests passing by updating to match whatever changes you
     needed to make for the integration tests.
 
-11. Increase unit test coverage to match or exceed the current high water mark.
+11. Increase unit test coverage to match or exceed the current high
+    water mark.  You can look at `cover/index.html` and sort by
+    'missing' to see likely reasons why coverage has slipped.
 
+[done to here]
 
-
-
-## Start
-
-
-
-
-
-
-   Take your best crack at
-   things and leave TOD O comments as you go for uncovered
-   situations - we'll have integration tests to help drive this to
-   completion.
+12. Work through quality issues with `make quality`

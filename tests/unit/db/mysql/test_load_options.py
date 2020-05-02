@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch, Mock
 import unittest
 from records_mover.records import DelimitedRecordsFormat
-from records_mover.db.mysql.load_options import MySqlLoadOptions
+from records_mover.db.mysql.load_options import MySqlLoadOptions, mysql_load_options
 
 
 class TestMySQLLoadOptions(unittest.TestCase):
@@ -206,3 +206,99 @@ IGNORE 1 LINES
         sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
 
         self.assertEqual(sqltext, expected_sql)
+
+    def test_mysql_load_options_encoding_utf8bom_fail(self) -> None:
+        records_format = DelimitedRecordsFormat(variant='bluelabs',
+                                                hints={
+                                                    'encoding': 'UTF8BOM',
+                                                    'compression': None,
+                                                })
+        unhandled_hints = set(records_format.hints.keys())
+        with self.assertRaises(NotImplementedError) as r:
+            mysql_load_options(unhandled_hints,
+                               records_format,
+                               fail_if_cant_handle_hint=True)
+        self.assertIn('UTF8BOM', str(r.exception))
+
+    def test_mysql_load_options_encoding_utf8bom_fallback(self) -> None:
+        records_format = DelimitedRecordsFormat(variant='bluelabs',
+                                                hints={
+                                                    'encoding': 'UTF8BOM',
+                                                    'compression': None,
+                                                })
+        unhandled_hints = set(records_format.hints.keys())
+        out = mysql_load_options(unhandled_hints,
+                                 records_format,
+                                 fail_if_cant_handle_hint=False)
+        self.assertEqual(out.character_set, 'utf8')
+
+    def test_mysql_load_options_all_quoting(self) -> None:
+        records_format = DelimitedRecordsFormat(variant='bluelabs',
+                                                hints={
+                                                    'quoting': 'all',
+                                                    'doublequote': True,
+                                                    'compression': None,
+                                                })
+        unhandled_hints = set(records_format.hints.keys())
+        out = mysql_load_options(unhandled_hints,
+                                 records_format,
+                                 fail_if_cant_handle_hint=True)
+        self.assertEqual(out.fields_enclosed_by, '"')
+
+    def test_mysql_load_options_nonnumeric_quoting(self) -> None:
+        records_format = DelimitedRecordsFormat(variant='bluelabs',
+                                                hints={
+                                                    'quoting': 'nonnumeric',
+                                                    'doublequote': True,
+                                                    'compression': None,
+                                                })
+        unhandled_hints = set(records_format.hints.keys())
+        out = mysql_load_options(unhandled_hints,
+                                 records_format,
+                                 fail_if_cant_handle_hint=True)
+        self.assertEqual(out.fields_optionally_enclosed_by, '"')
+
+    def test_mysql_load_options_bogus_quoting(self) -> None:
+        records_format = DelimitedRecordsFormat(variant='bluelabs',
+                                                hints={
+                                                    'quoting': 'no thanks',
+                                                    'doublequote': True,
+                                                    'compression': None,
+                                                })
+        unhandled_hints = set(records_format.hints.keys())
+        with self.assertRaises(NotImplementedError) as r:
+            mysql_load_options(unhandled_hints,
+                               records_format,
+                               fail_if_cant_handle_hint=True)
+
+        self.assertIn('no thanks', str(r.exception))
+
+    def test_mysql_load_options_valid_quoting_no_doublequote(self) -> None:
+        records_format = DelimitedRecordsFormat(variant='bluelabs',
+                                                hints={
+                                                    'quoting': 'all',
+                                                    'doublequote': False,
+                                                    'compression': None,
+                                                })
+        unhandled_hints = set(records_format.hints.keys())
+        with self.assertRaises(NotImplementedError) as r:
+            mysql_load_options(unhandled_hints,
+                               records_format,
+                               fail_if_cant_handle_hint=True)
+
+        self.assertIn('doublequote=False', str(r.exception))
+
+    def test_mysql_load_options_valid_quoting_bogus_doublequote(self) -> None:
+        records_format = DelimitedRecordsFormat(variant='bluelabs',
+                                                hints={
+                                                    'quoting': 'all',
+                                                    'doublequote': 'mumble',
+                                                    'compression': None,
+                                                })
+        unhandled_hints = set(records_format.hints.keys())
+        with self.assertRaises(NotImplementedError) as r:
+            mysql_load_options(unhandled_hints,
+                               records_format,
+                               fail_if_cant_handle_hint=True)
+
+        self.assertIn("doublequote='mumble'", str(r.exception))
