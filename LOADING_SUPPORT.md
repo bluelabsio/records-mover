@@ -178,4 +178,7 @@ Along the way, figure out which one of of these your database wants most to do:
 
 [done to here]
 
-12. Work through quality issues with `make quality`
+12. Get CircleCI passing through the 'test' workflow.
+
+13. Get CircleCI passing through the 'quality' workflow.  You can work
+    through issues locally with `make quality` and friends.
