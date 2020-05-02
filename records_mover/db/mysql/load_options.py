@@ -1,7 +1,6 @@
 from sqlalchemy.sql.expression import text, TextClause
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
-from typing import Optional, Set, Dict, Literal, NamedTuple
 from records_mover.records import DelimitedRecordsFormat
 from records_mover.records.types import (
     HintEncoding, HintRecordTerminator,
@@ -10,11 +9,15 @@ from records_mover.records.types import (
     HintHeaderRow, HintCompression,
     HintDoublequote,
 )
-
-# http://dev.mysql.com/doc/refman/8.0/en/charset-mysql.html
-MySqlCharacterSet = Literal['big5', 'binary', 'latin1', 'ucs2',
-                            'utf8', 'utf8mb4', 'utf16', 'utf16le',
-                            'utf32']
+from typing import Optional, Set, Dict, NamedTuple, TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing_extensions import Literal
+    # http://dev.mysql.com/doc/refman/8.0/en/charset-mysql.html
+    MySqlCharacterSet = Literal['big5', 'binary', 'latin1', 'ucs2',
+                                'utf8', 'utf8mb4', 'utf16', 'utf16le',
+                                'utf32']
+else:
+    MySqlCharacterSet = str
 
 MYSQL_CHARACTER_SETS_FOR_LOAD: Dict[HintEncoding, MySqlCharacterSet] = {
     "UTF8": 'utf8',
