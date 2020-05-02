@@ -61,7 +61,6 @@ class MySqlLoadOptions(NamedTuple):
         # https://stackoverflow.com/questions/44171283/load-data-local-infile-with-sqlalchemy-and-pymysql
         # along with the list of columns..
         #
-        # TODO: Add tests resulting in table/schema quoting
         sql = f"""\
 LOAD DATA
 LOCAL INFILE :filename
@@ -86,12 +85,13 @@ LINES
 IGNORE :ignore_n_lines LINES
 """
         clause = text(sql)
+        # TODO: Test need for and write up comment explaining need for unicode-escape encoding
         clause = clause.\
             bindparams(filename=filename.encode('unicode-escape'),
                        character_set=self.character_set,
-                       fields_terminated_by=self.fields_terminated_by.encode('unicode-escape'),
-                       lines_starting_by=self.lines_starting_by.encode('unicode-escape'),
-                       lines_terminated_by=self.lines_terminated_by.encode('unicode-escape'),
+                       fields_terminated_by=self.fields_terminated_by,
+                       lines_starting_by=self.lines_starting_by,
+                       lines_terminated_by=self.lines_terminated_by,
                        ignore_n_lines=self.ignore_n_lines)
         if self.fields_enclosed_by is not None:
             clause = clause.bindparams(fields_enclosed_by=self.

@@ -6,6 +6,8 @@ from records_mover.db.mysql.load_options import MySqlLoadOptions, mysql_load_opt
 class TestMySQLLoadOptions(unittest.TestCase):
     maxDiff = None
 
+    # TODO: Should ESCAPED BY be...ESCAPED?
+    # TODO: Maybe we should escape only specific things, and write a function to do that?
     def test_generate_load_data_sql_boring(self) -> None:
         options = MySqlLoadOptions(character_set="utf8",
                                    fields_terminated_by="\t",
@@ -24,12 +26,12 @@ LOCAL INFILE 'my_filename.txt'
 INTO TABLE myschema.mytable
 CHARACTER SET 'utf8'
 FIELDS
-    TERMINATED BY '\\t'
+    TERMINATED BY '\t'
     ENCLOSED BY ''
     ESCAPED BY '\\\\'
 LINES
     STARTING BY ''
-    TERMINATED BY '\\n'
+    TERMINATED BY '\n'
 IGNORE 0 LINES
 """
         sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
@@ -59,7 +61,7 @@ FIELDS
     ESCAPED BY '\\\\'
 LINES
     STARTING BY 'abc'
-    TERMINATED BY '\\r\\n'
+    TERMINATED BY '\r\n'
 IGNORE 1 LINES
 """
         sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
@@ -88,7 +90,7 @@ FIELDS
     ESCAPED BY '\\\\'
 LINES
     STARTING BY 'abc'
-    TERMINATED BY '\\r\\n'
+    TERMINATED BY '\r\n'
 IGNORE 1 LINES
 """
         sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
@@ -118,7 +120,7 @@ FIELDS
     ESCAPED BY '\\\\'
 LINES
     STARTING BY 'abc'
-    TERMINATED BY '\\r\\n'
+    TERMINATED BY '\r\n'
 IGNORE 1 LINES
 """
         sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
@@ -168,7 +170,7 @@ FIELDS
     ESCAPED BY '\\\\'
 LINES
     STARTING BY 'abc'
-    TERMINATED BY '\\r\\n'
+    TERMINATED BY '\r\n'
 IGNORE 1 LINES
 """
         sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
@@ -194,12 +196,12 @@ LOCAL INFILE 'another_filename.txt'
 INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
-    TERMINATED BY '\\x02'
+    TERMINATED BY '\002'
     OPTIONALLY ENCLOSED BY '"'
     ESCAPED BY '\\\\'
 LINES
     STARTING BY 'abc'
-    TERMINATED BY '\\x01'
+    TERMINATED BY '\001'
 IGNORE 1 LINES
 """
         sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))

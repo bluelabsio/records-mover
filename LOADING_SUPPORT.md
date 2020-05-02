@@ -178,6 +178,8 @@ Along the way, figure out which one of of these your database wants most to do:
 
 [done to here]
 
+TODO: Update mover_test_case.py
+
 12. Get CircleCI passing through the 'test' workflow.
 
 13. Get CircleCI passing through the 'quality' workflow.  You can work
