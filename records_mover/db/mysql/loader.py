@@ -59,7 +59,6 @@ class MySQLLoader(LoaderFromRecordsDirectory):
                 # This came from a FilesystemDirectoryUrl, so it had better be...
                 # TODO: Can I make records directory a type class?
                 assert isinstance(loc, FilesystemFileUrl)
-                # TODO: What about loading multiple files?
                 # TODO: Verify this is appending
                 filename = loc.local_file_path
                 with dbapi_conn.cursor() as cursor:
