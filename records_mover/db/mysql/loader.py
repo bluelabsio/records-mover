@@ -58,7 +58,7 @@ class MySQLLoader(LoaderFromRecordsDirectory):
             for loc in locs:
                 # This came from a FilesystemDirectoryUrl, so it had better be...
                 # TODO: Can I make records directory a type class?
-                assert isinstance(directory.loc, FilesystemFileUrl)
+                assert isinstance(loc, FilesystemFileUrl)
                 # TODO: What about loading multiple files?
                 # TODO: Verify this is appending
                 filename = loc.local_file_path
