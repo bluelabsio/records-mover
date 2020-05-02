@@ -213,9 +213,11 @@ def mysql_load_options(unhandled_hints: Set[str],
     # specified, quotation marks are handled as shown here:
     hint_doublequote: HintDoublequote = hints['doublequote']  # type: ignore
     if hint_quoting is not None:
-        if hint_doublequote == True:
+        # We need to ignore flake8's "is vs ==" check because 'is'
+        # doesn't work currently with MyPy's Literal[] case checking
+        if hint_doublequote == True:  # noqa: E712
             pass
-        elif hint_doublequote == False:
+        elif hint_doublequote == False:  # noqa: E712
             cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
         else:
             invalid_hint(fail_if_cant_handle_hint, 'doublequote', hints, hint_doublequote)
@@ -249,9 +251,11 @@ def mysql_load_options(unhandled_hints: Set[str],
     quiet_remove(unhandled_hints, 'record-terminator')
 
     hint_header_row: HintHeaderRow = hints['header-row']  # type: ignore
-    if hint_header_row == True:
+    # We need to ignore flake8's "is vs ==" check because 'is'
+    # doesn't work currently with MyPy's Literal[] case checking
+    if hint_header_row == True:  # noqa: E712
         mysql_ignore_n_lines = 1
-    elif hint_header_row == False:
+    elif hint_header_row == False:  # noqa: E712
         mysql_ignore_n_lines = 0
     else:
         invalid_hint(fail_if_cant_handle_hint, 'header-row', hints, hint_header_row)
