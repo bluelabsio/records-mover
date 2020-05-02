@@ -25,6 +25,14 @@ QUOTING_DESCRIPTION =\
          'default: never quote fields.')
 
 # TODO: Can these list be unified with the ones in records.types?
+# maybe by using the type directly using my type -> json parameter
+# stuff?
+#
+# or maybe just a comment like this in both places?
+    #
+    # Note: Any expansion of these types should also be done in
+    # records.jobs.hints
+    #
 SUPPORTED_HINTS = [
     SupportedHint(
         JsonParameter('field-delimiter',
