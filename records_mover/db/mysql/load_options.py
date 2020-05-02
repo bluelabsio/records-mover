@@ -1,9 +1,7 @@
-from sqlalchemy.dialects.mysql.base import MySQLDialect
 from sqlalchemy.sql.expression import text, TextClause
-import sqlalchemy.types as sqltypes
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
-from typing import TypedDict, Optional, Set, Dict, Any, Literal, NamedTuple
+from typing import Optional, Set, Dict, Literal, NamedTuple
 from records_mover.records import DelimitedRecordsFormat
 from records_mover.records.types import (
     HintEncoding, HintRecordTerminator,
