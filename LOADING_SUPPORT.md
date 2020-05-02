@@ -176,12 +176,11 @@ Along the way, figure out which one of of these your database wants most to do:
     water mark.  You can look at `cover/index.html` and sort by
     'missing' to see likely reasons why coverage has slipped.
 
+12. Update `mover_test_case.py#supported_load_variants` in
+    `tests/integration` to reflect expectations for your database
+
 [done to here]
-12. Update `mover_test_case.py#supported_load_variants` in `tests/integration` to reflect expectations for your database
+13. Get CircleCI passing through the 'test' workflow.
 
-TODO: Update mover_test_case.py
-
-12. Get CircleCI passing through the 'test' workflow.
-
-13. Get CircleCI passing through the 'quality' workflow.  You can work
+14. Get CircleCI passing through the 'quality' workflow.  You can work
     through issues locally with `make quality` and friends.
