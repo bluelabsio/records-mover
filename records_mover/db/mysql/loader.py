@@ -6,7 +6,7 @@ from records_mover.url.filesystem import FilesystemDirectoryUrl, FilesystemFileU
 from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.records.records_directory import RecordsDirectory
 from records_mover.records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
-from .load_options import mysql_load_options, MySqlLoadOptions
+from .load_options import mysql_load_options
 from ...records.hints import complain_on_unhandled_hints
 from ...url.resolver import UrlResolver
 from typing import Union, List

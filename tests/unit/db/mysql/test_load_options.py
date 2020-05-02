@@ -1,4 +1,3 @@
-from unittest.mock import MagicMock, patch, Mock
 import unittest
 from records_mover.records import DelimitedRecordsFormat
 from records_mover.db.mysql.load_options import MySqlLoadOptions, mysql_load_options

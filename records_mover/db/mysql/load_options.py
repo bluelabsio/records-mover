@@ -43,7 +43,7 @@ MYSQL_CHARACTER_SETS_FOR_LOAD: Dict[HintEncoding, MySqlCharacterSet] = {
 class MySqlLoadOptions(NamedTuple):
     character_set: MySqlCharacterSet
     fields_terminated_by: str  # default '\t'
-    fields_enclosed_by: Optional[str]  # default ''  # TODO: should this be optional?
+    fields_enclosed_by: Optional[str]  # default None
     fields_optionally_enclosed_by: Optional[str]  # default None
     fields_escaped_by: Optional[str]  # default '\'
     lines_starting_by: str  # default ''
@@ -233,7 +233,6 @@ def mysql_load_options(unhandled_hints: Set[str],
     if hint_compression is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
     quiet_remove(unhandled_hints, 'compression')
-
 
     # TODO: Find out what works via integration tests...and prove to
     # myself they are integration testeed..

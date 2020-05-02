@@ -155,7 +155,7 @@ Along the way, figure out which one of of these your database wants most to do:
    drivers and verify the tests pass.
 
 7. Figure out which functions are left raising NotImplementedError, if
-   any.  Write a bunch of TODO comments documenting the different
+   any.  Write a bunch of T ODO comments documenting the different
    cases that need to be handled.  Include cases for invalid
    combinations (expect them to raise exceptions).  Write a test for
    the first one.  Implement enough to get that test to pass, and then
