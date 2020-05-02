@@ -177,6 +177,7 @@ Along the way, figure out which one of of these your database wants most to do:
     'missing' to see likely reasons why coverage has slipped.
 
 [done to here]
+12. Update `mover_test_case.py#supported_load_variants` in `tests/integration` to reflect expectations for your database
 
 TODO: Update mover_test_case.py
 
