@@ -63,7 +63,7 @@ MYSQL_CHARACTER_SETS_FOR_LOAD: Dict[HintEncoding, MySqlCharacterSet] = {
     # https://dev.mysql.com/doc/refman/8.0/en/charset-we-sets.html
     "CP1252": 'latin1',
 }
-# TODO field -> fields below
+
 
 # Mark as total=False so we can create this incrementally
 class MySqlLoadOptions(NamedTuple):
@@ -156,7 +156,7 @@ def mysql_load_options(unhandled_hints: Set[str],
     quiet_remove(unhandled_hints, 'encoding')
 
     field_terminator: HintFieldDelimiter = hints['field-delimiter']  # type: ignore
-    mysql_field_terminator = field_terminator
+    mysql_fields_terminator = field_terminator
     quiet_remove(unhandled_hints, 'field-delimiter')
 
     # https://dev.mysql.com/doc/refman/8.0/en/load-data.html
@@ -177,12 +177,12 @@ def mysql_load_options(unhandled_hints: Set[str],
     #  IGNORE 1 LINES;
     #
     #
-    mysql_field_enclosed_by = None
-    mysql_field_optionally_enclosed_by = None
+    mysql_fields_enclosed_by = None
+    mysql_fields_optionally_enclosed_by = None
     hint_quotechar: HintQuoteChar = hints['quotechar']  # type: ignore
     hint_quoting: HintQuoting = hints['quoting']  # type: ignore
     if hint_quoting == 'all':
-        mysql_field_enclosed_by = hint_quotechar
+        mysql_fields_enclosed_by = hint_quotechar
     elif hint_quoting == 'minimal':
         # "If the input values are not necessarily enclosed within
         # quotation marks, use OPTIONALLY before the ENCLOSED BY option."
@@ -190,9 +190,9 @@ def mysql_load_options(unhandled_hints: Set[str],
         # This implies to me that parsing here is permissive -
         # otherwise unambiguous strings without double quotes around
         # them will be understood as a string, not rejected.
-        mysql_field_optionally_enclosed_by = hint_quotechar
+        mysql_fields_optionally_enclosed_by = hint_quotechar
     elif hint_quoting == 'nonnumeric':
-        mysql_field_optionally_enclosed_by = hint_quotechar
+        mysql_fields_optionally_enclosed_by = hint_quotechar
     elif hint_quoting is None:
         pass
     else:
@@ -233,17 +233,17 @@ def mysql_load_options(unhandled_hints: Set[str],
     # interpretation does not occur.
     hint_escape: HintEscape = hints['escape']  # type: ignore
     if hint_escape is None:
-        mysql_field_escaped_by = None
+        mysql_fields_escaped_by = None
     elif hint_escape == '\\':
-        mysql_field_escaped_by = '\\'
+        mysql_fields_escaped_by = '\\'
     else:
         invalid_hint(fail_if_cant_handle_hint, 'escape', hints, hint_quoting)
     quiet_remove(unhandled_hints, 'escape')
 
-    mysql_line_starting_by = ''
+    mysql_lines_starting_by = ''
 
     hint_record_terminator: HintRecordTerminator = hints['record-terminator']  # type: ignore
-    mysql_line_terminated_by = hint_record_terminator
+    mysql_lines_terminated_by = hint_record_terminator
     quiet_remove(unhandled_hints, 'record-terminator')
 
     hint_header_row: HintHeaderRow = hints['header-row']  # type: ignore
@@ -280,10 +280,10 @@ def mysql_load_options(unhandled_hints: Set[str],
     quiet_remove(unhandled_hints, 'datetimeformattz')
 
     return MySqlLoadOptions(character_set=mysql_character_set,
-                            fields_terminated_by=mysql_field_terminator,
-                            fields_enclosed_by=mysql_field_enclosed_by,
-                            fields_optionally_enclosed_by=mysql_field_optionally_enclosed_by,
-                            fields_escaped_by=mysql_field_escaped_by,
-                            lines_starting_by=mysql_line_starting_by,
-                            lines_terminated_by=mysql_line_terminated_by,
+                            fields_terminated_by=mysql_fields_terminator,
+                            fields_enclosed_by=mysql_fields_enclosed_by,
+                            fields_optionally_enclosed_by=mysql_fields_optionally_enclosed_by,
+                            fields_escaped_by=mysql_fields_escaped_by,
+                            lines_starting_by=mysql_lines_starting_by,
+                            lines_terminated_by=mysql_lines_terminated_by,
                             ignore_n_lines=mysql_ignore_n_lines)
