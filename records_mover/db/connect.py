@@ -22,6 +22,29 @@ odbc_driver_for_type = {
     'vertica': 'vertica+pyodbc',
 }
 
+query_for_type = {
+    'mysql': {
+        # This allows use of MySQL's bulk load mechanism--please see
+        # the URL below for security aspects of this.  We are assuming
+        # that the server is known and trusted, and that the network
+        # connection to it can be trusted.
+        #
+        # If the server is trusted but the network is not, we
+        # recommend you investigate the following:
+        #
+        # * Enabling SSL on your MySQL server.
+        # * Using the 'REQUIRE SSL' clause in the 'GRANT ALL
+        #   PRIVILEGES' statement used to create users.
+        # * Using pymysql's syntax to point to the correct CA cert for
+        #   the MySQL server and require validation.
+        #
+        # PRs to make this configuration easier to use with
+        # records-mover are welcome.
+        #
+        # https://dev.mysql.com/doc/refman/8.0/en/load-data-local-security.html
+        "local_infile": True
+    },
+}
 
 def create_vertica_odbc_sqlalchemy_url(db_facts: DBFacts) -> str:
     # Vertica wants the port in its ODBC connect string as a separate
@@ -104,9 +127,7 @@ def create_sqlalchemy_url(db_facts: DBFacts,
                                  host=db_facts['host'],
                                  port=db_facts['port'],
                                  database=db_facts['database'],
-                                 query={
-                                     "local_infile": True  # TODO: Make generic
-                                 })
+                                 query=query_for_type.get(db_type))
 
 
 def engine_from_lpass_entry(lpass_entry_name: str) -> sa.engine.Engine:
@@ -124,5 +145,4 @@ def engine_from_db_facts(db_facts: DBFacts) -> sa.engine.Engine:
         return create_bigquery_db_engine(db_facts)
     else:
         db_url = create_sqlalchemy_url(db_facts)
-        print(f"VMB: {db_url}")
         return sa.create_engine(db_url)
