@@ -63,7 +63,7 @@ MYSQL_CHARACTER_SETS_FOR_LOAD: Dict[HintEncoding, MySqlCharacterSet] = {
     # https://dev.mysql.com/doc/refman/8.0/en/charset-we-sets.html
     "CP1252": 'latin1',
 }
-
+# TODO field -> fields below
 
 # Mark as total=False so we can create this incrementally
 class MySqlLoadOptions(NamedTuple):
