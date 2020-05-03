@@ -59,19 +59,13 @@ class TestLoader(unittest.TestCase):
         mock_loc = Mock(name='loc', spec=FilesystemFileUrl)
         mock_loc.local_file_path = Mock(name='local_file_path')
         self.mock_url_resolver.file_url.return_value = mock_loc
-        mock_conn = self.mock_db_engine.connect.return_value.__enter__.return_value
-        mock_dbapi_conn = mock_conn.connection
-        mock_cursor = mock_dbapi_conn.cursor.return_value.__enter__.return_value
-        mock_cursor.execute.return_value = 123
+        self.mock_db_engine.execute.return_value = 123
 
         mock_load_options = mock_mysql_load_options.return_value
         mock_sql = mock_load_options.generate_load_data_sql.return_value
-        mock_sqltext = str(mock_sql.compile.return_value)
         out = self.loader.load(mock_schema,
                                mock_table,
                                mock_load_plan,
                                mock_directory)
-        self.mock_db_engine.connect.assert_called()
-        mock_dbapi_conn.cursor.assert_called()
-        mock_cursor.execute.assert_called_with(mock_sqltext)
-        self.assertEqual(out, 123)
+        self.mock_db_engine.execute.assert_called_with(mock_sql)
+        self.assertEqual(out, None)

@@ -1,4 +1,5 @@
 import unittest
+from sqlalchemy.dialects import mysql
 from records_mover.records import DelimitedRecordsFormat
 from records_mover.db.mysql.load_options import MySqlLoadOptions, mysql_load_options
 
@@ -33,7 +34,7 @@ LINES
     TERMINATED BY '\n'
 IGNORE 0 LINES
 """
-        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
+        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}, dialect=mysql.dialect()))
 
         self.assertEqual(sqltext, expected_sql)
 
@@ -63,7 +64,7 @@ LINES
     TERMINATED BY '\r\n'
 IGNORE 1 LINES
 """
-        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
+        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}, dialect=mysql.dialect()))
 
         self.assertEqual(sqltext, expected_sql)
 
@@ -92,7 +93,7 @@ LINES
     TERMINATED BY '\r\n'
 IGNORE 1 LINES
 """
-        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
+        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}, dialect=mysql.dialect()))
 
         self.assertEqual(sqltext, expected_sql)
 
@@ -122,7 +123,7 @@ LINES
     TERMINATED BY '\r\n'
 IGNORE 1 LINES
 """
-        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
+        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}, dialect=mysql.dialect()))
 
         self.assertEqual(sqltext, expected_sql)
 
@@ -160,7 +161,7 @@ IGNORE 1 LINES
         #
         expected_sql = """\
 LOAD DATA
-LOCAL INFILE 'c:\\Some Path\\OH GOD LET IT END~1.CSV'
+LOCAL INFILE 'c:\\\\Some Path\\\\OH GOD LET IT END~1.CSV'
 INTO TABLE myschema.mytable
 CHARACTER SET 'utf16'
 FIELDS
@@ -172,7 +173,7 @@ LINES
     TERMINATED BY '\r\n'
 IGNORE 1 LINES
 """
-        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
+        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}, dialect=mysql.dialect()))
 
         self.assertEqual(sqltext, expected_sql)
 
@@ -202,7 +203,7 @@ LINES
     TERMINATED BY '\001'
 IGNORE 1 LINES
 """
-        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
+        sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}, dialect=mysql.dialect()))
 
         self.assertEqual(sqltext, expected_sql)
 

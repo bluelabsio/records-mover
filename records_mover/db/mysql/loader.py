@@ -27,7 +27,7 @@ class MySQLLoader(LoaderFromRecordsDirectory):
              schema: str,
              table: str,
              load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> int:
+             directory: RecordsDirectory) -> None:
         if not isinstance(load_plan.records_format, DelimitedRecordsFormat):
             raise NotImplementedError('Teach me how to load '
                                       f'{load_plan.records_format.format_type} format')
@@ -62,7 +62,7 @@ class MySQLLoader(LoaderFromRecordsDirectory):
                                                       schema_name=schema)
             # TODO: is this also an option? https://docs.sqlalchemy.org/en/13/core/custom_types.html#sqlalchemy.types.TypeDecorator.process_literal_param
             logger.info(f"Loading to MySQL with options: {load_options}")
-            logger.info(sql)
+            logger.info(str(sql))
             self.db.execute(sql)
             logger.info("MySQL LOAD DATA complete.")
         return None
