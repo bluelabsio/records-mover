@@ -52,26 +52,20 @@ class MySQLLoader(LoaderFromRecordsDirectory):
         all_urls = directory.manifest_entry_urls()
 
         locs = [self.url_resolver.file_url(url) for url in all_urls]
-        rows_so_far = 0
-        with self.db.connect() as conn:
-            dbapi_conn = conn.connection
-            for loc in locs:
-                # This came from a FilesystemDirectoryUrl, so it had better be...
-                assert isinstance(loc, FilesystemFileUrl)
-                # TODO: Verify this is appending
-                filename = loc.local_file_path
-                with dbapi_conn.cursor() as cursor:
-                    sql = load_options.generate_load_data_sql(filename=filename,
-                                                              table_name=table,
-                                                              schema_name=schema)
-                    sqltext = str(sql.compile(compile_kwargs={"literal_binds": True}))
-
-                    logger.info(f"Loading to MySQL with options: {load_options}")
-                    logger.info(sqltext)
-                    out = cursor.execute(sqltext)
-                logger.info("MySQL LOAD DATA complete.")
-                rows_so_far += out
-            return rows_so_far
+        for loc in locs:
+            # This came from a FilesystemDirectoryUrl, so it had better be...
+            assert isinstance(loc, FilesystemFileUrl)
+            filename = loc.local_file_path
+            # TODO read through warnings here and consider https://docs.sqlalchemy.org/en/13/faq/sqlexpressions.html#rendering-bound-parameters-inline
+            sql = load_options.generate_load_data_sql(filename=filename,
+                                                      table_name=table,
+                                                      schema_name=schema)
+            # TODO: is this also an option? https://docs.sqlalchemy.org/en/13/core/custom_types.html#sqlalchemy.types.TypeDecorator.process_literal_param
+            logger.info(f"Loading to MySQL with options: {load_options}")
+            logger.info(sql)
+            self.db.execute(sql)
+            logger.info("MySQL LOAD DATA complete.")
+        return None
 
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         try:

@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 # cred-service/LastPass/etc) into which driver to use.
 db_driver_for_type = {
     'postgres': 'postgresql',
+    'mysql': 'mysql+pymysql',
     'vertica': 'vertica+vertica_python',
 }
 
@@ -102,7 +103,10 @@ def create_sqlalchemy_url(db_facts: DBFacts,
                                  password=db_facts['password'],
                                  host=db_facts['host'],
                                  port=db_facts['port'],
-                                 database=db_facts['database'])
+                                 database=db_facts['database'],
+                                 query={
+                                     "local_infile": True  # TODO: Make generic
+                                 })
 
 
 def engine_from_lpass_entry(lpass_entry_name: str) -> sa.engine.Engine:
@@ -120,4 +124,5 @@ def engine_from_db_facts(db_facts: DBFacts) -> sa.engine.Engine:
         return create_bigquery_db_engine(db_facts)
     else:
         db_url = create_sqlalchemy_url(db_facts)
+        print(f"VMB: {db_url}")
         return sa.create_engine(db_url)
