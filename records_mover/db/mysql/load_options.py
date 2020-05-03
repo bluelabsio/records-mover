@@ -127,7 +127,7 @@ IGNORE :ignore_n_lines LINES
             #   ''\nIGNORE 0 LINES' at line 8")
             #
             clause = clause.bindparams(fields_escaped_by=self.
-                                       fields_escaped_by.encode('unicode-escape'))
+                                       fields_escaped_by)
         return clause
 
 
