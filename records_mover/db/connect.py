@@ -46,6 +46,7 @@ query_for_type = {
     },
 }
 
+
 def create_vertica_odbc_sqlalchemy_url(db_facts: DBFacts) -> str:
     # Vertica wants the port in its ODBC connect string as a separate
     # parameter called "Port":
