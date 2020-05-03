@@ -118,14 +118,6 @@ IGNORE :ignore_n_lines LINES
             clause = clause.bindparams(fields_optionally_enclosed_by=self.
                                        fields_optionally_enclosed_by)
         if self.fields_escaped_by is not None:
-            # Backslashes need to be pre-escaped when bound in here in
-            # practice - without it, you get this error:
-            #
-            #  MySQLdb._exceptions.ProgrammingError: (1064,
-            #  "You have an error in your SQL syntax; check the manual that corresponds
-            #   to your MySQL server version for the right syntax to use near
-            #   ''\nIGNORE 0 LINES' at line 8")
-            #
             clause = clause.bindparams(fields_escaped_by=self.
                                        fields_escaped_by)
         return clause
