@@ -46,6 +46,7 @@ if TYPE_CHECKING:
     from typing_extensions import Literal  # noqa
 
     from mypy_extensions import TypedDict
+    # TODO: Can these use the types below?
     BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
                                           {
                                               'quoting': Optional[str],
@@ -57,6 +58,10 @@ if TYPE_CHECKING:
                                           },
                                           total=False)
 
+    #
+    # Note: Any expansion of these types should also be done in
+    # records.jobs.hints
+    #
     RecordsFormatType = Literal['delimited', 'parquet']
 
     DelimitedVariant = Literal['dumb', 'csv', 'bigquery', 'bluelabs', 'vertica']
