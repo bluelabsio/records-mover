@@ -56,11 +56,9 @@ class MySQLLoader(LoaderFromRecordsDirectory):
             # This came from a FilesystemDirectoryUrl, so it had better be...
             assert isinstance(loc, FilesystemFileUrl)
             filename = loc.local_file_path
-            # TODO read through warnings here and consider https://docs.sqlalchemy.org/en/13/faq/sqlexpressions.html#rendering-bound-parameters-inline
             sql = load_options.generate_load_data_sql(filename=filename,
                                                       table_name=table,
                                                       schema_name=schema)
-            # TODO: is this also an option? https://docs.sqlalchemy.org/en/13/core/custom_types.html#sqlalchemy.types.TypeDecorator.process_literal_param
             logger.info(f"Loading to MySQL with options: {load_options}")
             logger.info(str(sql))
             self.db.execute(sql)

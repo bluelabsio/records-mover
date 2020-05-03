@@ -7,7 +7,6 @@ from records_mover.db.mysql.load_options import MySqlLoadOptions, mysql_load_opt
 class TestMySQLLoadOptions(unittest.TestCase):
     maxDiff = None
 
-    # TODO: Maybe we should escape only specific things, and write a function to do that?
     def test_generate_load_data_sql_boring(self) -> None:
         options = MySqlLoadOptions(character_set="utf8",
                                    fields_terminated_by="\t",
