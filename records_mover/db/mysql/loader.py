@@ -86,6 +86,8 @@ class MySQLLoader(LoaderFromRecordsDirectory):
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
         return [
+            # MySQL supports a healthy amount of load types, but
+            # doesn't support loading compressed files.
             DelimitedRecordsFormat(variant='bluelabs',
                                    hints={
                                        'compression': None
