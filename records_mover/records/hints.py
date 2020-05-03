@@ -150,7 +150,7 @@ def other_inferred_csv_hints(fileobj: IO[bytes],
     return inferred_hints
 
 
-def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[str]:
+def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[HintEncoding]:
     if getattr(fileobj, 'closed', None) is not None:
         closed = fileobj.closed
     if closed or not fileobj.seekable():

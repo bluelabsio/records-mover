@@ -46,17 +46,6 @@ if TYPE_CHECKING:
     from typing_extensions import Literal  # noqa
 
     from mypy_extensions import TypedDict
-    # TODO: Can these use the types below?
-    BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
-                                          {
-                                              'quoting': Optional[str],
-                                              'header-row': bool,
-                                              'field-delimiter': str,
-                                              'encoding': str,
-                                              'escape': Optional[str],
-                                              'compression': Optional[str],
-                                          },
-                                          total=False)
 
     #
     # Note: Any expansion of these types should also be done in
@@ -81,6 +70,7 @@ if TYPE_CHECKING:
     HintHeaderRow = Literal[True, False]
 
     HintDoublequote = Literal[True, False]
+
 else:
     RecordsManifestEntryMetadata = Mapping[str, int]
     LegacyRecordsManifestEntry = Mapping[str, Union[str, bool, int, RecordsManifestEntryMetadata]]
@@ -91,8 +81,6 @@ else:
     UrlDetailsEntry = Dict[str, int]
     Url = str
     UrlDetails = Dict[Url, UrlDetailsEntry]
-
-    BootstrappingRecordsHints = RecordsHints
 
     RecordsFormatType = str
 
@@ -115,3 +103,18 @@ HintFieldDelimiter = str
 HintRecordTerminator = str
 
 HintQuoteChar = str
+
+
+if TYPE_CHECKING:
+    BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
+                                          {
+                                              'quoting': HintQuoting,
+                                              'header-row': HintHeaderRow,
+                                              'field-delimiter': HintFieldDelimiter,
+                                              'encoding': HintEncoding,
+                                              'escape': HintEscape,
+                                              'compression': HintCompression,
+                                          },
+                                          total=False)
+else:
+    BootstrappingRecordsHints = RecordsHints
