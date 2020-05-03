@@ -50,8 +50,8 @@ Along the way, figure out which one of of these your database wants most to do:
 3. Using the mypy errors as a driver (run `make` to get mypy to run),
    create these methods in the DBDriver subclass - initially with
    `raise NotImplementedError` as the body.  Focus for now at getting
-   the right methods in place and wired up, not yet on adding
-   actual logic.
+   the right methods in place, not yet on adding actual logic inside
+   them.
 
 ## Get tests wired up and talking to your code
 
@@ -70,7 +70,7 @@ Along the way, figure out which one of of these your database wants most to do:
    syntax specific to your database - e.g., the Redshift function is named
    after Redshift's `UNLOAD` statement.
 
-   Thisf unction should just raise `NotImplementedError` for now.
+   This function should just raise `NotImplementedError` for now.
    Example:
 
    ```python
