@@ -1,4 +1,5 @@
 from typing import Dict, Optional, Union, List, Mapping, NamedTuple, Any, TYPE_CHECKING
+from .hints import cant_handle_hint
 from records_mover.types import JsonValue
 
 """RecordsHints are described as part of the overall `records format
@@ -66,9 +67,36 @@ if TYPE_CHECKING:
     HintQuoting = Literal["all", "minimal", "nonnumeric", None]
 
     HintEscape = Literal["\\", None]
+else:
+    RecordsManifestEntryMetadata = Mapping[str, int]
+    LegacyRecordsManifestEntry = Mapping[str, Union[str, bool, int, RecordsManifestEntryMetadata]]
+    RecordsManifestEntryWithLength =\
+        Mapping[str, Union[str, bool, int, RecordsManifestEntryMetadata]]
+    LegacyRecordsManifest = Mapping[str, List[LegacyRecordsManifestEntry]]
+    RecordsManifestWithLength = Mapping[str, List[RecordsManifestEntryWithLength]]
+    UrlDetailsEntry = Dict[str, int]
+    Url = str
+    UrlDetails = Dict[Url, UrlDetailsEntry]
 
+    RecordsFormatType = str
+
+    DelimitedVariant = str
+
+    HintEncoding = str
+
+    HintQuoting = Optional[str]
+
+    HintEscape = Optional[str]
+
+# TODO: combine this and cli thingie
+if TYPE_CHECKING:
     HintCompression = Literal['GZIP', 'BZIP', 'LZO', None]
+else:
+    HintCompression = Optional[str]
 
+VALID_COMPRESSIONS: List[HintCompression] = ['GZIP', 'BZIP', 'LZO', None]
+
+if TYPE_CHECKING:
     # The trick here works on Literal[True, False] but not on bool:
     #
     # https://github.com/python/mypy/issues/6366#issuecomment-560369716
@@ -91,28 +119,6 @@ if TYPE_CHECKING:
                                  "YYYY-MM-DD HH12:MI AM",
                                  "MM/DD/YY HH24:MI"]
 else:
-    RecordsManifestEntryMetadata = Mapping[str, int]
-    LegacyRecordsManifestEntry = Mapping[str, Union[str, bool, int, RecordsManifestEntryMetadata]]
-    RecordsManifestEntryWithLength =\
-        Mapping[str, Union[str, bool, int, RecordsManifestEntryMetadata]]
-    LegacyRecordsManifest = Mapping[str, List[LegacyRecordsManifestEntry]]
-    RecordsManifestWithLength = Mapping[str, List[RecordsManifestEntryWithLength]]
-    UrlDetailsEntry = Dict[str, int]
-    Url = str
-    UrlDetails = Dict[Url, UrlDetailsEntry]
-
-    RecordsFormatType = str
-
-    DelimitedVariant = str
-
-    HintEncoding = str
-
-    HintQuoting = Optional[str]
-
-    HintEscape = Optional[str]
-
-    HintCompression = Optional[str]
-
     HintHeaderRow = bool
 
     HintDoublequote = bool
@@ -149,6 +155,9 @@ else:
     BootstrappingRecordsHints = RecordsHints
 
 
+INVALID_OBJECT = object()
+
+
 # TODO: Read up on namedtuple vs dataclass
 # TODO: Read up on autovalidating libraries
 class ValidatedRecordsHints(NamedTuple):
@@ -169,11 +178,63 @@ class ValidatedRecordsHints(NamedTuple):
     @staticmethod
     def validate(hints: RecordsHints,
                  fail_if_cant_handle_hint: bool) -> 'ValidatedRecordsHints':
-        pass
-        # #def validate_as_string(json: Union[bool, str, None]):
+        def validate_boolean(hint_name: str) -> Union[Literal[True], Literal[False]]:
+            x = hints[hint_name]
+            if x is True:
+                return True
+            if x is False:
+                return False
+            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
+                             hint_name=hint_name,
+                             hints=hints)
+            return True
 
+        def validate_string(hint_name: str) -> str:
+            x = hints[hint_name]
+            if isinstance(x, str):
+                return x
+            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
+                             hint_name=hint_name,
+                             hints=hints)
+            return str(x)
 
-        # #hint_header_row = validate_as_string(hints['header-row'])
-        # return ValidatedRecordsHints(
-        #     header_row=hint_header_row,
-        # )
+        def validate_optional_string(hint_name: str) -> Optional[str]:
+            x = hints[hint_name]
+            if x is None:
+                return x
+            if isinstance(x, str):
+                return x
+            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
+                             hint_name=hint_name,
+                             hints=hints)
+            return str(x)
+
+        def validate_compression() -> HintCompression:
+            x = validate_optional_string('compression')
+            # MyPy doesn't like looking for a generic optional string
+            # in a list of specific optional strings.  It's wrong;
+            # that's perfectly safe
+            i = VALID_COMPRESSIONS.index(x)  # type: ignore
+            if i is not None:
+                return VALID_COMPRESSIONS[i]
+            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
+                             hint_name='compression',
+                             hints=hints)
+            return None
+
+        def validate_quoting() -> HintQuoting:
+            raise NotImplementedError
+
+        header_row = validate_boolean('header_row')
+        field_delimiter = validate_string('field_delimiter')
+        compression = validate_compression()
+        record_terminator = validate_string('record_terminator')
+        quoting = validate_quoting('quoting')
+        # TODO: After one create functions
+        return ValidatedRecordsHints(
+            header_row=header_row,
+            field_delimiter=field_delimiter,
+            compression=compression,
+            record_terminator=record_terminator,
+            quoting=quoting,
+        )
