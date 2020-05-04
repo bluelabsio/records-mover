@@ -3,7 +3,8 @@ from .processing_instructions import ProcessingInstructions
 from . import RecordsHints
 from .base_records_format import BaseRecordsFormat
 from typing import Mapping, Optional, Union, TYPE_CHECKING
-from .types import ValidatedRecordsHints, MutableRecordsHints
+from .types import MutableRecordsHints
+from .validated_records_hints import ValidatedRecordsHints
 if TYPE_CHECKING:
     from . import RecordsFormatType  # noqa
 
@@ -180,8 +181,10 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
             raise NotImplementedError("Teach me how to handle compression "
                                       f"type {compression_type}")
 
-    def validate(self) -> ValidatedRecordsHints:
-        raise NotImplementedError
+    def validate(self,
+                 fail_if_cant_handle_hint: bool) -> ValidatedRecordsHints:
+        return ValidatedRecordsHints.validate(self.hints,
+                                              fail_if_cant_handle_hint=fail_if_cant_handle_hint)
 
     def __repr__(self) -> str:
         return str(self)

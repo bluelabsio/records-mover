@@ -1,5 +1,4 @@
-from typing import Dict, Optional, Union, List, Mapping, NamedTuple, Any, TYPE_CHECKING
-from .hints import cant_handle_hint
+from typing import Dict, Optional, Union, List, Mapping, NamedTuple, Any, TypeVar, TYPE_CHECKING
 from records_mover.types import JsonValue
 
 """RecordsHints are described as part of the overall `records format
@@ -61,12 +60,6 @@ if TYPE_CHECKING:
 
     DelimitedVariant = Literal['dumb', 'csv', 'bigquery', 'bluelabs', 'vertica']
 
-    HintEncoding = Literal["UTF8", "UTF16", "UTF16LE", "UTF16BE",
-                           "UTF16BOM", "UTF8BOM", "LATIN1", "CP1252"]
-
-    HintQuoting = Literal["all", "minimal", "nonnumeric", None]
-
-    HintEscape = Literal["\\", None]
 else:
     RecordsManifestEntryMetadata = Mapping[str, int]
     LegacyRecordsManifestEntry = Mapping[str, Union[str, bool, int, RecordsManifestEntryMetadata]]
@@ -82,11 +75,30 @@ else:
 
     DelimitedVariant = str
 
+if TYPE_CHECKING:
+    HintEncoding = Literal["UTF8", "UTF16", "UTF16LE", "UTF16BE",
+                           "UTF16BOM", "UTF8BOM", "LATIN1", "CP1252"]
+else:
     HintEncoding = str
 
+VALID_ENCODING: List[HintEncoding] = [
+    "UTF8", "UTF16", "UTF16LE", "UTF16BE", "UTF16BOM", "UTF8BOM", "LATIN1", "CP1252"
+]
+
+if TYPE_CHECKING:
+    HintQuoting = Literal["all", "minimal", "nonnumeric", None]
+else:
     HintQuoting = Optional[str]
 
+VALID_QUOTING: List[HintQuoting] = ["all", "minimal", "nonnumeric", None]
+
+
+if TYPE_CHECKING:
+    HintEscape = Literal["\\", None]
+else:
     HintEscape = Optional[str]
+
+VALID_ESCAPE: List[HintEscape] = ["\\", None]
 
 # TODO: combine this and cli thingie
 if TYPE_CHECKING:
@@ -103,34 +115,59 @@ if TYPE_CHECKING:
     HintHeaderRow = Literal[True, False]
 
     HintDoublequote = Literal[True, False]
-
-    # TODO: This None is a bug in the spec, right?
-    HintDateFormat = Literal[None, 'YYYY-MM-DD', 'MM-DD-YYYY', 'DD-MM-YYYY', 'MM/DD/YY']
-
-    HintTimeOnlyFormat = Literal["HH12:MI AM", "HH24:MI:SS"]
-
-    HintDateTimeFormatTz = Literal["YYYY-MM-DD HH:MI:SSOF",
-                                   "YYYY-MM-DD HH:MI:SS",
-                                   "YYYY-MM-DD HH24:MI:SSOF",
-                                   "YYYY-MM-DD HH24:MI:SSOF",
-                                   "MM/DD/YY HH24:MI"]
-
-    HintDateTimeFormat = Literal["YYYY-MM-DD HH24:MI:SS",
-                                 "YYYY-MM-DD HH12:MI AM",
-                                 "MM/DD/YY HH24:MI"]
 else:
     HintHeaderRow = bool
 
     HintDoublequote = bool
 
+
+if TYPE_CHECKING:
+    # TODO: This None is a bug in the spec, right?
+    HintDateFormat = Literal[None, 'YYYY-MM-DD', 'MM-DD-YYYY', 'DD-MM-YYYY', 'MM/DD/YY']
+else:
     # TODO: This None is a bug in the spec, right?
     HintDateFormat = Optional[str]
 
+VALID_DATEFORMATS: List[HintDateFormat] = [
+    None, 'YYYY-MM-DD', 'MM-DD-YYYY', 'DD-MM-YYYY', 'MM/DD/YY'
+]
+
+if TYPE_CHECKING:
+    HintTimeOnlyFormat = Literal["HH12:MI AM", "HH24:MI:SS"]
+else:
     HintTimeOnlyFormat = str
 
+VALID_TIMEONLYFORMATS: List[HintTimeOnlyFormat] = ["HH12:MI AM", "HH24:MI:SS"]
+
+if TYPE_CHECKING:
+    HintDateTimeFormatTz = Literal["YYYY-MM-DD HH:MI:SSOF",
+                                   "YYYY-MM-DD HH:MI:SS",
+                                   "YYYY-MM-DD HH24:MI:SSOF", # TODO: this is listed twice - bug in spec?
+                                   "YYYY-MM-DD HH24:MI:SSOF",
+                                   "MM/DD/YY HH24:MI"]
+else:
     HintDateTimeFormatTz = str
 
+VALID_DATETIMEFORMATTZS: List[HintDateTimeFormatTz] = ["YYYY-MM-DD HH:MI:SSOF",
+                                                       "YYYY-MM-DD HH:MI:SS",
+                                                       "YYYY-MM-DD HH24:MI:SSOF", # TODO: this is listed twice - bug in spec?
+                                                       "YYYY-MM-DD HH24:MI:SSOF",
+                                                       "MM/DD/YY HH24:MI"]
+
+
+if TYPE_CHECKING:
+    HintDateTimeFormat = Literal["YYYY-MM-DD HH24:MI:SS",
+                                 'YYYY-MM-DD HH:MI:SS', # TODO this isn't in spec valid, but is part of a variant
+                                 "YYYY-MM-DD HH12:MI AM",
+                                 "MM/DD/YY HH24:MI"]
+else:
     HintDateTimeFormat = str
+
+
+VALID_DATETIMEFORMATS: List[HintDateTimeFormat] = ["YYYY-MM-DD HH24:MI:SS",
+                                                   'YYYY-MM-DD HH:MI:SS', # TODO this isn't in spec valid, but is part of a variant
+                                                   "YYYY-MM-DD HH12:MI AM",
+                                                   "MM/DD/YY HH24:MI"]
 
 HintFieldDelimiter = str
 
@@ -156,85 +193,3 @@ else:
 
 
 INVALID_OBJECT = object()
-
-
-# TODO: Read up on namedtuple vs dataclass
-# TODO: Read up on autovalidating libraries
-class ValidatedRecordsHints(NamedTuple):
-    header_row: HintHeaderRow
-    field_delimiter: HintFieldDelimiter
-    compression: HintCompression
-    record_terminator: HintRecordTerminator
-    quoting: HintQuoting
-    quotechar: HintQuoteChar
-    doublequote: HintDoublequote
-    escape: HintEscape
-    encoding: HintEncoding
-    dateformat: HintDateFormat
-    timeonlyformat: HintTimeOnlyFormat
-    datetimeformattz: HintDateTimeFormatTz
-    datetimeformat: HintDateTimeFormat
-
-    @staticmethod
-    def validate(hints: RecordsHints,
-                 fail_if_cant_handle_hint: bool) -> 'ValidatedRecordsHints':
-        def validate_boolean(hint_name: str) -> Union[Literal[True], Literal[False]]:
-            x = hints[hint_name]
-            if x is True:
-                return True
-            if x is False:
-                return False
-            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
-                             hint_name=hint_name,
-                             hints=hints)
-            return True
-
-        def validate_string(hint_name: str) -> str:
-            x = hints[hint_name]
-            if isinstance(x, str):
-                return x
-            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
-                             hint_name=hint_name,
-                             hints=hints)
-            return str(x)
-
-        def validate_optional_string(hint_name: str) -> Optional[str]:
-            x = hints[hint_name]
-            if x is None:
-                return x
-            if isinstance(x, str):
-                return x
-            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
-                             hint_name=hint_name,
-                             hints=hints)
-            return str(x)
-
-        def validate_compression() -> HintCompression:
-            x = validate_optional_string('compression')
-            # MyPy doesn't like looking for a generic optional string
-            # in a list of specific optional strings.  It's wrong;
-            # that's perfectly safe
-            i = VALID_COMPRESSIONS.index(x)  # type: ignore
-            if i is not None:
-                return VALID_COMPRESSIONS[i]
-            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
-                             hint_name='compression',
-                             hints=hints)
-            return None
-
-        def validate_quoting() -> HintQuoting:
-            raise NotImplementedError
-
-        header_row = validate_boolean('header_row')
-        field_delimiter = validate_string('field_delimiter')
-        compression = validate_compression()
-        record_terminator = validate_string('record_terminator')
-        quoting = validate_quoting('quoting')
-        # TODO: After one create functions
-        return ValidatedRecordsHints(
-            header_row=header_row,
-            field_delimiter=field_delimiter,
-            compression=compression,
-            record_terminator=record_terminator,
-            quoting=quoting,
-        )

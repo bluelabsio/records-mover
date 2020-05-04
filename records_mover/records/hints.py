@@ -1,5 +1,5 @@
 import chardet
-from . import RecordsHints, BootstrappingRecordsHints
+from .types import RecordsHints, BootstrappingRecordsHints
 from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
