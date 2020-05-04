@@ -13,7 +13,7 @@ class TestMySQLLoadOptionsKnown(unittest.TestCase):
                              url_resolver=mock_url_resolver)
         known_load_formats = loader.known_supported_records_formats_for_load()
         for records_format in known_load_formats:
-            unhandled_hints = set()
+            unhandled_hints = set(records_format.hints)
             # ensure no exception thrown
             mysql_load_options(unhandled_hints,
                                records_format,
