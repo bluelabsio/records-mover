@@ -3,6 +3,7 @@ from .processing_instructions import ProcessingInstructions
 from . import RecordsHints
 from .base_records_format import BaseRecordsFormat
 from typing import Mapping, Optional, Union, TYPE_CHECKING
+from .types import ValidatedRecordsHints, MutableRecordsHints
 if TYPE_CHECKING:
     from . import RecordsFormatType  # noqa
 
@@ -59,7 +60,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
                     self.hints == other.hints)
         return False
 
-    def alter_hints(self, new_hints: Mapping[str, Optional[Union[bool, str]]]) ->\
+    def alter_hints(self, new_hints: RecordsHints) ->\
             'DelimitedRecordsFormat':
         input_hints = dict(self.hints)  # make copy
         input_hints.update(new_hints)
@@ -71,7 +72,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
                                       hints=self.hints)
 
     def base_hints_from_variant(self,
-                                fail_if_dont_understand: bool = True) -> RecordsHints:
+                                fail_if_dont_understand: bool = True) -> MutableRecordsHints:
         hint_defaults: RecordsHints = {
             'header-row': False,
             'field-delimiter': ',',
@@ -88,7 +89,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
             'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
         }
         combined_hints = dict(hint_defaults)
-        format_driven_hints: RecordsHints = {}  # noqa
+        format_driven_hints: MutableRecordsHints = {}  # noqa
         if self.variant == 'dumb':
             format_driven_hints['field-delimiter'] = ','
             format_driven_hints['record-terminator'] = "\n"
@@ -178,6 +179,9 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
         else:
             raise NotImplementedError("Teach me how to handle compression "
                                       f"type {compression_type}")
+
+    def validate(self) -> ValidatedRecordsHints:
+        raise NotImplementedError
 
     def __repr__(self) -> str:
         return str(self)

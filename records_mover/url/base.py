@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 import json
+from records_mover.types import JsonValue
 from typing import TypeVar, Iterator, IO, Any, Mapping, Optional, List, Union
 
 V = TypeVar('V', bound='BaseDirectoryUrl')
@@ -108,7 +109,7 @@ class BaseFileUrl:
         with self.open() as f:
             return f.read().decode(encoding)
 
-    def json_contents(self) -> Optional[Mapping[Any, Any]]:
+    def json_contents(self) -> Optional[JsonValue]:
         file_contents = self.string_contents()
         if len(file_contents) > 0:
             data = json.loads(file_contents)

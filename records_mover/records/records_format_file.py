@@ -37,6 +37,8 @@ class RecordsFormatFile:
             # configuration.
             raise TypeError(f"Detailed format information must be provided in {format_loc.url} "
                             f"for type delimited")
+        if not isinstance(data, dict):
+            raise TypeError(f"{format_loc.url} does not contain a JSON object as expected")
         if 'variant' not in data:
             raise TypeError(f"variant not specified in {format_loc.url}")
         potential_variant = data['variant']

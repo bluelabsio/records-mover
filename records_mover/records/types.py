@@ -1,4 +1,5 @@
-from typing import Dict, Optional, Union, List, Mapping, TYPE_CHECKING
+from typing import Dict, Optional, Union, List, Mapping, NamedTuple, Any, TYPE_CHECKING
+from records_mover.types import JsonValue
 
 """RecordsHints are described as part of the overall `records format
 documentation
@@ -11,7 +12,11 @@ See the :py:meth:`records_mover.records.records_format.RecordsFormat`
 for the other details that are typically provided along with records
 hints.
 """
-RecordsHints = Dict[str, Optional[Union[bool, str]]]
+
+RecordsValue = Optional[Union[bool, str]]
+RecordsHints = Mapping[str, JsonValue]
+MutableRecordsHints = Dict[str, JsonValue]
+
 
 if TYPE_CHECKING:
     from ..db import DBDriver  # noqa
@@ -71,6 +76,20 @@ if TYPE_CHECKING:
 
     HintDoublequote = Literal[True, False]
 
+    # TODO: This None is a bug in the spec, right?
+    HintDateFormat = Literal[None, 'YYYY-MM-DD', 'MM-DD-YYYY', 'DD-MM-YYYY', 'MM/DD/YY']
+
+    HintTimeOnlyFormat = Literal["HH12:MI AM", "HH24:MI:SS"]
+
+    HintDateTimeFormatTz = Literal["YYYY-MM-DD HH:MI:SSOF",
+                                   "YYYY-MM-DD HH:MI:SS",
+                                   "YYYY-MM-DD HH24:MI:SSOF",
+                                   "YYYY-MM-DD HH24:MI:SSOF",
+                                   "MM/DD/YY HH24:MI"]
+
+    HintDateTimeFormat = Literal["YYYY-MM-DD HH24:MI:SS",
+                                 "YYYY-MM-DD HH12:MI AM",
+                                 "MM/DD/YY HH24:MI"]
 else:
     RecordsManifestEntryMetadata = Mapping[str, int]
     LegacyRecordsManifestEntry = Mapping[str, Union[str, bool, int, RecordsManifestEntryMetadata]]
@@ -98,6 +117,15 @@ else:
 
     HintDoublequote = bool
 
+    # TODO: This None is a bug in the spec, right?
+    HintDateFormat = Optional[str]
+
+    HintTimeOnlyFormat = str
+
+    HintDateTimeFormatTz = str
+
+    HintDateTimeFormat = str
+
 HintFieldDelimiter = str
 
 HintRecordTerminator = str
@@ -116,5 +144,36 @@ if TYPE_CHECKING:
                                               'compression': HintCompression,
                                           },
                                           total=False)
+
 else:
     BootstrappingRecordsHints = RecordsHints
+
+
+# TODO: Read up on namedtuple vs dataclass
+# TODO: Read up on autovalidating libraries
+class ValidatedRecordsHints(NamedTuple):
+    header_row: HintHeaderRow
+    field_delimiter: HintFieldDelimiter
+    compression: HintCompression
+    record_terminator: HintRecordTerminator
+    quoting: HintQuoting
+    quotechar: HintQuoteChar
+    doublequote: HintDoublequote
+    escape: HintEscape
+    encoding: HintEncoding
+    dateformat: HintDateFormat
+    timeonlyformat: HintTimeOnlyFormat
+    datetimeformattz: HintDateTimeFormatTz
+    datetimeformat: HintDateTimeFormat
+
+    @staticmethod
+    def validate(hints: RecordsHints,
+                 fail_if_cant_handle_hint: bool) -> 'ValidatedRecordsHints':
+        pass
+        # #def validate_as_string(json: Union[bool, str, None]):
+
+
+        # #hint_header_row = validate_as_string(hints['header-row'])
+        # return ValidatedRecordsHints(
+        #     header_row=hint_header_row,
+        # )

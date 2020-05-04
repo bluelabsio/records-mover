@@ -3,7 +3,7 @@ from . import RecordsHints, BootstrappingRecordsHints
 from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
-from .types import HintEncoding
+from .types import HintEncoding, MutableRecordsHints
 from typing import Iterable, List, IO, Optional, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader
@@ -119,7 +119,7 @@ def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
 
 
 def infer_newline_format(fileobj: IO[bytes],
-                         inferred_hints: RecordsHints,
+                         inferred_hints: MutableRecordsHints,
                          encoding_hint: str) -> None:
     closed = False
     if getattr(fileobj, 'closed', None) is not None:
@@ -145,7 +145,7 @@ def infer_newline_format(fileobj: IO[bytes],
 
 def other_inferred_csv_hints(fileobj: IO[bytes],
                              encoding_hint: str) -> RecordsHints:
-    inferred_hints: RecordsHints = {}
+    inferred_hints: MutableRecordsHints = {}
     infer_newline_format(fileobj, inferred_hints, encoding_hint)
     return inferred_hints
 
