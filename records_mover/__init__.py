@@ -16,6 +16,10 @@ from .version import __version__
 from .session import Session
 from .records import Records, move
 from .logging import set_stream_logging
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .records.sources import RecordsSources
+    from .records.targets import RecordsTargets
 
 
 #
@@ -28,26 +32,26 @@ from .logging import set_stream_logging
 # https://stackoverflow.com/questions/1462986/lazy-module-variables-can-it-be-done
 class _Sneaky(types.ModuleType):
     @property
-    def _session(self):
+    def _session(self) -> Session:
         if not hasattr(self, '_session_'):
             self._session_ = Session()
             self._session_.set_stream_logging()
         return self._session_
 
     @property
-    def _records(self):
+    def _records(self) -> Records:
         if not hasattr(self, '_records_'):
             self._records_ = self._session.records
         return self._records_
 
     @property
-    def sources(self):
+    def sources(self) -> 'RecordsSources':
         if not hasattr(self, '_sources'):
             self._sources = self._records.sources
         return self._sources
 
     @property
-    def targets(self):
+    def targets(self) -> 'RecordsTargets':
         if not hasattr(self, '_targets'):
             self._targets = self._records.targets
         return self._targets
