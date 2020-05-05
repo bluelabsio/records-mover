@@ -33,7 +33,7 @@ class TestFactory(unittest.TestCase):
         mock_db_engine = Mock(name='db_engine')
         existing_table_handling = ExistingTableHandling.DELETE_AND_OVERWRITE
 
-        table =self.records_targets.\
+        table = self.records_targets.\
             table(schema_name=mock_schema_name,
                   table_name=mock_table_name,
                   db_engine=mock_db_engine)

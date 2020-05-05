@@ -1,11 +1,10 @@
 import pathlib
 from ...url.resolver import UrlResolver
-from contextlib import contextmanager
 from ..records_format import BaseRecordsFormat
 from .fileobj import FileobjTarget
 from .directory_from_url import DirectoryFromUrlRecordsTarget
 from .data_url import DataUrlTarget
-from typing import Callable, Iterator, Optional, Union, Dict, List, IO, TYPE_CHECKING
+from typing import Callable, Optional, Union, Dict, List, IO, TYPE_CHECKING
 from ..existing_table_handling import ExistingTableHandling
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
@@ -137,8 +136,8 @@ class RecordsTargets(object):
                None for no preference (may be faster depending on the source).
         """
         output_loc = self.url_resolver.file_url(output_url)
-        return  DataUrlTarget(output_loc=output_loc,
-                              records_format=records_format)
+        return DataUrlTarget(output_loc=output_loc,
+                             records_format=records_format)
 
     def local_file(self,
                    filename: str,

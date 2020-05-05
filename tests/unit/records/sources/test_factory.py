@@ -16,8 +16,8 @@ class TestFactory(unittest.TestCase):
         mock_df = Mock(name='df')
         mock_processing_instructions = Mock(name='processing_instructions')
         df = self.records_sources.\
-                dataframe(df=mock_df,
-                          processing_instructions=mock_processing_instructions)
+            dataframe(df=mock_df,
+                      processing_instructions=mock_processing_instructions)
         mock_DataframesRecordsSource.\
             assert_called_with(dfs=ANY,
                                include_index=False,

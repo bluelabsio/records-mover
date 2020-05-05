@@ -1,5 +1,4 @@
 import pathlib
-from contextlib import contextmanager
 from ..records_format import BaseRecordsFormat
 from ..schema import RecordsSchema
 from ..records_directory import RecordsDirectory
@@ -12,7 +11,7 @@ from .directory import RecordsDirectoryRecordsSource
 from .. import RecordsHints, BootstrappingRecordsHints
 from .base import (SupportsRecordsDirectory, SupportsMoveToRecordsDirectory,  # noqa
                    SupportsToFileobjsSource, RecordsSource)
-from typing import Mapping, IO, Callable, Iterator, Optional, Union, Iterable, TYPE_CHECKING
+from typing import Mapping, IO, Callable, Optional, Union, Iterable, TYPE_CHECKING
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
     import google.auth.credentials  # noqa
