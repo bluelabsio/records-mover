@@ -230,3 +230,7 @@ class TestRecordsDirectory(unittest.TestCase):
         mock_output_loc = Mock(name='output_loc')
         self.records_directory.save_to_url(mock_output_loc)
         mock_csv_loc.copy_to.assert_called_with(mock_output_loc)
+
+    def test_str(self):
+        self.assertEqual(str(self.records_directory),
+                         f"RecordsDirectory({self.mock_records_loc.url})")

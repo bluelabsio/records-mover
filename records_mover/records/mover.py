@@ -10,27 +10,13 @@ from .targets import base as targets_base
 from .processing_instructions import ProcessingInstructions
 from .records_format import BaseRecordsFormat
 from .results import MoveResult
-from typing import Union, ContextManager, TypeVar, cast
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-A = TypeVar('A')
-
-
-def unpack_context_manager(potential_iterator: Union[A, ContextManager[A]]) -> A:
-    if hasattr(potential_iterator, '__enter__'):
-        iterator = cast(ContextManager[A], potential_iterator)
-        with iterator as unpacked:
-            return unpacked
-    else:
-        a = cast(A, potential_iterator)
-        return a
-
-
-def move(records_source: Union[RecordsSource, ContextManager[RecordsSource]],
-         records_target: Union[RecordsTarget, ContextManager[RecordsTarget]],
+def move(records_source: RecordsSource,
+         records_target: RecordsTarget,
          processing_instructions: ProcessingInstructions=ProcessingInstructions()) -> MoveResult:
     """Copy records from one location to another.  Applies a sequence of
     possible techniques to do this in an efficient way by looking for
@@ -44,9 +30,6 @@ def move(records_source: Union[RecordsSource, ContextManager[RecordsSource]],
     RecordsTarget in targets.py for the semantics of the methods being
     called.
     """
-    records_source = unpack_context_manager(records_source)
-    records_target = unpack_context_manager(records_target)
-
     records_source.validate()
     records_target.validate()
 
