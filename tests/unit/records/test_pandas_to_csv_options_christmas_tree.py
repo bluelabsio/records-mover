@@ -24,7 +24,7 @@ class TestPandasToCsvOptionsChristmasTree(unittest.TestCase):
         processing_instructions =\
             ProcessingInstructions(fail_if_cant_handle_hint=False)
         records_format = DelimitedRecordsFormat(hints=christmas_tree_format_1_hints)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         with patch.object(driver_logger, 'warning') as mock_warning:
             actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
             self.assertEqual(expected, actual)
@@ -50,7 +50,7 @@ class TestPandasToCsvOptionsChristmasTree(unittest.TestCase):
         processing_instructions =\
             ProcessingInstructions(fail_if_cant_handle_hint=False)
         records_format = DelimitedRecordsFormat(hints=christmas_tree_format_2_hints)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         with patch.object(driver_logger, 'warning') as mock_warning:
             actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
             self.assertEqual(expected, actual)
@@ -75,7 +75,7 @@ class TestPandasToCsvOptionsChristmasTree(unittest.TestCase):
         processing_instructions =\
             ProcessingInstructions(fail_if_cant_handle_hint=False)
         records_format = DelimitedRecordsFormat(hints=christmas_tree_format_3_hints)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         with patch.object(driver_logger, 'warning') as mock_warning:
             actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
             self.assertEqual(expected, actual)
@@ -100,7 +100,7 @@ class TestPandasToCsvOptionsChristmasTree(unittest.TestCase):
         processing_instructions =\
             ProcessingInstructions(fail_if_cant_handle_hint=False)
         records_format = DelimitedRecordsFormat(hints=christmas_tree_format_4_hints)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         with patch.object(driver_logger, 'warning') as mock_warning:
             actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
             self.assertEqual(expected, actual)

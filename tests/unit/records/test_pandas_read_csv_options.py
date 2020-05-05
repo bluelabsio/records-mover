@@ -49,7 +49,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
         }
         processing_instructions = ProcessingInstructions()
         records_format = DelimitedRecordsFormat(hints=bluelabs_format_hints)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         actual = pandas_read_csv_options(records_format,
                                          self.records_schema,
                                          unhandled_hints,
@@ -82,7 +82,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
             'datetimeformat': 'DD-MM-YYYY HH24:MI',
         })
         records_format = DelimitedRecordsFormat(hints=hints)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         actual = pandas_read_csv_options(records_format,
                                          self.records_schema,
                                          unhandled_hints,
@@ -99,7 +99,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
             'datetimeformat': 'DD-MM-YYYY HH24:MI',
         })
         records_format = DelimitedRecordsFormat(hints=hints)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         with self.assertRaises(NotImplementedError):
             pandas_read_csv_options(records_format,
                                     self.records_schema,
@@ -124,7 +124,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
         }
         processing_instructions = ProcessingInstructions()
         records_format = DelimitedRecordsFormat(hints=csv_format_hints)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         actual = pandas_read_csv_options(records_format,
                                          self.records_schema,
                                          unhandled_hints,
@@ -151,7 +151,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
         }
         processing_instructions = ProcessingInstructions()
         records_format = DelimitedRecordsFormat(hints=vertica_format_hints)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         actual = pandas_read_csv_options(records_format,
                                          self.records_schema,
                                          unhandled_hints,

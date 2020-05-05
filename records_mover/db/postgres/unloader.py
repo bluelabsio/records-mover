@@ -104,7 +104,6 @@ class PostgresUnloader(Unloader):
     def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
         try:
             unload_plan = RecordsUnloadPlan(records_format=target_records_format)
-            unhandled_hints = set()
             records_format = unload_plan.records_format
             if not isinstance(records_format, DelimitedRecordsFormat):
                 return False
