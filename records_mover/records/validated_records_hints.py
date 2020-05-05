@@ -1,4 +1,5 @@
-from typing import NamedTuple, Union, Literal, Optional, TypeVar, List
+from typing_inspect import is_literal_type, get_args
+from typing import NamedTuple, Union, Literal, Optional, TypeVar, List, Type, Collection
 from .types import (RecordsHints, HintHeaderRow, HintFieldDelimiter,
                     HintCompression, HintRecordTerminator,
                     HintQuoting, HintQuoteChar, HintDoublequote,
@@ -110,13 +111,28 @@ class ValidatedRecordsHints(NamedTuple):
                                     'timeonlyformat',
                                     default="HH24:MI:SS")
 
+        T = TypeVar('T')
+
+        def validate_literal_type(type_: Type[T],
+                                  default: T,
+                                  hint_name: str) -> T:
+            assert is_literal_type(type_)
+            valid_values: Collection[T] = get_args(type_)
+            return validate_literal(valid_values,
+                                    hint_name,
+                                    default=default)
+
         def validate_datetimeformattz() -> HintDateTimeFormatTz:
-            return validate_literal(VALID_DATETIMEFORMATTZS,
-                                    'datetimeformattz',
-                                    default="YYYY-MM-DD HH24:MI:SSOF")
+            type_ = HintDateTimeFormatTz
+            default = "YYYY-MM-DD HH24:MI:SSOF"
+            hint_name = 'datetimeformattz'
+            return validate_literal_type(type_,
+                                         default,
+                                         hint_name)
 
         def validate_datetimeformat() -> HintDateTimeFormat:
-            return validate_literal(VALID_DATETIMEFORMATS,
+            valid_dateformats = VALID_DATETIMEFORMATS
+            return validate_literal(valid_dateformats,
                                     'datetimeformat',
                                     default="YYYY-MM-DD HH24:MI:SS")
 
