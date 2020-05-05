@@ -30,24 +30,7 @@ odbc_driver_for_type = {
 
 query_for_type = {
     'mysql': {
-        # This allows use of MySQL's bulk load mechanism--please see
-        # the URL below for security aspects of this.  We are assuming
-        # that the server is known and trusted, and that the network
-        # connection to it can be trusted.
-        #
-        # If the server is trusted but the network is not, we
-        # recommend you investigate the following:
-        #
-        # * Enabling SSL on your MySQL server.
-        # * Using the 'REQUIRE SSL' clause in the 'GRANT ALL
-        #   PRIVILEGES' statement used to create users.
-        # * Using pymysql's syntax to point to the correct CA cert for
-        #   the MySQL server and require validation.
-        #
-        # PRs to make this configuration easier to use with
-        # records-mover are welcome.
-        #
-        # https://dev.mysql.com/doc/refman/8.0/en/load-data-local-security.html
+        # Please see SECURITY.md for security implications!
         "local_infile": True
     },
 }
