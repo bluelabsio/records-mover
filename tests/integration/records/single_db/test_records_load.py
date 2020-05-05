@@ -152,6 +152,6 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
         else:
             self.assertIn(out.move_count, [None, 1])
 
-    def verify_db_table(self, variant):
+    def verify_db_table(self, variant) -> None:
         validator = RecordsTableValidator(self.engine, file_variant=variant)
         validator.validate(schema_name=self.schema_name, table_name=self.table_name)

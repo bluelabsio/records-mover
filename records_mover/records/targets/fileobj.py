@@ -27,6 +27,7 @@ class FileobjTarget(SupportsMoveFromDataframes):
                                     processing_instructions:
                                     ProcessingInstructions) -> MoveResult:
         from ..pandas import pandas_to_csv_options
+        from records_mover.records.pandas import prep_df_for_csv_output
 
         if not isinstance(self.records_format, DelimitedRecordsFormat):
             raise NotImplementedError("Teach me to export from dataframe to "
@@ -40,6 +41,9 @@ class FileobjTarget(SupportsMoveFromDataframes):
         logger.info(f"Writing CSV file to {self.fileobj} with options {options}...")
         encoding: str = self.records_format.hints['encoding']  # type: ignore
 
+        records_schema = dfs_source.initial_records_schema(processing_instructions)
+        records_format = self.records_format
+
         def write_dfs(path_or_buf: Union[str, IO[str]]) -> int:
             first_row = True
             move_count = 0
@@ -50,6 +54,11 @@ class FileobjTarget(SupportsMoveFromDataframes):
                 include_header_row = options['header'] and first_row
                 first_row = False
                 options['header'] = include_header_row
+                df = prep_df_for_csv_output(df,
+                                            include_index=dfs_source.include_index,
+                                            records_schema=records_schema,
+                                            records_format=records_format,
+                                            processing_instructions=processing_instructions)
                 df.to_csv(path_or_buf=path_or_buf,
                           mode="a",
                           index=dfs_source.include_index,

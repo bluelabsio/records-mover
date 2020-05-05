@@ -16,6 +16,6 @@ class RecordsSchemaJsonFile:
     def load_schema_json(self) -> Optional[str]:
         try:
             return self.schema_loc.string_contents()
-        except FileNotFoundError as e:
-            logger.debug(e)
+        except FileNotFoundError:
+            logger.debug('No schema JSON found', exc_info=True, stack_info=True)
             return None

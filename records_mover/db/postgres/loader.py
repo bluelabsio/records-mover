@@ -1,23 +1,22 @@
 import sqlalchemy
 from sqlalchemy import MetaData
-from contextlib import ExitStack
 from sqlalchemy.schema import Table
 from ..quoting import quote_value
 from ...url.resolver import UrlResolver
 from ...records.load_plan import RecordsLoadPlan
 from ...records.hints import complain_on_unhandled_hints
-from ...records.records_directory import RecordsDirectory
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from .sqlalchemy_postgres_copy import copy_from
-from .copy_options import postgres_copy_options
+from .copy_options import postgres_copy_from_options
 from typing import IO, Union, List, Iterable
+from ..loader import LoaderFromFileobj
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-class PostgresLoader:
+class PostgresLoader(LoaderFromFileobj):
     def __init__(self,
                  url_resolver: UrlResolver,
                  meta: MetaData,
@@ -47,10 +46,10 @@ class PostgresLoader:
                                       f"{records_format.format_type}")
         processing_instructions = load_plan.processing_instructions
         unhandled_hints = set(records_format.hints.keys())
-        date_input_style, postgres_options = postgres_copy_options(unhandled_hints, load_plan)
-        if date_input_style is None:
+        date_order_style, postgres_options = postgres_copy_from_options(unhandled_hints, load_plan)
+        if date_order_style is None:
             # U-S-A!  U-S-A!
-            date_input_style = 'MDY'
+            date_order_style = 'MDY'
         logger.info(f"PostgreSQL load options: {postgres_options}")
         complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
                                     unhandled_hints,
@@ -71,7 +70,7 @@ class PostgresLoader:
             # transaction: the SET LOCAL value will be seen until the end
             # of the transaction, but afterwards (if the transaction is
             # committed) the SET value will take effect.
-            date_style = f"ISO, {date_input_style}"
+            date_style = f"ISO, {date_order_style}"
             sql = f"SET LOCAL DateStyle = {quote_value(conn, date_style)}"
             logger.info(sql)
             conn.execute(sql)
@@ -87,19 +86,6 @@ class PostgresLoader:
                           **postgres_options)
         logger.info('Copy complete')
 
-    def load(self,
-             schema: str,
-             table: str,
-             load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> None:
-        all_urls = directory.manifest_entry_urls()
-
-        with ExitStack() as stack:
-            all_locs = [self.url_resolver.file_url(url) for url in all_urls]
-            all_fileobjs = [stack.enter_context(loc.open()) for loc in all_locs]
-            logger.info(f"Loading {directory.loc.url} into {schema}.{table}")
-            self.load_from_fileobjs(schema, table, load_plan, all_fileobjs)
-
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         try:
             processing_instructions = ProcessingInstructions()
@@ -110,7 +96,7 @@ class PostgresLoader:
 
             unhandled_hints = set(load_plan.records_format.hints.keys())
             processing_instructions = load_plan.processing_instructions
-            postgres_copy_options(unhandled_hints, load_plan)
+            postgres_copy_from_options(unhandled_hints, load_plan)
             complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
                                         unhandled_hints, load_plan.records_format.hints)
             return True
@@ -119,8 +105,9 @@ class PostgresLoader:
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
         return [
-            # To validate that these load without, watch logging while
-            # running and verify 'dataframe' doesn't appear:
+            # To validate that these load without pandas, watch
+            # logging while running and verify 'dataframe' doesn't
+            # appear:
             #
             # ./itest shell
             #

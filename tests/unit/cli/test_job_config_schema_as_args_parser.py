@@ -6,7 +6,7 @@ from records_mover.cli.job_config_schema_as_args_parser import JobConfigSchemaAs
 class TestJobConfigSchemaAsArgsParser(unittest.TestCase):
     maxDiff = None
 
-    def setUp(self) -> None:
+    def setUp(self):
         self.job_config_schema = {
             "type": "object",
             "properties": odict[

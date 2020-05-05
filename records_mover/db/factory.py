@@ -1,4 +1,4 @@
-from .driver import DBDriver
+from .driver import GenericDBDriver, DBDriver
 import sqlalchemy
 from typing import Union
 
@@ -24,5 +24,9 @@ def db_driver(db: Union[sqlalchemy.engine.Engine,
         from .postgres.postgres_db_driver import PostgresDBDriver
 
         return PostgresDBDriver(db, **kwargs)
+    elif engine.name == 'mysql':
+        from .mysql.mysql_db_driver import MySQLDBDriver
+
+        return MySQLDBDriver(db, **kwargs)
     else:
-        return DBDriver(db, **kwargs)
+        return GenericDBDriver(db, **kwargs)

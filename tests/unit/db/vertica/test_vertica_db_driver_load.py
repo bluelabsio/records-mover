@@ -58,7 +58,7 @@ class TestVerticaDBDriverLoad(BaseTestVerticaDBDriver):
         mock_loc = self.mock_url_resolver.file_url.return_value
         mock_loc.open = MagicMock(name='open')
         self.mock_directory.manifest_entry_urls.return_value = [mock_data_url]
-        export_count = self.vertica_db_driver.load(
+        export_count = self.vertica_db_driver.loader().load(
             schema='myschema',
             table='mytable',
             load_plan=self.mock_records_load_plan,

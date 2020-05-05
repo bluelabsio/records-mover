@@ -89,6 +89,7 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
             'bigquery': 'bigquery',
             'vertica': 'vertica',
             'postgresql': 'bluelabs',
+            'mysql': 'bluelabs',
         }
         records_format = DelimitedRecordsFormat(variant=preferred_records_format[self.engine.name])
         source = self.records.sources.\

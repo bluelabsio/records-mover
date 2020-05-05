@@ -46,6 +46,29 @@ commands:
           key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
+  wait_for_db:
+    description: "Pause until database answers allowing time to startup.  Abort if startup got hung in CircleCI."
+    parameters:
+      db_name:
+        type: string
+      connect_command:
+        type: string
+    steps:
+      - run:
+          name: Waiting for <<parameters.db_name>>
+          command: |
+            # Bail out trying after 30 seconds
+            end=$((SECONDS+30))
+            echo "Starting at second ${SECONDS:?} - ending at ${end:?}"
+            db_connect() {
+              <<parameters.connect_command>>
+            }
+            while ! db_connect && [[ "${SECONDS:?}" -lt "${end:?}" ]]
+            do
+              echo "Waiting for <<parameters.db_name>>..."
+              sleep 5
+            done
+            db_connect
 
 jobs:
   test:
@@ -136,6 +159,17 @@ jobs:
       - image: postgres:latest
         environment:
           POSTGRES_PASSWORD: 'hunter2'
+      # MySQL after 5 (they bumped version to 8) uses a new auth protocol
+      # that is not well supported by clients - including the
+      # Debian-installable client packages.
+      #
+      # https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/
+      - image: mysql:5
+        environment:
+          MYSQL_ROOT_PASSWORD: 'hunter2root'
+          MYSQL_DATABASE: 'mysqlitest'
+          MYSQL_USER: mysqluser
+          MYSQL_PASSWORD: 'hunter2'
     steps:
       - checkout
       - add_ssh_keys:
@@ -175,17 +209,18 @@ jobs:
           command: |
             sudo apt-get update -y && sudo apt-get install -y postgresql-client
       - run:
-          name: Wait for vertica
+          name: Install mysql
           command: |
-            # Bail out trying after 30 seconds
-            end=$((SECONDS+30))
-            echo "Starting at second ${SECONDS:?} - ending at ${end:?}"
-            while ! vsql -h 127.0.0.1 -U dbadmin -c 'select 1;' && [[ "${SECONDS:?}" -lt "${end:?}" ]]
-            do
-              echo "Waiting for vertica..."
-              sleep 5
-            done
-            vsql -h 127.0.0.1 -U dbadmin -c 'select 1;'
+            sudo apt-get update -y && sudo apt-get install -y default-mysql-client
+      - wait_for_db:
+          db_name: Vertica
+          connect_command: vsql -h 127.0.0.1 -U dbadmin -c 'select 1;'
+      - wait_for_db:
+          db_name: MySQL
+          connect_command: echo 'select 1;' | mysql --password=hunter2 --host=127.0.0.1 -u mysqluser mysqlitest
+      - wait_for_db:
+          db_name: Postgres
+          connect_command: psql -h 127.0.0.1 -U postgres -c 'select 1;'
       - run:
           name: Run tests
           command: "<<parameters.command>>"
@@ -364,6 +399,23 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
+          name: mysql-itest
+          extras: '[mysql,itest]'
+          python_version: "3.6"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export RECORDS_MOVER_SESSION_TYPE=env
+            mkdir -p test-reports/itest
+            cd tests/integration/records/single_db
+            with-db dockerized-mysql nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
           name: vertica-s3-itest
           extras: '[vertica,aws,itest]'
           python_version: "3.6"
@@ -502,6 +554,7 @@ workflows:
             - redshift-itest-old-pandas
             - redshift-itest-no-pandas
             - postgres-itest
+            - mysql-itest
             - cli-1-itest
             - cli-2-itest
             - cli-3-itest

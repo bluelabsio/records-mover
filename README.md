@@ -48,9 +48,8 @@ mvrec table2table postgresdb1 myschema1 mytable1 redshiftdb2 myschema2 mytable2
 Note records mover will automatically build an appropriate `CREATE
 TABLE` statement on the target end if the table doesn't already exist.
 
-For more installation notes, see [INSTALL.md](./INSTALL.md)
-
-
+For more installation notes, see [INSTALL.md](./INSTALL.md).  To
+understand the security model here, see [SECURITY.md](./SECURITY.md).
 
 Note that the connection details for the database names here must be
 configured using

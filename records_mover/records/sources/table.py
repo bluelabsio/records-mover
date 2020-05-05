@@ -23,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 class TableRecordsSource(SupportsMoveToRecordsDirectory,
                          SupportsToDataframesSource):
+    records_format: Optional[BaseRecordsFormat]
+
     def __init__(self,
                  schema_name: str,
                  table_name: str,
@@ -31,15 +33,25 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         self.schema_name = schema_name
         self.table_name = table_name
         self.driver = driver
-        self.records_format = driver.best_records_format()
+        self.unloader = driver.unloader()
+        if self.unloader is not None:
+            self.records_format = self.unloader.best_records_format()
+        else:
+            self.records_format = None
         self.url_resolver = url_resolver
 
     def known_supported_records_formats(self) -> List[BaseRecordsFormat]:
-        return self.driver.known_supported_records_formats_for_unload()
+        unloader = self.driver.unloader()
+        if unloader is None:
+            return []
+        return unloader.known_supported_records_formats_for_unload()
 
     def can_move_to_this_format(self,
                                 target_records_format: BaseRecordsFormat) -> bool:
-        return self.driver.can_unload_this_format(target_records_format)
+        unloader = self.driver.unloader()
+        if unloader is None:
+            return False
+        return unloader.can_unload_this_format(target_records_format)
 
     @contextmanager
     def to_dataframes_source(self,
@@ -90,9 +102,12 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
                                   engine: Optional[Engine]=None) -> MoveResult:
         unload_plan = RecordsUnloadPlan(records_format=records_format,
                                         processing_instructions=processing_instructions)
-        export_count = self.driver.unload(schema=self.schema_name, table=self.table_name,
-                                          unload_plan=unload_plan,
-                                          directory=records_directory)
+        unloader = self.driver.unloader()
+        if unloader is None:
+            raise ValueError('This DBDriver does not support bulk unloading')
+        export_count = unloader.unload(schema=self.schema_name, table=self.table_name,
+                                       unload_plan=unload_plan,
+                                       directory=records_directory)
         records_schema = self.pull_records_schema()
         records_directory.save_format(unload_plan.records_format)
         records_directory.save_schema(records_schema)

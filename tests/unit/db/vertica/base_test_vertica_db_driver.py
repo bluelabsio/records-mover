@@ -24,6 +24,7 @@ class BaseTestVerticaDBDriver(unittest.TestCase):
                                                      s3_temp_base_loc=self.mock_s3_temp_base_loc,
                                                      url_resolver=self.mock_url_resolver)
             self.mock_VerticaLoader = mock_VerticaLoader
+            self.mock_vertica_loader = mock_VerticaLoader.return_value
 
         mock_records_unload_plan = create_autospec(RecordsUnloadPlan)
         mock_records_unload_plan.records_format = create_autospec(DelimitedRecordsFormat)

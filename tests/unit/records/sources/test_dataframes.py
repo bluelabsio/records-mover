@@ -5,6 +5,7 @@ import unittest
 
 
 class TestDataframesRecordsSource(unittest.TestCase):
+    @patch('records_mover.records.sources.dataframes.prep_df_for_csv_output')
     @patch('records_mover.records.sources.dataframes.purge_unnamed_unused_columns')
     @patch('records_mover.records.sources.dataframes.RecordsSchema')
     @patch('records_mover.records.sources.dataframes.FileobjsSource')
@@ -19,7 +20,8 @@ class TestDataframesRecordsSource(unittest.TestCase):
                                           mock_complain_on_unhandled_hints,
                                           mock_FileobjsSource,
                                           mock_RecordsSchema,
-                                          mock_purge_unnamed_unused_columns):
+                                          mock_purge_unnamed_unused_columns,
+                                          mock_prep_df_for_csv_output):
         mock_df_1 = Mock(name='df_1')
         mock_df_2 = Mock(name='df_2')
         mock_processing_instructions = Mock(name='processing_instructions')
@@ -60,12 +62,21 @@ class TestDataframesRecordsSource(unittest.TestCase):
                 assert_called_with(mock_processing_instructions.fail_if_dont_understand,
                                    mock_unhandled_hints,
                                    mock_target_records_format.hints)
-            mock_df_1.to_csv.assert_called_with(path_or_buf=mock_output_filename,
-                                                index=mock_include_index,
-                                                **mock_options)
-            mock_df_2.to_csv.assert_called_with(path_or_buf=mock_output_filename,
-                                                index=mock_include_index,
-                                                **mock_options)
+            mock_pi = mock_processing_instructions
+            mock_prep_df_for_csv_output.assert_any_call(mock_df_1,
+                                                        include_index=mock_include_index,
+                                                        records_schema=mock_target_records_schema,
+                                                        records_format=mock_target_records_format,
+                                                        processing_instructions=mock_pi)
+            mock_prep_df_for_csv_output.assert_any_call(mock_df_2,
+                                                        include_index=mock_include_index,
+                                                        records_schema=mock_target_records_schema,
+                                                        records_format=mock_target_records_format,
+                                                        processing_instructions=mock_pi)
+            mock_formatted_df = mock_prep_df_for_csv_output.return_value
+            mock_formatted_df.to_csv.assert_called_with(path_or_buf=mock_output_filename,
+                                                        index=mock_include_index,
+                                                        **mock_options)
             mock_FileobjsSource.\
                 assert_called_with(target_names_to_input_fileobjs={
                     "data001.csv": mock_data_fileobj_1,

@@ -85,6 +85,21 @@ class RecordsDatabaseFixture:
                      '2000-01-02 12:34:56.789012'::TIMESTAMP AS "timestamp",
                      '2000-01-02 12:34:56.789012 US/Eastern'::TIMESTAMPTZ as "timestamptz";
 """  # noqa
+        elif self.engine.name == 'mysql':
+            create_tables = f"""
+              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              SELECT 123 AS num,
+                     '123' AS numstr,
+                     'foo' AS str,
+                     ',' AS comma,
+                     '"' AS doublequote,
+                     '","' AS quotecommaquote,
+                     '* SQL unload would generate multiple files (one for each slice/part)\n* Filecat would produce a single data file' AS newlinestr,
+                     DATE '2000-01-01' AS "date",
+                     TIME '00:00:00' AS "time",
+                     TIMESTAMP '2000-01-02 12:34:56.789012' AS "timestamp",
+                     TIMESTAMP '2000-01-02 12:34:56.789012-05' AS "timestamptz";
+"""  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
         self.engine.execute(create_tables)

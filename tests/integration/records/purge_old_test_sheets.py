@@ -36,8 +36,9 @@ def delete_sheet_by_id(service: SheetsService,
                                                  body=batch_update_spreadsheet_request_body)
     try:
         request.execute()
-    except HttpError as e:
-        logger.info(e)
+    except HttpError:
+        logger.exception('Transient problem cleaning up temporary sheet '
+                         '- will try again some other time.')
         # continue on - likely because something else in parallel hit
         # this at once, and even if not, we can garbage collect this
         # sheet in the next attempt with the next batch of tests

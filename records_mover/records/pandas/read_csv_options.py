@@ -3,6 +3,7 @@ from ...utils import quiet_remove
 from ..hints import cant_handle_hint
 from ..processing_instructions import ProcessingInstructions
 from ..records_format import DelimitedRecordsFormat
+from records_mover.records.schema import RecordsSchema
 import logging
 from typing import Set, Dict, Any
 
@@ -11,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
+                            records_schema: RecordsSchema,
                             unhandled_hints: Set[str],
                             processing_instructions: ProcessingInstructions) -> Dict[str, Any]:
     ...
@@ -370,14 +372,12 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # Note: A fast-path exists for iso8601-formatted dates.
     #
 
-    # (we don't yet pass in a records schema which would provide
-    # ability to know in advance which columns are datetimes--sounds
-    # like it may be very helpful to do so!)
-
-    quiet_remove(unhandled_hints, 'dateformat')
-    quiet_remove(unhandled_hints, 'timeonlyformat')
-    quiet_remove(unhandled_hints, 'datetimeformat')
-    quiet_remove(unhandled_hints, 'datetimeformattz')
+    pandas_options['parse_dates'] = [
+        index
+        for index, field
+        in enumerate(records_schema.fields)
+        if field.field_type in ['date', 'time', 'datetime', 'datetimetz']
+    ]
 
     #
     # infer_datetime_format : bool, default False
@@ -388,7 +388,9 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # cases this can increase the parsing speed by 5-10x.
     #
 
-    # (won't be used since we're not yet able to pass in parse_dates)
+    # Left as default for now because presumably Pandas has some
+    # reason why this isn't the default that they didn't spell out in
+    # the docs.
 
     #
     # keep_date_col : bool, default False
@@ -415,7 +417,8 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # defined by parse_dates) as arguments.
     #
 
-    # (N/A as we don't pass anything as parse_dates)
+    # (So far the default parser has handled what we've thrown at it,
+    # so we'll leave this at the default)
 
     #
     # dayfirst : bool, default False
@@ -423,7 +426,26 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # DD/MM format dates, international and European format.
     #
 
-    # (N/A as we don't pass anything as parse_dates)
+    def day_first(dateish_format: str) -> bool:
+        return (dateish_format.startswith('DD-MM-') or
+                dateish_format.startswith('DD/MM/'))
+
+    assert isinstance(hints['dateformat'], str)
+    assert isinstance(hints['datetimeformat'], str)
+    assert isinstance(hints['datetimeformattz'], str)
+    consistent_formats = (day_first(hints['dateformat']) ==
+                          day_first(hints['datetimeformat']) ==
+                          day_first(hints['datetimeformattz']))
+
+    if not consistent_formats:
+        cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', hints)
+
+    pandas_options['dayfirst'] = day_first(hints['dateformat'])
+
+    quiet_remove(unhandled_hints, 'dateformat')
+    quiet_remove(unhandled_hints, 'timeonlyformat')
+    quiet_remove(unhandled_hints, 'datetimeformat')
+    quiet_remove(unhandled_hints, 'datetimeformattz')
 
     #
     # iterator : bool, default False
