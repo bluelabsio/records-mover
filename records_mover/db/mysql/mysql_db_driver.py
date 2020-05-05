@@ -15,16 +15,26 @@ from ...utils.limits import (INT8_MIN, INT8_MAX,
                              FLOAT64_SIGNIFICAND_BITS,
                              num_digits)
 from ..driver import DBDriver
+from .loader import MySQLLoader
+from typing import Optional, Tuple, Union
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
-from typing import Optional, Tuple
+from ...url.resolver import UrlResolver
 
 
 logger = logging.getLogger(__name__)
 
 
 class MySQLDBDriver(DBDriver):
+    def __init__(self,
+                 db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
+                 url_resolver: UrlResolver,
+                 **kwargs) -> None:
+        super().__init__(db)
+        self._mysql_loader = MySQLLoader(db=db,
+                                         url_resolver=url_resolver)
+
     def loader(self) -> Optional[LoaderFromRecordsDirectory]:
-        return None
+        return self._mysql_loader
 
     def loader_from_fileobj(self) -> Optional[LoaderFromFileobj]:
         return None

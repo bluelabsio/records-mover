@@ -1,9 +1,9 @@
 from urllib.parse import urlparse
+from .types import HintCompression
 import os
-from typing import Optional
 
 
-def sniff_compression_from_url(url: str) -> Optional[str]:
+def sniff_compression_from_url(url: str) -> HintCompression:
     "Returns compression hint for a given file extension"
     urlobj = urlparse(url)
     pathname = urlobj.path

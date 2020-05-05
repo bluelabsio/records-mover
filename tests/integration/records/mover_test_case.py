@@ -81,7 +81,7 @@ class MoverTestCase:
         elif db_engine.name == 'postgresql':
             return ['bluelabs', 'csv', 'bigquery']
         elif db_engine.name == 'mysql':
-            return []
+            return ['bluelabs', 'csv', 'bigquery', 'vertica']
         else:
             raise NotImplementedError(f"Teach me about database type {db_engine.name}")
 

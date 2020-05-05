@@ -172,7 +172,7 @@ class RecordsTableValidator:
         ret = ret_all[0]
 
         assert ret['num'] == 123
-        assert ret['numstr'] == '123'
+        assert ret['numstr'] == '123', ret['numstr']
         assert ret['comma'] == ','
         assert ret['doublequote'] == '"'
         assert ret['quotecommaquote'] == '","'
