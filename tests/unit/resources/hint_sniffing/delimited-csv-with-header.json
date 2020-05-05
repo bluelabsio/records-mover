@@ -1,0 +1,10 @@
+{
+  "required": {
+    "header-row": true,
+    "escape": null,
+    "quoting": "minimal"
+  },
+  "initial_hints": {
+  },
+  "notes": ""
+}
