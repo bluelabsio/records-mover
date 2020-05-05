@@ -5,6 +5,7 @@
     "quoting": "minimal"
   },
   "initial_hints": {
+    "quoting": "minimal"
   },
-  "notes": ""
+  "notes": "Doesn't look like current code tries to sniff quoting"
 }
