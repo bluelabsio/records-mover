@@ -2,7 +2,6 @@ from .base_test_vertica_db_driver import BaseTestVerticaDBDriver
 from mock import Mock
 from ...records.format_hints import (vertica_format_hints)
 import sqlalchemy
-import vertica_python
 
 
 class TestVerticaDBDriver(BaseTestVerticaDBDriver):
@@ -16,10 +15,10 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
         self.mock_records_unload_plan.records_format.hints = vertica_format_hints
         self.mock_directory.scheme = 's3'
         export_count = self.vertica_db_driver\
-            .unload(schema='myschema',
-                    table='mytable',
-                    unload_plan=self.mock_records_unload_plan,
-                    directory=self.mock_directory)
+            .unloader().unload(schema='myschema',
+                               table='mytable',
+                               unload_plan=self.mock_records_unload_plan,
+                               directory=self.mock_directory)
 
         self.assertEqual(579, export_count)
 
@@ -36,10 +35,10 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
         mock_load_creds = mock_load_loc.aws_creds()
         mock_load_creds.token = None
         export_count = self.vertica_db_driver\
-            .unload(schema='myschema',
-                    table='mytable',
-                    unload_plan=self.mock_records_unload_plan,
-                    directory=self.mock_directory)
+            .unloader().unload(schema='myschema',
+                               table='mytable',
+                               unload_plan=self.mock_records_unload_plan,
+                               directory=self.mock_directory)
 
         self.assertEqual(579, export_count)
 
@@ -68,52 +67,12 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
         self.assertEqual(False,
                          self.vertica_db_driver.has_table(mock_schema, mock_table))
 
-    def test_best_scheme_to_load_from(self):
-        self.assertEqual(self.vertica_db_driver.best_scheme_to_load_from(), 'file')
-
-    def test_load_from_fileobj(self):
-        mock_schema = Mock(name='schema')
-        mock_table = Mock(name='table')
-        mock_load_plan = Mock(name='load_plan')
-        mock_fileobj = Mock(name='fileobj')
-        out = self.vertica_db_driver.load_from_fileobj(schema=mock_schema,
-                                                       table=mock_table,
-                                                       load_plan=mock_load_plan,
-                                                       fileobj=mock_fileobj)
-        mock_vertica_loader = self.mock_VerticaLoader.return_value
-        mock_vertica_loader.load_from_fileobj.assert_called_with(fileobj=mock_fileobj,
-                                                                 load_plan=mock_load_plan,
-                                                                 schema=mock_schema,
-                                                                 table=mock_table)
-        self.assertEqual(out, None)
-
-    def test_load_failure_exception(self):
-        out = self.vertica_db_driver.load_failure_exception()
-        self.assertEqual(vertica_python.errors.CopyRejected, out)
-
-    def test_can_load_from_fileobjs(self):
-        out = self.vertica_db_driver.can_load_from_fileobjs()
-        self.assertEqual(True, out)
-
     def test_can_load_this_format(self):
         mock_source_records_format = Mock(name='source_records_format')
-        out = self.vertica_db_driver.can_load_this_format(mock_source_records_format)
+        out = self.vertica_db_driver.loader().can_load_this_format(mock_source_records_format)
         self.assertEqual(self.mock_vertica_loader.can_load_this_format.return_value,
                          out)
         self.mock_vertica_loader.can_load_this_format.assert_called_with(mock_source_records_format)
-
-    def test_best_records_format_variant(self):
-        out = self.vertica_db_driver.best_records_format_variant('blah')
-        self.assertEqual(None, out)
-
-    def test_best_records_format_variant_delimited(self):
-        out = self.vertica_db_driver.best_records_format_variant('delimited')
-        self.assertEqual('vertica', out)
-
-    def test_temporary_loadable_directory_loc(self):
-        with self.vertica_db_driver.temporary_loadable_directory_loc() as loc:
-            expected = self.mock_directory_url.return_value
-            self.assertEqual(loc, expected)
 
     def test_integer_limits(self):
         int_min, int_max = self.vertica_db_driver.integer_limits(sqlalchemy.sql.sqltypes.INTEGER())

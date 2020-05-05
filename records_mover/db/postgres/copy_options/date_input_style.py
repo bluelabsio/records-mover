@@ -1,42 +1,22 @@
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from records_mover.records.types import RecordsHints
-from typing import Optional, Set, Union, TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing_extensions import Literal
-    # https://www.postgresql.org/docs/9.5/runtime-config-client.html#GUC-DATESTYLE
-    #
-    # DateStyle (string)
-    #
-    #  Sets the display format for date and time values, as well as
-    #  the rules for interpreting ambiguous date input values. For
-    #  historical reasons, this variable contains two independent
-    #  components: the output format specification (ISO, Postgres,
-    #  SQL, or German) and the input/output specification for
-    #  year/month/day ordering (DMY, MDY, or YMD). These can be set
-    #  separately or together. The keywords Euro and European are
-    #  synonyms for DMY; the keywords US, NonEuro, and NonEuropean are
-    #  synonyms for MDY. See Section 8.5 for more information. The
-    #  built-in default is ISO, MDY, but initdb will initialize the
-    #  configuration file with a setting that corresponds to the
-    #  behavior of the chosen lc_time locale.
-    DateInputStyle = Union[Literal["DMY"], Literal["MDY"]]
-else:
-    DateInputStyle = str
+from typing import Optional, Set
+from .types import DateOrderStyle
 
 
-def determine_date_input_style(unhandled_hints: Set[str],
-                               hints: RecordsHints,
-                               fail_if_cant_handle_hint: bool) ->\
-        Optional[DateInputStyle]:
-    date_input_style: Optional[DateInputStyle] = None
+def determine_input_date_order_style(unhandled_hints: Set[str],
+                                     hints: RecordsHints,
+                                     fail_if_cant_handle_hint: bool) ->\
+        Optional[DateOrderStyle]:
+    date_order_style: Optional[DateOrderStyle] = None
 
-    def upgrade_date_input_style(style: DateInputStyle, hint_name: str) -> None:
-        nonlocal date_input_style
-        if date_input_style not in (None, style):
+    def upgrade_date_order_style(style: DateOrderStyle, hint_name: str) -> None:
+        nonlocal date_order_style
+        if date_order_style not in (None, style):
             cant_handle_hint(fail_if_cant_handle_hint, hint_name, hints)
         else:
-            date_input_style = style
+            date_order_style = style
             quiet_remove(unhandled_hints, hint_name)
 
     # https://www.postgresql.org/docs/9.5/datatype-datetime.html#DATATYPE-DATETIME-INPUT
@@ -107,7 +87,7 @@ def determine_date_input_style(unhandled_hints: Set[str],
         #  (1 row)
         #
         #  postgres=#
-        upgrade_date_input_style('MDY', 'datetimeformattz')
+        upgrade_date_order_style('MDY', 'datetimeformattz')
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
 
@@ -152,7 +132,7 @@ def determine_date_input_style(unhandled_hints: Set[str],
         #
         #  postgres=#
 
-        upgrade_date_input_style('MDY', 'datetimeformat')
+        upgrade_date_order_style('MDY', 'datetimeformat')
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
 
@@ -214,7 +194,7 @@ def determine_date_input_style(unhandled_hints: Set[str],
         #  (1 row)
         #
         #  postgres=#
-        upgrade_date_input_style('MDY', 'dateformat')
+        upgrade_date_order_style('MDY', 'dateformat')
     elif dateformat == "DD-MM-YYYY":
         # "DD-MM-YYYY" - not supported by default, need to switch to
         # DMY:
@@ -226,7 +206,7 @@ def determine_date_input_style(unhandled_hints: Set[str],
         #  (1 row)
         #
         #  postgres=#
-        upgrade_date_input_style('DMY', 'dateformat')
+        upgrade_date_order_style('DMY', 'dateformat')
     elif dateformat == "MM/DD/YY":
         # "MM/DD/YY".
         #
@@ -237,7 +217,7 @@ def determine_date_input_style(unhandled_hints: Set[str],
         #  (1 row)
         #
         #  postgres=#
-        upgrade_date_input_style('MDY', 'dateformat')
+        upgrade_date_order_style('MDY', 'dateformat')
     elif dateformat is None:
         # null implies that that date format is unknown, and that the
         # implementation SHOULD generate using their default value and
@@ -248,4 +228,4 @@ def determine_date_input_style(unhandled_hints: Set[str],
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', hints)
 
-    return date_input_style
+    return date_order_style

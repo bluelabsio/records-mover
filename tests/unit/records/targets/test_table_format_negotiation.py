@@ -14,7 +14,10 @@ class TestTableFormatNegotiation(unittest.TestCase):
         self.mock_existing_table_handling = Mock(name='existing_table_handling')
         mock_driver = self.mock_db_driver.return_value
         mock_records_format = Mock(name='records_format')
-        mock_driver.known_supported_records_formats_for_load.return_value = [mock_records_format]
+        self.mock_loader = mock_driver.loader.return_value
+        self.mock_loader.known_supported_records_formats_for_load.return_value = [
+            mock_records_format
+        ]
         self.table = TableRecordsTarget(self.mock_schema_name,
                                         self.mock_table_name,
                                         self.mock_db_engine,
@@ -26,5 +29,5 @@ class TestTableFormatNegotiation(unittest.TestCase):
     def test_known_supported_records_formats(self):
         out = self.table.known_supported_records_formats()
         self.assertEqual(out,
-                         self.mock_db_driver.return_value.
+                         self.mock_loader.
                          known_supported_records_formats_for_load.return_value)

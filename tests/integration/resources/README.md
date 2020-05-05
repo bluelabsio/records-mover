@@ -62,6 +62,12 @@ timezones in timestamps are expressed.
   our fixtures).  Otherwise they would appear as "12:34:56.789012",
   the time in the US/Eastern timezone that our fixtures assign.
 
+### postgres
+
+Postgres (in the "text" mode we use for 'bluelabs' format, at least)
+represents newlines as '\n' instead of '\' with an actual newline
+afterwards like other databases do.
+
 ### notz
 
 * Some databases (e.g., MySQL) don't have a generally usable column

@@ -1,11 +1,7 @@
 from ..driver import DBDriver
-from ...records.records_directory import RecordsDirectory
 import sqlalchemy
 from sqlalchemy.schema import Table
 import logging
-from ...records.load_plan import RecordsLoadPlan
-from ...records.records_format import BaseRecordsFormat
-from ...records.unload_plan import RecordsUnloadPlan
 from ...utils.limits import (INT16_MIN, INT16_MAX,
                              INT32_MIN, INT32_MAX,
                              INT64_MIN, INT64_MAX,
@@ -19,7 +15,9 @@ from typing import Iterator, Optional, Union, Dict, List, Tuple
 from ...url.base import BaseDirectoryUrl
 from records_mover.db.quoting import quote_group_name, quote_schema_and_table
 from .unloader import RedshiftUnloader
+from ..unloader import Unloader
 from .loader import RedshiftLoader
+from ..loader import LoaderFromRecordsDirectory
 from ..errors import NoTemporaryBucketConfiguration
 
 logger = logging.getLogger(__name__)
@@ -41,9 +39,6 @@ class RedshiftDBDriver(DBDriver):
                              table=self.table,
                              temporary_s3_directory_loc=self.temporary_s3_directory_loc)
 
-    def best_scheme_to_load_from(self) -> str:
-        return 's3'
-
     def schema_sql(self, schema: str, table: str) -> str:
         out = schema_sql_from_admin_views(schema, table, self.db)
         if out is None:
@@ -58,11 +53,6 @@ class RedshiftDBDriver(DBDriver):
         else:
             with self.s3_temp_base_loc.temporary_directory() as temp_loc:
                 yield temp_loc
-
-    @contextmanager
-    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
-        with self.temporary_s3_directory_loc() as temp_loc:
-            yield temp_loc
 
     # if this timeout goes off (at least for Redshift), it's probably
     # because memory is filling because sqlalchemy's cache of all
@@ -85,38 +75,6 @@ class RedshiftDBDriver(DBDriver):
                 #      94723ec6437c5e5197fcf785845499e81640b167
                 return Table(table, self.meta, schema=schema, autoload=True, autoload_with=conn)
 
-    def load(self,
-             schema: str,
-             table: str,
-             load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> Optional[int]:
-        return self._redshift_loader.load(schema=schema,
-                                          table=table,
-                                          load_plan=load_plan,
-                                          directory=directory)
-
-    def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
-        return self._redshift_loader.can_load_this_format(source_records_format)
-
-    def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
-        return self._redshift_loader.known_supported_records_formats_for_load()
-
-    def unload(self,
-               schema: str,
-               table: str,
-               unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> int:
-        return self._redshift_unloader.unload(schema=schema,
-                                              table=table,
-                                              unload_plan=unload_plan,
-                                              directory=directory)
-
-    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
-        return self._redshift_unloader.can_unload_this_format(target_records_format)
-
-    def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
-        return self._redshift_unloader.known_supported_records_formats_for_unload()
-
     def set_grant_permissions_for_groups(self, schema_name: str, table: str,
                                          groups: Dict[str, List[str]],
                                          db: Union[sqlalchemy.engine.Engine,
@@ -133,7 +91,7 @@ class RedshiftDBDriver(DBDriver):
                 db.execute(perms_sql)
         return None
 
-    def supports_time_type(self):
+    def supports_time_type(self) -> bool:
         return False
 
     def integer_limits(self,
@@ -196,3 +154,12 @@ class RedshiftDBDriver(DBDriver):
             return sqlalchemy.sql.sqltypes.Float(precision=FLOAT64_SIGNIFICAND_BITS)
         return super().type_for_floating_point(fp_total_bits=fp_total_bits,
                                                fp_significand_bits=fp_significand_bits)
+
+    def loader(self) -> Optional[LoaderFromRecordsDirectory]:
+        return self._redshift_loader
+
+    def loader_from_fileobj(self) -> None:
+        return None
+
+    def unloader(self) -> Optional[Unloader]:
+        return self._redshift_unloader

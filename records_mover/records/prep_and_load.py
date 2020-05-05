@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Type
 from records_mover.records.results import MoveResult
 from records_mover.db import DBDriver
 from records_mover.records.prep import TablePrep
@@ -13,6 +13,7 @@ def prep_and_load(tbl: TargetTableDetails,
                   prep: TablePrep,
                   schema_sql: str,
                   load: Callable[[DBDriver], Optional[int]],
+                  load_exception_type: Type[Exception],
                   reset_before_reload: Callable[[], None] = lambda: None) -> MoveResult:
     logger.info(f"Connecting to database...")
     with tbl.db_engine.begin() as db:
@@ -27,7 +28,7 @@ def prep_and_load(tbl: TargetTableDetails,
         driver = tbl.db_driver(db)
         try:
             import_count = load(driver)
-        except driver.load_failure_exception():
+        except load_exception_type:
             if not tbl.drop_and_recreate_on_load_error:
                 raise
             reset_before_reload()

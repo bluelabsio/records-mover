@@ -13,11 +13,17 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
     def test_unload_csv_format(self):
         self.unload_and_verify('delimited', 'csv')
 
+    def test_unload_csv_format_uncompressed(self):
+        self.unload_and_verify('delimited', 'csv', {'compression': None})
+
     def test_unload_csv_format_without_header_row(self):
         self.unload_and_verify('delimited', 'csv', {'header-row': False})
 
     def test_unload_bluelabs_format(self):
         self.unload_and_verify('delimited', 'bluelabs')
+
+    def test_unload_bluelabs_format_uncompressed(self):
+        self.unload_and_verify('delimited', 'bluelabs', {'compression': None})
 
     def test_unload_bluelabs_format_with_header_row(self):
         self.unload_and_verify('delimited', 'bluelabs', {'header-row': True})
@@ -30,6 +36,9 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
 
     def test_unload_bigquery_format(self):
         self.unload_and_verify('delimited', 'bigquery')
+
+    def test_unload_bigquery_format_uncompressed(self):
+        self.unload_and_verify('delimited', 'bigquery', {'compression': None})
 
     def test_unload_bigquery_format_without_header_row(self):
         self.unload_and_verify('delimited', 'bigquery', {'header-row': False})
