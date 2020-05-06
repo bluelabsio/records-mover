@@ -1,5 +1,6 @@
 from typing_inspect import is_literal_type, get_args
-from typing import NamedTuple, Union, Literal, Optional, TypeVar, List, Type, Collection
+from typing import NamedTuple, Union, Optional, TypeVar, List, Type, Collection
+from typing_extensions import Literal
 from .types import (RecordsHints, HintHeaderRow, HintFieldDelimiter,
                     HintCompression, HintRecordTerminator,
                     HintQuoting, HintQuoteChar, HintDoublequote,
