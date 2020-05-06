@@ -8,7 +8,7 @@ columns and rows.  For example, it supports reading and writing from:
 
 * Databases, including using native high-speed methods of
   import/export of bulk data.  Redshift, Vertica and PostgreSQL are
-  well-supported, with some support for BigQuery.
+  well-supported, with some support for BigQuery and MySQL.
 * CSV files
 * Parquet files (initial support)
 * Google Sheets
