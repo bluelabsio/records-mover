@@ -42,8 +42,8 @@ def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
     if "SCRATCH_S3_URL" in os.environ:
         return os.environ["SCRATCH_S3_URL"]
 
-    # TODO: do I want this in 'app.ini'?
-    # TODO: where else to document this?
+    # TODO: where else to document this?  Wait until README.md reorg
+    # are in.
 
     # config_resolver.get_config() will by default pull from the
     # following files (latter files override earlier ones):
