@@ -16,18 +16,19 @@ class TestPostgresCopyOptionsLoadKnown(unittest.TestCase):
                                 db=mock_db)
         known_load_formats = loader.known_supported_records_formats_for_load()
         for records_format in known_load_formats:
-            unhandled_hints = set()
+            unhandled_hints = set(records_format.hints)
             processing_instructions = ProcessingInstructions()
             load_plan = RecordsLoadPlan(processing_instructions,
                                         records_format)
             # ensure no exception thrown
             postgres_copy_from_options(unhandled_hints,
                                        load_plan)
+            self.assertFalse(unhandled_hints)
 
     def test_bluelabs_uncompressed(self):
         records_format = DelimitedRecordsFormat(variant='bluelabs',
                                                 hints={'compression': None})
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
@@ -44,7 +45,7 @@ class TestPostgresCopyOptionsLoadKnown(unittest.TestCase):
     def test_csv_uncompressed(self):
         records_format = DelimitedRecordsFormat(variant='csv',
                                                 hints={'compression': None})
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
@@ -62,7 +63,7 @@ class TestPostgresCopyOptionsLoadKnown(unittest.TestCase):
     def test_bigquery_uncompressed(self):
         records_format = DelimitedRecordsFormat(variant='bigquery',
                                                 hints={'compression': None})
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
