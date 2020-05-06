@@ -117,18 +117,15 @@ class ValidatedRecordsHints(NamedTuple):
                                   default: T,
                                   hint_name: str) -> T:
             assert is_literal_type(type_)
-            valid_values: Collection[T] = get_args(type_)
+            valid_values: List[T] = list(get_args(type_))
             return validate_literal(valid_values,
                                     hint_name,
                                     default=default)
 
         def validate_datetimeformattz() -> HintDateTimeFormatTz:
-            type_ = HintDateTimeFormatTz
-            default = "YYYY-MM-DD HH24:MI:SSOF"
-            hint_name = 'datetimeformattz'
-            return validate_literal_type(type_,
-                                         default,
-                                         hint_name)
+            return validate_literal_type(HintDateTimeFormatTz,  # type: ignore
+                                         default="YYYY-MM-DD HH24:MI:SSOF",
+                                         hint_name='datetimeformattz')
 
         def validate_datetimeformat() -> HintDateTimeFormat:
             valid_dateformats = VALID_DATETIMEFORMATS
