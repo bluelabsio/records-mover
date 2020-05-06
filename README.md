@@ -36,9 +36,11 @@ pip3 install 'records_mover[cli,postgres,redshift]'
 
 Loading a CSV into a database:
 
-TODO
+```sh
+mvrec file2table foo.csv redshiftdb1 myschema1 mytable1
+```
 
-Moving between a Redshift and PostgreSQL database:
+Copying a table from a PostgreSQL to a Redshift database:
 
 ```sh
 mvrec --help
@@ -48,12 +50,12 @@ mvrec table2table postgresdb1 myschema1 mytable1 redshiftdb2 myschema2 mytable2
 Note records mover will automatically build an appropriate `CREATE
 TABLE` statement on the target end if the table doesn't already exist.
 
-For more installation notes, see [INSTALL.md](./INSTALL.md).  To
-understand the security model here, see [SECURITY.md](./SECURITY.md).
-
 Note that the connection details for the database names here must be
 configured using
 [db-facts](https://github.com/bluelabsio/db-facts/blob/master/CONFIGURATION.md).
+
+For more installation notes, see [INSTALL.md](./INSTALL.md).  To
+understand the security model here, see [SECURITY.md](./SECURITY.md).
 
 ## Example Python library use
 
