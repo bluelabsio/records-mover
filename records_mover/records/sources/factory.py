@@ -1,5 +1,4 @@
 import pathlib
-from contextlib import contextmanager
 from ..records_format import BaseRecordsFormat
 from ..schema import RecordsSchema
 from ..records_directory import RecordsDirectory
@@ -12,7 +11,7 @@ from .directory import RecordsDirectoryRecordsSource
 from .. import RecordsHints, BootstrappingRecordsHints
 from .base import (SupportsRecordsDirectory, SupportsMoveToRecordsDirectory,  # noqa
                    SupportsToFileobjsSource, RecordsSource)
-from typing import Mapping, IO, Callable, Iterator, Optional, Union, Iterable, TYPE_CHECKING
+from typing import Mapping, IO, Callable, Optional, Union, Iterable, TYPE_CHECKING
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
     import google.auth.credentials  # noqa
@@ -48,13 +47,12 @@ class RecordsSources(object):
         self.db_driver = db_driver
         self.url_resolver = url_resolver
 
-    @contextmanager
     def dataframe(self,
                   df: 'DataFrame',
                   processing_instructions: ProcessingInstructions=
                   ProcessingInstructions(),
                   records_schema: Optional[RecordsSchema]=None,
-                  include_index: bool=False) -> Iterator['DataframesRecordsSource']:
+                  include_index: bool=False) -> 'DataframesRecordsSource':
         """
         :param df: Pandas dataframe to move data from.
         :param processing_instructions: Instructions used during creation of the schema SQL.
@@ -64,18 +62,17 @@ class RecordsSources(object):
         """
 
         from .dataframes import DataframesRecordsSource  # noqa
-        yield DataframesRecordsSource(dfs=[df],
-                                      records_schema=records_schema,
-                                      processing_instructions=processing_instructions,
-                                      include_index=include_index)
+        return DataframesRecordsSource(dfs=[df],
+                                       records_schema=records_schema,
+                                       processing_instructions=processing_instructions,
+                                       include_index=include_index)
 
-    @contextmanager
     def dataframes(self,
                    dfs: Iterable['DataFrame'],
                    processing_instructions: ProcessingInstructions=
                    ProcessingInstructions(),
                    records_schema: Optional[RecordsSchema]=None,
-                   include_index: bool=False) -> Iterator['DataframesRecordsSource']:
+                   include_index: bool=False) -> 'DataframesRecordsSource':
         """
 
         :param dfs: Iterator of Pandas dataframes to move data from -- all data from
@@ -86,18 +83,17 @@ class RecordsSources(object):
         the move.
         """
         from .dataframes import DataframesRecordsSource  # noqa
-        yield DataframesRecordsSource(dfs=dfs,
-                                      records_schema=records_schema,
-                                      processing_instructions=processing_instructions,
-                                      include_index=include_index)
+        return DataframesRecordsSource(dfs=dfs,
+                                       records_schema=records_schema,
+                                       processing_instructions=processing_instructions,
+                                       include_index=include_index)
 
-    @contextmanager
     def fileobjs(self,
                  target_names_to_input_fileobjs: Mapping[str, IO[bytes]],
                  records_format: Optional[BaseRecordsFormat]=None,
                  initial_hints: Optional[BootstrappingRecordsHints]=None,
                  records_schema: Optional[RecordsSchema]=None)\
-            -> Iterator[Union[UninferredFileobjsRecordsSource, FileobjsSource]]:
+            -> Union[UninferredFileobjsRecordsSource, FileobjsSource]:
         """
         :param target_names_to_input_fileobjs: Filenames mapping to streams of data file.
         :param records_format: Description of the format of the data files.
@@ -108,24 +104,23 @@ class RecordsSources(object):
         :param records_schema: Description of the column names and types of the records.
         """
         if records_schema is None or records_format is None:
-            yield UninferredFileobjsRecordsSource(
+            return UninferredFileobjsRecordsSource(
                 target_names_to_input_fileobjs=target_names_to_input_fileobjs,
                 records_format=records_format,
                 records_schema=records_schema,
                 initial_hints=initial_hints)
         else:
-            yield FileobjsSource(
+            return FileobjsSource(
                 target_names_to_input_fileobjs=target_names_to_input_fileobjs,
                 records_format=records_format,
                 records_schema=records_schema)
 
-    @contextmanager
     def data_url(self,
                  input_url: str,
                  records_format: Optional[BaseRecordsFormat]=None,
                  initial_hints: Optional[BootstrappingRecordsHints]=None,
                  records_schema: Optional[RecordsSchema]=None)\
-            -> Iterator[DataUrlRecordsSource]:
+            -> DataUrlRecordsSource:
         """
         :param input_url: Location of the data file.  Must be a URL format understood by the
         records_mover.url library.
@@ -136,34 +131,32 @@ class RecordsSources(object):
         'escape' hints (or the appropriate subsets) in this dictionary.
         :param records_schema: Description of the column names and types of the records.
         """
-        yield DataUrlRecordsSource(input_url=input_url,
-                                   url_resolver=self.url_resolver,
-                                   records_format=records_format,
-                                   records_schema=records_schema,
-                                   initial_hints=initial_hints)
+        return DataUrlRecordsSource(input_url=input_url,
+                                    url_resolver=self.url_resolver,
+                                    records_format=records_format,
+                                    records_schema=records_schema,
+                                    initial_hints=initial_hints)
 
-    @contextmanager
     def table(self,
               db_engine: 'Engine',
               schema_name: str,
-              table_name: str) -> Iterator['TableRecordsSource']:
+              table_name: str) -> 'TableRecordsSource':
         """
         :param db_engine: Database engine to pull data from.
         :param schema_name: Schema name of a table to get data from.
         :param table_name: Table name of a table to get data from.
         """
         from .table import TableRecordsSource  # noqa
-        yield TableRecordsSource(schema_name=schema_name,
-                                 table_name=table_name,
-                                 url_resolver=self.url_resolver,
-                                 driver=self.db_driver(db_engine))
+        return TableRecordsSource(schema_name=schema_name,
+                                  table_name=table_name,
+                                  url_resolver=self.url_resolver,
+                                  driver=self.db_driver(db_engine))
 
-    @contextmanager
     def directory_from_url(self,
                            url: str,
                            hints: RecordsHints={},
                            fail_if_dont_understand: bool=True)\
-            -> Iterator[RecordsDirectoryRecordsSource]:
+            -> RecordsDirectoryRecordsSource:
         """
         :param url: Location of the records directory.  Must be a URL format understood by the
         records_mover.url library, and must be a directory URL that ends with a '/'.
@@ -178,18 +171,17 @@ class RecordsSources(object):
         directory_loc = self.url_resolver.directory_url(url)
         directory = RecordsDirectory(records_loc=directory_loc)
         fail = fail_if_dont_understand
-        yield RecordsDirectoryRecordsSource(directory=directory,
-                                            fail_if_dont_understand=fail,
-                                            override_hints=hints,
-                                            url_resolver=self.url_resolver)
+        return RecordsDirectoryRecordsSource(directory=directory,
+                                             fail_if_dont_understand=fail,
+                                             override_hints=hints,
+                                             url_resolver=self.url_resolver)
 
-    @contextmanager
     def local_file(self,
                    filename: str,
                    records_format: Optional[BaseRecordsFormat]=None,
                    initial_hints: Optional[BootstrappingRecordsHints]=None,
                    records_schema: Optional[RecordsSchema]=None)\
-            -> Iterator[DataUrlRecordsSource]:
+            -> DataUrlRecordsSource:
         """
         :param filename: File path (relative or absolute) of the data file to load.
         :param records_format: Description of the format of the data files.
@@ -200,13 +192,11 @@ class RecordsSources(object):
         :param records_schema: Description of the column names and types of the records.
         """
         url = pathlib.Path(filename).resolve().as_uri()
-        with self.data_url(input_url=url,
-                           records_format=records_format,
-                           records_schema=records_schema,
-                           initial_hints=initial_hints) as source:
-            yield source
+        return self.data_url(input_url=url,
+                             records_format=records_format,
+                             records_schema=records_schema,
+                             initial_hints=initial_hints)
 
-    @contextmanager
     def google_sheet(self,
                      spreadsheet_id: str,
                      sheet_name_or_range: str,
@@ -214,7 +204,7 @@ class RecordsSources(object):
                      'google.auth.credentials.Credentials',
                      out_of_band_column_headers: Optional[Iterable[str]]=None,
                      header_translator: Optional[Callable[[str], str]]=None) ->\
-            Iterator['GoogleSheetsRecordsSource']:
+            'GoogleSheetsRecordsSource':
         """:param spreadsheet_id: This is the xyz in
         https://docs.google.com/spreadsheets/d/xyz/edit?ts=5be5b383#gid=abc
         :param sheet_name_or_range: This is the label of the particular tab within the Google Sheets
@@ -229,8 +219,8 @@ class RecordsSources(object):
         if out_of_band_column_headers is set.
         """
         from .google_sheets import GoogleSheetsRecordsSource  # noqa
-        yield GoogleSheetsRecordsSource(spreadsheet_id=spreadsheet_id,
-                                        sheet_name_or_range=sheet_name_or_range,
-                                        google_cloud_creds=google_cloud_creds,
-                                        out_of_band_column_headers=out_of_band_column_headers,
-                                        header_translator=header_translator)
+        return GoogleSheetsRecordsSource(spreadsheet_id=spreadsheet_id,
+                                         sheet_name_or_range=sheet_name_or_range,
+                                         google_cloud_creds=google_cloud_creds,
+                                         out_of_band_column_headers=out_of_band_column_headers,
+                                         header_translator=header_translator)

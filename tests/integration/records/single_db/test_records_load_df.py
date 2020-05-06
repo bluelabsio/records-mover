@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class RecordsLoadDataframeIntegrationTest(BaseRecordsIntegrationTest):
-    def load_and_verify(self):
+    def load_and_verify(self) -> None:
         if not self.has_pandas():
             logger.warning("Skipping test as we don't have Pandas to save with.")
             return
@@ -33,13 +33,13 @@ class RecordsLoadDataframeIntegrationTest(BaseRecordsIntegrationTest):
             'timestamptz': us_eastern.localize(datetime.datetime(2000, 1, 2, 12, 34, 56, 789012))
         }])
 
-        with self.records.sources.dataframe(df=df) as source,\
-            self.records.targets.table(schema_name=self.schema_name,
-                                       table_name=self.table_name,
-                                       db_engine=self.engine) as target:
-            out = self.records.move(source, target)
-            self.verify_db_table()
-            return out
+        source = self.records.sources.dataframe(df=df)
+        target = self.records.targets.table(schema_name=self.schema_name,
+                                            table_name=self.table_name,
+                                            db_engine=self.engine)
+        out = self.records.move(source, target)
+        self.verify_db_table()
+        return out
 
     def verify_db_table(self) -> None:
         validator = RecordsTableValidator(self.engine)
