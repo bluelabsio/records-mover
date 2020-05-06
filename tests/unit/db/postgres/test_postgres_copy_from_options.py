@@ -9,7 +9,7 @@ class TestPostgresCopyFromOptions(unittest.TestCase):
         records_format = DelimitedRecordsFormat(variant='bluelabs',
                                                 hints={'compression': None})
         records_format.hints['encoding'] = 'NEWNEWENCODING'
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
@@ -20,7 +20,7 @@ class TestPostgresCopyFromOptions(unittest.TestCase):
         records_format = DelimitedRecordsFormat(variant='bluelabs',
                                                 hints={'compression': None})
         records_format.hints['escape'] = None
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
@@ -31,7 +31,7 @@ class TestPostgresCopyFromOptions(unittest.TestCase):
         records_format = DelimitedRecordsFormat(variant='bluelabs',
                                                 hints={'compression': None})
         records_format.hints['doublequote'] = '"'
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
@@ -42,7 +42,7 @@ class TestPostgresCopyFromOptions(unittest.TestCase):
         records_format = DelimitedRecordsFormat(variant='vertica',
                                                 hints={'compression': None})
         records_format.hints['escape'] = '\\'
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
@@ -52,7 +52,7 @@ class TestPostgresCopyFromOptions(unittest.TestCase):
     def test_bluelabs_with_compression(self):
         records_format = DelimitedRecordsFormat(variant='bluelabs',
                                                 hints={'compression': 'GZIP'})
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
@@ -63,7 +63,7 @@ class TestPostgresCopyFromOptions(unittest.TestCase):
         records_format = DelimitedRecordsFormat(variant='csv',
                                                 hints={'compression': None,
                                                        'escape': '\\'})
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
@@ -74,7 +74,7 @@ class TestPostgresCopyFromOptions(unittest.TestCase):
         records_format = DelimitedRecordsFormat(variant='csv',
                                                 hints={'compression': None,
                                                        'doublequote': None})
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)
@@ -85,7 +85,7 @@ class TestPostgresCopyFromOptions(unittest.TestCase):
         records_format = DelimitedRecordsFormat(variant='csv',
                                                 hints={'compression': None,
                                                        'quoting': 'all'})
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         processing_instructions = ProcessingInstructions()
         load_plan = RecordsLoadPlan(processing_instructions,
                                     records_format)

@@ -95,6 +95,7 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
             cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
     else:
         _assert_never(mode)
+    quiet_remove(unhandled_hints, 'quoting')
 
     # As of the 9.2 release (documentation as of 2019-03-12), there's
     # no statement in the docs on what newline formats are accepted in

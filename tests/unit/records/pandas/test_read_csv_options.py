@@ -12,7 +12,7 @@ class TestReadCsvOptions(unittest.TestCase):
         records_schema = RecordsSchema.from_data({
             'schema': 'bltypes/v1'
         })
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         processing_instructions = ProcessingInstructions()
         expectations = {
             'compression': 'bz2'

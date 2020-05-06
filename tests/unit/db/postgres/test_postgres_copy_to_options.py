@@ -19,7 +19,7 @@ class TestPostgresCopyToOptions(unittest.TestCase):
         mock_postgres_copy_options = mock_postgres_copy_options_csv.return_value
         mock_determine_date_output_style.return_value = (mock_date_output_style,
                                                          mock_date_order_style)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         out = postgres_copy_to_options(unhandled_hints,
                                        records_format,
                                        fail_if_cant_handle_hint=True)
@@ -43,7 +43,7 @@ class TestPostgresCopyToOptions(unittest.TestCase):
         mock_postgres_copy_options = mock_postgres_copy_options_text.return_value
         mock_determine_date_output_style.return_value = (mock_date_output_style,
                                                          mock_date_order_style)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         out = postgres_copy_to_options(unhandled_hints,
                                        records_format,
                                        fail_if_cant_handle_hint=True)
