@@ -14,11 +14,25 @@ logger = logging.getLogger(__name__)
 # cred-service/LastPass/etc) into which driver to use.
 db_driver_for_type = {
     'postgres': 'postgresql',
+    # pymysql is pure Python and is known to work correctly with LOAD
+    # DATA LOCAL INFILE in SQLAlchemy, which mysqlclient did not as of
+    # 2020-04.
+    'mysql': 'mysql+pymysql',
+    # vertica_python has the advantage of being pure Python and an
+    # offering directly from Vertica:
+    # https://github.com/vertica/vertica-python
     'vertica': 'vertica+vertica_python',
 }
 
 odbc_driver_for_type = {
     'vertica': 'vertica+pyodbc',
+}
+
+query_for_type = {
+    'mysql': {
+        # Please see SECURITY.md for security implications!
+        "local_infile": True
+    },
 }
 
 
@@ -102,7 +116,8 @@ def create_sqlalchemy_url(db_facts: DBFacts,
                                  password=db_facts['password'],
                                  host=db_facts['host'],
                                  port=db_facts['port'],
-                                 database=db_facts['database'])
+                                 database=db_facts['database'],
+                                 query=query_for_type.get(db_type))
 
 
 def engine_from_lpass_entry(lpass_entry_name: str) -> sa.engine.Engine:

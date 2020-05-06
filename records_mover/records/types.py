@@ -46,20 +46,31 @@ if TYPE_CHECKING:
     from typing_extensions import Literal  # noqa
 
     from mypy_extensions import TypedDict
-    BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
-                                          {
-                                              'quoting': Optional[str],
-                                              'header-row': bool,
-                                              'field-delimiter': str,
-                                              'encoding': str,
-                                              'escape': Optional[str],
-                                              'compression': Optional[str],
-                                          },
-                                          total=False)
 
+    #
+    # Note: Any expansion of these types should also be done in
+    # records.jobs.hints
+    #
     RecordsFormatType = Literal['delimited', 'parquet']
 
     DelimitedVariant = Literal['dumb', 'csv', 'bigquery', 'bluelabs', 'vertica']
+
+    HintEncoding = Literal["UTF8", "UTF16", "UTF16LE", "UTF16BE",
+                           "UTF16BOM", "UTF8BOM", "LATIN1", "CP1252"]
+
+    HintQuoting = Literal["all", "minimal", "nonnumeric", None]
+
+    HintEscape = Literal["\\", None]
+
+    HintCompression = Literal['GZIP', 'BZIP', 'LZO', None]
+
+    # The trick here works on Literal[True, False] but not on bool:
+    #
+    # https://github.com/python/mypy/issues/6366#issuecomment-560369716
+    HintHeaderRow = Literal[True, False]
+
+    HintDoublequote = Literal[True, False]
+
 else:
     RecordsManifestEntryMetadata = Mapping[str, int]
     LegacyRecordsManifestEntry = Mapping[str, Union[str, bool, int, RecordsManifestEntryMetadata]]
@@ -71,8 +82,39 @@ else:
     Url = str
     UrlDetails = Dict[Url, UrlDetailsEntry]
 
-    BootstrappingRecordsHints = RecordsHints
-
     RecordsFormatType = str
 
     DelimitedVariant = str
+
+    HintEncoding = str
+
+    HintQuoting = Optional[str]
+
+    HintEscape = Optional[str]
+
+    HintCompression = Optional[str]
+
+    HintHeaderRow = bool
+
+    HintDoublequote = bool
+
+HintFieldDelimiter = str
+
+HintRecordTerminator = str
+
+HintQuoteChar = str
+
+
+if TYPE_CHECKING:
+    BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
+                                          {
+                                              'quoting': HintQuoting,
+                                              'header-row': HintHeaderRow,
+                                              'field-delimiter': HintFieldDelimiter,
+                                              'encoding': HintEncoding,
+                                              'escape': HintEscape,
+                                              'compression': HintCompression,
+                                          },
+                                          total=False)
+else:
+    BootstrappingRecordsHints = RecordsHints

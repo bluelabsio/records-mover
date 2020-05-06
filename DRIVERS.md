@@ -3,7 +3,7 @@
 Adding a database driver to records_mover can be divided up into three steps:
 
 * Add integration testing and subclass DBDriver to get tests to pass
-* Add code for native bulk import support
+* Add code for native bulk import support - see [LOADING_SUPPORT.md](./LOADING_SUPPORT.md)
 * Add code for native bulk export support
 
 Here are the basic things you'll need to do to get through the
