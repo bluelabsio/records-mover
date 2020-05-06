@@ -156,6 +156,7 @@ class S3ObjectTypeStub:
 class S3MetaTypeStub:
     client: S3ClientTypeStub
 
+
 class S3ResourceTypeStub:
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#service-resource
     def Object(self, bucket_name: str, key: str) -> S3ObjectTypeStub: ...
