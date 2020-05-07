@@ -273,9 +273,7 @@ def sniff_hints(fileobj: IO[bytes],
     streaming_hints = initial_hints.copy()
     if encoding_hint is not None:
         streaming_hints['encoding'] = encoding_hint
-    pandas_inferred_hints = csv_hints_from_pandas(fileobj, streaming_hints)
-    final_encoding_hint: HintEncoding = (encoding_hint or  # type: ignore
-                                         pandas_inferred_hints['encoding'])
+    final_encoding_hint: HintEncoding = (encoding_hint or 'UTF8')
     other_inferred_csv_hints = {}
     record_terminator_hint = infer_newline_format(fileobj, final_encoding_hint)
     if record_terminator_hint is not None:
@@ -283,6 +281,8 @@ def sniff_hints(fileobj: IO[bytes],
         python_inferred_hints = csv_hints_from_python(fileobj,
                                                       record_terminator_hint,
                                                       final_encoding_hint)
+    streaming_hints.update(python_inferred_hints)  # type: ignore
+    pandas_inferred_hints = csv_hints_from_pandas(fileobj, streaming_hints)
     out = {
         **pandas_inferred_hints,  # type: ignore
         **python_inferred_hints,  # type: ignore
