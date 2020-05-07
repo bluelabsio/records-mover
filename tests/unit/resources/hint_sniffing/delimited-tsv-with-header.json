@@ -6,8 +6,7 @@
     "field-delimiter": "\t"
   },
   "initial_hints": {
-    "quoting": "minimal",
-    "field-delimiter": "\t"
+    "quoting": "minimal"
   },
   "notes": "TODO Lack of delimiter detection is painful, as tabs are hard to specify on the command line"
 }
