@@ -4,6 +4,7 @@ from . import RecordsHints, BootstrappingRecordsHints
 from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
+import csv
 from .types import HintEncoding, HintRecordTerminator
 from typing import Iterable, List, IO, Optional, Dict, Iterator, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -126,16 +127,18 @@ def infer_newline_format(fileobj: IO[bytes],
         with rewound_fileobj(fileobj) as fileobj:
             python_encoding = python_encoding_from_hint[encoding_hint]
             text_fileobj = io.TextIOWrapper(fileobj, encoding=python_encoding)
-            if text_fileobj.newlines is None:  # ...and it almost certainly will be...
-                text_fileobj.readline()  # read enough to know newline format
-            # https://www.python.org/dev/peps/pep-0278/
-            if text_fileobj.newlines is not None:
-                logger.info(f"Inferred record terminator as {repr(text_fileobj.newlines)}")
-                return str(text_fileobj.newlines)
-            else:
-                logger.warning("Python could not determine newline format of file.")
-                return None
-            text_fileobj.detach()
+            try:
+                if text_fileobj.newlines is None:  # ...and it almost certainly will be...
+                    text_fileobj.readline()  # read enough to know newline format
+                # https://www.python.org/dev/peps/pep-0278/
+                if text_fileobj.newlines is not None:
+                    logger.info(f"Inferred record terminator as {repr(text_fileobj.newlines)}")
+                    return str(text_fileobj.newlines)
+                else:
+                    logger.warning("Python could not determine newline format of file.")
+                    return None
+            finally:
+                text_fileobj.detach()
     except OSError:
         logger.warning("Assuming UNIX newline format, as stream is not rewindable")
         return None
@@ -152,7 +155,11 @@ def other_inferred_csv_hints(fileobj: IO[bytes],
 def rewound_fileobj(fileobj: IO[bytes]) -> Iterator[IO[bytes]]:
     if getattr(fileobj, 'closed', None) is not None:
         closed = fileobj.closed
-    if closed or not fileobj.seekable():
+    if closed:
+        logger.warning("Stream already closed")
+        raise OSError('Stream is already closed')
+    if not fileobj.seekable():
+        logger.warning("Stream not rewindable")
         raise OSError('Stream is not rewindable')
     original_position = fileobj.tell()
     fileobj.seek(0)
@@ -172,8 +179,8 @@ def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[HintEncoding]:
                 detector.feed(chunk)
                 if detector.done or len(chunk) < chunksize:
                     break
-            detector.close()
-            assert detector.result is not None
+                detector.close()
+                assert detector.result is not None
             if 'encoding' in detector.result:
                 chardet_encoding = detector.result['encoding']
                 if chardet_encoding in hint_encoding_from_chardet:
@@ -200,17 +207,26 @@ def csv_hints_from_python(fileobj: IO[bytes],
             # delimiter, skipinitialspace.  does not try to determine
             # lineterminator.
             # https://github.com/python/cpython/blob/master/Lib/csv.py#L165
-
-            # TODO: need a text stream here, meaning we know encoding and
-            return {}
+            python_encoding = python_encoding_from_hint[encoding_hint]
+            try:
+                text_fileobj = io.TextIOWrapper(fileobj,
+                                                encoding=python_encoding,
+                                                newline=record_terminator_hint)
+                # TODO: How to get 1024?  processing instructions?
+                dialect = csv.Sniffer().sniff(text_fileobj.read(1024))
+                out = {
+                    'doublequote': dialect.doublequote,
+                    'field-delimiter': dialect.delimiter,
+                    'quotechar': dialect.quotechar
+                }
+                logger.info(f"Python csv.Dialect sniffed: {out}")
+                return out
+            finally:
+                text_fileobj.detach()
     except OSError:
         logger.warning("Could not use Python's csv library to detect hints, "
                        "as stream is not rewindable")
         return {}
-
-    return {}
-#        'delimiter': '\t'
-#    }
 
 
 def sniff_hints(fileobj: IO[bytes],
@@ -228,17 +244,19 @@ def sniff_hints(fileobj: IO[bytes],
         # the reader isn't smart enough to remember things like which
         # quoting setting it was told to use...
         pandas_inferred_hints = csv_hints_from_reader(reader)
-    final_encoding_hint: HintEncoding = (encoding_hint or  # type: ignore
-                                         pandas_inferred_hints['encoding'])
-    other_inferred_csv_hints = {}
-    record_terminator_hint = infer_newline_format(fileobj, final_encoding_hint)
+        final_encoding_hint: HintEncoding = (encoding_hint or  # type: ignore
+                                             pandas_inferred_hints['encoding'])
+        other_inferred_csv_hints = {}
+        record_terminator_hint = infer_newline_format(fileobj, final_encoding_hint)
     if record_terminator_hint is not None:
         other_inferred_csv_hints['record-terminator'] = record_terminator_hint
-    python_inferred_hints = csv_hints_from_python(fileobj,
-                                                  record_terminator_hint,
-                                                  final_encoding_hint)
-    return {**pandas_inferred_hints,
-            **python_inferred_hints,
-            'encoding': final_encoding_hint,
-            **other_inferred_csv_hints,
-            **initial_hints}  # type: ignore
+        python_inferred_hints = csv_hints_from_python(fileobj,
+                                                      record_terminator_hint,
+                                                      final_encoding_hint)
+    out = {**pandas_inferred_hints,
+           **python_inferred_hints,
+           'encoding': final_encoding_hint,
+           **other_inferred_csv_hints,
+           **initial_hints}  # type: ignore
+    logger.info(f"Inferred hints from combined sources: {out}")
+    return out
