@@ -33,7 +33,8 @@ mvrec --help
 mvrec table2table mydb1 myschema1 mytable1 mydb2 myschema2 mytable2
 ```
 
-For more installation notes, see [INSTALL.md](./INSTALL.md)
+For more installation notes, see [INSTALL.md](./INSTALL.md).  To
+understand the security model here, see [SECURITY.md](./SECURITY.md).
 
 Note that the connection details for the database names here must be
 configured using

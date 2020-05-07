@@ -26,7 +26,7 @@ class TestPandasToCsvOptionsDateformats(unittest.TestCase):
                                        'datetimeformattz': 'YYYY-MM-DD HH24:MI:SS',
                                        'datetimeformat': 'YYYY-MM-DD HH24:MI:SS',
                                    })
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
         self.assertEqual(expected, actual)
         self.assertFalse(unhandled_hints)
@@ -52,7 +52,7 @@ class TestPandasToCsvOptionsDateformats(unittest.TestCase):
                                        'datetimeformattz': 'MM-DD-YYYY HH24:MI:SS',
                                        'datetimeformat': 'MM-DD-YYYY HH24:MI:SS',
                                    })
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
         self.assertEqual(expected, actual)
         self.assertFalse(unhandled_hints)
@@ -78,7 +78,7 @@ class TestPandasToCsvOptionsDateformats(unittest.TestCase):
                                        'datetimeformattz': 'DD-MM-YYYY HH24:MI:SS',
                                        'datetimeformat': 'DD-MM-YYYY HH24:MI:SS',
                                    })
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
         self.assertEqual(expected, actual)
         self.assertFalse(unhandled_hints)
@@ -104,7 +104,7 @@ class TestPandasToCsvOptionsDateformats(unittest.TestCase):
                                        'datetimeformattz': 'MM/DD/YY HH24:MI:SS',
                                        'datetimeformat': 'MM/DD/YY HH24:MI:SS',
                                    })
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
         self.assertEqual(expected, actual)
         self.assertFalse(unhandled_hints)

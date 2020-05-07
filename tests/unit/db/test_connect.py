@@ -26,7 +26,8 @@ class TestConnect(unittest.TestCase):
                                     host='myhost',
                                     password='hunter1',
                                     port=123,
-                                    username='myuser')
+                                    username='myuser',
+                                    query=None)
         mock_create_engine.\
             assert_called_with(mock_url.return_value)
         assert engine == mock_create_engine.return_value

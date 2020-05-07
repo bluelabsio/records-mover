@@ -19,7 +19,7 @@ class TestPandasToCsvOptionsVertica(unittest.TestCase):
         }
         processing_instructions = ProcessingInstructions()
         records_format = DelimitedRecordsFormat(hints=vertica_format_hints)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
         self.assertEqual(expected, actual)
         self.assertFalse(unhandled_hints)
