@@ -138,16 +138,19 @@ bigquery_dependencies = [
     'pybigquery',
 ] + db_dependencies
 
+smart_open_dependencies = [
+    # we rely on exception types from smart_open,
+    # which seem to change in feature releases
+    # without a major version bump
+    'smart_open>=2,<2.1',
+]
+
 aws_dependencies = [
     'awscli>=1,<2',
     'boto>=2,<3',
     'boto3',
-    # we rely on exception types from smart_open,
-    # which seem to change in feature releases
-    # without a major version bump
-    'smart_open>=1.8.4,<1.9.0',
     's3-concat>=0.1.7,<0.2'
-]
+] + smart_open_dependencies
 
 gsheet_dependencies = [
     'google',
@@ -223,6 +226,10 @@ unittest_dependencies = (
     pandas_dependencies
 )
 
+gs_dependencies = [
+    'google-cloud-storage'
+] + smart_open_dependencies
+
 this_directory = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
@@ -278,6 +285,7 @@ setup(name='records-mover',
           literally_every_single_database_binary_dependencies,
           'itest': itest_dependencies,
           'unittest': unittest_dependencies,
+          'gs': gs_dependencies,
       },
       entry_points={
           'console_scripts': 'mvrec = records_mover.records.cli:main',

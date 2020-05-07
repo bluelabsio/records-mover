@@ -55,6 +55,7 @@ class S3FileUrl(S3BaseUrl, BaseFileUrl):
                            key_id=self.key,
                            mode=mode,
                            session=self._boto3_session)
+        # TODO: upgrade probably broke this - look it up
         except ValueError as e:
             # Example: ValueError: 'b0KD9AkG7XA/_manifest' does not
             #  exist in the bucket 'vince-scratch', or is forbidden
