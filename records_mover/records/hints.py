@@ -5,7 +5,8 @@ from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
 import csv
-from .types import HintEncoding, HintRecordTerminator
+from .types import HintEncoding, HintRecordTerminator, HintQuoting
+import pandas
 from typing import Iterable, List, IO, Optional, Dict, Iterator, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader
@@ -81,6 +82,11 @@ hint_compression_from_pandas = {
 
 
 def csv_hints_from_reader(reader: 'TextFileReader') -> RecordsHints:
+    # https://github.com/pandas-dev/pandas/blob/master/pandas/io/parsers.py#L783
+    # C parser:
+    # https://github.com/pandas-dev/pandas/blob/e9b019b653d37146f9095bb0522525b3a8d9e386/pandas/io/parsers.py#L1903
+    # Python parser:
+    # https://github.com/pandas-dev/pandas/blob/e9b019b653d37146f9095bb0522525b3a8d9e386/pandas/io/parsers.py#L2253
     header = reader._engine.header
     quotechar = reader._engine.data.dialect.quotechar
     delimiter = reader._engine.data.dialect.delimiter
@@ -180,7 +186,7 @@ def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[HintEncoding]:
                 if detector.done or len(chunk) < chunksize:
                     break
                 detector.close()
-                assert detector.result is not None
+            assert detector.result is not None
             if 'encoding' in detector.result:
                 chardet_encoding = detector.result['encoding']
                 if chardet_encoding in hint_encoding_from_chardet:
@@ -229,6 +235,34 @@ def csv_hints_from_python(fileobj: IO[bytes],
         return {}
 
 
+def csv_hints_from_pandas(fileobj: IO[bytes],
+                          streaming_hints: BootstrappingRecordsHints) -> RecordsHints:
+    def attempt_parse(quoting: HintQuoting) -> RecordsHints:
+        current_hints = streaming_hints.copy()
+        current_hints['quoting'] = quoting
+        with stream_csv(fileobj, current_hints) as reader:
+            return {
+                **csv_hints_from_reader(reader),
+                'quoting': quoting
+            }
+
+    if 'quoting' in streaming_hints:
+        return attempt_parse(streaming_hints['quoting'])
+    else:
+        try:
+            return attempt_parse(quoting=None)
+        except pandas.errors.ParserError:
+            try:
+                return attempt_parse(quoting='all')
+            except pandas.errors.ParserError:
+                try:
+                    return attempt_parse(quoting='nonnumeric')
+                except pandas.errors.ParserError:
+                    try:
+                        return attempt_parse(quoting='minimal')
+                    except pandas.errors.ParserError:
+                        return attempt_parse(quoting=None)
+
 def sniff_hints(fileobj: IO[bytes],
                 initial_hints: BootstrappingRecordsHints) -> RecordsHints:
     if 'encoding' not in initial_hints:
@@ -239,15 +273,11 @@ def sniff_hints(fileobj: IO[bytes],
     streaming_hints = initial_hints.copy()
     if encoding_hint is not None:
         streaming_hints['encoding'] = encoding_hint
-    with stream_csv(fileobj, streaming_hints) as reader:
-        # overwrite hints from reader with user-specified values, as
-        # the reader isn't smart enough to remember things like which
-        # quoting setting it was told to use...
-        pandas_inferred_hints = csv_hints_from_reader(reader)
-        final_encoding_hint: HintEncoding = (encoding_hint or  # type: ignore
-                                             pandas_inferred_hints['encoding'])
-        other_inferred_csv_hints = {}
-        record_terminator_hint = infer_newline_format(fileobj, final_encoding_hint)
+    pandas_inferred_hints = csv_hints_from_pandas(fileobj, streaming_hints)
+    final_encoding_hint: HintEncoding = (encoding_hint or  # type: ignore
+                                         pandas_inferred_hints['encoding'])
+    other_inferred_csv_hints = {}
+    record_terminator_hint = infer_newline_format(fileobj, final_encoding_hint)
     if record_terminator_hint is not None:
         other_inferred_csv_hints['record-terminator'] = record_terminator_hint
         python_inferred_hints = csv_hints_from_python(fileobj,

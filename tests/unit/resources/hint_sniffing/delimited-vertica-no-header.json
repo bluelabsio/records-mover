@@ -10,8 +10,7 @@
   },
   "initial_hints": {
     "record-terminator": "\u0002",
-    "header-row": false,
-    "quoting": null
+    "header-row": false
   },
   "notes": "This one is a disaster in terms of what is able to be determined"
 }
