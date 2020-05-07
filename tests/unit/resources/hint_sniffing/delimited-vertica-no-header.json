@@ -9,11 +9,9 @@
     "header-row": false
   },
   "initial_hints": {
-    "field-delimiter": "\u0001",
     "record-terminator": "\u0002",
     "header-row": false,
-    "quoting": null,
-    "doublequote": false
+    "quoting": null
   },
   "notes": "This one is a disaster in terms of what is able to be determined"
 }
