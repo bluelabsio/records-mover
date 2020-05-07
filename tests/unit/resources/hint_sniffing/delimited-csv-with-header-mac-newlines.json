@@ -5,8 +5,6 @@
     "quoting": "minimal",
     "record-terminator": "\r"
   },
-  "initial_hints": {
-    "quoting": "minimal"
-  },
+  "initial_hints": {},
   "notes": "Doesn't look like current code tries to sniff quoting"
 }
