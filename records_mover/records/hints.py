@@ -1,10 +1,11 @@
 import chardet
+from contextlib import contextmanager
 from . import RecordsHints, BootstrappingRecordsHints
 from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
-from .types import HintEncoding
-from typing import Iterable, List, IO, Optional, Dict, TYPE_CHECKING
+from .types import HintEncoding, HintRecordTerminator
+from typing import Iterable, List, IO, Optional, Dict, Iterator, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader
 
@@ -119,65 +120,97 @@ def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
 
 
 def infer_newline_format(fileobj: IO[bytes],
-                         inferred_hints: RecordsHints,
-                         encoding_hint: str) -> None:
-    closed = False
-    if getattr(fileobj, 'closed', None) is not None:
-        closed = fileobj.closed
-    if closed or not fileobj.seekable():
+                         encoding_hint: HintEncoding) ->\
+        Optional[HintRecordTerminator]:
+    try:
+        with rewound_fileobj(fileobj) as fileobj:
+            python_encoding = python_encoding_from_hint[encoding_hint]
+            text_fileobj = io.TextIOWrapper(fileobj, encoding=python_encoding)
+            if text_fileobj.newlines is None:  # ...and it almost certainly will be...
+                text_fileobj.readline()  # read enough to know newline format
+            # https://www.python.org/dev/peps/pep-0278/
+            if text_fileobj.newlines is not None:
+                logger.info(f"Inferred record terminator as {repr(text_fileobj.newlines)}")
+                return str(text_fileobj.newlines)
+            else:
+                logger.warning("Python could not determine newline format of file.")
+                return None
+            text_fileobj.detach()
+    except OSError:
         logger.warning("Assuming UNIX newline format, as stream is not rewindable")
-        return
-    python_encoding = python_encoding_from_hint[encoding_hint]
-    original_position = fileobj.tell()
-    fileobj.seek(0)
-    text_fileobj = io.TextIOWrapper(fileobj, encoding=python_encoding)
-    if text_fileobj.newlines is None:  # ...and it almost certainly will be...
-        text_fileobj.readline()  # read enough to know newline format
-    # https://www.python.org/dev/peps/pep-0278/
-    if text_fileobj.newlines is not None:
-        inferred_hints['record-terminator'] = str(text_fileobj.newlines)
-        logger.info(f"Inferred record terminator as {repr(text_fileobj.newlines)}")
-    else:
-        logger.warning("Python could not determine newline format of file.")
-    text_fileobj.detach()
-    fileobj.seek(original_position)
+        return None
 
 
 def other_inferred_csv_hints(fileobj: IO[bytes],
                              encoding_hint: str) -> RecordsHints:
     inferred_hints: RecordsHints = {}
-    infer_newline_format(fileobj, inferred_hints, encoding_hint)
+
     return inferred_hints
 
 
-def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[HintEncoding]:
+@contextmanager
+def rewound_fileobj(fileobj: IO[bytes]) -> Iterator[IO[bytes]]:
     if getattr(fileobj, 'closed', None) is not None:
         closed = fileobj.closed
     if closed or not fileobj.seekable():
-        logger.warning("Could not use chardet to detect encoding, as stream is not rewindable")
-        return None
+        raise OSError('Stream is not rewindable')
     original_position = fileobj.tell()
     fileobj.seek(0)
-    detector = chardet.UniversalDetector()
-    while True:
-        chunksize = 512
-        chunk = fileobj.read(chunksize)
-        detector.feed(chunk)
-        if detector.done or len(chunk) < chunksize:
-            break
-    detector.close()
-    fileobj.seek(original_position)
-    assert detector.result is not None
-    if 'encoding' in detector.result:
-        chardet_encoding = detector.result['encoding']
-        if chardet_encoding in hint_encoding_from_chardet:
-            return hint_encoding_from_chardet[chardet_encoding]
-        else:
-            logger.warning(f"Got unrecognized encoding from chardet sniffing: {detector.result}")
-            return None
-    else:
-        logger.warning(f"Unable to sniff file encoding using chardet: {detector.result}")
+    try:
+        yield fileobj
+    finally:
+        fileobj.seek(original_position)
+
+
+def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[HintEncoding]:
+    try:
+        with rewound_fileobj(fileobj) as fileobj:
+            detector = chardet.UniversalDetector()
+            while True:
+                chunksize = 512
+                chunk = fileobj.read(chunksize)
+                detector.feed(chunk)
+                if detector.done or len(chunk) < chunksize:
+                    break
+            detector.close()
+            assert detector.result is not None
+            if 'encoding' in detector.result:
+                chardet_encoding = detector.result['encoding']
+                if chardet_encoding in hint_encoding_from_chardet:
+                    return hint_encoding_from_chardet[chardet_encoding]
+                else:
+                    logger.warning("Got unrecognized encoding from chardet "
+                                   f"sniffing: {detector.result}")
+                    return None
+            else:
+                logger.warning(f"Unable to sniff file encoding using chardet: {detector.result}")
+                return None
+    except OSError:
+        logger.warning("Could not use chardet to detect encoding, as stream is not rewindable")
         return None
+
+
+def csv_hints_from_python(fileobj: IO[bytes],
+                          record_terminator_hint: HintRecordTerminator,
+                          encoding_hint: HintEncoding) -> RecordsHints:
+    # https://docs.python.org/3/library/csv.html#csv.Sniffer
+    try:
+        with rewound_fileobj(fileobj) as fileobj:
+            # Sniffer tries to determine quotechar, doublequote,
+            # delimiter, skipinitialspace.  does not try to determine
+            # lineterminator.
+            # https://github.com/python/cpython/blob/master/Lib/csv.py#L165
+
+            # TODO: need a text stream here, meaning we know encoding and
+            return {}
+    except OSError:
+        logger.warning("Could not use Python's csv library to detect hints, "
+                       "as stream is not rewindable")
+        return {}
+
+    return {}
+#        'delimiter': '\t'
+#    }
 
 
 def sniff_hints(fileobj: IO[bytes],
@@ -190,6 +223,13 @@ def sniff_hints(fileobj: IO[bytes],
     streaming_hints = initial_hints.copy()
     if encoding_hint is not None:
         streaming_hints['encoding'] = encoding_hint
+    record_terminator_hint = infer_newline_format(fileobj, encoding_hint)
+    python_inferred_hints = csv_hints_from_python(fileobj,
+                                                  record_terminator_hint,
+                                                  encoding_hint)
+    other_inferred_csv_hints = {}
+    if record_terminator_hint is not None:
+        other_inferred_csv_hints['record-terminator'] = record_terminator_hint
     with stream_csv(fileobj, streaming_hints) as reader:
         # overwrite hints from reader with user-specified values, as
         # the reader isn't smart enough to remember things like which
@@ -198,6 +238,7 @@ def sniff_hints(fileobj: IO[bytes],
         final_encoding_hint: str = (encoding_hint or  # type: ignore
                                     pandas_inferred_hints['encoding'])
         return {**pandas_inferred_hints,
+                **python_inferred_hints,
                 'encoding': final_encoding_hint,
                 **other_inferred_csv_hints(fileobj, final_encoding_hint),
                 **initial_hints}  # type: ignore
