@@ -238,30 +238,28 @@ def csv_hints_from_python(fileobj: IO[bytes],
 def csv_hints_from_pandas(fileobj: IO[bytes],
                           streaming_hints: BootstrappingRecordsHints) -> RecordsHints:
     def attempt_parse(quoting: HintQuoting) -> RecordsHints:
-        current_hints = streaming_hints.copy()
-        current_hints['quoting'] = quoting
-        with stream_csv(fileobj, current_hints) as reader:
-            return {
-                **csv_hints_from_reader(reader),
-                'quoting': quoting
-            }
+        with rewound_fileobj(fileobj) as fresh_fileobj:
+            current_hints = streaming_hints.copy()
+            current_hints['quoting'] = quoting
+            logger.info(f"Attempting to parse with quoting: {quoting}")
+            with stream_csv(fresh_fileobj, current_hints) as reader:
+                return {
+                    **csv_hints_from_reader(reader),
+                    'quoting': quoting
+                }
 
     if 'quoting' in streaming_hints:
         return attempt_parse(streaming_hints['quoting'])
     else:
+        # Pandas seems to parse quoting=minimal files just fine when
+        # you pass in quoting=all, making this technique useless to
+        # distinguish between minimal/nonnumeric/all, so we'll only
+        # try None and minimal here.
         try:
+            return attempt_parse(quoting='minimal')
+        except (pandas.errors.ParserError, pandas.errors.EmptyDataError):
             return attempt_parse(quoting=None)
-        except pandas.errors.ParserError:
-            try:
-                return attempt_parse(quoting='all')
-            except pandas.errors.ParserError:
-                try:
-                    return attempt_parse(quoting='nonnumeric')
-                except pandas.errors.ParserError:
-                    try:
-                        return attempt_parse(quoting='minimal')
-                    except pandas.errors.ParserError:
-                        return attempt_parse(quoting=None)
+
 
 def sniff_hints(fileobj: IO[bytes],
                 initial_hints: BootstrappingRecordsHints) -> RecordsHints:
