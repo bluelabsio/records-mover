@@ -214,7 +214,7 @@ def csv_hints_from_python(fileobj: IO[bytes],
                                                 newline=record_terminator_hint)
                 # TODO: How to get 1024?  processing instructions?
                 dialect = csv.Sniffer().sniff(text_fileobj.read(1024))
-                out = {
+                out: RecordsHints = {
                     'doublequote': dialect.doublequote,
                     'field-delimiter': dialect.delimiter,
                     'quotechar': dialect.quotechar
@@ -253,10 +253,12 @@ def sniff_hints(fileobj: IO[bytes],
         python_inferred_hints = csv_hints_from_python(fileobj,
                                                       record_terminator_hint,
                                                       final_encoding_hint)
-    out = {**pandas_inferred_hints,
-           **python_inferred_hints,
-           'encoding': final_encoding_hint,
-           **other_inferred_csv_hints,
-           **initial_hints}  # type: ignore
+    out = {
+        **pandas_inferred_hints,  # type: ignore
+        **python_inferred_hints,  # type: ignore
+        'encoding': final_encoding_hint,
+        **other_inferred_csv_hints,  # type: ignore
+        **initial_hints  # type: ignore
+    }
     logger.info(f"Inferred hints from combined sources: {out}")
-    return out
+    return out  # type: ignore
