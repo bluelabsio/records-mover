@@ -10,10 +10,12 @@ __all__ = [
     'ProcessingInstructions',
     'ExistingTableHandling',
     'Records',
+    'move'
 ]
 
 from .types import RecordsHints, BootstrappingRecordsHints, RecordsFormatType, DelimitedVariant
 from .schema import RecordsSchema
+from .mover import move
 from .records_format import RecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
 from .processing_instructions import ProcessingInstructions
 from .existing_table_handling import ExistingTableHandling
