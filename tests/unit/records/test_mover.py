@@ -1,6 +1,5 @@
 import unittest
 from mock import Mock, MagicMock
-from contextlib import contextmanager
 from records_mover.records.mover import move
 from records_mover.records.sources.google_sheets import GoogleSheetsRecordsSource
 from records_mover.records.sources.dataframes import DataframesRecordsSource
@@ -23,31 +22,6 @@ class TestMover(unittest.TestCase):
         mock_processing_instructions = Mock(name='processing_instructions')
         mock_target.can_load_direct.return_value = True
         out = move(mock_source, mock_target, mock_processing_instructions)
-        mock_target.move_from_records_directory.\
-            assert_called_with(directory=mock_source.records_directory.return_value,
-                               override_records_format=mock_source.records_format,
-                               processing_instructions=mock_processing_instructions)
-        mock_scheme = mock_source.records_directory.return_value.loc.scheme
-        mock_target.can_load_direct.assert_called_with(mock_scheme)
-        self.assertEqual(mock_target.move_from_records_directory.return_value, out)
-
-    def test_move_from_records_directory_direct_via_contextmanager(self):
-        mock_source = Mock(name='source', spec=sources.SupportsRecordsDirectory)
-        mock_source.validate = Mock(name='validate')
-        mock_source.records_format = Mock(name='records_format')
-        @contextmanager
-        def source():
-            yield mock_source
-        mock_target = Mock(name='target', spec=SupportsMoveFromRecordsDirectory)
-        mock_target.validate = Mock(name='validate')
-        @contextmanager
-        def target():
-            yield mock_target
-        mock_processing_instructions = Mock(name='processing_instructions')
-        mock_target.can_load_direct.return_value = True
-        mock_source_cm = source()
-        mock_target_cm = target()
-        out = move(mock_source_cm, mock_target_cm, mock_processing_instructions)
         mock_target.move_from_records_directory.\
             assert_called_with(directory=mock_source.records_directory.return_value,
                                override_records_format=mock_source.records_format,
