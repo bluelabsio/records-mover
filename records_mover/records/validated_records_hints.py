@@ -14,7 +14,7 @@ from .hints import cant_handle_hint
 
 HintT = TypeVar('HintT')
 
-
+# TODO: these should live in hints.py - existing stuff should probably move
 HintName = Literal["header-row",
                    "field-delimiter",
                    "compression",
@@ -53,7 +53,7 @@ class Hints:
                                                   "YYYY-MM-DD HH24:MI:SSOF")
     datetimeformat = Hint[HintDateTimeFormat](HintDateTimeFormat,  # type: ignore
                                               "datetimeformat",
-                                              default="YYYY-MM-DD HH24:MI:SS")  # TODO: test to see if default is typesafe
+                                              default="YYYY-MM-DD HH24:MI:SS")
     compression = Hint[HintCompression](HintCompression,  # type: ignore
                                         'compression',
                                         default=None)
@@ -72,6 +72,21 @@ class Hints:
     timeonlyformat = Hint[HintTimeOnlyFormat](HintTimeOnlyFormat,  # type: ignore
                                               'timeonlyformat',
                                               default="HH24:MI:SS")
+    doublequote = Hint[HintDoublequote](HintDoublequote,  # type: ignore
+                                        'doublequote',
+                                        default=False)
+    header_row = Hint[HintHeaderRow](HintHeaderRow,  # type: ignore
+                                     'header-row',
+                                     default=True)
+    quotechar = Hint[HintQuoteChar](HintQuoteChar,
+                                    'quotechar',
+                                    default='"')
+    record_terminator = Hint[HintRecordTerminator](HintRecordTerminator,
+                                                   'record-terminator',
+                                                   default='\n')
+    field_delimiter = Hint[HintFieldDelimiter](HintFieldDelimiter,
+                                               'field-delimiter',
+                                               default=',')
 
 
 HintA = TypeVar('HintA')
@@ -95,6 +110,17 @@ class HintValidator:
             i = hint.valid_values.index(x)  # type: ignore
             return hint.valid_values[i]
         except ValueError:
+            # well, sort of safe.
+            cant_handle_hint(fail_if_cant_handle_hint=self.fail_if_cant_handle_hint,
+                             hint_name=hint.hint_name,
+                             hints=self.hints)
+            return hint.default
+
+    def validate_str(self, hint: Hint[str]) -> str:
+        x: object = self.hints[hint.hint_name]
+        if isinstance(x, str):
+            return x
+        else:
             cant_handle_hint(fail_if_cant_handle_hint=self.fail_if_cant_handle_hint,
                              hint_name=hint.hint_name,
                              hints=self.hints)
@@ -102,22 +128,15 @@ class HintValidator:
 
     # TODO: Can this method be typesafe?  HintT doesn't even mean anything here
     def validate_hint(self, hint: Hint[HintB]) -> HintB:
-        assert is_literal_type(hint.type_)
-
-        return self.validate_literal(hint)
+        if is_literal_type(hint.type_):
+            return self.validate_literal(hint)
+        # TODO: Can I do this in a specialized subtype?
+        elif hint.type_ == str:
+            return self.validate_str(hint)  # type: ignore
+        else:
+            raise NotImplementedError(f"Teach me how to validate {hint.type_}")
 
     def validate(self) -> 'ValidatedRecordsHints':
-        def validate_boolean(hint_name: str) -> Union[Literal[True], Literal[False]]:
-            x = self.hints[hint_name]
-            if x is True:
-                return True
-            if x is False:
-                return False
-            cant_handle_hint(fail_if_cant_handle_hint=self.fail_if_cant_handle_hint,
-                             hint_name=hint_name,
-                             hints=self.hints)
-            return True
-
         def validate_string(hint_name: str) -> str:
             x = self.hints[hint_name]
             if isinstance(x, str):
@@ -127,42 +146,23 @@ class HintValidator:
                              hints=self.hints)
             return str(x)
 
-        def validate_optional_string(hint_name: str) -> Optional[str]:
-            x = self.hints[hint_name]
-            if x is None:
-                return x
-            if isinstance(x, str):
-                return x
-            cant_handle_hint(fail_if_cant_handle_hint=self.fail_if_cant_handle_hint,
-                             hint_name=hint_name,
-                             hints=self.hints)
-            return str(x)
-
-        header_row = validate_boolean('header-row')
-        field_delimiter = validate_string('field-delimiter')
-        record_terminator = validate_string('record-terminator')
-        quotechar = validate_string('quotechar')
-        doublequote = validate_boolean('doublequote')
-        # TODO: After one create functions
         return ValidatedRecordsHints(
-            header_row=header_row,
-            field_delimiter=field_delimiter,
+            header_row=self.validate_hint(Hints.header_row),
+            field_delimiter=self.validate_hint(Hints.field_delimiter),
             compression=self.validate_hint(Hints.compression),
-            record_terminator=record_terminator,
+            record_terminator=self.validate_hint(Hints.record_terminator),
             quoting=self.validate_hint(Hints.quoting),
-            quotechar=quotechar,
-            doublequote=doublequote,
+            quotechar=self.validate_hint(Hints.quotechar),
+            doublequote=self.validate_hint(Hints.doublequote),
             escape=self.validate_hint(Hints.escape),
             encoding=self.validate_hint(Hints.encoding),
             dateformat=self.validate_hint(Hints.dateformat),
             timeonlyformat=self.validate_hint(Hints.timeonlyformat),
             datetimeformattz=self.validate_hint(Hints.datetimeformattz),
-            datetimeformat=self.validate_hint(Hints.datetimeformat), # TODO: Should fail, should not be tz
+            datetimeformat=self.validate_hint(Hints.datetimeformat),
         )
 
 
-# TODO: Read up on namedtuple vs dataclass
-# TODO: Read up on autovalidating libraries
 class ValidatedRecordsHints(NamedTuple):
     header_row: HintHeaderRow
     field_delimiter: HintFieldDelimiter
