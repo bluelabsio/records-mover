@@ -98,7 +98,7 @@ Example file:
 
 ```toml
 [aws]
-s3_scratch_url = s3://mybucket/path/
+s3_scratch_url = "s3://mybucket/path/"
 ```
 
 ### Filesystem
