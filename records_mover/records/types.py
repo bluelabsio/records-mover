@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Union, List, Mapping
+from typing import Dict, Optional, Union, List, Mapping, Generic, TypeVar, Type
 from records_mover.types import JsonValue
 from typing_extensions import Literal, TypedDict
 
@@ -103,12 +103,14 @@ HintTimeOnlyFormat = Literal["HH12:MI AM", "HH24:MI:SS"]
 
 VALID_TIMEONLYFORMATS: List[HintTimeOnlyFormat] = ["HH12:MI AM", "HH24:MI:SS"]
 
+
 HintDateTimeFormatTz = Literal["YYYY-MM-DD HH:MI:SSOF",
                                "YYYY-MM-DD HH:MI:SS",
                                "YYYY-MM-DD HH24:MI:SSOF", # TODO: this is listed twice - bug in spec?
                                "YYYY-MM-DD HH24:MI:SSOF",
                                "MM/DD/YY HH24:MI"]
 
+# TODO: Get rid of these
 VALID_DATETIMEFORMATTZS: List[HintDateTimeFormatTz] = ["YYYY-MM-DD HH:MI:SSOF",
                                                        "YYYY-MM-DD HH:MI:SS",
                                                        "YYYY-MM-DD HH24:MI:SSOF", # TODO: this is listed twice - bug in spec?

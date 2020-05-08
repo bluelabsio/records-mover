@@ -1,5 +1,5 @@
 from typing_inspect import is_literal_type, get_args
-from typing import NamedTuple, Union, Optional, TypeVar, List, Type, Collection
+from typing import NamedTuple, Union, Optional, TypeVar, List, Type, Collection, Generic
 from typing_extensions import Literal
 from .types import (RecordsHints, HintHeaderRow, HintFieldDelimiter,
                     HintCompression, HintRecordTerminator,
@@ -11,6 +11,49 @@ from .types import (VALID_COMPRESSIONS, VALID_QUOTING, VALID_ESCAPE,
                     VALID_ENCODING, VALID_DATEFORMATS, VALID_TIMEONLYFORMATS,
                     VALID_DATETIMEFORMATTZS, VALID_DATETIMEFORMATS)
 from .hints import cant_handle_hint
+
+HintT = TypeVar('HintT')
+
+
+class HintValidator:
+    def __init__(self,
+                 fail_if_cant_handle_hint: bool,
+                 hints: RecordsHints):
+        self.fail_if_cant_handle_hint = fail_if_cant_handle_hint
+        self.hints = hints
+
+        class Hint(Generic[HintT]):
+            def __init__(self,
+                         type_: Type[HintT],
+                         hint_name: str,  # TODO: HintName,
+                         default: HintT):
+                self.default = default
+                self.type_ = type_
+                self.hint_name = hint_name
+                self.valid_values: List[HintT] = list(get_args(type_))
+
+            def validate_literal(self) -> HintT:
+                # MyPy doesn't like looking for a generic optional string
+                # in a list of specific optional strings.  It's wrong;
+                # that's perfectly safe
+                x: object = hints[self.hint_name]
+                try:
+                    i = self.valid_values.index(x)  # type: ignore
+                    return self.valid_values[i]
+                except ValueError:
+                    cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
+                                     hint_name=self.hint_name,
+                                     hints=hints)
+                    return self.default
+
+            def validate(self) -> HintT:
+                assert is_literal_type(self.type_)
+
+                return self.validate_literal()
+
+        self.hintdatetimeformattz = Hint(HintDateTimeFormatTz,  # type: ignore
+                                         "datetimeformattz",
+                                         "YYYY-MM-DD HH24:MI:SSOF")
 
 
 # TODO: Read up on namedtuple vs dataclass
@@ -33,6 +76,9 @@ class ValidatedRecordsHints(NamedTuple):
     @staticmethod
     def validate(hints: RecordsHints,
                  fail_if_cant_handle_hint: bool) -> 'ValidatedRecordsHints':
+        validator = HintValidator(hints=hints,
+                                  fail_if_cant_handle_hint=fail_if_cant_handle_hint)
+
         def validate_boolean(hint_name: str) -> Union[Literal[True], Literal[False]]:
             x = hints[hint_name]
             if x is True:
@@ -123,6 +169,15 @@ class ValidatedRecordsHints(NamedTuple):
                                     hint_name,
                                     default=default)
 
+        def validate_literal_type_from_class(type_: Type[T],
+                                             default: T,
+                                             hint_name: str) -> T:
+            assert is_literal_type(type_)
+            valid_values: List[T] = list(get_args(type_))
+            return validate_literal(valid_values,
+                                    hint_name,
+                                    default=default)
+
         def validate_datetimeformattz() -> HintDateTimeFormatTz:
             return validate_literal_type(HintDateTimeFormatTz,  # type: ignore
                                          default="YYYY-MM-DD HH24:MI:SSOF",
@@ -145,7 +200,7 @@ class ValidatedRecordsHints(NamedTuple):
         encoding = validate_encoding()
         dateformat = validate_dateformat()
         timeonlyformat = validate_timeonlyformat()
-        datetimeformattz = validate_datetimeformattz()
+        datetimeformattz = validator.hintdatetimeformattz.validate()
         datetimeformat = validate_datetimeformat()
         # TODO: After one create functions
         return ValidatedRecordsHints(
