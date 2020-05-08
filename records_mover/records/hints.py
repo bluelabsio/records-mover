@@ -90,18 +90,18 @@ def csv_hints_from_reader(reader: 'TextFileReader') -> RecordsHints:
     header = reader._engine.header
     quotechar = reader._engine.data.dialect.quotechar
     delimiter = reader._engine.data.dialect.delimiter
-    escape_char = reader._engine.data.dialect.escapechar
     compression = reader._engine.compression
     encoding = reader._engine.encoding
     doublequote = reader._engine.doublequote
 
     return {
+        # Note that at least 'escape' doesn't seem to be inferred in
+        # practice, at least by the Python driver here
         'header-row': True if header is not None else False,
         'field-delimiter': delimiter,
         'compression': hint_compression_from_pandas[compression],
         'quotechar': quotechar,
         'doublequote': doublequote,
-        'escape': escape_char,
         'encoding': hint_encoding_from_pandas.get(encoding, encoding),
         'dateformat': 'YYYY-MM-DD',
         'timeonlyformat': 'HH12:MI AM',
@@ -148,13 +148,6 @@ def infer_newline_format(fileobj: IO[bytes],
     except OSError:
         logger.warning("Assuming UNIX newline format, as stream is not rewindable")
         return None
-
-
-def other_inferred_csv_hints(fileobj: IO[bytes],
-                             encoding_hint: str) -> RecordsHints:
-    inferred_hints: RecordsHints = {}
-
-    return inferred_hints
 
 
 @contextmanager
