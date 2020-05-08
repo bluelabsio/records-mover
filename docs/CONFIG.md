@@ -51,19 +51,19 @@ instead of the `DB_` values above:
 * `BQ_SERVICE_ACCOUNT_JSON`: (optional): JSON (not a filename)
   representing BigQuery service account credentials.
 
-### Passing in pre-configured SQLAlchemy Engine objects
+### Passing in pre-configured SQLAlchemy Engine objects (Python only)
 
 The `database` factory methods for records sources and targets allow a
 SQLALchemy Engine to be passed in directly.
 
-### Configuring db-facts
+### Configuring db-facts (Python and mvrec)
 
 [db-facts](https://github.com/bluelabsio/db-facts) is a complementary
 project used to configure database credentials.  Please see
 [db-facts documentation](https://github.com/bluelabsio/db-facts/blob/master/CONFIGURATION.md)
 for details on configuration.
 
-### Airflow connections
+### Airflow connections (Python via Airflow)
 
 If you are running under Airflow, the
 `session.creds.get_db_engine(name)` method will look up `name` in your
