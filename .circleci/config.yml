@@ -321,7 +321,7 @@ jobs:
     steps:
       - checkout
       - installvenv:
-          extras: 'cli'
+          extras: '[cli]'
           python_version: '3.6'
           pandas_version: ''
       - run:
