@@ -42,27 +42,6 @@ def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
     if "SCRATCH_S3_URL" in os.environ:
         return os.environ["SCRATCH_S3_URL"]
 
-    # TODO: where else to document this?  Wait until README.md reorg
-    # are in.
-
-    # config_resolver.get_config() will by default pull from the
-    # following files (latter files override earlier ones):
-    #
-    #   /etc/bluelabs/records_mover/app.ini
-    #   /etc/xdg/bluelabs/records_mover/app.ini
-    #   $HOME/.config/bluelabs/records_mover/app.ini
-    #   ./.bluelabs/records_mover/app.ini
-    #
-    # There's also ability to configure this via env variables per the
-    # XDG spec and config-resolver features:
-    #
-    # https://config-resolver.readthedocs.io/en/latest/intro.html#environment-variables
-    #
-    # Example file:
-    #
-    # [aws]
-    # s3_scratch_url = s3://mybucket/
-
     result = get_config('records_mover', 'bluelabs')
     cfg = result.config
     s3_scratch_url = cfg.get('aws', {}).get('s3_scratch_url')
