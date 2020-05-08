@@ -315,6 +315,18 @@ jobs:
           command: |
             . venv/bin/activate
             twine upload -r pypi dist/*
+  cli-extra-test:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - installvenv:
+          extras: 'cli'
+          python_version: 3.6
+          pandas_version: ''
+      - run:
+          name: Run tests
+          command: "mvrec --help"
 
 workflows:
   version: 2
@@ -543,19 +555,9 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - cli-extra-test:
-          docker:
-            - image: circleci/python:3.6
+          name: cli-extra-test
           requires:
             - redshift-itest
-          steps:
-            - checkout
-            - installvenv:
-                extras: 'cli'
-                python_version: 3.6
-                pandas_version: ''
-            - run:
-                name: Run tests
-                command: "mvrec --help"
       - deploy:
           context: PyPI
           requires:
