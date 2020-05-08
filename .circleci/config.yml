@@ -542,12 +542,27 @@ workflows:
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - cli-extra-test:
+          docker:
+            - image: circleci/python:3.6
+          requires:
+            - redshift-itest
+          steps:
+            - checkout
+            - installvenv:
+                extras: 'cli'
+                python_version: 3.6
+                pandas_version: ''
+            - run:
+                name: Run tests
+                command: "mvrec --help"
       - deploy:
           context: PyPI
           requires:
             - test-3.6
             - test-3.7
             - test-3.8
+            - cli-extra-test
             - tbl2tbl-itest
             - bigquery-itest
             - redshift-itest
