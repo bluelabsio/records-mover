@@ -21,7 +21,7 @@ class TestPandasToCsvOptionsCsv(unittest.TestCase):
         processing_instructions =\
             ProcessingInstructions(fail_if_cant_handle_hint=True)
         records_format = DelimitedRecordsFormat(hints=csv_format_hints)
-        unhandled_hints = set()
+        unhandled_hints = set(records_format.hints)
         actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
         self.assertEqual(expected, actual)
         self.assertFalse(unhandled_hints)

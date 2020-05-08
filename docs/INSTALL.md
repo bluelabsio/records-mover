@@ -1,7 +1,7 @@
 # Installing Records Mover
 
 You can install records-mover with a number of 'extras'.  See
-[setup.py](./setup.py) and the `extras_require` section for a full
+[setup.py](../setup.py) and the `extras_require` section for a full
 list.  In general, you'll need to explicitly spell out which databases
 you want to be able to move between (check `setup.py` for the list
 available), as well as for most sources and targets.

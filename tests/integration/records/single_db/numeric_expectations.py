@@ -1,9 +1,44 @@
 expected_field_info = {
+    'int8': {
+        'type': 'integer',
+        'constraints': {
+            'min': '-128',
+            'max': '127'
+        }
+    },
+    'uint8': {
+        'type': 'integer',
+        'constraints': {
+            'min': '0',
+            'max': '255'
+        }
+    },
     'int16': {
         'type': 'integer',
         'constraints': {
             'min': '-32768',
             'max': '32767'
+        }
+    },
+    'uint16': {
+        'type': 'integer',
+        'constraints': {
+            'min': '0',
+            'max': '65535'
+        }
+    },
+    'int24': {
+        'type': 'integer',
+        'constraints': {
+            'min': '-8388608',
+            'max': '8388607'
+        }
+    },
+    'uint24': {
+        'type': 'integer',
+        'constraints': {
+            'min': '0',
+            'max': '16777215'
         }
     },
     'int32': {
@@ -13,11 +48,25 @@ expected_field_info = {
             'max': '2147483647'
         }
     },
+    'uint32': {
+        'type': 'integer',
+        'constraints': {
+            'min': '0',
+            'max': '4294967295'
+        }
+    },
     'int64': {
         'type': 'integer',
         'constraints': {
             'min': '-9223372036854775808',
             'max': '9223372036854775807'
+        }
+    },
+    'uint64': {
+        'type': 'integer',
+        'constraints': {
+            'min': '0',
+            'max': '18446744073709551615'
         }
     },
     'fixed_6_2': {
@@ -32,6 +81,13 @@ expected_field_info = {
         'constraints': {
             'fixed_precision': 38,
             'fixed_scale': 9
+        }
+    },
+    'fixed_65_30': {
+        'type': 'decimal',
+        'constraints': {
+            'fixed_precision': 65,
+            'fixed_scale': 30
         }
     },
     'float32': {
@@ -129,5 +185,27 @@ expected_column_types = {
         'fixed_6_2': 'NUMERIC(6, 2)',
         'fixed_38_9': 'NUMERIC(38, 9)',
         'fixed_100_4': 'NUMERIC(100, 4)',
+    },
+    # The numbers after the integer types are display widths - how
+    # many spaces to save to render them on output.  Not especially
+    # relevant and records-mover just uses the defaults which end up
+    # as the below.
+    'mysql': {
+        'int8': 'TINYINT(4)',
+        'int16': 'SMALLINT(6)',
+        'int32': 'INTEGER(11)',
+        'int64': 'BIGINT(20)',
+        'ubyte': 'TINYINT(3) UNSIGNED',
+        'uint8': 'TINYINT(3) UNSIGNED',
+        'uint16': 'SMALLINT(5) UNSIGNED',
+        'uint32': 'INTEGER(10) UNSIGNED',
+        'uint64': 'BIGINT(20) UNSIGNED',
+        'float16': 'FLOAT',
+        'float32': 'FLOAT',
+        'float64': 'DOUBLE',
+        'float128': 'DOUBLE',  # MySQL doesn't support >float64
+        'fixed_6_2': 'DECIMAL(6, 2)',
+        'fixed_38_9': 'DECIMAL(38, 9)',
+        'fixed_100_4': 'DOUBLE',  # MySQL doesn't support NUMERIC(n,d) where n>65
     },
 }

@@ -1,5 +1,6 @@
 import unittest
 from mock import MagicMock, Mock, patch
+import sqlalchemy
 from records_mover.records.prep import TablePrep
 from records_mover.records.targets.table.move_from_dataframes_source import (
     DoMoveFromDataframesSource
@@ -68,7 +69,7 @@ class TestDoMoveFromDataframesSource(unittest.TestCase):
                                                              self.mock_tbl.schema_name,
                                                              self.mock_tbl.table_name)
         mock_prep_and_load.assert_called_with(self.mock_tbl, self.mock_prep, mock_schema_sql,
-                                              self.algo.load)
+                                              self.algo.load, sqlalchemy.exc.InternalError)
         self.assertEqual(out, mock_prep_and_load.return_value)
 
     @patch('records_mover.records.targets.table.move_from_dataframes_source.' +

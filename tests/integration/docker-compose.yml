@@ -7,11 +7,30 @@ postgresdb:
   image: postgres:latest
   ports:
     - 5432
+  environment:
+    POSTGRES_PASSWORD: 'hunter2'
+mysqldb:
+  # https://hub.docker.com/_/mysql
+
+  # MySQL after 5 (they bumped version to 8) uses a new auth protocol
+  # that is not well supported by clients - including the
+  # Debian-installable client packages.
+  #
+  # https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/
+  image: mysql:5
+  ports:
+    - 3306
+  environment:
+    MYSQL_ROOT_PASSWORD: 'hunter2root'
+    MYSQL_DATABASE: 'mysqlitest'
+    MYSQL_USER: mysqluser
+    MYSQL_PASSWORD: 'hunter2'
 records_mover:
   image: records-mover:${BUILD_TAG}
   links:
     - verticadb:verticadb
     - postgresdb:postgresdb
+    - mysqldb:mysqldb
   volumes:
     - ../..:/usr/src/app
   environment:

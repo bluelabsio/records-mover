@@ -1,7 +1,7 @@
 from .fakes import fake_text
 import unittest
 from mock import Mock, MagicMock, patch, call
-from records_mover.db import DBDriver
+from records_mover.db.driver import GenericDBDriver
 import sqlalchemy
 
 
@@ -11,59 +11,19 @@ class TestDBDriver(unittest.TestCase):
         self.mock_url_resolver = Mock(name='url_resolver')
         self.mock_s3_temp_base_loc = MagicMock(name='s3_temp_base_loc')
         self.mock_s3_temp_base_loc.url = 's3://fakebucket/fakedir/fakesubdir/'
-        self.db_driver = DBDriver(db=self.mock_db_engine,
-                                  s3_temp_base_loc=self.mock_s3_temp_base_loc,
-                                  url_resolver=self.mock_url_resolver,
-                                  text=fake_text)
-
-    def test_best_scheme_to_load_from(self):
-        out = self.db_driver.best_scheme_to_load_from()
-        self.assertEqual(out, 'file')
+        self.db_driver = GenericDBDriver(db=self.mock_db_engine,
+                                         s3_temp_base_loc=self.mock_s3_temp_base_loc,
+                                         url_resolver=self.mock_url_resolver,
+                                         text=fake_text)
 
     def test_table(self):
         out = self.db_driver.table('my_schema', 'my_table')
         self.assertEqual(out.name, 'my_table')
         self.assertEqual(out.schema, 'my_schema')
 
-    def test_can_load_from_fileobjs(self):
-        out = self.db_driver.can_load_from_fileobjs()
-        self.assertEqual(out, False)
-
-    def test_load_failure_exception(self):
-        out = self.db_driver.load_failure_exception()
-        self.assertEqual(out, sqlalchemy.exc.InternalError)
-
-    def test_best_records_format_variant_non_delimited(self):
-        records_format_type = 'avro'
-        out = self.db_driver.best_records_format_variant(records_format_type)
-        self.assertEqual(out, None)
-
-    def test_best_records_format(self):
-        out = self.db_driver.best_records_format()
-        self.assertEqual(out.format_type, 'delimited')
-        self.assertEqual(out.variant, 'bluelabs')
-
-    def test_can_unload_this_format(self):
-        mock_records_format = Mock(name='records_format')
-        out = self.db_driver.can_unload_this_format(mock_records_format)
-        self.assertEqual(out, False)
-
-    def test_can_load_this_format(self):
-        mock_records_format = Mock(name='records_format')
-        out = self.db_driver.can_load_this_format(mock_records_format)
-        self.assertEqual(out, False)
-
     def test_supports_time_type(self):
         out = self.db_driver.supports_time_type()
         self.assertEqual(out, True)
-
-    def test_known_supported_records_formats_for_unload(self):
-        out = self.db_driver.known_supported_records_formats_for_unload()
-        self.assertEqual(out, [])
-
-    def test_known_supported_records_formats_for_load(self):
-        out = self.db_driver.known_supported_records_formats_for_load()
-        self.assertEqual(out, [])
 
     def test_varchar_length_is_in_chars(self):
         out = self.db_driver.varchar_length_is_in_chars()
@@ -164,13 +124,43 @@ class TestDBDriver(unittest.TestCase):
             call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_user_name}"),
         ])
 
-    @patch('records_mover.db.driver.TemporaryDirectory')
-    @patch('records_mover.db.driver.FilesystemDirectoryUrl')
-    def test_temporary_loadable_directory_loc(self,
-                                              mock_FilesystemDirectoryUrl,
-                                              mock_TemporaryDirectory):
-        mock_dirname = mock_TemporaryDirectory.return_value.__enter__.return_value
-        with self.db_driver.temporary_loadable_directory_loc() as loc:
-            mock_TemporaryDirectory.assert_called_with(prefix='temporary_loadable_directory_loc')
-            mock_FilesystemDirectoryUrl.assert_called_with(mock_dirname)
-            self.assertEqual(loc, mock_FilesystemDirectoryUrl.return_value)
+    @patch('records_mover.db.driver.quote_user_name')
+    @patch('records_mover.db.driver.quote_schema_and_table')
+    def test_set_grant_permissions_for_users_bobby_tables(self,
+                                                          mock_quote_schema_and_table,
+                                                          mock_quote_user_name):
+        mock_schema_name = Mock(name='schema_name')
+        mock_table = Mock(name='table')
+        mock_db = Mock(name='db')
+        users = {
+            '; DESTROY ALL MY DATA MUHAHAHAH;': ['user_a', 'user_b']
+        }
+        with self.assertRaises(TypeError):
+            self.db_driver.set_grant_permissions_for_users(mock_schema_name,
+                                                           mock_table,
+                                                           users,
+                                                           mock_db)
+
+    @patch('records_mover.db.driver.quote_user_name')
+    @patch('records_mover.db.driver.quote_schema_and_table')
+    def test_set_grant_permissions_for_groups_bobby_tables(self,
+                                                           mock_quote_schema_and_table,
+                                                           mock_quote_user_name):
+        mock_schema_name = Mock(name='schema_name')
+        mock_table = Mock(name='table')
+        mock_db = Mock(name='db')
+        groups = {
+            '; DESTROY ALL MY DATA MUHAHAHAH;': ['group_a', 'group_b']
+        }
+        with self.assertRaises(TypeError):
+            self.db_driver.set_grant_permissions_for_groups(mock_schema_name,
+                                                            mock_table,
+                                                            groups,
+                                                            mock_db)
+
+    def test_tweak_records_schema_for_load_no_tweak(self):
+        mock_records_schema = Mock(name='records_schema')
+        mock_records_format = Mock(name='records_format')
+        self.assertEqual(mock_records_schema,
+                         self.db_driver.tweak_records_schema_for_load(mock_records_schema,
+                                                                      mock_records_format))

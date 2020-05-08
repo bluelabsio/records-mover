@@ -3,7 +3,8 @@ from . import RecordsHints, BootstrappingRecordsHints
 from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
-from typing import Iterable, List, IO, Optional, TYPE_CHECKING
+from .types import HintEncoding
+from typing import Iterable, List, IO, Optional, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader
 
@@ -35,14 +36,25 @@ def cant_handle_hint(fail_if_cant_handle_hint: bool, hint_name: str, hints: Reco
                                   "or try again with fail_if_cant_handle_hint=False")
 
 
-hint_encoding_from_pandas = {
+python_date_format_from_hints = {
+    'YYYY-MM-DD': '%Y-%m-%d',
+    'MM/DD/YY': '%m/%d/%Y',
+    'DD/MM/YY': '%d/%m/%Y',
+}
+
+python_time_format_from_hints = {
+    'HH24:MI:SS': '%H:%M:%S',
+    'HH12:MI AM': '%I:%M:%S %p',
+}
+
+hint_encoding_from_pandas: Dict[str, HintEncoding] = {
     'utf-8': 'UTF8',
     'utf-16': 'UTF16',
     'utf-16-le': 'UTF16LE',
     'utf-16-be': 'UTF16BE',
 }
 
-hint_encoding_from_chardet = {
+hint_encoding_from_chardet: Dict[str, HintEncoding] = {
     'UTF-8-SIG': 'UTF8BOM',
     'UTF-16': 'UTF16',
     'ISO-8859-1': 'LATIN1',
@@ -138,7 +150,7 @@ def other_inferred_csv_hints(fileobj: IO[bytes],
     return inferred_hints
 
 
-def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[str]:
+def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[HintEncoding]:
     if getattr(fileobj, 'closed', None) is not None:
         closed = fileobj.closed
     if closed or not fileobj.seekable():

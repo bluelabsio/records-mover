@@ -19,10 +19,6 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
         sql = self.redshift_db_driver.schema_sql('myschema', 'mytable')
         self.assertEqual(sql, mock_schema_sql)
 
-    def test_best_records_format_variant(self):
-        variant = self.redshift_db_driver.best_records_format_variant('delimited')
-        self.assertEqual(variant, "bluelabs")
-
     @patch('records_mover.db.redshift.redshift_db_driver.quote_group_name')
     @patch('records_mover.db.redshift.redshift_db_driver.quote_schema_and_table')
     def test_set_grant_permissions_for_group(self, mock_quote_schema_and_table,
@@ -39,7 +35,7 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
             f'GRANT all ON TABLE {mock_schema}.{mock_table} TO GROUP "a_group"')
 
     def test_best_scheme_to_load_from(self):
-        out = self.redshift_db_driver.best_scheme_to_load_from()
+        out = self.redshift_db_driver.loader().best_scheme_to_load_from()
         self.assertEqual(out, "s3")
 
     def test_supports_time_type(self):
@@ -47,7 +43,7 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
         self.assertEqual(out, False)
 
     def test_temporary_loadable_directory_loc(self):
-        with self.redshift_db_driver.temporary_loadable_directory_loc() as loc:
+        with self.redshift_db_driver.loader().temporary_loadable_directory_loc() as loc:
             self.assertEqual(loc,
                              self.mock_s3_temp_base_loc.temporary_directory.return_value.
                              __enter__.return_value)

@@ -8,21 +8,6 @@ from mock import patch, Mock
 class TestVerticaUnloaderNoS3(unittest.TestCase):
     maxDiff = None
 
-    @patch('records_mover.db.unloader.Unloader.unload')
-    def test_unload_with_no_s3_temp_bucket_configured(self, mock_base_unload):
-        mock_db = Mock(name='db')
-        mock_directory = Mock(name='directory')
-        mock_table = Mock(name='table')
-        mock_unload_plan = Mock(name='unload_plan')
-        mock_schema = Mock(name='schema')
-        vertica_unloader = VerticaUnloader(db=mock_db, s3_temp_base_loc=None)
-        mock_directory.scheme = 'http'  # going to need to unload into S3...
-        out = vertica_unloader.unload(mock_schema, mock_table, mock_unload_plan, mock_directory)
-
-        mock_base_unload.assert_called_with(mock_schema, mock_table, mock_unload_plan,
-                                            mock_directory)
-        self.assertEqual(out, mock_base_unload.return_value)
-
     @patch('records_mover.db.unloader.RecordsUnloadPlan')
     def test_no_temp_bucket_can_unload_this_format_true(self,
                                                         mock_RecordsUnloadPlan):

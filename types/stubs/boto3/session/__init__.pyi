@@ -129,7 +129,7 @@ class S3ClientTypeStub:
                          Callback=None, Config=None) -> None: ...
 
     def list_objects(self, Bucket: str, Prefix: str,
-                     Delimiter: str) -> ListObjectsResponseType:
+                     Delimiter: str = '/') -> ListObjectsResponseType:
         ...
 
 
@@ -153,16 +153,23 @@ class S3ObjectTypeStub:
     def delete(self) -> dict: ...
 
 
+class S3MetaTypeStub:
+    client: S3ClientTypeStub
+
+
 class S3ResourceTypeStub:
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#service-resource
     def Object(self, bucket_name: str, key: str) -> S3ObjectTypeStub: ...
     # https://boto3.amazonaws.com/v1/documentation/api/latest/guide/clients.html#creating-clients
-    meta: Any
+    meta: S3MetaTypeStub
 
 
 class Session:
     region_name: str
     resource: Any
+
+    def __init__(self) -> None:
+        ...
 
     def get_credentials(self) -> Optional[Credentials]:
         ...

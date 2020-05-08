@@ -101,14 +101,15 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
             file_loc = temp_dir_loc.file_in_this_directory('foo.gz')
             with open(filename, mode='rb') as inp:
                 file_loc.upload_fileobj(inp)
-            with self.records.sources.data_url(file_loc.url,
-                                               records_format=records_format,
-                                               records_schema=records_schema) as source:
-                yield source
+            yield self.records.sources.data_url(file_loc.url,
+                                                records_format=records_format,
+                                                records_schema=records_schema)
 
-    def load(self, format_type, variant, hints={}, broken=False, sourcefn=None):
+    def load(self, format_type, variant, hints={}, broken=False, sourcefn=None) -> None:
         if sourcefn is None:
-            sourcefn = self.local_source
+            @contextmanager
+            def sourcefn(filename, records_format, records_schema):
+                yield self.local_source(filename, records_format, records_schema)
 
         records_format = RecordsFormat(format_type=format_type,
                                        variant=variant,
@@ -140,18 +141,18 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
         filename = self.records_filename(format_type, variant, hints, broken=broken)
         logger.info(f"Testing load from {filename}")
 
+        target = targets.table(schema_name=self.schema_name,
+                               table_name=self.table_name,
+                               db_engine=self.engine)
         with sourcefn(filename=filename,
                       records_format=records_format,
-                      records_schema=records_schema) as source,\
-            targets.table(schema_name=self.schema_name,
-                          table_name=self.table_name,
-                          db_engine=self.engine) as target:
+                      records_schema=records_schema) as source:
             out = self.records.move(source, target)
         if not self.gives_exact_load_count():
             self.assertIsNone(out.move_count)
         else:
             self.assertIn(out.move_count, [None, 1])
 
-    def verify_db_table(self, variant):
+    def verify_db_table(self, variant) -> None:
         validator = RecordsTableValidator(self.engine, file_variant=variant)
         validator.validate(schema_name=self.schema_name, table_name=self.table_name)

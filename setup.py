@@ -164,6 +164,10 @@ pandas_dependencies = [
     'pandas<2',
 ]
 
+mysql_dependencies = [
+    'pymysql'
+] + db_dependencies
+
 redshift_dependencies_base = [
     # sqlalchemy-redshift 0.7.7 introduced support for Parquet
     # in UNLOAD
@@ -206,7 +210,8 @@ literally_every_single_database_binary_dependencies = (
     vertica_dependencies +
     postgres_dependencies_binary +
     redshift_dependencies_binary +
-    bigquery_dependencies
+    bigquery_dependencies +
+    mysql_dependencies
 )
 
 unittest_dependencies = (
@@ -262,6 +267,7 @@ setup(name='records-mover',
           'cli': cli_dependencies_base,
           'bigquery': bigquery_dependencies,
           'aws': aws_dependencies,
+          'mysql': mysql_dependencies,
           'redshift-binary': redshift_dependencies_binary,
           'redshift-source': redshift_dependencies_source,
           'postgres-binary': postgres_dependencies_binary,

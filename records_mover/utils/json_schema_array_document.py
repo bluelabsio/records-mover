@@ -9,8 +9,8 @@ class JsonSchemaArrayDocument(JsonSchemaDocument):
     def __init__(self,
                  json_type: str,
                  items: JsonSchemaDocument,
-                 default: DefaultValue=inspect.Parameter.empty,
-                 description: Optional[str]=None) -> None:
+                 default: DefaultValue = inspect.Parameter.empty,
+                 description: Optional[str] = None) -> None:
         super().__init__(json_type=json_type, default=default, description=description)
         self.items = items
 

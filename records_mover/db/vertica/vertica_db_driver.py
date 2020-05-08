@@ -1,22 +1,16 @@
 from ..driver import DBDriver
 import sqlalchemy
-import vertica_python
-import tempfile
-import pathlib
 from sqlalchemy.sql import text
 from records_mover.db.quoting import quote_schema_and_table
-from ...records.records_directory import RecordsDirectory
-from ...records.records_format import BaseRecordsFormat
-from contextlib import contextmanager
 from sqlalchemy.schema import Table, Column
 import logging
-from typing import Iterator, Optional, IO, Union, List, Tuple, Type
+from typing import Optional, Union, Tuple
 from ...url.resolver import UrlResolver
 from ...url.base import BaseDirectoryUrl
-from ...records.unload_plan import RecordsUnloadPlan
-from ...records.load_plan import RecordsLoadPlan
 from .loader import VerticaLoader
+from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from .unloader import VerticaUnloader
+from ..unloader import Unloader
 from ...utils.limits import (INT64_MIN, INT64_MAX,
                              FLOAT64_SIGNIFICAND_BITS,
                              num_digits)
@@ -35,47 +29,14 @@ class VerticaDBDriver(DBDriver):
         self._vertica_unloader = VerticaUnloader(s3_temp_base_loc=s3_temp_base_loc, db=db)
         self.url_resolver = url_resolver
 
-    def load(self,
-             schema: str,
-             table: str,
-             load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> None:
-        self._vertica_loader.load(schema=schema,
-                                  table=table,
-                                  load_plan=load_plan,
-                                  directory=directory)
+    def loader(self) -> Optional[LoaderFromRecordsDirectory]:
+        return self._vertica_loader
 
-    def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
-        return self._vertica_loader.can_load_this_format(source_records_format)
+    def loader_from_fileobj(self) -> LoaderFromFileobj:
+        return self._vertica_loader
 
-    def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
-        return self._vertica_loader.known_supported_records_formats_for_load()
-
-    def load_from_fileobj(self,
-                          schema: str,
-                          table: str,
-                          load_plan: RecordsLoadPlan,
-                          fileobj: IO[bytes]) -> None:
-        self._vertica_loader.load_from_fileobj(schema=schema,
-                                               table=table,
-                                               load_plan=load_plan,
-                                               fileobj=fileobj)
-
-    def unload(self,
-               schema: str,
-               table: str,
-               unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> int:
-        return self._vertica_unloader.unload(schema=schema,
-                                             table=table,
-                                             unload_plan=unload_plan,
-                                             directory=directory)
-
-    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
-        return self._vertica_unloader.can_unload_this_format(target_records_format)
-
-    def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
-        return self._vertica_unloader.known_supported_records_formats_for_unload()
+    def unloader(self) -> Optional[Unloader]:
+        return self._vertica_unloader
 
     def has_table(self, schema: str, table: str) -> bool:
         try:
@@ -84,15 +45,6 @@ class VerticaDBDriver(DBDriver):
             return True
         except sqlalchemy.exc.ProgrammingError:
             return False
-
-    @contextmanager
-    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
-        with tempfile.TemporaryDirectory(prefix='vertica_load_location') as tempdir:
-            output_url = pathlib.Path(tempdir).resolve().as_uri() + '/'
-            yield self.url_resolver.directory_url(output_url)
-
-    def best_scheme_to_load_from(self) -> str:
-        return 'file'
 
     def schema_sql(self, schema: str, table: str) -> str:
         sql = text("SELECT EXPORT_OBJECTS('', :schema_and_table, false)")
@@ -103,18 +55,6 @@ class VerticaDBDriver(DBDriver):
         else:
             # maybe a permission error?
             return super().schema_sql(schema, table)
-
-    def best_records_format_variant(self,
-                                    records_format_type: str) -> Optional[str]:
-        if records_format_type == 'delimited':
-            return 'vertica'
-        return None
-
-    def can_load_from_fileobjs(self) -> bool:
-        return True
-
-    def load_failure_exception(self) -> Type[Exception]:
-        return vertica_python.errors.CopyRejected
 
     def table(self,
               schema: str,

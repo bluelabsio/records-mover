@@ -11,6 +11,7 @@ from ..hints import complain_on_unhandled_hints
 import logging
 from typing import Iterator, Iterable, Optional, Union, Dict, IO, Callable, TYPE_CHECKING
 from records_mover.pandas import purge_unnamed_unused_columns
+from records_mover.records.pandas import prep_df_for_csv_output
 if TYPE_CHECKING:
     from pandas import DataFrame
 
@@ -61,10 +62,10 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
 
     def serialize_dfs(self,
                       processing_instructions: ProcessingInstructions,
+                      records_schema: RecordsSchema,
                       records_format: BaseRecordsFormat,
                       save_df: Callable[['DataFrame', str], None])\
             -> Iterator[FileobjsSource]:
-        records_schema = self.initial_records_schema(processing_instructions)
 
         target_names_to_input_fileobjs: Dict[str, IO[bytes]] = {}
         i = 1
@@ -122,6 +123,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
                            records_format_if_possible: Optional[BaseRecordsFormat]=
                            None) -> Iterator[FileobjsSource]:
         records_format = self.pick_best_records_format(records_format_if_possible)
+        records_schema = self.initial_records_schema(processing_instructions)
         if isinstance(records_format, DelimitedRecordsFormat):
             unhandled_hints = set(records_format.hints.keys())
             options = pandas_to_csv_options(records_format,
@@ -131,7 +133,15 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
             complain_on_unhandled_hints(self.processing_instructions.fail_if_dont_understand,
                                         unhandled_hints, records_format.hints)
 
+            # Convince mypy that this type will stay the same
+            delimited_records_format = records_format
+
             def save_df(df: 'DataFrame', output_filename: str) -> None:
+                df = prep_df_for_csv_output(df,
+                                            include_index=self.include_index,
+                                            records_schema=records_schema,
+                                            records_format=delimited_records_format,
+                                            processing_instructions=processing_instructions)
                 df.to_csv(path_or_buf=output_filename,
                           index=self.include_index,
                           **options)
@@ -155,4 +165,4 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
         else:
             raise NotImplementedError(f"Teach me how to write to {records_format}")
 
-        return self.serialize_dfs(processing_instructions, records_format, save_df)
+        return self.serialize_dfs(processing_instructions, records_schema, records_format, save_df)
