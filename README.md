@@ -54,8 +54,8 @@ Note that the connection details for the database names here must be
 configured using
 [db-facts](https://github.com/bluelabsio/db-facts/blob/master/CONFIGURATION.md).
 
-For more installation notes, see [INSTALL.md](./INSTALL.md).  To
-understand the security model here, see [SECURITY.md](./SECURITY.md).
+For more installation notes, see [INSTALL.md](./docs/INSTALL.md).  To
+understand the security model here, see [SECURITY.md](./docs/SECURITY.md).
 
 ## Example Python library use
 
