@@ -322,7 +322,7 @@ jobs:
       - checkout
       - installvenv:
           extras: 'cli'
-          python_version: 3.6
+          python_version: '3.6'
           pandas_version: ''
       - run:
           name: Run tests
