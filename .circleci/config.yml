@@ -326,7 +326,9 @@ jobs:
           pandas_version: ''
       - run:
           name: Run tests
-          command: "mvrec --help"
+          command: |
+            . venv/bin/activate
+            mvrec --help
 
 workflows:
   version: 2
