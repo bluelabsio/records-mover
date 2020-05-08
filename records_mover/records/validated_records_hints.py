@@ -1,5 +1,5 @@
 from typing_inspect import is_literal_type, get_args
-from typing import NamedTuple, Union, Optional, TypeVar, List, Type, Collection, Generic
+from typing import NamedTuple, Union, Optional, TypeVar, List, Type, Collection, Generic, Mapping
 from typing_extensions import Literal
 from .types import (RecordsHints, HintHeaderRow, HintFieldDelimiter,
                     HintCompression, HintRecordTerminator,
@@ -15,6 +15,70 @@ from .hints import cant_handle_hint
 HintT = TypeVar('HintT')
 
 
+HintName = Literal["header-row",
+                   "field-delimiter",
+                   "compression",
+                   "record-terminator",
+                   "quoting",
+                   "quotechar",
+                   "doublequote",
+                   "escape",
+                   "encoding",
+                   "dateformat",
+                   "timeonlyformat",
+                   "datetimeformattz",
+                   "datetimeformat"]
+
+
+class Hint(Generic[HintT]):
+    def __init__(self,
+                 type_: Type[HintT],
+                 hint_name: HintName,
+                 default: HintT):
+        self.default = default
+        self.type_ = type_
+        self.hint_name = hint_name
+        self.valid_values: List[HintT] = list(get_args(type_))
+
+
+class Hints:
+    # mypy gives this when we pass the HintBlahBlah aliases in as an
+    # argument here:
+    #
+    # error: The type alias to Union is invalid in runtime context
+    #
+    # Nonetheless, the validation works.
+    datetimeformattz = Hint[HintDateTimeFormatTz](HintDateTimeFormatTz,  # type: ignore
+                                                  "datetimeformattz",
+                                                  "YYYY-MM-DD HH24:MI:SSOF")
+    datetimeformat = Hint[HintDateTimeFormat](HintDateTimeFormat,  # type: ignore
+                                              "datetimeformat",
+                                              default="YYYY-MM-DD HH24:MI:SS")  # TODO: test to see if default is typesafe
+    compression = Hint[HintCompression](HintCompression,  # type: ignore
+                                        'compression',
+                                        default=None)
+    quoting = Hint[HintQuoting](HintQuoting,  # type: ignore
+                                'quoting',
+                                default='minimal')
+    escape = Hint[HintEscape](HintEscape,  # type: ignore
+                              'escape',
+                              default='\\')
+    encoding = Hint[HintEncoding](HintEncoding,  # type: ignore
+                                  'encoding',
+                                  default='UTF8')
+    dateformat = Hint[HintDateFormat](HintDateFormat,  # type: ignore
+                                      'dateformat',
+                                      default='YYYY-MM-DD')
+    timeonlyformat = Hint[HintTimeOnlyFormat](HintTimeOnlyFormat,  # type: ignore
+                                              'timeonlyformat',
+                                              default="HH24:MI:SS")
+
+
+HintA = TypeVar('HintA')
+
+HintB = TypeVar('HintB')
+
+
 class HintValidator:
     def __init__(self,
                  fail_if_cant_handle_hint: bool,
@@ -22,38 +86,79 @@ class HintValidator:
         self.fail_if_cant_handle_hint = fail_if_cant_handle_hint
         self.hints = hints
 
-        class Hint(Generic[HintT]):
-            def __init__(self,
-                         type_: Type[HintT],
-                         hint_name: str,  # TODO: HintName,
-                         default: HintT):
-                self.default = default
-                self.type_ = type_
-                self.hint_name = hint_name
-                self.valid_values: List[HintT] = list(get_args(type_))
+    def validate_literal(self, hint: Hint[HintA]) -> HintA:
+        # MyPy doesn't like looking for a generic optional string
+        # in a list of specific optional strings.  It's wrong;
+        # that's perfectly safe
+        x: object = self.hints[hint.hint_name]
+        try:
+            i = hint.valid_values.index(x)  # type: ignore
+            return hint.valid_values[i]
+        except ValueError:
+            cant_handle_hint(fail_if_cant_handle_hint=self.fail_if_cant_handle_hint,
+                             hint_name=hint.hint_name,
+                             hints=self.hints)
+            return hint.default
 
-            def validate_literal(self) -> HintT:
-                # MyPy doesn't like looking for a generic optional string
-                # in a list of specific optional strings.  It's wrong;
-                # that's perfectly safe
-                x: object = hints[self.hint_name]
-                try:
-                    i = self.valid_values.index(x)  # type: ignore
-                    return self.valid_values[i]
-                except ValueError:
-                    cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
-                                     hint_name=self.hint_name,
-                                     hints=hints)
-                    return self.default
+    # TODO: Can this method be typesafe?  HintT doesn't even mean anything here
+    def validate_hint(self, hint: Hint[HintB]) -> HintB:
+        assert is_literal_type(hint.type_)
 
-            def validate(self) -> HintT:
-                assert is_literal_type(self.type_)
+        return self.validate_literal(hint)
 
-                return self.validate_literal()
+    def validate(self) -> 'ValidatedRecordsHints':
+        def validate_boolean(hint_name: str) -> Union[Literal[True], Literal[False]]:
+            x = self.hints[hint_name]
+            if x is True:
+                return True
+            if x is False:
+                return False
+            cant_handle_hint(fail_if_cant_handle_hint=self.fail_if_cant_handle_hint,
+                             hint_name=hint_name,
+                             hints=self.hints)
+            return True
 
-        self.hintdatetimeformattz = Hint(HintDateTimeFormatTz,  # type: ignore
-                                         "datetimeformattz",
-                                         "YYYY-MM-DD HH24:MI:SSOF")
+        def validate_string(hint_name: str) -> str:
+            x = self.hints[hint_name]
+            if isinstance(x, str):
+                return x
+            cant_handle_hint(fail_if_cant_handle_hint=self.fail_if_cant_handle_hint,
+                             hint_name=hint_name,
+                             hints=self.hints)
+            return str(x)
+
+        def validate_optional_string(hint_name: str) -> Optional[str]:
+            x = self.hints[hint_name]
+            if x is None:
+                return x
+            if isinstance(x, str):
+                return x
+            cant_handle_hint(fail_if_cant_handle_hint=self.fail_if_cant_handle_hint,
+                             hint_name=hint_name,
+                             hints=self.hints)
+            return str(x)
+
+        header_row = validate_boolean('header-row')
+        field_delimiter = validate_string('field-delimiter')
+        record_terminator = validate_string('record-terminator')
+        quotechar = validate_string('quotechar')
+        doublequote = validate_boolean('doublequote')
+        # TODO: After one create functions
+        return ValidatedRecordsHints(
+            header_row=header_row,
+            field_delimiter=field_delimiter,
+            compression=self.validate_hint(Hints.compression),
+            record_terminator=record_terminator,
+            quoting=self.validate_hint(Hints.quoting),
+            quotechar=quotechar,
+            doublequote=doublequote,
+            escape=self.validate_hint(Hints.escape),
+            encoding=self.validate_hint(Hints.encoding),
+            dateformat=self.validate_hint(Hints.dateformat),
+            timeonlyformat=self.validate_hint(Hints.timeonlyformat),
+            datetimeformattz=self.validate_hint(Hints.datetimeformattz),
+            datetimeformat=self.validate_hint(Hints.datetimeformat), # TODO: Should fail, should not be tz
+        )
 
 
 # TODO: Read up on namedtuple vs dataclass
@@ -78,143 +183,4 @@ class ValidatedRecordsHints(NamedTuple):
                  fail_if_cant_handle_hint: bool) -> 'ValidatedRecordsHints':
         validator = HintValidator(hints=hints,
                                   fail_if_cant_handle_hint=fail_if_cant_handle_hint)
-
-        def validate_boolean(hint_name: str) -> Union[Literal[True], Literal[False]]:
-            x = hints[hint_name]
-            if x is True:
-                return True
-            if x is False:
-                return False
-            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
-                             hint_name=hint_name,
-                             hints=hints)
-            return True
-
-        def validate_string(hint_name: str) -> str:
-            x = hints[hint_name]
-            if isinstance(x, str):
-                return x
-            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
-                             hint_name=hint_name,
-                             hints=hints)
-            return str(x)
-
-        def validate_optional_string(hint_name: str) -> Optional[str]:
-            x = hints[hint_name]
-            if x is None:
-                return x
-            if isinstance(x, str):
-                return x
-            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
-                             hint_name=hint_name,
-                             hints=hints)
-            return str(x)
-
-        A = TypeVar('A')
-
-        def validate_literal(valid_list: List[A],
-                             hint_name: str,
-                             default: A) -> A:
-            x = hints[hint_name]
-            # MyPy doesn't like looking for a generic optional string
-            # in a list of specific optional strings.  It's wrong;
-            # that's perfectly safe
-            try:
-                i = valid_list.index(x)  # type: ignore
-                return valid_list[i]
-            except ValueError:
-                cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
-                                 hint_name=hint_name,
-                                 hints=hints)
-                return default
-
-        def validate_compression() -> HintCompression:
-            return validate_literal(VALID_COMPRESSIONS,
-                                    'compression',
-                                    default=None)
-
-        def validate_quoting() -> HintQuoting:
-            return validate_literal(VALID_QUOTING,
-                                    'quoting',
-                                    default='minimal')
-
-        def validate_escape() -> HintEscape:
-            return validate_literal(VALID_ESCAPE,
-                                    'escape',
-                                    default='\\')
-
-        def validate_encoding() -> HintEncoding:
-            return validate_literal(VALID_ENCODING,
-                                    'encoding',
-                                    default='UTF8')
-
-        def validate_dateformat() -> HintDateFormat:
-            return validate_literal(VALID_DATEFORMATS,
-                                    'dateformat',
-                                    default='YYYY-MM-DD')
-
-        def validate_timeonlyformat() -> HintTimeOnlyFormat:
-            return validate_literal(VALID_TIMEONLYFORMATS,
-                                    'timeonlyformat',
-                                    default="HH24:MI:SS")
-
-        T = TypeVar('T')
-
-        def validate_literal_type(type_: Type[T],
-                                  default: T,
-                                  hint_name: str) -> T:
-            assert is_literal_type(type_)
-            valid_values: List[T] = list(get_args(type_))
-            return validate_literal(valid_values,
-                                    hint_name,
-                                    default=default)
-
-        def validate_literal_type_from_class(type_: Type[T],
-                                             default: T,
-                                             hint_name: str) -> T:
-            assert is_literal_type(type_)
-            valid_values: List[T] = list(get_args(type_))
-            return validate_literal(valid_values,
-                                    hint_name,
-                                    default=default)
-
-        def validate_datetimeformattz() -> HintDateTimeFormatTz:
-            return validate_literal_type(HintDateTimeFormatTz,  # type: ignore
-                                         default="YYYY-MM-DD HH24:MI:SSOF",
-                                         hint_name='datetimeformattz')
-
-        def validate_datetimeformat() -> HintDateTimeFormat:
-            valid_dateformats = VALID_DATETIMEFORMATS
-            return validate_literal(valid_dateformats,
-                                    'datetimeformat',
-                                    default="YYYY-MM-DD HH24:MI:SS")
-
-        header_row = validate_boolean('header-row')
-        field_delimiter = validate_string('field-delimiter')
-        compression = validate_compression()
-        record_terminator = validate_string('record-terminator')
-        quoting = validate_quoting()
-        quotechar = validate_string('quotechar')
-        doublequote = validate_boolean('doublequote')
-        escape = validate_escape()
-        encoding = validate_encoding()
-        dateformat = validate_dateformat()
-        timeonlyformat = validate_timeonlyformat()
-        datetimeformattz = validator.hintdatetimeformattz.validate()
-        datetimeformat = validate_datetimeformat()
-        # TODO: After one create functions
-        return ValidatedRecordsHints(
-            header_row=header_row,
-            field_delimiter=field_delimiter,
-            compression=compression,
-            record_terminator=record_terminator,
-            quoting=quoting,
-            quotechar=quotechar,
-            doublequote=doublequote,
-            escape=escape,
-            encoding=encoding,
-            dateformat=dateformat,
-            timeonlyformat=timeonlyformat,
-            datetimeformattz=datetimeformattz,
-            datetimeformat=datetimeformat,
-        )
+        return validator.validate()
