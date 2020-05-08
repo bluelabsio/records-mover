@@ -1,6 +1,6 @@
 # Configuring records mover
 
-There are two key areas where records mover needs configuration:
+There are key areas where records mover needs configuration:
 
 1. Database connection details
 2. Temporary locations
@@ -8,8 +8,8 @@ There are two key areas where records mover needs configuration:
 
 ## Database connection details
 
-There are three ways to configure database connection details--some
-are applicalbe only when using records mover as a Python library:
+There are ways to configure database connection details--some are
+applicable only when using records mover as a Python library:
 
 1. Setting environment variables (Python only)
 2. Passing in pre-configured SQLAlchemy Engine objects (Python only)
