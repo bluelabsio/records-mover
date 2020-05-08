@@ -329,6 +329,7 @@ jobs:
           command: |
             . venv/bin/activate
             mvrec --help
+            mvrec
 
 workflows:
   version: 2
