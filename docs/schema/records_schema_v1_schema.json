@@ -1,0 +1,294 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "statistics": {
+      "string": {
+        "type": "object",
+        "properties": {
+          "max_length_bytes": {"type": "integer"},
+          "max_length_chars": {"type": "integer"},
+          "rows_sampled": {"type": "integer"},
+          "total_rows": {"type": "integer"}
+        },
+        "required": ["rows_sampled", "total_rows"]
+      },
+      "number": {
+        "type": "object",
+        "properties": {
+          "min": {"type": "string"},
+          "max": {"type": "string"},
+          "rows_sampled": {"type": "integer"},
+          "total_rows": {"type": "integer"}
+        },
+        "required": ["rows_sampled", "total_rows"]
+      }
+    },
+    "representations": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "rep_type": {
+              "type": "string",
+              "pattern": "^sql/.*$"
+            },
+            "col_ddl": {
+              "type": "string"
+            },
+            "col_type": {
+              "type": "string"
+            },
+            "col_modifiers": {
+              "type": "string"
+            }
+          },
+          "required": ["col_ddl", "rep_type"]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "rep_type": {
+              "type": "string",
+              "pattern": "^dataframe/pandas$"
+            },
+            "pd_df_dtype": {
+              "type": "object"
+            },
+            "pd_df_ftype": {
+              "type": "string"
+            },
+            "pd_df_coltype": {
+              "type": "string",
+              "enum": ["index", "series"]
+            }
+          },
+          "required": ["pd_df_dtype", "rep_type", "pd_df_coltype"]
+        }
+      ]
+    },
+    "string_field": {
+      "type": "object",
+      "required": ["index", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "type": "integer"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "string"
+          ]
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "default": false
+            },
+            "unique": {
+              "type": "boolean"
+            },
+            "max_length_bytes": {"type": "integer"},
+            "max_length_chars": {"type": "integer"}
+          }
+        },
+        "statistics": { "$ref": "#/definitions/statistics/string" },
+        "representations": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/representations" }
+        }
+      }
+    },
+    "decimal_field": {
+      "type": "object",
+      "required": ["index", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "type": "integer"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "decimal"
+          ]
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "default": false
+            },
+            "unique": {
+              "type": "boolean"
+            },
+            "fp_total_bits": {
+              "type": "integer"
+            },
+            "fp_significand_bits": {
+              "type": "integer"
+            },
+            "fixed_precision": {
+              "type": "integer"
+            },
+            "fixed_scale": {
+              "type": "integer"
+            }
+          }
+        },
+        "representations": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/representations" }
+        },
+        "statistics": { "$ref": "#/definitions/statistics/number" }
+      }
+    },
+    "integer_field": {
+      "type": "object",
+      "required": ["index", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "type": "integer"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "integer"
+          ]
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "default": false
+            },
+            "unique": {
+              "type": "boolean"
+            },
+            "min": {
+              "type": "string"
+            },
+            "max": {
+              "type": "string"
+            }
+          }
+        },
+        "representations": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/representations" }
+        },
+        "statistics": { "$ref": "#/definitions/statistics/number" }
+      }
+    },
+    "other_field": {
+      "type": "object",
+      "required": ["index", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "type": "integer"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "boolean",
+            "date",
+            "time",
+            "timetz",
+            "datetime",
+            "datetimetz"
+          ]
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "default": false
+            },
+            "unique": {
+              "type": "boolean"
+            }
+          }
+        },
+        "representations": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/representations" }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "enum": ["bltypes/v1"],
+      "description": "Maps to version of the records schema schema.  v1 is found at https://github.com/bluelabsio/knowledge/blob/master/Engineering/RecordSpecs/SCHEMA.md"
+    },
+    "fields": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          { "$ref": "#/definitions/string_field" },
+          { "$ref": "#/definitions/integer_field" },
+          { "$ref": "#/definitions/decimal_field" },
+          { "$ref": "#/definitions/other_field" }
+        ]
+      }
+    },
+    "known_representations": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "pattern": "^sql/.*$"
+              },
+              "table_ddl": {
+                "type": "string"
+              }
+            },
+            "required": ["type"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "pattern": "^dataframe/pandas$"
+              },
+              "pd_df_dtypes": {
+                "type": "object"
+              },
+              "pd_df_ftypes": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["type"],
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "required": ["known_representations", "fields", "schema"]
+}
