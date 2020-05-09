@@ -1,7 +1,7 @@
 import csv
 import io
 from contextlib import contextmanager
-from records_mover.records import BootstrappingRecordsHints
+from records_mover.records.hints import BootstrappingRecordsHints
 from typing import Union, IO, Optional, Iterator, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader  # noqa

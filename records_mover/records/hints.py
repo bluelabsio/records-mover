@@ -1,7 +1,12 @@
 from typing_inspect import is_literal_type, get_args
 from abc import ABCMeta, abstractmethod
 import chardet
-from .types import RecordsHints
+from .types import (
+    RecordsHints, BootstrappingRecordsHints, HintName, HintHeaderRow,
+    HintCompression, HintQuoting,
+    HintDoublequote, HintEscape, HintEncoding, HintDateFormat, HintTimeOnlyFormat,
+    HintDateTimeFormatTz, HintDateTimeFormat
+)
 from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
@@ -38,7 +43,7 @@ def cant_handle_hint(fail_if_cant_handle_hint: bool, hint_name: str, hints: Reco
         raise NotImplementedError(f"Implement hint {hint_name}={repr(hints[hint_name])} " +
                                   "or try again with fail_if_cant_handle_hint=False")
 
-
+# TODO: after merging sniffing improvements, move to a new file
 python_date_format_from_hints = {
     'YYYY-MM-DD': '%Y-%m-%d',
     'MM/DD/YY': '%m/%d/%Y',
@@ -205,75 +210,6 @@ def sniff_hints(fileobj: IO[bytes],
                 **other_inferred_csv_hints(fileobj, final_encoding_hint),
                 **initial_hints}  # type: ignore
 
-
-HintEncoding = Literal["UTF8", "UTF16", "UTF16LE", "UTF16BE",
-                       "UTF16BOM", "UTF8BOM", "LATIN1", "CP1252"]
-
-HintQuoting = Literal["all", "minimal", "nonnumeric", None]
-
-HintEscape = Literal["\\", None]
-
-# TODO: combine this and cli thingie
-HintCompression = Literal['GZIP', 'BZIP', 'LZO', None]
-
-# The trick here works on Literal[True, False] but not on bool:
-#
-# https://github.com/python/mypy/issues/6366#issuecomment-560369716
-HintHeaderRow = Literal[True, False]
-
-HintDoublequote = Literal[True, False]
-
-
-# TODO: This None is a bug in the spec, right?
-HintDateFormat = Literal[None, 'YYYY-MM-DD', 'MM-DD-YYYY', 'DD-MM-YYYY', 'MM/DD/YY']
-
-HintTimeOnlyFormat = Literal["HH12:MI AM", "HH24:MI:SS"]
-
-HintDateTimeFormatTz = Literal["YYYY-MM-DD HH:MI:SSOF",
-                               "YYYY-MM-DD HH:MI:SS",
-                               "YYYY-MM-DD HH24:MI:SSOF", # TODO: this is listed twice - bug in spec?
-                               "YYYY-MM-DD HH24:MI:SSOF",
-                               "MM/DD/YY HH24:MI"]
-
-HintDateTimeFormat = Literal["YYYY-MM-DD HH24:MI:SS",
-                             'YYYY-MM-DD HH:MI:SS', # TODO this isn't in spec valid, but is part of a variant
-                             "YYYY-MM-DD HH12:MI AM",
-                             "MM/DD/YY HH24:MI"]
-
-
-HintFieldDelimiter = str
-
-HintRecordTerminator = str
-
-HintQuoteChar = str
-
-
-BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
-                                      {
-                                          'quoting': HintQuoting,
-                                          'header-row': HintHeaderRow,
-                                          'field-delimiter': HintFieldDelimiter,
-                                          'encoding': HintEncoding,
-                                          'escape': HintEscape,
-                                          'compression': HintCompression,
-                                      },
-                                      total=False)
-
-
-# TODO: these should live in hints.py - existing stuff should probably move
-HintName = Literal["header-row",
-                   "field-delimiter",
-                   "compression",
-                   "record-terminator",
-                   "quoting",
-                   "quotechar",
-                   "doublequote",
-                   "escape",
-                   "encoding",
-                   "dateformat",
-                   "timeonlyformat",
-                   "datetimeformattz",
-                   "datetimeformat"]
 
 HintT = TypeVar('HintT')
 

@@ -1,6 +1,6 @@
 from typing import NamedTuple, Union, Optional, TypeVar, List, Type, Collection, Generic, Mapping
 from typing_extensions import Literal
-from .hints import (RecordsHints, HintHeaderRow, HintFieldDelimiter,
+from .types import (RecordsHints, HintHeaderRow, HintFieldDelimiter,
                     HintCompression, HintRecordTerminator,
                     HintQuoting, HintQuoteChar, HintDoublequote,
                     HintEscape, HintEncoding, HintDateFormat,
