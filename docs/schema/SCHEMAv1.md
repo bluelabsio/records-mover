@@ -260,14 +260,14 @@ For the `boolean` type, this may be set to :
 * `"yes/no"`
 
 For the `date` type, valid values and semantics are the same as the `dateformat`
-[records delimited hint](https://github.com/bluelabsio/knowledge/blob/master/Engineering/Architecture/JobDataExchange/output-design.md#hints)
+[records delimited hint](https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#hints)
 
 For the `datetime`/`datetimetz` type, valid values and semantics are the same as
 either the `datetimeformat` or `dateformattz`
-[hints](https://github.com/bluelabsio/knowledge/blob/master/Engineering/Architecture/JobDataExchange/output-design.md#hints).
+[hints](https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#hints).
 
 For the `time`/`timetz` type, valid values and semantics are the same as the
-[`timeonlyformat` hint](https://github.com/bluelabsio/knowledge/blob/master/Engineering/Architecture/JobDataExchange/output-design.md#hints).
+[`timeonlyformat` hint](https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#hints).
 
 Encodings are hints as to the way the source data set is representing
 a certain type, when it may be ambiguous.

@@ -235,7 +235,7 @@
     "schema": {
       "type": "string",
       "enum": ["bltypes/v1"],
-      "description": "Maps to version of the records schema schema.  v1 is found at https://github.com/bluelabsio/knowledge/blob/master/Engineering/RecordSpecs/SCHEMA.md"
+      "description": "Maps to version of the records schema schema.  v1 is found at https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md"
     },
     "fields": {
       "type": "object",
