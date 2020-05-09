@@ -2,7 +2,7 @@ import logging
 from .processing_instructions import ProcessingInstructions
 from . import RecordsHints
 from .base_records_format import BaseRecordsFormat
-from typing import Mapping, Optional, Union, TYPE_CHECKING
+from typing import Mapping, Optional, TYPE_CHECKING
 from .hints import MutableRecordsHints, ValidatedRecordsHints
 if TYPE_CHECKING:
     from . import RecordsFormatType  # noqa

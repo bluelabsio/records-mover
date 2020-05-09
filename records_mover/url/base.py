@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 import json
 from records_mover.mover_types import JsonValue
-from typing import TypeVar, Iterator, IO, Any, Mapping, Optional, List, Union
+from typing import TypeVar, Iterator, IO, Any, Optional, List, Union
 
 V = TypeVar('V', bound='BaseDirectoryUrl')
 

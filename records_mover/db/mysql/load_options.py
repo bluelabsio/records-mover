@@ -1,5 +1,4 @@
 from sqlalchemy.sql.expression import text, TextClause
-from records_mover.records import RecordsHints
 from records_mover.utils import quiet_remove
 from records_mover.records.hints import cant_handle_hint
 from records_mover.records import DelimitedRecordsFormat

@@ -1,4 +1,3 @@
-import csv
 import io
 from contextlib import contextmanager
 from records_mover.records.hints import BootstrappingRecordsHints
