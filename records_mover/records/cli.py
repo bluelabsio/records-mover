@@ -9,7 +9,7 @@ from records_mover.cli.job_config_schema_as_args_parser import (JobConfigSchemaA
                                                                 arguments_output_to_config)
 from records_mover.logging import set_stream_logging
 from typing import Callable, Dict, Any
-from ..types import JsonSchema, JobConfig
+from ..mover_types import JsonSchema, JobConfig
 from ..version import __version__
 import sys
 
