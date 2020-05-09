@@ -34,9 +34,7 @@ for the other details that are typically provided along with records
 hints.
 """
 
-from .types import (
-    BootstrappingRecordsHints, RecordsHints, MutableRecordsHints
-)
+from .types import BootstrappingRecordsHints, RecordsHints, MutableRecordsHints
 from .validated_records_hints import ValidatedRecordsHints
 from .utils import cant_handle_hint, complain_on_unhandled_hints
 from .compression import sniff_compression_from_url
