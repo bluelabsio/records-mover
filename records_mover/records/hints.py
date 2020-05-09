@@ -12,7 +12,6 @@ import io
 import logging
 from .types import MutableRecordsHints
 from typing import Iterable, List, IO, Optional, Dict, TypeVar, Generic, Type, TYPE_CHECKING
-from typing_extensions import Literal, TypedDict
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader
 

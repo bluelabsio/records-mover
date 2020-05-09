@@ -7,12 +7,12 @@ from records_mover.db.postgres.copy_options.mode import CopyOptionsMode
 
 class TestCopyOptionsCsvUnload(unittest.TestCase):
     def test_postgres_copy_options_csv_minimal_quoting(self):
-        unhandled_hints = set()
         records_format = DelimitedRecordsFormat(variant='csv',
                                                 hints={
                                                     'quoting': 'minimal',
                                                     'compression': None,
                                                 })
+        unhandled_hints = set(records_format.hints)
         fail_if_cant_handle_hint = True
         mode = CopyOptionsMode.UNLOADING
 
@@ -30,12 +30,12 @@ class TestCopyOptionsCsvUnload(unittest.TestCase):
         })
 
     def test_postgres_copy_options_csv_all_quoting(self):
-        unhandled_hints = set()
         records_format = DelimitedRecordsFormat(variant='csv',
                                                 hints={
                                                     'quoting': 'all',
                                                     'compression': None,
                                                 })
+        unhandled_hints = set(records_format.hints)
         fail_if_cant_handle_hint = True
         mode = CopyOptionsMode.UNLOADING
 
@@ -54,12 +54,12 @@ class TestCopyOptionsCsvUnload(unittest.TestCase):
         })
 
     def test_postgres_copy_options_csv_no_quoting(self):
-        unhandled_hints = set()
         records_format = DelimitedRecordsFormat(variant='csv',
                                                 hints={
                                                     'quoting': None,
                                                     'compression': None,
                                                 })
+        unhandled_hints = set(records_format.hints)
         fail_if_cant_handle_hint = True
 
         with self.assertRaises(NotImplementedError):

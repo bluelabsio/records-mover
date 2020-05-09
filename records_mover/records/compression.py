@@ -1,5 +1,5 @@
 from urllib.parse import urlparse
-from .hints import HintCompression
+from .types import HintCompression
 import os
 
 
