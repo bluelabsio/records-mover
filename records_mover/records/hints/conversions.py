@@ -22,7 +22,7 @@ pandas_quoting_from_hint: Dict[HintQuoting, int] = {
     None: csv.QUOTE_NONE
 }
 
-python_encoding_from_hint: Dict[HintEncoding, str] = {
+python_encoding_from_hint: Dict[Optional[HintEncoding], str] = {
     # valid python names: https://docs.python.org/3/library/codecs.html#standard-encodings
     # valid hints names: https://github.com/bluelabsio/knowledge/blob/master/Engineering/
     #    Architecture/JobDataExchange/output-design.md
@@ -37,7 +37,7 @@ python_encoding_from_hint: Dict[HintEncoding, str] = {
     'UTF16BOM': 'utf-16',
 }
 
-# TODO: this shouldn't have to be a union
+# TODO: this shouldn't have to be a union - what's going on?
 python_date_format_from_hints: Dict[Union[HintDateFormat, Literal['DD/MM/YY']], str] = {
     'YYYY-MM-DD': '%Y-%m-%d',
     'MM/DD/YY': '%m/%d/%Y',

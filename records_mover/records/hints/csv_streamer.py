@@ -33,21 +33,21 @@ def stream_csv(filepath_or_buffer: Union[str, IO[bytes]],
     else:
         # there's no header row in the file
         header = None
-    compression_hint: Optional[str] = hints.get('compression')
+    compression_hint = hints.get('compression')
     encoding_hint = hints.get('encoding', 'UTF8')
     kwargs = {
         'sep': hints.get('field-delimiter', ','),
         'encoding': python_encoding_from_hint.get(encoding_hint, encoding_hint),
         'header': header,
-        'compression': pandas_compression_from_hint[compression_hint],  # type: ignore
+        'compression': pandas_compression_from_hint[compression_hint],
         'escapechar': hints.get('escape'),
         'prefix': 'untitled_',
         'iterator': True,
         'engine': 'python'
     }
     if 'quoting' in hints:
-        quoting: Optional[str] = hints['quoting']
-        kwargs['quoting'] = pandas_quoting_from_hint[quoting]  # type: ignore
+        quoting = hints['quoting']
+        kwargs['quoting'] = pandas_quoting_from_hint[quoting]
     # The streaming code from pandas demands a text stream if we're
     # dealing with an uncompressed CSV file, and a binary stream
     # if we're dealing with compressed file.
@@ -61,8 +61,8 @@ def stream_csv(filepath_or_buffer: Union[str, IO[bytes]],
             if out is not None:
                 out.close()
     elif compression_hint is None:
-        hint_encoding: str = hints.get('encoding')  # type: ignore
-        encoding = python_encoding_from_hint.get(hint_encoding, hint_encoding)  # type: ignore
+        hint_encoding = hints.get('encoding')
+        encoding = python_encoding_from_hint.get(hint_encoding, hint_encoding)
         text_fileobj = io.TextIOWrapper(filepath_or_buffer, encoding=encoding)
         out = None
         try:
