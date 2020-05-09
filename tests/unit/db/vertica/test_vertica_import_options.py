@@ -3,7 +3,7 @@ from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.records.processing_instructions import ProcessingInstructions
 from records_mover.db.vertica.records_import_options import vertica_import_options
 from ...records.format_hints import christmas_tree_format_1_hints
-from records_mover.records.hints import logger as driver_logger
+from records_mover.records.hintutils import logger as driver_logger
 import unittest
 from mock import call, patch
 

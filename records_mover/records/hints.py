@@ -1,9 +1,7 @@
-from typing_inspect import is_literal_type, get_args
-from abc import ABCMeta, abstractmethod
+from .hint import LiteralHint, StringHint
 import chardet
 from .types import (
-    RecordsHints, BootstrappingRecordsHints, HintName, HintHeaderRow,
-    HintCompression, HintQuoting,
+    RecordsHints, BootstrappingRecordsHints, HintHeaderRow, HintCompression, HintQuoting,
     HintDoublequote, HintEscape, HintEncoding, HintDateFormat, HintTimeOnlyFormat,
     HintDateTimeFormatTz, HintDateTimeFormat
 )
@@ -11,36 +9,14 @@ from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
 from .types import MutableRecordsHints
-from typing import Iterable, List, IO, Optional, Dict, TypeVar, Generic, Type, TYPE_CHECKING
+from .hintutils import complain_on_unhandled_hints, cant_handle_hint  # noqa: F401
+from typing import Iterable, List, IO, Optional, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader
 
 
 logger = logging.getLogger(__name__)
 
-
-def complain_on_unhandled_hints(fail_if_dont_understand: bool,
-                                unhandled_hints: Iterable[str],
-                                hints: RecordsHints) -> None:
-    unhandled_bindings = [f"{k}={hints[k]}" for k in unhandled_hints]
-    unhandled_bindings_str = ", ".join(unhandled_bindings)
-    if len(unhandled_bindings) > 0:
-        if fail_if_dont_understand:
-            err = "Implement these records_format hints or try again with " +\
-                f"fail_if_dont_understand=False': {unhandled_bindings_str}"
-            raise NotImplementedError(err)
-        else:
-            logger.warning(f"Did not understand these hints: {unhandled_bindings_str}")
-
-
-def cant_handle_hint(fail_if_cant_handle_hint: bool, hint_name: str, hints: RecordsHints) -> None:
-    if not fail_if_cant_handle_hint:
-        logger.warning("Ignoring hint {hint_name} = {hint_value}"
-                       .format(hint_name=hint_name,
-                               hint_value=repr(hints[hint_name])))
-    else:
-        raise NotImplementedError(f"Implement hint {hint_name}={repr(hints[hint_name])} " +
-                                  "or try again with fail_if_cant_handle_hint=False")
 
 # TODO: after merging sniffing improvements, move to a new file
 python_date_format_from_hints = {
@@ -208,69 +184,6 @@ def sniff_hints(fileobj: IO[bytes],
                 'encoding': final_encoding_hint,
                 **other_inferred_csv_hints(fileobj, final_encoding_hint),
                 **initial_hints}  # type: ignore
-
-
-HintT = TypeVar('HintT')
-
-
-class Hint(Generic[HintT], metaclass=ABCMeta):
-    @abstractmethod
-    def validate(self,
-                 hints: RecordsHints,
-                 fail_if_cant_handle_hint: bool) -> HintT:
-        ...
-
-
-class StringHint(Hint[str]):
-    def __init__(self,
-                 hint_name: HintName,
-                 default: str) -> None:
-        self.default = default
-        self.hint_name = hint_name
-
-    def validate(self,
-                 hints: RecordsHints,
-                 fail_if_cant_handle_hint: bool) -> str:
-        x: object = hints[self.hint_name]
-        if isinstance(x, str):
-            return x
-        else:
-            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
-                             hint_name=self.hint_name,
-                             hints=hints)
-            return self.default
-
-
-LiteralHintT = TypeVar('LiteralHintT')
-
-
-class LiteralHint(Hint[LiteralHintT]):
-    def __init__(self,
-                 type_: Type[LiteralHintT],
-                 hint_name: HintName,
-                 default: LiteralHintT) -> None:
-        assert is_literal_type(type_), f"{hint_name} is not a Literal[]"
-        self.default = default
-        self.type_ = type_
-        self.hint_name = hint_name
-        self.valid_values: List[LiteralHintT] = list(get_args(type_))
-
-    def validate(self,
-                 hints: RecordsHints,
-                 fail_if_cant_handle_hint: bool) -> LiteralHintT:
-        # MyPy doesn't like looking for a generic optional string
-        # in a list of specific optional strings.  It's wrong;
-        # that's perfectly safe
-        x: object = hints[self.hint_name]
-        try:
-            i = self.valid_values.index(x)  # type: ignore
-            return self.valid_values[i]
-        except ValueError:
-            # well, sort of safe.
-            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
-                             hint_name=self.hint_name,
-                             hints=hints)
-            return self.default
 
 
 class Hints:

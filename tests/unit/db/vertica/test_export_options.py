@@ -3,7 +3,7 @@ from records_mover.db.vertica.records_export_options import vertica_export_optio
 from ...records.format_hints import csv_format_hints
 from mock import Mock, call, patch
 from records_mover.records.records_format import DelimitedRecordsFormat
-from records_mover.records.hints import logger as driver_logger
+from records_mover.records.hintutils import logger as driver_logger
 
 
 class TestRecordsExportOptions(unittest.TestCase):

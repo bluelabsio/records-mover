@@ -2,7 +2,7 @@ from .base_test_redshift_db_driver import BaseTestRedshiftDBDriver
 from ...records.format_hints import (bluelabs_format_hints,
                                      christmas_tree_format_1_hints,
                                      christmas_tree_format_2_hints)
-from records_mover.records.hints import logger as driver_logger
+from records_mover.records.hintutils import logger as driver_logger
 from mock import call, patch
 
 

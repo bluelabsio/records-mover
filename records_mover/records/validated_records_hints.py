@@ -5,7 +5,8 @@ from .types import (RecordsHints, HintHeaderRow, HintFieldDelimiter,
                     HintEscape, HintEncoding, HintDateFormat,
                     HintTimeOnlyFormat, HintDateTimeFormatTz,
                     HintDateTimeFormat)
-from .hints import Hint, Hints
+from .hints import Hints
+from .hint import Hint
 
 
 class ValidatedRecordsHints(NamedTuple):

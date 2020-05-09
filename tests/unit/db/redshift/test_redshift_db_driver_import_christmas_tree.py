@@ -1,7 +1,7 @@
 from .base_test_redshift_db_driver import BaseTestRedshiftDBDriver
 from records_mover.db.redshift.redshift_db_driver import Table
 from mock import call, patch
-from records_mover.records.hints import logger as driver_logger
+from records_mover.records.hintutils import logger as driver_logger
 from ...records.format_hints import (christmas_tree_format_1_hints,
                                      christmas_tree_format_2_hints)
 from sqlalchemy_redshift.commands import Encoding, Compression
