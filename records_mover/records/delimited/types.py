@@ -60,7 +60,6 @@ BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
                                       total=False)
 
 
-# TODO: these should live in hints.py - existing stuff should probably move
 HintName = Literal["header-row",
                    "field-delimiter",
                    "compression",
