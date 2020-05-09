@@ -14,7 +14,6 @@ HintQuoting = Literal["all", "minimal", "nonnumeric", None]
 
 HintEscape = Literal["\\", None]
 
-# TODO: combine this and cli thingie
 HintCompression = Literal['GZIP', 'BZIP', 'LZO', None]
 
 # The trick here works on Literal[True, False] but not on bool:
