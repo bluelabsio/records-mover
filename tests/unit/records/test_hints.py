@@ -35,8 +35,8 @@ class TestHints(unittest.TestCase):
                                 f"Expected at least these hints while reading {basename}: "
                                 f"{required_hints}, found these hints: {hints}")
 
-    @patch('records_mover.records.hints.stream_csv')
-    @patch('records_mover.records.hints.io')
+    @patch('records_mover.records.hints.sniff.stream_csv')
+    @patch('records_mover.records.hints.sniff.io')
     def test_sniff_hints_from_fileobjs(self,
                                        mock_io,
                                        mock_stream_csv) -> None:
