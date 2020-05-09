@@ -215,7 +215,6 @@ HintT = TypeVar('HintT')
 
 
 class Hint(Generic[HintT], metaclass=ABCMeta):
-    ...
     @abstractmethod
     def validate(self,
                  hints: RecordsHints,
