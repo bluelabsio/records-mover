@@ -1,20 +1,14 @@
 from .hint import LiteralHint, StringHint
-import chardet
 from .types import (
-    RecordsHints, BootstrappingRecordsHints, HintHeaderRow, HintCompression, HintQuoting,
+    HintHeaderRow, HintCompression, HintQuoting,
     HintDoublequote, HintEscape, HintEncoding, HintDateFormat, HintTimeOnlyFormat,
     HintDateTimeFormatTz, HintDateTimeFormat
 )
-from .csv_streamer import stream_csv, python_encoding_from_hint
-import io
 import logging
-from .types import MutableRecordsHints
-from typing import Iterable, List, IO, Optional, Dict, TYPE_CHECKING
-if TYPE_CHECKING:
-    from pandas.io.parsers import TextFileReader
 
 
 logger = logging.getLogger(__name__)
+
 
 class Hints:
     # mypy gives this when we pass the HintBlahBlah aliases in as an

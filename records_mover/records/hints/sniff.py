@@ -1,10 +1,5 @@
-from .hint import LiteralHint, StringHint
 import chardet
-from .types import (
-    RecordsHints, BootstrappingRecordsHints, HintHeaderRow, HintCompression, HintQuoting,
-    HintDoublequote, HintEscape, HintEncoding, HintDateFormat, HintTimeOnlyFormat,
-    HintDateTimeFormatTz, HintDateTimeFormat
-)
+from .types import RecordsHints, BootstrappingRecordsHints, HintEncoding
 from .csv_streamer import stream_csv
 from .conversions import python_encoding_from_hint
 import io
@@ -15,7 +10,7 @@ from .conversions import (
     hint_encoding_from_pandas,
     hint_encoding_from_chardet
 )
-from typing import Iterable, List, IO, Optional, Dict, TYPE_CHECKING
+from typing import List, IO, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader
 
