@@ -129,7 +129,7 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
         text_fileobj = None
         if hints['compression'] is None:
             hint_encoding: str = hints['encoding']  # type: ignore
-            python_encoding = python_encoding_from_hint[hint_encoding]
+            python_encoding = python_encoding_from_hint[hint_encoding]  # type: ignore
             text_fileobj = io.TextIOWrapper(single_fileobj, encoding=python_encoding)
             target_fileobj = text_fileobj
         try:

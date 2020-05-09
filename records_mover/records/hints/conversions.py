@@ -1,24 +1,42 @@
-from .hint import LiteralHint, StringHint
-import chardet
-from .types import (
-    RecordsHints, BootstrappingRecordsHints, HintHeaderRow, HintCompression, HintQuoting,
-    HintDoublequote, HintEscape, HintEncoding, HintDateFormat, HintTimeOnlyFormat,
-    HintDateTimeFormatTz, HintDateTimeFormat
-)
-from .csv_streamer import stream_csv, python_encoding_from_hint
-import io
+from .types import HintCompression, HintEncoding, HintDateFormat, HintTimeOnlyFormat, HintQuoting
 import logging
-from .types import MutableRecordsHints
-from typing import Iterable, List, IO, Optional, Dict, Union, TYPE_CHECKING
+import csv
+from typing import Optional, Dict, Union
 from typing_extensions import Literal
-if TYPE_CHECKING:
-    from pandas.io.parsers import TextFileReader
 
 
 logger = logging.getLogger(__name__)
 
 
-# TODO: after merging sniffing improvements, move to a new file
+pandas_compression_from_hint: Dict[HintCompression, Optional[str]] = {
+    'GZIP': 'gzip',
+    'BZIP': 'bz2',
+    None: None,
+}
+
+
+pandas_quoting_from_hint: Dict[HintQuoting, int] = {
+    'minimal': csv.QUOTE_MINIMAL,
+    'all': csv.QUOTE_ALL,
+    'nonnumeric': csv.QUOTE_NONNUMERIC,
+    None: csv.QUOTE_NONE
+}
+
+python_encoding_from_hint: Dict[HintEncoding, str] = {
+    # valid python names: https://docs.python.org/3/library/codecs.html#standard-encodings
+    # valid hints names: https://github.com/bluelabsio/knowledge/blob/master/Engineering/
+    #    Architecture/JobDataExchange/output-design.md
+    'UTF8': 'utf-8',
+    'UTF16': 'utf-16',
+    'UTF16LE': 'utf-16-le',
+    'UTF16BE': 'utf-16-be',
+    'LATIN1': 'latin_1',
+    'CP1252': 'cp1252',
+    'UTF8BOM': 'utf-8-sig',
+    # Python will auto-detect UTF-16 with a BOM, but not UTF-8
+    'UTF16BOM': 'utf-16',
+}
+
 # TODO: this shouldn't have to be a union
 python_date_format_from_hints: Dict[Union[HintDateFormat, Literal['DD/MM/YY']], str] = {
     'YYYY-MM-DD': '%Y-%m-%d',

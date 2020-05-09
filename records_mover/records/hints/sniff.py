@@ -5,14 +5,14 @@ from .types import (
     HintDoublequote, HintEscape, HintEncoding, HintDateFormat, HintTimeOnlyFormat,
     HintDateTimeFormatTz, HintDateTimeFormat
 )
-from .csv_streamer import stream_csv, python_encoding_from_hint
+from .csv_streamer import stream_csv
+from .conversions import python_encoding_from_hint
 import io
 import logging
 from .types import MutableRecordsHints
 from .conversions import (
     hint_compression_from_pandas,
     hint_encoding_from_pandas,
-    hint_encoding_from_chardet,
     hint_encoding_from_chardet
 )
 from typing import Iterable, List, IO, Optional, Dict, TYPE_CHECKING
@@ -72,7 +72,7 @@ def infer_newline_format(fileobj: IO[bytes],
     if closed or not fileobj.seekable():
         logger.warning("Assuming UNIX newline format, as stream is not rewindable")
         return
-    python_encoding = python_encoding_from_hint[encoding_hint]
+    python_encoding = python_encoding_from_hint[encoding_hint]  # type: ignore
     original_position = fileobj.tell()
     fileobj.seek(0)
     text_fileobj = io.TextIOWrapper(fileobj, encoding=python_encoding)
