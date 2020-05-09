@@ -25,7 +25,7 @@ class StringHint(Hint[str]):
     def validate(self,
                  hints: RecordsHints,
                  fail_if_cant_handle_hint: bool) -> str:
-        from .hintutils import cant_handle_hint
+        from .utils import cant_handle_hint
 
         x: object = hints[self.hint_name]
         if isinstance(x, str):
@@ -54,7 +54,7 @@ class LiteralHint(Hint[LiteralHintT]):
     def validate(self,
                  hints: RecordsHints,
                  fail_if_cant_handle_hint: bool) -> LiteralHintT:
-        from .hintutils import cant_handle_hint
+        from .utils import cant_handle_hint
 
         # MyPy doesn't like looking for a generic optional string
         # in a list of specific optional strings.  It's wrong;

@@ -1,7 +1,7 @@
 from .records_format import BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
 from ..url.base import BaseDirectoryUrl, BaseFileUrl
 from .processing_instructions import ProcessingInstructions
-from .types import RecordsHints
+from .hints import RecordsHints
 import logging
 
 logger = logging.getLogger(__name__)

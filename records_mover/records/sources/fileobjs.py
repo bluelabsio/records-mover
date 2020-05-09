@@ -10,7 +10,7 @@ from ..hints import sniff_hints_from_fileobjs
 from .. import BootstrappingRecordsHints
 from ..processing_instructions import ProcessingInstructions
 from ...records.hints import complain_on_unhandled_hints
-from ..csv_streamer import python_encoding_from_hint
+from ..hints import python_encoding_from_hint
 from ..schema import RecordsSchema
 import logging
 from typing import Mapping, IO, Optional, Iterator, List, Any, TYPE_CHECKING

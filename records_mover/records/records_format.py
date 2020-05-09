@@ -3,8 +3,7 @@ from .processing_instructions import ProcessingInstructions
 from . import RecordsHints
 from .base_records_format import BaseRecordsFormat
 from typing import Mapping, Optional, Union, TYPE_CHECKING
-from .types import MutableRecordsHints
-from .validated_records_hints import ValidatedRecordsHints
+from .hints import MutableRecordsHints, ValidatedRecordsHints
 if TYPE_CHECKING:
     from . import RecordsFormatType  # noqa
 

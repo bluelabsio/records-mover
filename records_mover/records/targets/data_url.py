@@ -7,7 +7,7 @@ from .base import (SupportsMoveFromDataframes,
 from ..processing_instructions import ProcessingInstructions
 from ...url.base import BaseFileUrl
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
-from ..compression import sniff_compression_from_url
+from ..hints import sniff_compression_from_url
 from .fileobj import FileobjTarget
 from typing import Optional, List, TYPE_CHECKING
 if TYPE_CHECKING:

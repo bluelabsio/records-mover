@@ -5,7 +5,6 @@ from .types import (
     HintDoublequote, HintEscape, HintEncoding, HintDateFormat, HintTimeOnlyFormat,
     HintDateTimeFormatTz, HintDateTimeFormat
 )
-from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
 from .types import MutableRecordsHints

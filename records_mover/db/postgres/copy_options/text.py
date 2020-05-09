@@ -1,6 +1,5 @@
 from records_mover.utils import quiet_remove
-from records_mover.records.hints import cant_handle_hint
-from records_mover.records.types import RecordsHints
+from records_mover.records.hints import cant_handle_hint, RecordsHints
 from typing import Set
 from .mode import CopyOptionsMode
 from .types import PostgresCopyOptions, CopyOptionsModeType, _assert_never

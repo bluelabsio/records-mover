@@ -9,56 +9,18 @@ from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
 from .types import MutableRecordsHints
-from .hintutils import complain_on_unhandled_hints, cant_handle_hint  # noqa: F401
+from .conversions import (
+    hint_compression_from_pandas,
+    hint_encoding_from_pandas,
+    hint_encoding_from_chardet,
+    hint_encoding_from_chardet
+)
 from typing import Iterable, List, IO, Optional, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader
 
 
 logger = logging.getLogger(__name__)
-
-
-# TODO: after merging sniffing improvements, move to a new file
-python_date_format_from_hints = {
-    'YYYY-MM-DD': '%Y-%m-%d',
-    'MM/DD/YY': '%m/%d/%Y',
-    'DD/MM/YY': '%d/%m/%Y',
-}
-
-python_time_format_from_hints = {
-    'HH24:MI:SS': '%H:%M:%S',
-    'HH12:MI AM': '%I:%M:%S %p',
-}
-
-hint_encoding_from_pandas: Dict[str, HintEncoding] = {
-    'utf-8': 'UTF8',
-    'utf-16': 'UTF16',
-    'utf-16-le': 'UTF16LE',
-    'utf-16-be': 'UTF16BE',
-}
-
-hint_encoding_from_chardet: Dict[str, HintEncoding] = {
-    'UTF-8-SIG': 'UTF8BOM',
-    'UTF-16': 'UTF16',
-    'ISO-8859-1': 'LATIN1',
-    # For some reason this is lowercase:
-    #  https://github.com/chardet/chardet/blob/17218468eb16b7d0068bce7e4d20bac70f0bf555/chardet/utf8prober.py#L51
-    'utf-8': 'UTF8',
-    # But let's be ready if they change their minds:
-    'UTF-8': 'UTF8',
-    'Windows-1252': 'CP1252',
-    # even if the only data it saw was in ASCII, let's be ready to see more
-    'ascii': 'UTF8',
-}
-
-hint_compression_from_pandas = {
-    # https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html
-    # https://github.com/bluelabsio/knowledge/
-    #    blob/master/Engineering/Architecture/JobDataExchange/output-design.md#hints
-    'gzip': 'GZIP',
-    'bz2': 'BZIP',
-    None: None,
-}
 
 
 def csv_hints_from_reader(reader: 'TextFileReader') -> RecordsHints:
@@ -184,45 +146,3 @@ def sniff_hints(fileobj: IO[bytes],
                 'encoding': final_encoding_hint,
                 **other_inferred_csv_hints(fileobj, final_encoding_hint),
                 **initial_hints}  # type: ignore
-
-
-class Hints:
-    # mypy gives this when we pass the HintBlahBlah aliases in as an
-    # argument here:
-    #
-    # error: The type alias to Union is invalid in runtime context
-    #
-    # Nonetheless, the validation works.
-    datetimeformattz = LiteralHint[HintDateTimeFormatTz](HintDateTimeFormatTz,  # type: ignore
-                                                         "datetimeformattz",
-                                                         "YYYY-MM-DD HH24:MI:SSOF")
-    datetimeformat = LiteralHint[HintDateTimeFormat](HintDateTimeFormat,  # type: ignore
-                                                     "datetimeformat",
-                                                     default="YYYY-MM-DD HH24:MI:SS")
-    compression = LiteralHint[HintCompression](HintCompression,  # type: ignore
-                                               'compression',
-                                               default=None)
-    quoting = LiteralHint[HintQuoting](HintQuoting,  # type: ignore
-                                       'quoting',
-                                       default='minimal')
-    escape = LiteralHint[HintEscape](HintEscape,  # type: ignore
-                                     'escape',
-                                     default='\\')
-    encoding = LiteralHint[HintEncoding](HintEncoding,  # type: ignore
-                                         'encoding',
-                                         default='UTF8')
-    dateformat = LiteralHint[HintDateFormat](HintDateFormat,  # type: ignore
-                                             'dateformat',
-                                             default='YYYY-MM-DD')
-    timeonlyformat = LiteralHint[HintTimeOnlyFormat](HintTimeOnlyFormat,  # type: ignore
-                                                     'timeonlyformat',
-                                                     default="HH24:MI:SS")
-    doublequote = LiteralHint[HintDoublequote](HintDoublequote,  # type: ignore
-                                               'doublequote',
-                                               default=False)
-    header_row = LiteralHint[HintHeaderRow](HintHeaderRow,  # type: ignore
-                                            'header-row',
-                                            default=True)
-    quotechar = StringHint('quotechar', default='"')
-    record_terminator = StringHint('record-terminator', default='\n')
-    field_delimiter = StringHint('field-delimiter', default=',')

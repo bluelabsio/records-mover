@@ -1,5 +1,6 @@
-from records_mover.records.hints import sniff_hints, sniff_hints_from_fileobjs, sniff_encoding_hint
-from records_mover.records import BootstrappingRecordsHints
+from records_mover.records.hints.sniff import (
+    sniff_hints, sniff_hints_from_fileobjs, sniff_encoding_hint, BootstrappingRecordsHints
+)
 from mock import MagicMock, patch
 import io
 import unittest
