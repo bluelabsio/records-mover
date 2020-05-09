@@ -6,7 +6,7 @@ from .records_import_options import vertica_import_options
 from .io_base_wrapper import IOBaseWrapper
 from ...url.resolver import UrlResolver
 from ...records.load_plan import RecordsLoadPlan
-from ...records.hints import complain_on_unhandled_hints
+from ...records.delimited import complain_on_unhandled_hints
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from ..loader import LoaderFromFileobj

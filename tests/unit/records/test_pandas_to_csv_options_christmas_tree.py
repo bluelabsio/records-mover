@@ -2,7 +2,7 @@ from mock import patch, call
 import unittest
 from .format_hints import (christmas_tree_format_1_hints, christmas_tree_format_2_hints,
                            christmas_tree_format_3_hints, christmas_tree_format_4_hints)
-from records_mover.records.hints.utils import logger as driver_logger
+from records_mover.records.delimited.utils import logger as driver_logger
 from records_mover.records.pandas import pandas_to_csv_options
 from records_mover.records.processing_instructions import ProcessingInstructions
 from records_mover.records.records_format import DelimitedRecordsFormat

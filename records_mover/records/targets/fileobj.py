@@ -5,7 +5,7 @@ from .base import SupportsMoveFromDataframes
 from ..results import MoveResult
 from ..processing_instructions import ProcessingInstructions
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
-from ..hints import complain_on_unhandled_hints
+from ..delimited import complain_on_unhandled_hints
 import logging
 from typing import IO, Union, TYPE_CHECKING
 if TYPE_CHECKING:

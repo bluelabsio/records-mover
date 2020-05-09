@@ -1,5 +1,5 @@
 from records_mover.utils import quiet_remove
-from records_mover.records.hints import cant_handle_hint, RecordsHints
+from records_mover.records.delimited import cant_handle_hint, RecordsHints
 from typing import Set, Tuple, Optional
 from .types import DateOrderStyle, DateOutputStyle
 

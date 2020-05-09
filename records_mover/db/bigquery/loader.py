@@ -1,5 +1,5 @@
 from typing import Union, List, IO, Tuple, Optional
-from ...records.hints import complain_on_unhandled_hints
+from ...records.delimited import complain_on_unhandled_hints
 import pprint
 import sqlalchemy
 from ...records.load_plan import RecordsLoadPlan

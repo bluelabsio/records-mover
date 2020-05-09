@@ -6,11 +6,11 @@ from ...utils.concat_files import ConcatFiles
 import io
 from ..results import MoveResult
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
-from ..hints import sniff_hints_from_fileobjs
+from ..delimited import sniff_hints_from_fileobjs
 from .. import BootstrappingRecordsHints
 from ..processing_instructions import ProcessingInstructions
-from ...records.hints import complain_on_unhandled_hints
-from ..hints import python_encoding_from_hint
+from ...records.delimited import complain_on_unhandled_hints
+from ..delimited import python_encoding_from_hint
 from ..schema import RecordsSchema
 import logging
 from typing import Mapping, IO, Optional, Iterator, List, Any, TYPE_CHECKING

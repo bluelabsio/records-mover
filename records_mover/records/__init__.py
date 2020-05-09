@@ -13,7 +13,7 @@ __all__ = [
     'move'
 ]
 
-from .hints import BootstrappingRecordsHints, RecordsHints
+from .delimited import BootstrappingRecordsHints, RecordsHints
 from .types import RecordsFormatType, DelimitedVariant
 from .schema import RecordsSchema
 from .mover import move

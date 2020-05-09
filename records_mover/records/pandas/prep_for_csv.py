@@ -4,7 +4,7 @@ from records_mover.records import ProcessingInstructions
 from records_mover.records.schema import RecordsSchema
 from records_mover.records.schema.field import RecordsSchemaField
 from records_mover.records import DelimitedRecordsFormat
-from records_mover.records.hints import (python_date_format_from_hints,
+from records_mover.records.delimited import (python_date_format_from_hints,
                                          python_time_format_from_hints,
                                          cant_handle_hint)
 import logging
