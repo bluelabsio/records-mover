@@ -12,7 +12,8 @@ __all__ = [
     'Records',
 ]
 
-from .types import RecordsHints, BootstrappingRecordsHints, RecordsFormatType, DelimitedVariant
+from .hints import BootstrappingRecordsHints
+from .types import RecordsHints, RecordsFormatType, DelimitedVariant
 from .schema import RecordsSchema
 from .records_format import RecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
 from .processing_instructions import ProcessingInstructions

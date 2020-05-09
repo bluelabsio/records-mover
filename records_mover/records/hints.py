@@ -1,10 +1,13 @@
+from typing_inspect import is_literal_type, get_args
+from abc import ABCMeta, abstractmethod
 import chardet
-from .types import RecordsHints, BootstrappingRecordsHints
+from .types import RecordsHints
 from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
-from .types import HintEncoding, MutableRecordsHints
-from typing import Iterable, List, IO, Optional, Dict, TYPE_CHECKING
+from .types import MutableRecordsHints
+from typing import Iterable, List, IO, Optional, Dict, TypeVar, Generic, Type, TYPE_CHECKING
+from typing_extensions import Literal, TypedDict
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader
 
@@ -201,3 +204,178 @@ def sniff_hints(fileobj: IO[bytes],
                 'encoding': final_encoding_hint,
                 **other_inferred_csv_hints(fileobj, final_encoding_hint),
                 **initial_hints}  # type: ignore
+
+
+HintEncoding = Literal["UTF8", "UTF16", "UTF16LE", "UTF16BE",
+                       "UTF16BOM", "UTF8BOM", "LATIN1", "CP1252"]
+
+HintQuoting = Literal["all", "minimal", "nonnumeric", None]
+
+HintEscape = Literal["\\", None]
+
+# TODO: combine this and cli thingie
+HintCompression = Literal['GZIP', 'BZIP', 'LZO', None]
+
+# The trick here works on Literal[True, False] but not on bool:
+#
+# https://github.com/python/mypy/issues/6366#issuecomment-560369716
+HintHeaderRow = Literal[True, False]
+
+HintDoublequote = Literal[True, False]
+
+
+# TODO: This None is a bug in the spec, right?
+HintDateFormat = Literal[None, 'YYYY-MM-DD', 'MM-DD-YYYY', 'DD-MM-YYYY', 'MM/DD/YY']
+
+HintTimeOnlyFormat = Literal["HH12:MI AM", "HH24:MI:SS"]
+
+HintDateTimeFormatTz = Literal["YYYY-MM-DD HH:MI:SSOF",
+                               "YYYY-MM-DD HH:MI:SS",
+                               "YYYY-MM-DD HH24:MI:SSOF", # TODO: this is listed twice - bug in spec?
+                               "YYYY-MM-DD HH24:MI:SSOF",
+                               "MM/DD/YY HH24:MI"]
+
+HintDateTimeFormat = Literal["YYYY-MM-DD HH24:MI:SS",
+                             'YYYY-MM-DD HH:MI:SS', # TODO this isn't in spec valid, but is part of a variant
+                             "YYYY-MM-DD HH12:MI AM",
+                             "MM/DD/YY HH24:MI"]
+
+
+HintFieldDelimiter = str
+
+HintRecordTerminator = str
+
+HintQuoteChar = str
+
+
+BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
+                                      {
+                                          'quoting': HintQuoting,
+                                          'header-row': HintHeaderRow,
+                                          'field-delimiter': HintFieldDelimiter,
+                                          'encoding': HintEncoding,
+                                          'escape': HintEscape,
+                                          'compression': HintCompression,
+                                      },
+                                      total=False)
+
+
+# TODO: these should live in hints.py - existing stuff should probably move
+HintName = Literal["header-row",
+                   "field-delimiter",
+                   "compression",
+                   "record-terminator",
+                   "quoting",
+                   "quotechar",
+                   "doublequote",
+                   "escape",
+                   "encoding",
+                   "dateformat",
+                   "timeonlyformat",
+                   "datetimeformattz",
+                   "datetimeformat"]
+
+HintT = TypeVar('HintT')
+
+
+class Hint(Generic[HintT], metaclass=ABCMeta):
+    ...
+    @abstractmethod
+    def validate(self,
+                 hints: RecordsHints,
+                 fail_if_cant_handle_hint: bool) -> HintT:
+        ...
+
+
+class StringHint(Hint[str]):
+    def __init__(self,
+                 hint_name: HintName,
+                 default: str) -> None:
+        self.default = default
+        self.hint_name = hint_name
+
+    def validate(self,
+                 hints: RecordsHints,
+                 fail_if_cant_handle_hint: bool) -> str:
+        x: object = hints[self.hint_name]
+        if isinstance(x, str):
+            return x
+        else:
+            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
+                             hint_name=self.hint_name,
+                             hints=hints)
+            return self.default
+
+
+LiteralHintT = TypeVar('LiteralHintT')
+
+
+class LiteralHint(Hint[LiteralHintT]):
+    def __init__(self,
+                 type_: Type[LiteralHintT],
+                 hint_name: HintName,
+                 default: LiteralHintT) -> None:
+        assert is_literal_type(type_), f"{hint_name} is not a Literal[]"
+        self.default = default
+        self.type_ = type_
+        self.hint_name = hint_name
+        self.valid_values: List[LiteralHintT] = list(get_args(type_))
+
+    def validate(self,
+                 hints: RecordsHints,
+                 fail_if_cant_handle_hint: bool) -> LiteralHintT:
+        # MyPy doesn't like looking for a generic optional string
+        # in a list of specific optional strings.  It's wrong;
+        # that's perfectly safe
+        x: object = hints[self.hint_name]
+        try:
+            i = self.valid_values.index(x)  # type: ignore
+            return self.valid_values[i]
+        except ValueError:
+            # well, sort of safe.
+            cant_handle_hint(fail_if_cant_handle_hint=fail_if_cant_handle_hint,
+                             hint_name=self.hint_name,
+                             hints=hints)
+            return self.default
+
+
+class Hints:
+    # mypy gives this when we pass the HintBlahBlah aliases in as an
+    # argument here:
+    #
+    # error: The type alias to Union is invalid in runtime context
+    #
+    # Nonetheless, the validation works.
+    datetimeformattz = LiteralHint[HintDateTimeFormatTz](HintDateTimeFormatTz,  # type: ignore
+                                                         "datetimeformattz",
+                                                         "YYYY-MM-DD HH24:MI:SSOF")
+    datetimeformat = LiteralHint[HintDateTimeFormat](HintDateTimeFormat,  # type: ignore
+                                                     "datetimeformat",
+                                                     default="YYYY-MM-DD HH24:MI:SS")
+    compression = LiteralHint[HintCompression](HintCompression,  # type: ignore
+                                               'compression',
+                                               default=None)
+    quoting = LiteralHint[HintQuoting](HintQuoting,  # type: ignore
+                                       'quoting',
+                                       default='minimal')
+    escape = LiteralHint[HintEscape](HintEscape,  # type: ignore
+                                     'escape',
+                                     default='\\')
+    encoding = LiteralHint[HintEncoding](HintEncoding,  # type: ignore
+                                         'encoding',
+                                         default='UTF8')
+    dateformat = LiteralHint[HintDateFormat](HintDateFormat,  # type: ignore
+                                             'dateformat',
+                                             default='YYYY-MM-DD')
+    timeonlyformat = LiteralHint[HintTimeOnlyFormat](HintTimeOnlyFormat,  # type: ignore
+                                                     'timeonlyformat',
+                                                     default="HH24:MI:SS")
+    doublequote = LiteralHint[HintDoublequote](HintDoublequote,  # type: ignore
+                                               'doublequote',
+                                               default=False)
+    header_row = LiteralHint[HintHeaderRow](HintHeaderRow,  # type: ignore
+                                            'header-row',
+                                            default=True)
+    quotechar = StringHint('quotechar', default='"')
+    record_terminator = StringHint('record-terminator', default='\n')
+    field_delimiter = StringHint('field-delimiter', default=',')
