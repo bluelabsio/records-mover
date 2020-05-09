@@ -1,5 +1,4 @@
-from typing import Dict, Optional, Union, List, Mapping
-from records_mover.mover_types import JsonValue
+from typing import Dict, List
 from typing_extensions import Literal, TypedDict
 
 

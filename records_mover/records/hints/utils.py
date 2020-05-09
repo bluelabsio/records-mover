@@ -1,16 +1,6 @@
-from .hint import LiteralHint, StringHint
-import chardet
-from .types import (
-    RecordsHints, BootstrappingRecordsHints, HintHeaderRow, HintCompression, HintQuoting,
-    HintDoublequote, HintEscape, HintEncoding, HintDateFormat, HintTimeOnlyFormat,
-    HintDateTimeFormatTz, HintDateTimeFormat
-)
-import io
+from .types import RecordsHints
 import logging
-from .types import MutableRecordsHints
-from typing import Iterable, List, IO, Optional, Dict, TYPE_CHECKING
-if TYPE_CHECKING:
-    from pandas.io.parsers import TextFileReader
+from typing import Iterable
 
 
 logger = logging.getLogger(__name__)
