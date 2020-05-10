@@ -37,16 +37,17 @@ def _infer_session_type() -> str:
 
 
 def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
-    scratch_s3_url: Optional[str]
-
     if "SCRATCH_S3_URL" in os.environ:
         return os.environ["SCRATCH_S3_URL"]
 
     result = get_config('records_mover', 'bluelabs')
     cfg = result.config
-    s3_scratch_url = cfg.get('aws', {}).get('s3_scratch_url')
-    if s3_scratch_url is not None:
-        return s3_scratch_url
+    if 'aws' in cfg:
+        s3_scratch_url: Optional[str] = cfg['aws'].get('s3_scratch_url')
+        if s3_scratch_url is not None:
+            return s3_scratch_url
+    else:
+        logger.debug('No config ini file found')
 
     if session_type == 'cli':
         try:
