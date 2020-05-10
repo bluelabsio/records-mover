@@ -191,7 +191,8 @@ class Session():
                            level: int = logging.INFO,
                            stream: IO[str] = sys.stdout,
                            fmt: str = '%(asctime)s - %(message)s',
-                           datefmt: str = '%H:%M:%S') -> None:
+                           datefmt: str = '%H:%M:%S',
+                           _config_resolver_level: int = logging.ERROR) -> None:
         """
         records-mover logs details about its operations using Python logging.  This method is a
         simple way to configure that logging to be output to a stream (by default, stdout).
