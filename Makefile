@@ -1,5 +1,8 @@
 all: typecheck typecoverage coverageclean test coverage quality
 
+test-reports
+	mkdir test-reports
+
 coverageclean:
 	rm -fr .coverage
 
@@ -24,7 +27,7 @@ citypecoverage: typecoverage
 test:
 	ENV=test nosetests --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive tests/unit
 
-citest:
+citest: test-reports
 	ENV=test nosetests --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml tests/unit
 
 coverage:
