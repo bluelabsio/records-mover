@@ -13,7 +13,7 @@ from tempfile import NamedTemporaryFile
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 inside_docker_db_facts_local_path =\
-    f'{script_dir}/tests/integration/inside-docker-dbfacts.yml'
+    f'{script_dir}/inside-docker-dbfacts.yml'
 
 itest_volumes = {
     inside_docker_db_facts_local_path: '/root/.dbfacts.yml',
@@ -117,7 +117,8 @@ def local_dockerized_dbfacts():
 
 def docker_build() -> None:
     subprocess.check_call("make docker",
-                          shell=True)
+                          shell=True,
+                          cwd=f"{script_dir}/../..")
 
 
 def docker_compose(args: List[str],
@@ -145,11 +146,11 @@ def docker_compose_start() -> None:
     print("Running docker_compose start verticadb postgresdb mysqldb...", file=sys.stderr)
     docker_compose(["up", "--no-start"])
     docker_compose(["start", "verticadb", "postgresdb", "mysqldb"])
-    docker_compose_run(['./wait-for-vertica.sh'])
+    docker_compose_run(['tests/integration/wait-for-vertica.sh'])
     print("Verified Vertica is up and listening", file=sys.stderr)
-    docker_compose_run(['./wait-for-postgres.sh'])
+    docker_compose_run(['tests/integration/wait-for-postgres.sh'])
     print("Verified Postgres is up and listening", file=sys.stderr)
-    docker_compose_run(['./wait-for-mysql.sh'])
+    docker_compose_run(['tests/integration/wait-for-mysql.sh'])
     print("Verified MySQL is up and listening", file=sys.stderr)
 
 
@@ -192,7 +193,7 @@ def run_test(args, target, parser):
                 with local_dockerized_dbfacts():
                     subprocess.check_call(["with-aws-creds", "circleci",
                                            "./cli-tests.sh"],
-                                          cwd="tests/integration/cli")
+                                          cwd="cli")
     elif (target == 'vertica-no-s3'):
         with dockerized_dbs():
             if (args.docker):
@@ -204,7 +205,7 @@ def run_test(args, target, parser):
                 with local_dockerized_dbfacts():
                     subprocess.check_call(['with-db', 'dockerized-vertica',
                                            'nosetests', '--xunit-file=nosetests.xml', '.'],
-                                          cwd="tests/integration/records/single_db")
+                                          cwd="records/single_db")
     elif (target == 'vertica-s3'):
         with dockerized_dbs(), set_circleci_scratch_bucket():
             if (args.docker):
@@ -217,7 +218,7 @@ def run_test(args, target, parser):
                     subprocess.check_call(["with-db", "dockerized-vertica",
                                            "with-aws-creds", "circleci",
                                            "nosetests", "--xunit-file=nosetests.xml", "."],
-                                          cwd="tests/integration/records/single_db")
+                                          cwd="records/single_db")
     elif (target == 'mysql'):
         with dockerized_dbs():
             if (args.docker):
@@ -229,7 +230,7 @@ def run_test(args, target, parser):
                 with local_dockerized_dbfacts():
                     subprocess.check_call(["with-db", "dockerized-mysql",
                                            "nosetests", "--xunit-file=nosetests.xml", "."],
-                                          cwd="tests/integration/records/single_db")
+                                          cwd="records/single_db")
     elif (target == 'postgres'):
         with dockerized_dbs():
             if (args.docker):
@@ -241,7 +242,7 @@ def run_test(args, target, parser):
                 with local_dockerized_dbfacts():
                     subprocess.check_call(["with-db", "dockerized-postgres",
                                            "nosetests", "--xunit-file=nosetests.xml", "."],
-                                          cwd="tests/integration/records/single_db")
+                                          cwd="records/single_db")
     elif (target == 'redshift'):
         with set_circleci_scratch_bucket():
             if (args.docker):
@@ -253,7 +254,7 @@ def run_test(args, target, parser):
                 subprocess.check_call(['with-db', 'demo-itest',
                                        "with-aws-creds", "circleci",
                                        'nosetests', '--xunit-file=nosetests.xml', '.'],
-                                      cwd="tests/integration/records/single_db")
+                                      cwd="records/single_db")
     elif (target == 'bigquery'):
         if (args.docker):
             docker_compose_run(['with-db', 'bltoolsdevbq-bq_itest',
@@ -262,7 +263,7 @@ def run_test(args, target, parser):
         else:
             subprocess.check_call(['with-db', 'bltoolsdevbq-bq_itest',
                                    'nosetests', '--xunit-file=nosetests.xml', '.'],
-                                  cwd="tests/integration/records/single_db")
+                                  cwd="records/single_db")
     elif (target == 'table2table'):
         with set_circleci_scratch_bucket(), dockerized_dbs():
             if (args.docker):
@@ -275,7 +276,7 @@ def run_test(args, target, parser):
                     subprocess.check_call(["with-aws-creds", "circleci",
                                            'python3', '-m',
                                            'records.multi_db.test_records_table2table'],
-                                          cwd="tests/integration")
+                                          cwd=".")
     else:
         parser.print_help()
         sys.exit(1)

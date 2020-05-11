@@ -29,7 +29,7 @@ future, add them to this document!
   * Modify the `local_dockerized_dbfacts` function in `./itest` to
     point to the new database.
   * Create a `wait-for-${your-new-db-type:?}.sh` script matching
-    `wait-for-postgres.sh`.
+    `tests/integration/wait-for-postgres.sh`.
   * Modify `tests/integration/inside-docker-dbfacts.yml` to include an
     entry for your new database.
   * Modify `tests/integration/bin/db-connect` to handle your new
