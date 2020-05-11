@@ -1,6 +1,6 @@
 all: typecheck typecoverage coverageclean test coverage quality
 
-test-reports
+test-reports:
 	mkdir test-reports
 
 coverageclean:
