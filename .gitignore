@@ -64,6 +64,7 @@ target/
 /.coverage
 /coverage.xml
 /nosetests.xml
+/test-reports
 
 .DS_Store
 
