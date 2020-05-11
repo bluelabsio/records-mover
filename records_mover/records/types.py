@@ -2,7 +2,7 @@ from typing import Dict, Optional, Union, List, Mapping, TYPE_CHECKING
 
 """RecordsHints are described as part of the overall `records format
 documentation
-<https://github.com/bluelabsio/knowledge/blob/master/Engineering/Architecture/JobDataExchange/output-design.md#hints>`_
+<https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#hints>`_
 Their goal in life is to both describe in detail how to write a
 records file (especially delimited files, which are particularly
 thorny in practice).

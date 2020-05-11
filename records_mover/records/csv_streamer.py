@@ -23,8 +23,8 @@ pandas_quoting_from_hint = {
 
 python_encoding_from_hint = {
     # valid python names: https://docs.python.org/3/library/codecs.html#standard-encodings
-    # valid hints names: https://github.com/bluelabsio/knowledge/blob/master/Engineering/
-    #    Architecture/JobDataExchange/output-design.md
+    # valid hints names: https://github.com/bluelabsio/records-mover/blob/master/docs/
+    #    RECORDS_SPEC.md
     'UTF8': 'utf-8',
     'UTF16': 'utf-16',
     'UTF16LE': 'utf-16-le',

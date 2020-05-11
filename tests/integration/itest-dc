@@ -7,4 +7,4 @@ import sys
 build_tag = 'latest'
 os.environ['BUILD_TAG'] = build_tag
 args = ["docker-compose"] + sys.argv[1:]
-subprocess.check_call(args, cwd="tests/integration")
+subprocess.check_call(args, cwd=".")
