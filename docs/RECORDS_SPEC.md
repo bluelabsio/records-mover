@@ -244,12 +244,8 @@ configuration provided to it outside of this spec).
 
   Default value is `"UTF8"`
 
-* `dateformat`: Valid values: `null`, `"YYYY-MM-DD"`, `"MM-DD-YYYY"`,
+* `dateformat`: Valid values: `"YYYY-MM-DD"`, `"MM-DD-YYYY"`,
   `"DD-MM-YYYY"`, `"MM/DD/YY"`.
-
-  `null` implies that that date format is unknown, and that the
-  implementation SHOULD generate using their default value and parse
-  permissively.
 
   See
   [Redshift docs](https://docs.aws.amazon.com/redshift/latest/dg/r_DATEFORMAT_and_TIMEFORMAT_strings.html)
