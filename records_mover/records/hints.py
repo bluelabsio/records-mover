@@ -70,8 +70,7 @@ hint_encoding_from_chardet: Dict[str, HintEncoding] = {
 
 hint_compression_from_pandas = {
     # https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html
-    # https://github.com/bluelabsio/knowledge/
-    #    blob/master/Engineering/Architecture/JobDataExchange/output-design.md#hints
+    # https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#hints
     'gzip': 'GZIP',
     'bz2': 'BZIP',
     None: None,
