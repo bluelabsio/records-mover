@@ -65,4 +65,4 @@ package:
 	python3 setup.py sdist bdist_wheel
 
 docker:
-	docker build --progress=plain -t records-mover .
+	docker build -f tests/integration/Dockerfile --progress=plain -t records-mover .
