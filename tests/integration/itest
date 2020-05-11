@@ -146,11 +146,11 @@ def docker_compose_start() -> None:
     print("Running docker_compose start verticadb postgresdb mysqldb...", file=sys.stderr)
     docker_compose(["up", "--no-start"])
     docker_compose(["start", "verticadb", "postgresdb", "mysqldb"])
-    docker_compose_run(['./wait-for-vertica.sh'])
+    docker_compose_run(['tests/integration/wait-for-vertica.sh'])
     print("Verified Vertica is up and listening", file=sys.stderr)
-    docker_compose_run(['./wait-for-postgres.sh'])
+    docker_compose_run(['tests/integration/wait-for-postgres.sh'])
     print("Verified Postgres is up and listening", file=sys.stderr)
-    docker_compose_run(['./wait-for-mysql.sh'])
+    docker_compose_run(['tests/integration/wait-for-mysql.sh'])
     print("Verified MySQL is up and listening", file=sys.stderr)
 
 
