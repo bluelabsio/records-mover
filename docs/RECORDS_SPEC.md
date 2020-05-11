@@ -264,7 +264,7 @@ configuration provided to it outside of this spec).
 
 * `datetimeformattz`: Valid values: `"YYYY-MM-DD HH:MI:SSOF"`,
   `"YYYY-MM-DD HH:MI:SS"`, `"YYYY-MM-DD HH24:MI:SSOF"`,
-  `"YYYY-MM-DD HH24:MI:SSOF"`, `"MM/DD/YY HH24:MI"`.  See
+  and `"MM/DD/YY HH24:MI"`.  See
   [Redshift docs](https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-data-conversion.html#copy-timeformat)
   for more information (note that `HH:` is equivalent to `HH24:` and
   that if you don't provide an offset (`OF`), times are assumed to be
