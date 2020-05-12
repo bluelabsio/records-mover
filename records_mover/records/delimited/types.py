@@ -23,20 +23,17 @@ HintHeaderRow = Literal[True, False]
 
 HintDoublequote = Literal[True, False]
 
-
-# TODO: This None is a bug in the spec, right?
-HintDateFormat = Literal[None, 'YYYY-MM-DD', 'MM-DD-YYYY', 'DD-MM-YYYY', 'MM/DD/YY']
+HintDateFormat = Literal['YYYY-MM-DD', 'MM-DD-YYYY', 'DD-MM-YYYY', 'MM/DD/YY']
 
 HintTimeOnlyFormat = Literal["HH12:MI AM", "HH24:MI:SS"]
 
 HintDateTimeFormatTz = Literal["YYYY-MM-DD HH:MI:SSOF",
                                "YYYY-MM-DD HH:MI:SS",
-                               "YYYY-MM-DD HH24:MI:SSOF",  # TODO: this is listed twice - bug in spec?
                                "YYYY-MM-DD HH24:MI:SSOF",
                                "MM/DD/YY HH24:MI"]
 
 HintDateTimeFormat = Literal["YYYY-MM-DD HH24:MI:SS",
-                             'YYYY-MM-DD HH:MI:SS',  # TODO this isn't in spec valid, but is part of a variant
+                             'YYYY-MM-DD HH:MI:SS',
                              "YYYY-MM-DD HH12:MI AM",
                              "MM/DD/YY HH24:MI"]
 
