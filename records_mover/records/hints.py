@@ -178,7 +178,7 @@ def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[HintEncoding]:
                 detector.feed(chunk)
                 if detector.done or len(chunk) < chunksize:
                     break
-                detector.close()
+            detector.close()
             assert detector.result is not None
             if 'encoding' in detector.result:
                 chardet_encoding = detector.result['encoding']
