@@ -5,6 +5,8 @@
     "quoting": "minimal",
     "field-delimiter": "\t"
   },
-  "initial_hints": {},
+  "initial_hints": {
+    "escape": null
+  },
   "notes": null
 }

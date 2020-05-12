@@ -9,6 +9,7 @@
     "header-row": false
   },
   "initial_hints": {
+    "escape": null,
     "record-terminator": "\u0002",
     "header-row": false
   },
