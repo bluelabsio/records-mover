@@ -255,7 +255,7 @@ setup(name='records-mover',
           'PyYAML<5.3',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
-          'db-facts>=3,<4',
+          'db-facts>=4,<5',
           'chardet',
           'tenacity>=6<7',
           'config-resolver>=5,<6',
