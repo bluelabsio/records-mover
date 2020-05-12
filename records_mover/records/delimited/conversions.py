@@ -7,13 +7,11 @@ from typing_extensions import Literal
 
 logger = logging.getLogger(__name__)
 
-
 pandas_compression_from_hint: Dict[HintCompression, Optional[str]] = {
     'GZIP': 'gzip',
     'BZIP': 'bz2',
     None: None,
 }
-
 
 pandas_quoting_from_hint: Dict[HintQuoting, int] = {
     'minimal': csv.QUOTE_MINIMAL,

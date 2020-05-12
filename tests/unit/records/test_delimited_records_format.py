@@ -7,7 +7,7 @@ class TestDelimitedRecordsFormat(unittest.TestCase):
     def test_dumb(self):
         records_format = DelimitedRecordsFormat(variant='dumb')
         # Should match up with
-        # https://github.com/bluelabsio/knowledge/blob/master/Engineering/Architecture/JobDataExchange/output-design.md#dumb-variant
+        # https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#dumb-variant
         expected_hints = {
             'compression': 'GZIP',
             'dateformat': 'YYYY-MM-DD',
@@ -28,7 +28,7 @@ class TestDelimitedRecordsFormat(unittest.TestCase):
     def test_csv(self):
         records_format = DelimitedRecordsFormat(variant='csv')
         # Should match up with
-        # https://github.com/bluelabsio/knowledge/blob/master/Engineering/Architecture/JobDataExchange/output-design.md#csv-variant
+        # https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#csv-variant
         expected_hints = {
             'compression': 'GZIP',
             'dateformat': 'MM/DD/YY',
@@ -49,7 +49,7 @@ class TestDelimitedRecordsFormat(unittest.TestCase):
     def test_with_altered_hints(self):
         records_format = DelimitedRecordsFormat(variant='csv').alter_hints({'quotechar': 'A'})
         # Should match up with
-        # https://github.com/bluelabsio/knowledge/blob/master/Engineering/Architecture/JobDataExchange/output-design.md#csv-variant
+        # https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#csv-variant
         expected_hints = {
             'compression': 'GZIP',
             'dateformat': 'MM/DD/YY',

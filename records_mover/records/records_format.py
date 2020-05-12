@@ -36,7 +36,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
                  hints: RecordsHints={},
                  processing_instructions: ProcessingInstructions=ProcessingInstructions()) -> None:
         """See the `records format documentation
-        <https://github.com/bluelabsio/knowledge/blob/master/Engineering/Architecture/JobDataExchange/output-design.md#hints>`_
+        <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#hints>`_
         for full details on parameters.
 
         :param variant: For a given type (especially delimited),
