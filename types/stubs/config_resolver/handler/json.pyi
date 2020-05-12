@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 
 TJsonConfig = Dict[str, Any]
 
+
 class JsonHandler(Handler[TJsonConfig]):
     DEFAULT_FILENAME: str = ...
     @staticmethod
