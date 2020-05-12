@@ -5,8 +5,8 @@ from records_mover import Session
 from ..records_format import DelimitedRecordsFormat
 from ..existing_table_handling import ExistingTableHandling
 from .hints import SUPPORTED_HINT_LOOKUP
-from ..types import RecordsHints
-from ...types import JobConfig
+from ..delimited import RecordsHints
+from ...mover_types import JobConfig
 
 
 class ConfigToArgs:

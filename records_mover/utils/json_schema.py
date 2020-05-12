@@ -7,7 +7,7 @@ from typing_inspect import get_origin, is_callable_type, get_args, is_union_type
 import collections
 import logging
 from collections import OrderedDict
-from ..types import JsonSchema
+from ..mover_types import JsonSchema
 from .json_schema_document import JsonSchemaDocument, DefaultValue
 from .json_schema_array_document import JsonSchemaArrayDocument
 from .json_parameter import JsonParameter

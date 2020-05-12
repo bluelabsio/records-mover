@@ -1,6 +1,6 @@
 import inspect
 from typing import Optional
-from ..types import JsonSchema
+from ..mover_types import JsonSchema
 from .json_schema_document import JsonSchemaDocument, DefaultValue
 
 

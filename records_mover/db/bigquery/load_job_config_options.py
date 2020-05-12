@@ -1,5 +1,5 @@
 from ...utils import quiet_remove
-from ...records.hints import cant_handle_hint
+from ...records.delimited import cant_handle_hint
 from typing import Set
 from ...records.load_plan import RecordsLoadPlan
 from ...records.records_format import DelimitedRecordsFormat, ParquetRecordsFormat

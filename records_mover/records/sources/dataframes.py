@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
 from .fileobjs import FileobjsSource  # noqa
 from tempfile import NamedTemporaryFile
-from ..hints import complain_on_unhandled_hints
+from ..delimited import complain_on_unhandled_hints
 import logging
 from typing import Iterator, Iterable, Optional, Union, Dict, IO, Callable, TYPE_CHECKING
 from records_mover.pandas import purge_unnamed_unused_columns

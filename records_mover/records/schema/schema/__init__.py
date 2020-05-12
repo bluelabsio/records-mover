@@ -105,7 +105,7 @@ class RecordsSchema:
     def from_fileobjs(fileobjs: List[IO[bytes]],
                       records_format: BaseRecordsFormat,
                       processing_instructions: ProcessingInstructions) -> 'RecordsSchema':
-        from records_mover.records.csv_streamer import stream_csv
+        from records_mover.records.delimited import stream_csv
         from records_mover.pandas import purge_unnamed_unused_columns
 
         if len(fileobjs) != 1:

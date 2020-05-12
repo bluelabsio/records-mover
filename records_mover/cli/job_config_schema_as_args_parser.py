@@ -2,7 +2,7 @@ import argparse
 from records_mover.utils.structures import nest_dict
 import os
 import json
-from ..types import JsonSchema, JobConfig
+from ..mover_types import JsonSchema, JobConfig
 from typing import Iterable, Dict, Any, Sequence, List, TypeVar, TYPE_CHECKING
 if TYPE_CHECKING:
     from argparse_types import ArgParseArgument

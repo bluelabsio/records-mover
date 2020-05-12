@@ -15,7 +15,7 @@ from typing import Union, Callable, Optional, ContextManager, List
 from ...url.base import BaseDirectoryUrl
 from botocore.credentials import Credentials
 from ..errors import CredsDoNotSupportS3Export
-from ...records.hints import complain_on_unhandled_hints
+from ...records.delimited import complain_on_unhandled_hints
 from ..unloader import Unloader
 
 
