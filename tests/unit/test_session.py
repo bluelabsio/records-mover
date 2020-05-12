@@ -2,6 +2,7 @@ from mock import patch, Mock
 from records_mover import Session
 import unittest
 
+
 @patch('records_mover.session.get_config')
 @patch('records_mover.session.subprocess')
 @patch('records_mover.session.os')
