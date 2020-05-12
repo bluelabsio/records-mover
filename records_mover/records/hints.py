@@ -87,24 +87,16 @@ def csv_hints_from_reader(reader: 'TextFileReader') -> RecordsHints:
     # https://github.com/pandas-dev/pandas/blob/e9b019b653d37146f9095bb0522525b3a8d9e386/pandas/io/parsers.py#L1903
     # Python parser:
     # https://github.com/pandas-dev/pandas/blob/e9b019b653d37146f9095bb0522525b3a8d9e386/pandas/io/parsers.py#L2253
-    quotechar = reader._engine.data.dialect.quotechar
-    delimiter = reader._engine.data.dialect.delimiter
+    # Compression is definitely inferred:
+    # https://github.com/pandas-dev/pandas/blob/e9b019b653d37146f9095bb0522525b3a8d9e386/pandas/io/parsers.py#L425
+    # TODO: But I don't think I'm passing in 'infer' to csv_streamer...
     compression = reader._engine.compression
-    encoding = reader._engine.encoding
-    doublequote = reader._engine.doublequote
 
     return {
-        # Note that at least 'escape' and 'header-row' don't seem to be inferred in
+        # Note that at least 'escape', 'doublequote', 'quotechar',
+        # 'encoding' and 'header-row' don't seem to be inferred in
         # practice, at least by the Python driver in Pandas
-        'field-delimiter': delimiter,
         'compression': hint_compression_from_pandas[compression],
-        'quotechar': quotechar,
-        'doublequote': doublequote,
-        'encoding': hint_encoding_from_pandas.get(encoding, encoding),
-        'dateformat': 'YYYY-MM-DD',
-        'timeonlyformat': 'HH12:MI AM',
-        'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
-        'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
     }
 
 
