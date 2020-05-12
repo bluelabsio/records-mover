@@ -40,6 +40,20 @@ def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
     if "SCRATCH_S3_URL" in os.environ:
         return os.environ["SCRATCH_S3_URL"]
 
+    # config_resolver logs at the WARNING level for each time it
+    # attempts to load a config file and doesn't find it - which given
+    # it searches a variety of places, is quite noisy:
+    #
+    #   group=bluelabs:app=records_mover:Skipping unreadable file /etc/bluelabs/records_mover/app.ini (File not found)
+    #   group=bluelabs:app=records_mover:Skipping unreadable file /etc/xdg/bluelabs/records_mover/app.ini (File not found)
+    #   group=bluelabs:app=records_mover:Skipping unreadable file /Users/broz/.config/bluelabs/records_mover/app.ini (File not found)
+    #
+    # Let's turn that off.
+    #
+    # https://github.com/exhuma/config_resolver/blob/master/doc/intro.rst#logging
+    #
+    # https://github.com/exhuma/config_resolver/issues/69
+    logging.getLogger('config_resolver').setLevel(logging.ERROR)
     result = get_config('records_mover', 'bluelabs')
     cfg = result.config
     if 'aws' in cfg:
@@ -191,8 +205,7 @@ class Session():
                            level: int = logging.INFO,
                            stream: IO[str] = sys.stdout,
                            fmt: str = '%(asctime)s - %(message)s',
-                           datefmt: str = '%H:%M:%S',
-                           _config_resolver_level: int = logging.ERROR) -> None:
+                           datefmt: str = '%H:%M:%S') -> None:
         """
         records-mover logs details about its operations using Python logging.  This method is a
         simple way to configure that logging to be output to a stream (by default, stdout).

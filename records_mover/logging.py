@@ -38,8 +38,7 @@ def set_stream_logging(name: str = 'records_mover',
                        level: int = logging.INFO,
                        stream: IO[str] = sys.stdout,
                        fmt: str = '%(asctime)s - %(message)s',
-                       datefmt: str = '%H:%M:%S',
-                       _config_resolver_level: int = logging.ERROR) -> None:
+                       datefmt: str = '%H:%M:%S') -> None:
     """
     records-mover logs details about its operations using Python logging.  This method is a
     simple way to configure that logging to be output to a stream (by default, stdout).
@@ -64,9 +63,6 @@ def set_stream_logging(name: str = 'records_mover',
     adjusted_level = _adjusted_log_level(level, name)
     logger = logging.getLogger(name)
     logger.setLevel(adjusted_level)
-
-    config_resolver_logger = logging.getLogger('config_resolver.bluelabs.records_mover')
-    config_resolver_logger.setLevel(_config_resolver_level)
 
     wrapper = SecretsRedactingLogStream(stream)
     handler = logging.StreamHandler(stream=wrapper)
