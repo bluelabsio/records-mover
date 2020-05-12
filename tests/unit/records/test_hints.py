@@ -34,11 +34,13 @@ class TestHints(unittest.TestCase):
                                 f"Expected at least these hints while reading {basename}: "
                                 f"{required_hints}, found these hints: {hints}")
 
+    @patch('records_mover.records.hints.csv')
     @patch('records_mover.records.hints.stream_csv')
     @patch('records_mover.records.hints.io')
     def test_sniff_hints_from_fileobjs(self,
                                        mock_io,
-                                       mock_stream_csv) -> None:
+                                       mock_stream_csv,
+                                       mock_csv) -> None:
         mock_fileobj = MagicMock(name='fileobj')
         mock_fileobj.closed = False
         mock_fileobjs = [mock_fileobj]
@@ -55,12 +57,12 @@ class TestHints(unittest.TestCase):
             'dateformat': 'YYYY-MM-DD',
             'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
             'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
-            'doublequote': mock_streaming_engine.doublequote,
+            'doublequote': mock_csv.Sniffer().sniff().doublequote,
             'encoding': 'UTF8',
-            'escape': mock_streaming_engine.data.dialect.escapechar,
+            'quotechar': mock_csv.Sniffer().sniff().quotechar,
+            'quoting': 'minimal',
             'field-delimiter': ',',
             'header-row': True,
-            'quotechar': mock_streaming_engine.data.dialect.quotechar,
             'record-terminator': str(mock_io.TextIOWrapper.return_value.newlines),
             'timeonlyformat': 'HH12:MI AM'
         })
