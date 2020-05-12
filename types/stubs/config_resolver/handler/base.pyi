@@ -1,9 +1,10 @@
 from packaging.version import Version as Version
-from typing import Any, Optional, TypeVar
+from typing import Any, Optional, TypeVar, Generic
 
 TConfig = TypeVar('TConfig', bound=Any)
 
-class Handler[Generic]:
+
+class Handler(Generic[TConfig]):
     DEFAULT_FILENAME: str = ...
     @staticmethod
     def empty() -> TConfig: ...
