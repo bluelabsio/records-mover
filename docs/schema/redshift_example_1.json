@@ -1,0 +1,686 @@
+{
+  "schema": "bltypes/v1",
+  "fields": {
+    "numeric": {
+      "type": "decimal",
+      "constraints": {
+        "required": false,
+        "fixed_precision": 2,
+        "fixed_scale": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "NUMERIC(2, 1) ENCODE lzo",
+          "col_type": "NUMERIC(2, 1)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "statistics": {
+        "min": "1.0",
+        "max": "9.5",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 1
+    },
+    "decimal": {
+      "type": "decimal",
+      "constraints": {
+        "required": false,
+        "fixed_precision": 2,
+        "fixed_scale": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "NUMERIC(2, 1) ENCODE lzo",
+          "col_type": "NUMERIC(2, 1)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "statistics": {
+        "min": "1.0",
+        "max": "9.5",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 2
+    },
+    "smallint": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "min": "-32768",
+        "max": "32767"
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "SMALLINT ENCODE lzo",
+          "col_type": "SMALLINT",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "statistics": {
+        "min": "-10000",
+        "max": "500",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 3
+    },
+    "int2": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "min": "-32768",
+        "max": "32767"
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "SMALLINT ENCODE lzo",
+          "col_type": "SMALLINT",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "statistics": {
+        "min": "-10000",
+        "max": "500",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 4
+    },
+    "bigint": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "min": "-9223372036854775808",
+        "max": "9223372036854775807"
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "BIGINT ENCODE lzo",
+          "col_type": "BIGINT",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "statistics": {
+        "min": "-100000000000",
+        "max": "500",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 5
+    },
+    "int8": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "min": "-9223372036854775808",
+        "max": "9223372036854775807"
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "BIGINT ENCODE lzo",
+          "col_type": "BIGINT",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "statistics": {
+        "min": "-100000000",
+        "max": "500",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 6
+    },
+    "integer": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "min": "-2147483648",
+        "max": "2147483647"
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "INTEGER ENCODE lzo",
+          "col_type": "INTEGER",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "statistics": {
+        "min": "-100000",
+        "max": "500",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 7
+    },
+    "int": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "min": "-2147483648",
+        "max": "2147483647"
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "INTEGER ENCODE lzo",
+          "col_type": "INTEGER",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "statistics": {
+        "min": "-100000",
+        "max": "500",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 8
+    },
+    "int4": {
+      "type": "integer",
+      "constraints": {
+        "required": false,
+        "min": "-2147483648",
+        "max": "2147483647"
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "INTEGER ENCODE lzo",
+          "col_type": "INTEGER",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "statistics": {
+        "min": "-100000",
+        "max": "500",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 9
+    },
+    "real": {
+      "type": "decimal",
+      "constraints": {
+        "required": false,
+        "fp_total_bits": 32,
+        "fp_significand_bits": 24
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        }
+      },
+      "statistics": {
+        "min": "-100.9923382",
+        "max": "500.233432",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 10
+    },
+    "float4": {
+      "type": "decimal",
+      "constraints": {
+        "required": false,
+        "fp_total_bits": 32,
+        "fp_significand_bits": 24
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "REAL",
+          "col_type": "REAL"
+        }
+      },
+      "statistics": {
+        "min": "-100.9923382",
+        "max": "500.233432",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 11
+    },
+    "double": {
+      "type": "decimal",
+      "constraints": {
+        "required": false,
+        "fp_total_bits": 64,
+        "fp_significand_bits": 53
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        }
+      },
+      "statistics": {
+        "min": "-100.9923382",
+        "max": "500.233432",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 12
+    },
+    "float8": {
+      "type": "decimal",
+      "constraints": {
+        "required": false,
+        "fp_total_bits": 64,
+        "fp_significand_bits": 53
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        }
+      },
+      "statistics": {
+        "min": "-100.9923382",
+        "max": "500.233432",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 13
+    },
+    "float": {
+      "type": "decimal",
+      "constraints": {
+        "required": false,
+        "fp_total_bits": 64,
+        "fp_significand_bits": 53
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "DOUBLE PRECISION",
+          "col_type": "DOUBLE PRECISION"
+        }
+      },
+      "statistics": {
+        "min": "-100.9923382",
+        "max": "500.233432",
+        "rows_sampled": 2,
+        "total_rows": 2
+      },
+      "index": 14
+    },
+    "bool": {
+      "type": "boolean",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "BOOLEAN",
+          "col_type": "BOOLEAN"
+        }
+      },
+      "index": 15
+    },
+    "boolean": {
+      "type": "boolean",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "BOOLEAN",
+          "col_type": "BOOLEAN"
+        }
+      },
+      "index": 16
+    },
+    "char": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "CHAR(1) ENCODE lzo",
+          "col_type": "CHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 17
+    },
+    "character": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "CHAR(1) ENCODE lzo",
+          "col_type": "CHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 18
+    },
+    "nchar": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "CHAR(1) ENCODE lzo",
+          "col_type": "CHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 19
+    },
+    "bpchar": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "CHAR(1) ENCODE lzo",
+          "col_type": "CHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 20
+    },
+    "num": {
+      "type": "integer",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "INTEGER ENCODE lzo",
+          "col_type": "INTEGER",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 21
+    },
+    "numstr": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 22
+    },
+    "str": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 23
+    },
+    "varchar": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 24
+    },
+    "character_varying": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 25
+    },
+    "nvarchar": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 26
+    },
+    "text": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 27
+    },
+    "comma": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(1) ENCODE lzo",
+          "col_type": "VARCHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 28
+    },
+    "doublequote": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 1
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(1) ENCODE lzo",
+          "col_type": "VARCHAR(1)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 29
+    },
+    "quotecommaquote": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 3
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(3) ENCODE lzo",
+          "col_type": "VARCHAR(3)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 30
+    },
+    "newlinestr": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 111
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(111) ENCODE lzo",
+          "col_type": "VARCHAR(111)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 31
+    },
+    "date": {
+      "type": "date",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "DATE ENCODE lzo",
+          "col_type": "DATE",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 32
+    },
+    "time": {
+      "type": "string",
+      "constraints": {
+        "required": false,
+        "max_length_bytes": 8
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "VARCHAR(8) ENCODE lzo",
+          "col_type": "VARCHAR(8)",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 33
+    },
+    "timestamp": {
+      "type": "datetime",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "TIMESTAMP WITHOUT TIME ZONE ENCODE lzo",
+          "col_type": "TIMESTAMP WITHOUT TIME ZONE",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 34
+    },
+    "timestamp_without_time_zone": {
+      "type": "datetime",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "TIMESTAMP WITHOUT TIME ZONE ENCODE lzo",
+          "col_type": "TIMESTAMP WITHOUT TIME ZONE",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 35
+    },
+    "timestamptz": {
+      "type": "datetimetz",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "TIMESTAMP WITH TIME ZONE ENCODE lzo",
+          "col_type": "TIMESTAMP WITH TIME ZONE",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 36
+    },
+    "timestamp_with_time_zone": {
+      "type": "datetimetz",
+      "constraints": {
+        "required": false
+      },
+      "representations": {
+        "origin": {
+          "rep_type": "sql/redshift",
+          "col_ddl": "TIMESTAMP WITH TIME ZONE ENCODE lzo",
+          "col_type": "TIMESTAMP WITH TIME ZONE",
+          "col_modifiers": "ENCODE lzo"
+        }
+      },
+      "index": 37
+    }
+  },
+  "known_representations": {
+    "origin": {
+      "type": "sql/redshift",
+      "table_ddl": "CREATE TABLE IF NOT EXISTS \"vbroz\".\"multitest\"\n(\n\t\"numeric\" NUMERIC(2,1)   ENCODE lzo\n\t,\"decimal\" NUMERIC(2,1)   ENCODE lzo\n\t,\"smallint\" SMALLINT   ENCODE lzo\n\t,\"int2\" SMALLINT   ENCODE lzo\n\t,\"bigint\" BIGINT   ENCODE lzo\n\t,\"int8\" BIGINT   ENCODE lzo\n\t,\"integer\" INTEGER   ENCODE lzo\n\t,\"int\" INTEGER   ENCODE lzo\n\t,\"int4\" INTEGER   ENCODE lzo\n\t,\"real\" REAL   \n\t,\"float4\" REAL   \n\t,\"double\" DOUBLE PRECISION   \n\t,\"float8\" DOUBLE PRECISION   \n\t,\"float\" DOUBLE PRECISION   \n\t,\"bool\" BOOLEAN   \n\t,\"boolean\" BOOLEAN   \n\t,\"char\" CHAR(1)   ENCODE lzo\n\t,\"character\" CHAR(1)   ENCODE lzo\n\t,\"nchar\" CHAR(1)   ENCODE lzo\n\t,\"bpchar\" CHAR(1)   ENCODE lzo\n\t,\"num\" INTEGER   ENCODE lzo\n\t,\"numstr\" VARCHAR(3)   ENCODE lzo\n\t,\"str\" VARCHAR(3)   ENCODE lzo\n\t,\"varchar\" VARCHAR(3)   ENCODE lzo\n\t,\"character_varying\" VARCHAR(3)   ENCODE lzo\n\t,\"nvarchar\" VARCHAR(3)   ENCODE lzo\n\t,\"text\" VARCHAR(3)   ENCODE lzo\n\t,\"comma\" VARCHAR(1)   ENCODE lzo\n\t,\"doublequote\" VARCHAR(1)   ENCODE lzo\n\t,\"quotecommaquote\" VARCHAR(3)   ENCODE lzo\n\t,\"newlinestr\" VARCHAR(111)   ENCODE lzo\n\t,\"date\" DATE   ENCODE lzo\n\t,\"time\" VARCHAR(8)   ENCODE lzo\n\t,\"timestamp\" TIMESTAMP WITHOUT TIME ZONE   ENCODE lzo\n\t,\"timestamp_without_time_zone\" TIMESTAMP WITHOUT TIME ZONE   ENCODE lzo\n\t,\"timestamptz\" TIMESTAMP WITH TIME ZONE   ENCODE lzo\n\t,\"timestamp_with_time_zone\" TIMESTAMP WITH TIME ZONE   ENCODE lzo\n)\nDISTSTYLE EVEN\n;"
+    }
+  }
+}
