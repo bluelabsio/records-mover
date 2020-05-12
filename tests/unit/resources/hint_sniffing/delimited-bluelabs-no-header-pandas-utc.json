@@ -8,5 +8,5 @@
     "escape": "\\",
     "header-row": false
   },
-  "notes": "Nothing here is correctly guessed by our current system.  Boo."
+  "notes": "Escaping is not currently sniffed.  Header-row detection seems iffy."
 }

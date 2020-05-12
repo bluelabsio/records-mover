@@ -13,5 +13,5 @@
     "record-terminator": "\u0002",
     "header-row": false
   },
-  "notes": "This one is a disaster in terms of what is able to be determined"
+  "notes": "Escaping is not currently sniffed.  We only sniff common newline types.  Header-row detection seems fishy."
 }

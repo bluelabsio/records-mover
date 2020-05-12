@@ -8,5 +8,5 @@
   "initial_hints": {
     "escape": null
   },
-  "notes": "Doesn't look like current code tries to sniff quoting"
+  "notes": "Escaping is not currently sniffed."
 }

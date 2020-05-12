@@ -8,5 +8,5 @@
   "initial_hints": {
     "escape": null
   },
-  "notes": null
+  "notes": "Escaping is not currently sniffed."
 }
