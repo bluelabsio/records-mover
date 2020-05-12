@@ -244,12 +244,8 @@ configuration provided to it outside of this spec).
 
   Default value is `"UTF8"`
 
-* `dateformat`: Valid values: `null`, `"YYYY-MM-DD"`, `"MM-DD-YYYY"`,
+* `dateformat`: Valid values: `"YYYY-MM-DD"`, `"MM-DD-YYYY"`,
   `"DD-MM-YYYY"`, `"MM/DD/YY"`.
-
-  `null` implies that that date format is unknown, and that the
-  implementation SHOULD generate using their default value and parse
-  permissively.
 
   See
   [Redshift docs](https://docs.aws.amazon.com/redshift/latest/dg/r_DATEFORMAT_and_TIMEFORMAT_strings.html)
@@ -268,7 +264,7 @@ configuration provided to it outside of this spec).
 
 * `datetimeformattz`: Valid values: `"YYYY-MM-DD HH:MI:SSOF"`,
   `"YYYY-MM-DD HH:MI:SS"`, `"YYYY-MM-DD HH24:MI:SSOF"`,
-  `"YYYY-MM-DD HH24:MI:SSOF"`, `"MM/DD/YY HH24:MI"`.  See
+  and `"MM/DD/YY HH24:MI"`.  See
   [Redshift docs](https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-data-conversion.html#copy-timeformat)
   for more information (note that `HH:` is equivalent to `HH24:` and
   that if you don't provide an offset (`OF`), times are assumed to be
@@ -277,10 +273,12 @@ configuration provided to it outside of this spec).
   Default value is `"YYYY-MM-DD HH:MI:SSOF"`.
 
 * `datetimeformat`: Valid values: `"YYYY-MM-DD HH24:MI:SS"`,
-  `"YYYY-MM-DD HH12:MI AM"`, `"MM/DD/YY HH24:MI"`.
+  `"YYYY-MM-DD HH:MI:SS"`, `"YYYY-MM-DD HH12:MI AM"`, `"MM/DD/YY HH24:MI"`.
   See
   [Redshift docs](https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-data-conversion.html#copy-timeformat)
-  for more information.
+  for more information (note that `HH:` is equivalent to `HH24:` and
+  that if you don't provide an offset (`OF`), times are assumed to be
+  in UTC).
 
   Default value is `"YYYY-MM-DD HH:MI:SS"`.
 
