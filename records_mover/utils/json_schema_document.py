@@ -1,5 +1,5 @@
 import inspect
-from ..types import JsonSchema
+from ..mover_types import JsonSchema
 from typing import Optional, List, Union, TypeVar
 
 

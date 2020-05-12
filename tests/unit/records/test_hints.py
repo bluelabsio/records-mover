@@ -1,5 +1,6 @@
-from records_mover.records.hints import sniff_hints, sniff_hints_from_fileobjs, sniff_encoding_hint
-from records_mover.records import BootstrappingRecordsHints
+from records_mover.records.delimited.sniff import (
+    sniff_hints, sniff_hints_from_fileobjs, sniff_encoding_hint, BootstrappingRecordsHints
+)
 from mock import MagicMock, patch
 import io
 import unittest
@@ -34,9 +35,9 @@ class TestHints(unittest.TestCase):
                                 f"Expected at least these hints while reading {basename}: "
                                 f"{required_hints}, found these hints: {hints}")
 
-    @patch('records_mover.records.hints.csv')
-    @patch('records_mover.records.hints.stream_csv')
-    @patch('records_mover.records.hints.io')
+    @patch('records_mover.records.delimited.sniff.csv')
+    @patch('records_mover.records.delimited.sniff.stream_csv')
+    @patch('records_mover.records.delimited.sniff.io')
     def test_sniff_hints_from_fileobjs(self,
                                        mock_io,
                                        mock_stream_csv,

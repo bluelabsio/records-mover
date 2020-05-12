@@ -81,8 +81,8 @@ class TestFactory(unittest.TestCase):
                                out_of_band_column_headers=None)
         self.assertEqual(out, mock_GoogleSheetsRecordsSource.return_value)
 
-    @patch('records_mover.records.compression.os')
-    @patch('records_mover.records.compression.urlparse')
+    @patch('records_mover.records.delimited.compression.os')
+    @patch('records_mover.records.delimited.compression.urlparse')
     @patch('records_mover.records.sources.factory.pathlib')
     def test_local_file(self,
                         mock_pathlib,

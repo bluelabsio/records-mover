@@ -2,20 +2,20 @@
 
 Packages inside include:
 
-* [records](./records_mover/records/), which is the core API you
+* [records](../records_mover/records/), which is the core API you
   can use to move relational data from one place to another.
-* [url](./records_mover/url/), which offers some abstractions
+* [url](../records_mover/url/), which offers some abstractions
   across different filesystem-like things (e.g., S3/HTTP/local
   filesystems, maybe SFTP in the future)
-* [db](./records_mover/db/), which adds some functionality on top of
+* [db](../records_mover/db/), which adds some functionality on top of
   SQLAlchemy for various different database types.
-* [creds](./records_mover/creds/), which manages credentials and
+* [creds](../records_mover/creds/), which manages credentials and
   other connection details.
-* [pandas](./records_mover/pandas/), which adds functionality on top
+* [pandas](../records_mover/pandas/), which adds functionality on top
   of the Pandas data science framework.
-* [airflow](./records_mover/airflow/), which helps interface parts
+* [airflow](../records_mover/airflow/), which helps interface parts
   of this library to DAGS running under Airflow.
-* [utils](./records_mover/utils/), which is the usual junk drawer of
+* [utils](../records_mover/utils/), which is the usual junk drawer of
   things that haven't grown enough mass to be exported into their own
   package.
 

@@ -1,5 +1,5 @@
 from ...utils import quiet_remove
-from ...records.hints import cant_handle_hint
+from ...records.delimited import cant_handle_hint
 from sqlalchemy_redshift.commands import Format, Encoding, Compression
 from typing import Dict, Optional, Set
 from ...records import RecordsHints

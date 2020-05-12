@@ -6,79 +6,14 @@ import io
 import logging
 import csv
 from .types import HintEncoding, HintRecordTerminator, HintQuoting
+from .conversions import hint_compression_from_pandas, hint_encoding_from_chardet
 import pandas
-from typing import Iterable, List, IO, Optional, Dict, Iterator, TYPE_CHECKING
+from typing import List, IO, Optional, Iterator, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader
 
 
 logger = logging.getLogger(__name__)
-
-
-def complain_on_unhandled_hints(fail_if_dont_understand: bool,
-                                unhandled_hints: Iterable[str],
-                                hints: RecordsHints) -> None:
-    unhandled_bindings = [f"{k}={hints[k]}" for k in unhandled_hints]
-    unhandled_bindings_str = ", ".join(unhandled_bindings)
-    if len(unhandled_bindings) > 0:
-        if fail_if_dont_understand:
-            err = "Implement these records_format hints or try again with " +\
-                f"fail_if_dont_understand=False': {unhandled_bindings_str}"
-            raise NotImplementedError(err)
-        else:
-            logger.warning(f"Did not understand these hints: {unhandled_bindings_str}")
-
-
-def cant_handle_hint(fail_if_cant_handle_hint: bool, hint_name: str, hints: RecordsHints) -> None:
-    if not fail_if_cant_handle_hint:
-        logger.warning("Ignoring hint {hint_name} = {hint_value}"
-                       .format(hint_name=hint_name,
-                               hint_value=repr(hints[hint_name])))
-    else:
-        raise NotImplementedError(f"Implement hint {hint_name}={repr(hints[hint_name])} " +
-                                  "or try again with fail_if_cant_handle_hint=False")
-
-
-python_date_format_from_hints = {
-    'YYYY-MM-DD': '%Y-%m-%d',
-    'MM/DD/YY': '%m/%d/%Y',
-    'DD/MM/YY': '%d/%m/%Y',
-}
-
-python_time_format_from_hints = {
-    'HH24:MI:SS': '%H:%M:%S',
-    'HH12:MI AM': '%I:%M:%S %p',
-}
-
-hint_encoding_from_pandas: Dict[str, HintEncoding] = {
-    'utf-8': 'UTF8',
-    'utf-16': 'UTF16',
-    'utf-16-le': 'UTF16LE',
-    'utf-16-be': 'UTF16BE',
-}
-
-hint_encoding_from_chardet: Dict[str, HintEncoding] = {
-    'UTF-8-SIG': 'UTF8BOM',
-    'UTF-16': 'UTF16',
-    'ISO-8859-1': 'LATIN1',
-    # For some reason this is lowercase:
-    #  https://github.com/chardet/chardet/blob/17218468eb16b7d0068bce7e4d20bac70f0bf555/chardet/utf8prober.py#L51
-    'utf-8': 'UTF8',
-    # But let's be ready if they change their minds:
-    'UTF-8': 'UTF8',
-    'Windows-1252': 'CP1252',
-    # even if the only data it saw was in ASCII, let's be ready to see more
-    'ascii': 'UTF8',
-}
-
-hint_compression_from_pandas = {
-    # https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html
-    # https://github.com/bluelabsio/knowledge/
-    #    blob/master/Engineering/Architecture/JobDataExchange/output-design.md#hints
-    'gzip': 'GZIP',
-    'bz2': 'BZIP',
-    None: None,
-}
 
 
 def csv_hints_from_reader(reader: 'TextFileReader') -> RecordsHints:
@@ -299,4 +234,4 @@ def sniff_hints(fileobj: IO[bytes],
         **initial_hints  # type: ignore
     }
     logger.info(f"Inferred hints from combined sources: {out}")
-    return out  # type: ignore
+    return out

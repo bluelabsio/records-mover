@@ -195,7 +195,6 @@ postgres_dependencies_source = [
 cli_dependencies_base = [
     'odictliteral',
     'jsonschema',
-    'typing_inspect',
     'docstring_parser',
 ]
 
@@ -255,9 +254,11 @@ setup(name='records-mover',
           'PyYAML<5.3',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
-          'db-facts>=3,<4',
+          'db-facts>=4,<5',
           'chardet',
-          'tenacity>=6<7'
+          'tenacity>=6<7',
+          'typing_inspect',
+          'typing-extensions',
       ],
       extras_require={
           'airflow': airflow_dependencies,

@@ -1,7 +1,7 @@
 from ...utils.json_schema import method_signature_to_json_schema, JsonParameter, JsonSchemaDocument
 from ..existing_table_handling import ExistingTableHandling
 from typing import Any, Dict, List, Callable
-from ...types import JsonSchema
+from ...mover_types import JsonSchema
 from .hints import SUPPORTED_HINTS
 
 
