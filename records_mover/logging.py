@@ -63,7 +63,6 @@ def set_stream_logging(name: str = 'records_mover',
     adjusted_level = _adjusted_log_level(level, name)
     logger = logging.getLogger(name)
     logger.setLevel(adjusted_level)
-
     wrapper = SecretsRedactingLogStream(stream)
     handler = logging.StreamHandler(stream=wrapper)
     handler.setLevel(adjusted_level)
