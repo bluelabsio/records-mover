@@ -55,9 +55,6 @@ class TestHints(unittest.TestCase):
                                         initial_hints=mock_initial_hints)
         self.assertEqual(out, {
             'compression': 'GZIP',
-            'dateformat': 'YYYY-MM-DD',
-            'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
-            'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
             'doublequote': mock_csv.Sniffer().sniff().doublequote,
             'encoding': 'UTF8',
             'quotechar': mock_csv.Sniffer().sniff().quotechar,
@@ -65,7 +62,6 @@ class TestHints(unittest.TestCase):
             'field-delimiter': ',',
             'header-row': mock_csv.Sniffer().has_header(),
             'record-terminator': str(mock_io.TextIOWrapper.return_value.newlines),
-            'timeonlyformat': 'HH12:MI AM'
         })
 
     def test_sniff_hints_from_fileobjs_nonseekable(self):
