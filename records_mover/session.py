@@ -54,8 +54,8 @@ def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
     #
     # https://github.com/exhuma/config_resolver/issues/69
     logging.getLogger('config_resolver').setLevel(logging.ERROR)
-    result = get_config('records_mover', 'bluelabs')
-    cfg = result.config
+    config_result = get_config('records_mover', 'bluelabs')
+    cfg = config_result.config
     if 'aws' in cfg:
         s3_scratch_url: Optional[str] = cfg['aws'].get('s3_scratch_url')
         if s3_scratch_url is not None:
