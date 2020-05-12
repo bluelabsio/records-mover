@@ -10,8 +10,10 @@
   },
   "initial_hints": {
     "escape": null,
+    "field-delimiter": "\u0001",
     "record-terminator": "\u0002",
+    "doublequote": false,
     "header-row": false
   },
-  "notes": "Escaping is not currently sniffed.  We only sniff common newline types.  Header-row detection seems fishy."
+  "notes": "Escaping is not currently sniffed.  We only sniff common newline types.  The Python csv.Sniffer module doesn't work with non-standard newline types."
 }

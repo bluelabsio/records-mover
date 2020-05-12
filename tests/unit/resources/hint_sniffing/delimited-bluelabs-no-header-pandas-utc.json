@@ -5,8 +5,7 @@
     "quoting": null
   },
   "initial_hints": {
-    "escape": "\\",
-    "header-row": false
+    "escape": "\\"
   },
-  "notes": "Escaping is not currently sniffed.  Header-row detection seems iffy."
+  "notes": "Escaping is not currently sniffed."
 }

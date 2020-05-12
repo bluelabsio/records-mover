@@ -111,6 +111,7 @@ if TYPE_CHECKING:
                                               'quoting': HintQuoting,
                                               'header-row': HintHeaderRow,
                                               'field-delimiter': HintFieldDelimiter,
+                                              'record-terminator': HintRecordTerminator,
                                               'encoding': HintEncoding,
                                               'escape': HintEscape,
                                               'compression': HintCompression,

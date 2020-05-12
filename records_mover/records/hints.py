@@ -87,7 +87,6 @@ def csv_hints_from_reader(reader: 'TextFileReader') -> RecordsHints:
     # https://github.com/pandas-dev/pandas/blob/e9b019b653d37146f9095bb0522525b3a8d9e386/pandas/io/parsers.py#L1903
     # Python parser:
     # https://github.com/pandas-dev/pandas/blob/e9b019b653d37146f9095bb0522525b3a8d9e386/pandas/io/parsers.py#L2253
-    header = reader._engine.header
     quotechar = reader._engine.data.dialect.quotechar
     delimiter = reader._engine.data.dialect.delimiter
     compression = reader._engine.compression
@@ -95,9 +94,8 @@ def csv_hints_from_reader(reader: 'TextFileReader') -> RecordsHints:
     doublequote = reader._engine.doublequote
 
     return {
-        # Note that at least 'escape' doesn't seem to be inferred in
-        # practice, at least by the Python driver here
-        'header-row': True if header is not None else False,
+        # Note that at least 'escape' and 'header-row' don't seem to be inferred in
+        # practice, at least by the Python driver in Pandas
         'field-delimiter': delimiter,
         'compression': hint_compression_from_pandas[compression],
         'quotechar': quotechar,
@@ -207,16 +205,39 @@ def csv_hints_from_python(fileobj: IO[bytes],
             # lineterminator.
             # https://github.com/python/cpython/blob/master/Lib/csv.py#L165
             python_encoding = python_encoding_from_hint[encoding_hint]
+            #
+            # TextIOWrapper can only handle standard newline types:
+            #
+            # https://docs.python.org/3/library/io.html#io.TextIOWrapper
+            #
+            if record_terminator_hint not in [None, '\n', '\r', '\r\n']:
+                logger.info("Unable to infer file with non-standard newlines "
+                            f"using Python csv.Sniffer {repr(record_terminator_hint)}.")
+                return {}
+            text_fileobj = io.TextIOWrapper(fileobj,
+                                            encoding=python_encoding,
+                                            newline=record_terminator_hint)
             try:
-                text_fileobj = io.TextIOWrapper(fileobj,
-                                                encoding=python_encoding,
-                                                newline=record_terminator_hint)
                 # TODO: How to get 1024?  processing instructions?
-                dialect = csv.Sniffer().sniff(text_fileobj.read(1024))
+                sniffer = csv.Sniffer()
+                sample = text_fileobj.read(1024)
+                #
+                # the CSV sniffer's has_header() method seems to only
+                # cope with DOS and UNIX newlines, not Mac.  So let's give it
+                # UNIX newlines if we know enough to translate, since
+                # we're not using it to sniff newline format anyway.
+                #
+                if record_terminator_hint is not None and record_terminator_hint != '\n':
+                    sample_with_unix_newlines = sample.replace(record_terminator_hint, '\n')
+                else:
+                    sample_with_unix_newlines = sample
+                dialect = sniffer.sniff(sample_with_unix_newlines)
+                header_row = sniffer.has_header(sample_with_unix_newlines)
                 out: RecordsHints = {
                     'doublequote': dialect.doublequote,
                     'field-delimiter': dialect.delimiter,
-                    'quotechar': dialect.quotechar
+                    'quotechar': dialect.quotechar,
+                    'header-row': header_row,
                 }
                 logger.info(f"Python csv.Dialect sniffed: {out}")
                 return out
@@ -266,7 +287,11 @@ def sniff_hints(fileobj: IO[bytes],
         streaming_hints['encoding'] = encoding_hint
     final_encoding_hint: HintEncoding = (encoding_hint or 'UTF8')
     other_inferred_csv_hints = {}
-    record_terminator_hint = infer_newline_format(fileobj, final_encoding_hint)
+    record_terminator_hint: Optional[HintRecordTerminator] = None
+    if 'record-terminator' in initial_hints:
+        record_terminator_hint = initial_hints['record-terminator']
+    else:
+        record_terminator_hint = infer_newline_format(fileobj, final_encoding_hint)
     if record_terminator_hint is not None:
         other_inferred_csv_hints['record-terminator'] = record_terminator_hint
         python_inferred_hints = csv_hints_from_python(fileobj,

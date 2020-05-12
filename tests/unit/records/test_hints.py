@@ -48,6 +48,7 @@ class TestHints(unittest.TestCase):
             'field-delimiter': ','
         }
         mock_streaming_engine = mock_stream_csv.return_value.__enter__.return_value._engine
+        mock_io.TextIOWrapper.return_value.newlines = '\n'
         mock_streaming_engine.compression = 'gzip'
         mock_streaming_engine.encoding = 'utf-8'
         out = sniff_hints_from_fileobjs(fileobjs=mock_fileobjs,
@@ -62,7 +63,7 @@ class TestHints(unittest.TestCase):
             'quotechar': mock_csv.Sniffer().sniff().quotechar,
             'quoting': 'minimal',
             'field-delimiter': ',',
-            'header-row': True,
+            'header-row': mock_csv.Sniffer().has_header(),
             'record-terminator': str(mock_io.TextIOWrapper.return_value.newlines),
             'timeonlyformat': 'HH12:MI AM'
         })
