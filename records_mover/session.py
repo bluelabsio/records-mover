@@ -42,13 +42,7 @@ def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
 
     # config_resolver logs at the WARNING level for each time it
     # attempts to load a config file and doesn't find it - which given
-    # it searches a variety of places, is quite noisy:
-    #
-    #   group=bluelabs:app=records_mover:Skipping unreadable file /etc/bluelabs/records_mover/app.ini (File not found)
-    #   group=bluelabs:app=records_mover:Skipping unreadable file /etc/xdg/bluelabs/records_mover/app.ini (File not found)
-    #   group=bluelabs:app=records_mover:Skipping unreadable file /Users/broz/.config/bluelabs/records_mover/app.ini (File not found)
-    #
-    # Let's turn that off.
+    # it searches a variety of places, is quite noisy.
     #
     # https://github.com/exhuma/config_resolver/blob/master/doc/intro.rst#logging
     #
