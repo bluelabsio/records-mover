@@ -1,7 +1,7 @@
 import io
 from contextlib import contextmanager
 from records_mover.records.delimited import BootstrappingRecordsHints
-from typing import Union, IO, Optional, Iterator, TYPE_CHECKING
+from typing import Union, IO, Iterator, TYPE_CHECKING
 from .conversions import (
     python_encoding_from_hint,
     pandas_compression_from_hint,
