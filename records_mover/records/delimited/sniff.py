@@ -6,6 +6,7 @@ import io
 import logging
 import csv
 import gzip
+import bz2
 from .types import HintEncoding, HintRecordTerminator, HintQuoting, HintCompression
 from .conversions import hint_compression_from_pandas, hint_encoding_from_chardet
 import pandas
@@ -50,7 +51,7 @@ def rewound_decompressed_fileobj(fileobj: IO[bytes],
         elif compression == 'LZO':
             raise NotImplementedError
         elif compression == 'BZIP':
-            raise NotImplementedError
+            yield bz2.BZ2File(mode='rb', filename=fileobj_after_rewind)  # type: ignore
         else:
             _assert_never(compression)
 
