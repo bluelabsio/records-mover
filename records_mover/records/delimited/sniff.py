@@ -154,6 +154,13 @@ def csv_hints_from_python(fileobj: IO[bytes],
             }
             logger.info(f"Python csv.Dialect sniffed: {out}")
             return out
+        except csv.Error as e:
+            if str(e) == 'Could not determine delimiter':
+                logger.info(f"Error from csv.Sniffer--potential single-field file: {str(e)}")
+                return {}
+            else:
+                logger.info(f"Error from csv.Sniffer--potential single-field file: {str(e)}")
+                raise
         finally:
             text_fileobj.detach()
 
