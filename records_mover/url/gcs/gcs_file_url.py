@@ -5,7 +5,7 @@ from smart_open.gcs import open as gs_open
 import google.cloud.storage
 
 
-class GSFileUrl(BaseFileUrl):
+class GCSFileUrl(BaseFileUrl):
     client: google.cloud.storage.Client
 
     def __init__(self,

@@ -20,25 +20,25 @@ def init_urls() -> None:
         logger.debug('No S3 support', exc_info=True)
         S3Url = None  # type: ignore
     try:
-        from .gs.gs_file_url import GSFileUrl
-        from .gs.gs_directory_url import GSDirectoryUrl
+        from .gcs.gcs_file_url import GCSFileUrl
+        from .gcs.gcs_directory_url import GCSDirectoryUrl
     except ModuleNotFoundError:
         logger.debug('No Google Cloud Storage support', exc_info=True)
-        GSFileUrl = None  # type: ignore
-        GSDirectoryUrl = None  # type: ignore
+        GCSFileUrl = None  # type: ignore
+        GCSDirectoryUrl = None  # type: ignore
     from .filesystem import FilesystemDirectoryUrl, FilesystemFileUrl
     from .http import HttpFileUrl
     if len(directory_url_ctors) == 0:
         if S3Url is not None:
             directory_url_ctors['s3'] = S3Url
-        if GSDirectoryUrl is not None:
-            directory_url_ctors['gs'] = GSDirectoryUrl
+        if GCSDirectoryUrl is not None:
+            directory_url_ctors['gs'] = GCSDirectoryUrl
         directory_url_ctors['file'] = FilesystemDirectoryUrl
     if len(file_url_ctors) == 0:
         if S3Url is not None:
             file_url_ctors['s3'] = S3Url
-        if GSFileUrl is not None:
-            file_url_ctors['gs'] = GSFileUrl
+        if GCSFileUrl is not None:
+            file_url_ctors['gs'] = GCSFileUrl
         file_url_ctors['file'] = FilesystemFileUrl
 
         file_url_ctors['http'] = HttpFileUrl
