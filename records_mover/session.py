@@ -207,11 +207,18 @@ class Session():
                          exc_info=True)
             return None
 
-        if self._default_gcp_creds_name is None:
-            return google.cloud.storage.Client()
-        else:
-            gcs_creds = self.creds.gcs(self._default_gcp_creds_name)
-            return google.cloud.storage.Client(credentials=gcs_creds)
+        try:
+            if self._default_gcp_creds_name is None:
+                return google.cloud.storage.Client()
+            else:
+                gcs_creds = self.creds.gcs(self._default_gcp_creds_name)
+                return google.cloud.storage.Client(credentials=gcs_creds)
+        except OSError:
+            # Example:
+            #   OSError: Project was not passed and could not be determined from the environment.
+            logger.debug("google.cloud.storage not configured",
+                         exc_info=True)
+            return None
 
     def set_stream_logging(self,
                            name: str = 'records_mover',
