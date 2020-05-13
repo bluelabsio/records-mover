@@ -4,6 +4,7 @@ from records_mover.records.delimited.sniff import (
 from mock import MagicMock, patch
 import io
 import gzip
+import bz2
 import unittest
 import json
 import os
