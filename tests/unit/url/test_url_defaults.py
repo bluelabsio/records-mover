@@ -10,5 +10,5 @@ class TestUrl(unittest.TestCase):
 
     def test_init_urls(self):
         init_urls()
-        self.assertEqual(list(url.directory_url_ctors.keys()), ['s3', 'file'])
-        self.assertEqual(list(url.file_url_ctors.keys()), ['s3', 'file', 'http', 'https'])
+        self.assertEqual(list(url.directory_url_ctors.keys()), ['s3', 'gs', 'file'])
+        self.assertEqual(list(url.file_url_ctors.keys()), ['s3', 'gs', 'file', 'http', 'https'])
