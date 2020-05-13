@@ -3,7 +3,6 @@ from contextlib import contextmanager
 from . import RecordsHints, BootstrappingRecordsHints
 from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
-import logging
 import csv
 import gzip
 import bz2
@@ -11,30 +10,13 @@ from .types import HintEncoding, HintRecordTerminator, HintQuoting, HintCompress
 from .conversions import hint_encoding_from_chardet
 import pandas
 from typing import List, IO, Optional, Iterator, NoReturn, Dict
+from records_mover.utils.rewound_fileobj import rewound_fileobj
+import logging
 
 
 logger = logging.getLogger(__name__)
 
 HINT_INFERENCE_SAMPLING_SIZE_BYTES = 1024
-
-
-@contextmanager
-def rewound_fileobj(fileobj: IO[bytes]) -> Iterator[IO[bytes]]:
-    if getattr(fileobj, 'closed', None) is not None:
-        closed = fileobj.closed
-    if closed:
-        logger.warning("Stream already closed")
-        raise OSError('Stream is already closed')
-    if not fileobj.seekable():
-        # OSError is what is thrown when you call .seek() on a
-        # non-rewindable stream.
-        raise OSError('Stream is not rewindable')
-    original_position = fileobj.tell()
-    fileobj.seek(0)
-    try:
-        yield fileobj
-    finally:
-        fileobj.seek(original_position)
 
 
 # mypy way of validating we're covering all cases of an enum
