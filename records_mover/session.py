@@ -249,6 +249,6 @@ class Session():
     @property
     def records(self) -> Records:
         if self._records is None:
-            self._records =  Records(db_driver=self.db_driver,
-                                     url_resolver=self.url_resolver)
+            self._records = Records(db_driver=self.db_driver,
+                                    url_resolver=self.url_resolver)
         return self._records
