@@ -1,4 +1,6 @@
-from records_mover.records.delimited.sniff import rewound_fileobj, infer_newline_format
+from records_mover.records.delimited.sniff import (
+    rewound_fileobj, infer_newline_format, sniff_encoding_hint
+)
 from mock import Mock, patch
 import unittest
 
@@ -24,4 +26,13 @@ class TestSniff(unittest.TestCase):
                                    mock_encoding_hint,
                                    mock_compression)
         mock_text_fileobj.readline.assert_called
+        self.assertIsNone(out)
+
+    @patch('records_mover.records.delimited.sniff.chardet')
+    def test_sniff_encoding_hint_no_result(self,
+                                           mock_chardet):
+        mock_fileobj = Mock(name='fileobj')
+        mock_fileobj.closed = False
+        mock_chardet.result = {}
+        out = sniff_encoding_hint(mock_fileobj)
         self.assertIsNone(out)
