@@ -10,7 +10,6 @@ from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
 from records_mover.logging import set_stream_logging
-from records_mover.utils import lazyprop
 import subprocess
 import os
 import sys
