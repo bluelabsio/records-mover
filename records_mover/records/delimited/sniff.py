@@ -50,27 +50,12 @@ def rewound_decompressed_fileobj(fileobj: IO[bytes],
         elif compression == 'GZIP':
             yield gzip.GzipFile(mode='rb', fileobj=fileobj_after_rewind)  # type: ignore
         elif compression == 'LZO':
-            raise NotImplementedError
+            raise NotImplementedError('Records mover does not currently know how '
+                                      'to decompress LZO files for inspection')
         elif compression == 'BZIP':
             yield bz2.BZ2File(mode='rb', filename=fileobj_after_rewind)
         else:
             _assert_never(compression)
-
-
-def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
-                              initial_hints: BootstrappingRecordsHints) -> RecordsHints:
-    if len(fileobjs) != 1:
-        # https://app.asana.com/0/53283930106309/1131698268455054
-        raise NotImplementedError('Cannot currently sniff hints from mulitple '
-                                  'files--please provide hints')
-    fileobj = fileobjs[0]
-    if not fileobj.seekable():
-        raise NotImplementedError('Cannot currently sniff hints from a pure stream--'
-                                  'please save file to disk and load from there or '
-                                  'provide explicit records format information')
-    hints = sniff_hints(fileobj, initial_hints=initial_hints)
-    fileobj.seek(0)
-    return hints
 
 
 def infer_newline_format(fileobj: IO[bytes],
@@ -214,38 +199,83 @@ def sniff_compression_hint(fileobj: IO[bytes]) -> HintCompression:
         return None
 
 
+def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
+                              initial_hints: BootstrappingRecordsHints) -> RecordsHints:
+    if len(fileobjs) != 1:
+        # https://app.asana.com/0/53283930106309/1131698268455054
+        raise NotImplementedError('Cannot currently sniff hints from mulitple '
+                                  'files--please provide hints')
+    fileobj = fileobjs[0]
+    hints = sniff_hints(fileobj, initial_hints=initial_hints)
+    return hints
+
+
 def sniff_hints(fileobj: IO[bytes],
                 initial_hints: BootstrappingRecordsHints) -> RecordsHints:
+    # Major limitations:
+    #
+    #  * If fileobj isn't rewindable, we can't sniff or we'd keep you
+    #    from being able to use later.
+    #  * We can't sniff from LZO files yet.
+    #  * No detection of 'escape' or date/time format hints.
+    #  * Only limited detection of 'quoting' hint.
     try:
-        if 'compression' in initial_hints:
-            compression_hint = initial_hints['compression']
-        else:
+        #
+        # We'll need to determine compression and encoding to be able
+        # to convert from bytes to characters and figure out the rest:
+        #
+        if 'compression' not in initial_hints:
             compression_hint = sniff_compression_hint(fileobj)
+        else:
+            compression_hint = initial_hints['compression']
         if 'encoding' not in initial_hints:
             encoding_hint = sniff_encoding_hint(fileobj)
         else:
             encoding_hint = initial_hints['encoding']
-
-        streaming_hints = initial_hints.copy()
-        streaming_hints['compression'] = compression_hint
-        if encoding_hint is not None:
-            streaming_hints['encoding'] = encoding_hint
+        # If guessing was inconclusive, default to UTF8
         final_encoding_hint: HintEncoding = (encoding_hint or 'UTF8')
-        other_inferred_csv_hints = {}
+
+        #
+        # Now we can figure out what type of newlines are used in the
+        # file...
+        #
         record_terminator_hint: Optional[HintRecordTerminator] = None
         if 'record-terminator' in initial_hints:
             record_terminator_hint = initial_hints['record-terminator']
         else:
-            record_terminator_hint = infer_newline_format(fileobj, final_encoding_hint,
+            record_terminator_hint = infer_newline_format(fileobj,
+                                                          final_encoding_hint,
                                                           compression_hint)
+
+        #
+        # Now we have enough to study each line of the file, Python's
+        # csv.Sniffer() can teach us some things about how each field
+        # is encoded and whether there's a header:
+        #
+        other_inferred_csv_hints = {}
         if record_terminator_hint is not None:
             other_inferred_csv_hints['record-terminator'] = record_terminator_hint
             python_inferred_hints = csv_hints_from_python(fileobj,
                                                           record_terminator_hint,
                                                           final_encoding_hint,
                                                           compression_hint)
+
+        #
+        # Pandas can both validate that we chose correctly by parsing
+        # the file using what we have so far, and give us a crude shot
+        # at finding a working 'quoting' hint:
+        #
+        streaming_hints = initial_hints.copy()
+        streaming_hints['compression'] = compression_hint
+        if encoding_hint is not None:
+            streaming_hints['encoding'] = encoding_hint
         streaming_hints.update(python_inferred_hints)  # type: ignore
         pandas_inferred_hints = csv_hints_from_pandas(fileobj, streaming_hints)
+
+        #
+        # Let's combine these together and present back a refined
+        # version of the initial hints:
+        #
         out = {
             'compression': compression_hint,
             **pandas_inferred_hints,  # type: ignore
@@ -258,4 +288,7 @@ def sniff_hints(fileobj: IO[bytes],
         return out
     except OSError:
         logger.warning("Could not sniff hints, as stream is not rewindable")
+        return {}
+    except NotImplementedError as e:
+        logger.warning(f"Could not sniff hints due to current limitations in records mover: {e}")
         return {}
