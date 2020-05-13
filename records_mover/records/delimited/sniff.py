@@ -8,7 +8,6 @@ import gzip
 import bz2
 from .types import HintEncoding, HintRecordTerminator, HintQuoting, HintCompression
 from .conversions import hint_encoding_from_chardet
-import pandas
 from typing import List, IO, Optional, Iterator, NoReturn, Dict
 from records_mover.utils.rewound_fileobj import rewound_fileobj
 import logging
@@ -149,6 +148,8 @@ def csv_hints_from_python(fileobj: IO[bytes],
 
 def csv_hints_from_pandas(fileobj: IO[bytes],
                           streaming_hints: BootstrappingRecordsHints) -> RecordsHints:
+    import pandas
+
     def attempt_parse(quoting: HintQuoting) -> RecordsHints:
         with rewound_fileobj(fileobj) as fresh_fileobj:
             current_hints = streaming_hints.copy()
