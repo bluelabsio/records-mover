@@ -114,11 +114,6 @@ class TestHints(unittest.TestCase):
                                 f"Expected at least these hints while reading {basename}: "
                                 f"{required_hints}, found these hints: {hints}")
 
-    # def test_sniff_hints_lzoed_preinformed(self): # TODO
-    # def test_sniff_hints_lzoed_sniffed(self): # TODO
-
-    # TODO: https://github.com/ir193/python-lzo/blob/master/lzo.py#L44
-
     @patch('records_mover.records.delimited.sniff.csv')
     @patch('records_mover.records.delimited.sniff.stream_csv')
     @patch('records_mover.records.delimited.sniff.io')

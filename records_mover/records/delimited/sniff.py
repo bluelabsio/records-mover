@@ -53,6 +53,8 @@ def rewound_decompressed_fileobj(fileobj: IO[bytes],
         elif compression == 'GZIP':
             yield gzip.GzipFile(mode='rb', fileobj=fileobj_after_rewind)  # type: ignore
         elif compression == 'LZO':
+            # This might be useful to implement this:
+            #  https://github.com/ir193/python-lzo/blob/master/lzo.py#L44
             raise NotImplementedError('Records mover does not currently know how '
                                       'to decompress LZO files for inspection')
         elif compression == 'BZIP':
