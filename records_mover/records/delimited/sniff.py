@@ -8,14 +8,14 @@ import csv
 import gzip
 import bz2
 from .types import HintEncoding, HintRecordTerminator, HintQuoting, HintCompression
-from .conversions import hint_compression_from_pandas, hint_encoding_from_chardet
+from .conversions import hint_encoding_from_chardet
 import pandas
-from typing import List, IO, Optional, Iterator, NoReturn, Dict, TYPE_CHECKING
-if TYPE_CHECKING:
-    from pandas.io.parsers import TextFileReader
+from typing import List, IO, Optional, Iterator, NoReturn, Dict
 
 
 logger = logging.getLogger(__name__)
+
+HINT_INFERENCE_SAMPLING_SIZE_BYTES = 1024
 
 
 @contextmanager
@@ -37,6 +37,9 @@ def rewound_fileobj(fileobj: IO[bytes]) -> Iterator[IO[bytes]]:
         fileobj.seek(original_position)
 
 
+# mypy way of validating we're covering all cases of an enum
+#
+# https://github.com/python/mypy/issues/6366#issuecomment-560369716
 def _assert_never(x: NoReturn) -> NoReturn:
     assert False, "Unhandled type: {}".format(type(x).__name__)
 
@@ -83,10 +86,9 @@ def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[HintEncoding]:
     with rewound_fileobj(fileobj) as fileobj:
         detector = chardet.UniversalDetector()
         while True:
-            chunksize = 512
-            chunk = fileobj.read(chunksize)
+            chunk = fileobj.read(HINT_INFERENCE_SAMPLING_SIZE_BYTES)
             detector.feed(chunk)
-            if detector.done or len(chunk) < chunksize:
+            if detector.done or len(chunk) < HINT_INFERENCE_SAMPLING_SIZE_BYTES:
                 break
         detector.close()
         assert detector.result is not None
@@ -128,9 +130,8 @@ def csv_hints_from_python(fileobj: IO[bytes],
                                         encoding=python_encoding,
                                         newline=record_terminator_hint)
         try:
-            # TODO: How to get 1024?  processing instructions?
             sniffer = csv.Sniffer()
-            sample = text_fileobj.read(1024)
+            sample = text_fileobj.read(HINT_INFERENCE_SAMPLING_SIZE_BYTES)
             #
             # the CSV sniffer's has_header() method seems to only
             # cope with DOS and UNIX newlines, not Mac.  So let's give it
