@@ -42,3 +42,13 @@ rule 'MD029', style: 'ordered'
 # correctly.
 #
 rule 'MD013', code_blocks: false
+
+#
+# MD024
+#
+# Reconfigure MD024 so that it only complains on duplicate header
+# titles if they're actual sublings (as opposed to the same subsection
+# name under two different sections).
+#
+# https://github.com/markdownlint/markdownlint/issues/175
+rule 'MD024', allow_different_nesting: true

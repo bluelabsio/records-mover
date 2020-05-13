@@ -8,7 +8,7 @@ from .processing_instructions import ProcessingInstructions
 from records_mover.cli.job_config_schema_as_args_parser import (JobConfigSchemaAsArgsParser,
                                                                 arguments_output_to_config)
 from records_mover.logging import set_stream_logging
-from ..types import JsonSchema, JobConfig
+from ..mover_types import JsonSchema, JobConfig
 from ..version import __version__
 import sys
 from typing import Callable, Dict, Any, TYPE_CHECKING

@@ -9,7 +9,7 @@ from ..errors import (NoTemporaryBucketConfiguration, LoadUnloadError,
 from ...records.records_directory import RecordsDirectory
 from .export_sql import vertica_export_sql
 from .records_export_options import vertica_export_options
-from ...records.hints import complain_on_unhandled_hints
+from ...records.delimited import complain_on_unhandled_hints
 from ..unloader import Unloader
 import logging
 from typing import Iterator, Optional, Union, List, TYPE_CHECKING

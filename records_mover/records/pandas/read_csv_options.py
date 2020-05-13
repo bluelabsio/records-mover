@@ -1,6 +1,6 @@
 import csv
 from ...utils import quiet_remove
-from ..hints import cant_handle_hint
+from ..delimited import cant_handle_hint
 from ..processing_instructions import ProcessingInstructions
 from ..records_format import DelimitedRecordsFormat
 from records_mover.records.schema import RecordsSchema

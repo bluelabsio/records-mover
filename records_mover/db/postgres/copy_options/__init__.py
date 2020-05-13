@@ -1,5 +1,5 @@
 from records_mover.records.load_plan import RecordsLoadPlan
-from records_mover.records.types import RecordsHints
+from records_mover.records.delimited import RecordsHints
 from records_mover.records.records_format import DelimitedRecordsFormat
 import logging
 from typing import Set, Tuple, Optional

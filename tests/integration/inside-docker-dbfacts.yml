@@ -37,8 +37,8 @@ dbs:
       bq_default_project_id: 'bluelabs-tools-dev'
       bq_default_dataset_id: 'bq_itest'
   demo-itest:
-    db_connect_method: lpass
+    exports_from: lpass
     lastpass_entry: 'itest Demo redshift'
-db_connect_method:
+exports_from:
   lpass:
     pull_lastpass_from: "{{ lastpass_entry }}"

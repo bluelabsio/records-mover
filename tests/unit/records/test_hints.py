@@ -1,15 +1,42 @@
-from records_mover.records.hints import sniff_hints_from_fileobjs, sniff_encoding_hint
-from records_mover.records import BootstrappingRecordsHints
+from records_mover.records.delimited.sniff import (
+    sniff_hints, sniff_hints_from_fileobjs, sniff_encoding_hint, BootstrappingRecordsHints
+)
 from mock import MagicMock, patch
 import io
 import unittest
+import json
+import os
 
 
 class TestHints(unittest.TestCase):
     maxDiff = None
 
-    @patch('records_mover.records.hints.stream_csv')
-    @patch('records_mover.records.hints.io')
+    def test_sniff_hints(self):
+        resources_dir = os.path.dirname(os.path.abspath(__file__)) + '/../resources'
+        hint_sniffing_dir = f"{resources_dir}/hint_sniffing"
+
+        test_cases = [
+            os.path.splitext(os.path.basename(f))[0]
+            for f in os.listdir(hint_sniffing_dir)
+            if (os.path.isfile(os.path.join(hint_sniffing_dir, f)) and
+                os.path.splitext(f)[1] == '.csv')
+        ]
+        for basename in test_cases:
+            csv_filename = f'{hint_sniffing_dir}/{basename}.csv'
+            config_filename = f'{hint_sniffing_dir}/{basename}.json'
+            with open(config_filename, 'r') as config_fileobj:
+                config = json.load(config_fileobj)
+            required_hints = config['required']
+            initial_hints = config['initial_hints']
+
+            with open(csv_filename, 'rb') as fileobj:
+                hints = sniff_hints(fileobj, initial_hints=initial_hints)
+                self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
+                                f"Expected at least these hints while reading {basename}: "
+                                f"{required_hints}, found these hints: {hints}")
+
+    @patch('records_mover.records.delimited.sniff.stream_csv')
+    @patch('records_mover.records.delimited.sniff.io')
     def test_sniff_hints_from_fileobjs(self,
                                        mock_io,
                                        mock_stream_csv) -> None:
