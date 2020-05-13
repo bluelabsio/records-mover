@@ -154,8 +154,8 @@ class TestHints(unittest.TestCase):
         csv_bytes = csv.encode('utf-8', errors='replace')
         with io.BytesIO(csv_bytes) as fileobj:
             fileobj.seekable = lambda: False
-            out = sniff_encoding_hint(fileobj=fileobj)
-        self.assertIsNone(out)
+            with self.assertRaises(OSError):
+                sniff_encoding_hint(fileobj=fileobj)
 
     def test_sniff_hints_from_fileobjs_encodings(self):
         expected_hint = {
@@ -190,4 +190,5 @@ class TestHints(unittest.TestCase):
                 'header-row': True,
                 'record-terminator': '\n'
             }
-            self.assertTrue(set(needed_settings.items()).issubset(set(out.items())))
+            self.assertTrue(set(needed_settings.items()).issubset(set(out.items())),
+                            f"Needed at least {needed_settings}, got {out}")
