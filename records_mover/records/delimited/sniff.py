@@ -5,15 +5,54 @@ from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import logging
 import csv
-from .types import HintEncoding, HintRecordTerminator, HintQuoting
+import gzip
+from .types import HintEncoding, HintRecordTerminator, HintQuoting, HintCompression
 from .conversions import hint_compression_from_pandas, hint_encoding_from_chardet
 import pandas
-from typing import List, IO, Optional, Iterator, TYPE_CHECKING
+from typing import List, IO, Optional, Iterator, NoReturn, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader
 
 
 logger = logging.getLogger(__name__)
+
+
+@contextmanager
+def rewound_fileobj(fileobj: IO[bytes]) -> Iterator[IO[bytes]]:
+    if getattr(fileobj, 'closed', None) is not None:
+        closed = fileobj.closed
+    if closed:
+        logger.warning("Stream already closed")
+        raise OSError('Stream is already closed')
+    if not fileobj.seekable():
+        logger.warning("Stream not rewindable")
+        raise OSError('Stream is not rewindable')
+    original_position = fileobj.tell()
+    fileobj.seek(0)
+    try:
+        yield fileobj
+    finally:
+        fileobj.seek(original_position)
+
+
+def _assert_never(x: NoReturn) -> NoReturn:
+    assert False, "Unhandled type: {}".format(type(x).__name__)
+
+
+@contextmanager
+def rewound_decompressed_fileobj(fileobj: IO[bytes],
+                                 compression: HintCompression) -> Iterator[IO[bytes]]:
+    with rewound_fileobj(fileobj) as fileobj_after_rewind:
+        if compression is None:
+            yield fileobj
+        elif compression == 'GZIP':
+            yield gzip.GzipFile(mode='rb', fileobj=fileobj_after_rewind)  # type: ignore
+        elif compression == 'LZO':
+            raise NotImplementedError
+        elif compression == 'BZIP':
+            raise NotImplementedError
+        else:
+            _assert_never(compression)
 
 
 def csv_hints_from_reader(reader: 'TextFileReader') -> RecordsHints:
@@ -52,10 +91,11 @@ def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
 
 
 def infer_newline_format(fileobj: IO[bytes],
-                         encoding_hint: HintEncoding) ->\
+                         encoding_hint: HintEncoding,
+                         compression: HintCompression) ->\
         Optional[HintRecordTerminator]:
     try:
-        with rewound_fileobj(fileobj) as fileobj:
+        with rewound_decompressed_fileobj(fileobj, compression) as fileobj:
             python_encoding = python_encoding_from_hint[encoding_hint]
             text_fileobj = io.TextIOWrapper(fileobj, encoding=python_encoding)
             try:
@@ -73,24 +113,6 @@ def infer_newline_format(fileobj: IO[bytes],
     except OSError:
         logger.warning("Assuming UNIX newline format, as stream is not rewindable")
         return None
-
-
-@contextmanager
-def rewound_fileobj(fileobj: IO[bytes]) -> Iterator[IO[bytes]]:
-    if getattr(fileobj, 'closed', None) is not None:
-        closed = fileobj.closed
-    if closed:
-        logger.warning("Stream already closed")
-        raise OSError('Stream is already closed')
-    if not fileobj.seekable():
-        logger.warning("Stream not rewindable")
-        raise OSError('Stream is not rewindable')
-    original_position = fileobj.tell()
-    fileobj.seek(0)
-    try:
-        yield fileobj
-    finally:
-        fileobj.seek(original_position)
 
 
 def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[HintEncoding]:
@@ -123,10 +145,12 @@ def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[HintEncoding]:
 
 def csv_hints_from_python(fileobj: IO[bytes],
                           record_terminator_hint: Optional[HintRecordTerminator],
-                          encoding_hint: HintEncoding) -> RecordsHints:
+                          encoding_hint: HintEncoding,
+                          compression: HintCompression) -> RecordsHints:
     # https://docs.python.org/3/library/csv.html#csv.Sniffer
     try:
-        with rewound_fileobj(fileobj) as fileobj:
+        with rewound_decompressed_fileobj(fileobj,
+                                          compression) as fileobj:
             # Sniffer tries to determine quotechar, doublequote,
             # delimiter, skipinitialspace.  does not try to determine
             # lineterminator.
@@ -204,6 +228,7 @@ def csv_hints_from_pandas(fileobj: IO[bytes],
 
 def sniff_hints(fileobj: IO[bytes],
                 initial_hints: BootstrappingRecordsHints) -> RecordsHints:
+    compression = initial_hints.get('compression')
     if 'encoding' not in initial_hints:
         encoding_hint = sniff_encoding_hint(fileobj)
     else:
@@ -218,12 +243,14 @@ def sniff_hints(fileobj: IO[bytes],
     if 'record-terminator' in initial_hints:
         record_terminator_hint = initial_hints['record-terminator']
     else:
-        record_terminator_hint = infer_newline_format(fileobj, final_encoding_hint)
+        record_terminator_hint = infer_newline_format(fileobj, final_encoding_hint,
+                                                      compression)
     if record_terminator_hint is not None:
         other_inferred_csv_hints['record-terminator'] = record_terminator_hint
         python_inferred_hints = csv_hints_from_python(fileobj,
                                                       record_terminator_hint,
-                                                      final_encoding_hint)
+                                                      final_encoding_hint,
+                                                      compression)
     streaming_hints.update(python_inferred_hints)  # type: ignore
     pandas_inferred_hints = csv_hints_from_pandas(fileobj, streaming_hints)
     out = {
