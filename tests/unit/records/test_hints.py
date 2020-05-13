@@ -59,8 +59,24 @@ class TestHints(unittest.TestCase):
                                 f"Expected at least these hints while reading {basename}: "
                                 f"{required_hints}, found these hints: {hints}")
 
-    # def test_sniff_hints_gzipped_preinformed(self): # TODO
-    # def test_sniff_hints_gzipped_sniffed(self): # TODO
+    def test_sniff_hints_gzipped_sniffed(self):
+        for basename in self.sample_file_basenames():
+            csv_filename = f'{self.hint_sniffing_dir}/{basename}.csv'
+            config_filename = f'{self.hint_sniffing_dir}/{basename}.json'
+            with open(config_filename, 'r') as config_fileobj:
+                config = json.load(config_fileobj)
+            required_hints = config['required']
+            initial_hints = config['initial_hints']
+            required_hints['compression'] = 'GZIP'
+
+            with open(csv_filename, 'rb') as uncompressed_fileobj:
+                gzipped_data = gzip.compress(uncompressed_fileobj.read())
+                fileobj = io.BytesIO(gzipped_data)
+                hints = sniff_hints(fileobj, initial_hints=initial_hints)
+                self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
+                                f"Expected at least these hints while reading {basename}: "
+                                f"{required_hints}, found these hints: {hints}")
+
     def test_sniff_hints_bzipped_preinformed(self):
         for basename in self.sample_file_basenames():
             csv_filename = f'{self.hint_sniffing_dir}/{basename}.csv'

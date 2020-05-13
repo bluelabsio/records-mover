@@ -10,7 +10,7 @@ import bz2
 from .types import HintEncoding, HintRecordTerminator, HintQuoting, HintCompression
 from .conversions import hint_compression_from_pandas, hint_encoding_from_chardet
 import pandas
-from typing import List, IO, Optional, Iterator, NoReturn, TYPE_CHECKING
+from typing import List, IO, Optional, Iterator, NoReturn, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas.io.parsers import TextFileReader
 
@@ -24,6 +24,7 @@ def rewound_fileobj(fileobj: IO[bytes]) -> Iterator[IO[bytes]]:
         closed = fileobj.closed
     if closed:
         logger.warning("Stream already closed")
+        # TODO: Am I catching this everywhere?
         raise OSError('Stream is already closed')
     if not fileobj.seekable():
         logger.warning("Stream not rewindable")
@@ -51,7 +52,7 @@ def rewound_decompressed_fileobj(fileobj: IO[bytes],
         elif compression == 'LZO':
             raise NotImplementedError
         elif compression == 'BZIP':
-            yield bz2.BZ2File(mode='rb', filename=fileobj_after_rewind)  # type: ignore
+            yield bz2.BZ2File(mode='rb', filename=fileobj_after_rewind)
         else:
             _assert_never(compression)
 
@@ -227,15 +228,38 @@ def csv_hints_from_pandas(fileobj: IO[bytes],
             return attempt_parse(quoting=None)
 
 
+def sniff_compression_hint(fileobj: IO[bytes]) -> HintCompression:
+    print(f'Sniffing compression')
+    with rewound_fileobj(fileobj) as fileobj_rewound:
+        # https://stackoverflow.com/a/13044946/9795956
+        magic_dict: Dict[bytes, HintCompression] = {
+            b"\x1f\x8b\x08": "GZIP",
+            b"\x42\x5a\x68": "BZIP",
+            # "\x50\x4b\x03\x04": "zip"
+        }
+
+        max_len = max(len(x) for x in magic_dict)
+
+        file_start = fileobj_rewound.read(max_len)
+        for magic, filetype in magic_dict.items():
+            if file_start.startswith(magic):
+                return filetype
+        return None
+
+
 def sniff_hints(fileobj: IO[bytes],
                 initial_hints: BootstrappingRecordsHints) -> RecordsHints:
-    compression = initial_hints.get('compression')
+    if 'compression' in initial_hints:
+        compression_hint = initial_hints['compression']
+    else:
+        compression_hint = sniff_compression_hint(fileobj)
     if 'encoding' not in initial_hints:
         encoding_hint = sniff_encoding_hint(fileobj)
     else:
         encoding_hint = initial_hints['encoding']
 
     streaming_hints = initial_hints.copy()
+    streaming_hints['compression'] = compression_hint
     if encoding_hint is not None:
         streaming_hints['encoding'] = encoding_hint
     final_encoding_hint: HintEncoding = (encoding_hint or 'UTF8')
@@ -245,13 +269,13 @@ def sniff_hints(fileobj: IO[bytes],
         record_terminator_hint = initial_hints['record-terminator']
     else:
         record_terminator_hint = infer_newline_format(fileobj, final_encoding_hint,
-                                                      compression)
+                                                      compression_hint)
     if record_terminator_hint is not None:
         other_inferred_csv_hints['record-terminator'] = record_terminator_hint
         python_inferred_hints = csv_hints_from_python(fileobj,
                                                       record_terminator_hint,
                                                       final_encoding_hint,
-                                                      compression)
+                                                      compression_hint)
     streaming_hints.update(python_inferred_hints)  # type: ignore
     pandas_inferred_hints = csv_hints_from_pandas(fileobj, streaming_hints)
     out = {
