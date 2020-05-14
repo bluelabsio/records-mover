@@ -73,7 +73,13 @@ class BaseDirectoryUrl:
     @contextmanager
     def temporary_directory(self: V) -> Iterator[V]:
         "Yields a temporary DirectoryUrl in current location"
-        raise NotImplementedError()
+        num_chars = 8
+        random_slug = secrets.token_urlsafe(num_chars)
+        temp_loc = self.directory_in_this_directory(random_slug)
+        try:
+            yield temp_loc
+        finally:
+            temp_loc.purge_directory()
 
     def filename(self) -> str:
         "Filename, stripped of any directory information"
@@ -98,6 +104,9 @@ class BaseFileUrl:
     url: str
 
     def __init__(self, url: str, **kwargs) -> None:
+        raise NotImplementedError()
+
+    def _directory(self, url: str) -> BaseDirectoryUrl:
         raise NotImplementedError()
 
     def directory_in_this_directory(self, directory_name: str) -> BaseDirectoryUrl:
@@ -160,7 +169,8 @@ class BaseFileUrl:
 
     def containing_directory(self) -> BaseDirectoryUrl:
         "Returns the parent directory of this file."
-        raise NotImplementedError()
+        parent_url = '/'.join(self.url.split('/')[:-1]) + '/'
+        return self._directory(parent_url)
 
     @contextmanager
     def temporary_directory(self) -> Iterator[BaseDirectoryUrl]:
