@@ -2,4 +2,7 @@ from records_mover.url import BaseDirectoryUrl
 
 
 class GCSDirectoryUrl(BaseDirectoryUrl):
-    pass
+    def __init__(self,
+                 url: str,
+                 **kwargs) -> None:
+        self.url = url

@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+import secrets
 import json
 from records_mover.mover_types import JsonValue
 from typing import TypeVar, Iterator, IO, Any, Optional, List, Union
@@ -27,7 +28,10 @@ class BaseDirectoryUrl:
     def __init__(self, url: str, **kwargs) -> None:
         raise NotImplementedError()
 
-    def directory_in_this_directory(self, directory_name: str) -> 'BaseDirectoryUrl':
+    def _file(self, url: str) -> 'BaseFileUrl':
+        raise NotImplementedError
+
+    def directory_in_this_directory(self: V, directory_name: str) -> V:
         "Create a subdirectory within this file's current directory with the given name"
         raise NotImplementedError()
 
