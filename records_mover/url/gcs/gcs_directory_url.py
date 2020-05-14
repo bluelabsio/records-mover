@@ -31,6 +31,26 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
         if not self.is_directory():
             raise ValueError("Not a directory")
         # https://stackoverflow.com/questions/53165246/how-to-delete-gcs-folder-from-python
+        # TODO: see deprecation - https://googleapis.dev/python/storage/latest/buckets.html#google.cloud.storage.bucket.Bucket.list_blobs
         blobs = self.bucket_obj.list_blobs(prefix=self.blob)
         for blob in blobs:
+            # TODO: Does this work recursively?
             blob.delete()
+
+    def files_and_directories_in_directory(self) -> List[Union[BaseFileUrl, BaseDirectoryUrl]]:
+        # https://stackoverflow.com/a/57099354/9795956
+
+        # TODO: Test this manully after creating a directory of a directory
+        file_urls = {}
+        directory_urls = {}
+        service = googleapiclient.discovery.build('storage', 'v1',
+                                                  credentials=self.credentials)
+        prefix = self.blob
+        print(f"PREFIX IS [{prefix}]")
+        if prefix == '/':
+            # API doesn't seem to recognize the root prefix as anything other than ''
+            prefix = ''
+        blobs = self.bucket_obj.list_blobs(prefix=prefix, delimiter='/')
+        for blob in blobs:
+            ...
+        raise NotImplementedError()
