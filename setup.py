@@ -117,13 +117,11 @@ airflow_dependencies = [
 ]
 
 db_dependencies = [
-    # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
-    #
     # sqlalchemy 1.3.16 seems to have (accidentally?) introduced
     # a breaking change that affects sqlalchemy-redshift:
     #
     # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
-    'sqlalchemy!=1.3.16',
+    'sqlalchemy!=1.3.16,!=1.3.17',
 ]
 
 bigquery_dependencies = [
