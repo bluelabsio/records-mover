@@ -4,6 +4,7 @@ from .records.records import Records
 from .url.base import BaseFileUrl, BaseDirectoryUrl
 from typing import Union, Optional, IO, Dict
 from .url.resolver import UrlResolver
+from .utils import lazyprop
 from db_facts.db_facts_types import DBFacts
 from enum import Enum
 from records_mover.creds.creds_via_lastpass import CredsViaLastPass
@@ -150,9 +151,14 @@ class Session():
         boto3_session = self._boto3_session()
         if boto3_session:
             url_resolver_kwargs['boto3_session'] = boto3_session
+        gcs_creds = self._gcs_creds()
+        if gcs_creds:
+            url_resolver_kwargs['gcp_credentials'] = gcs_creds
         gcs_client = self._gcs_client()
         if gcs_client:
             url_resolver_kwargs['gcs_client'] = gcs_client
+
+        print(f"VMB: url_resolver_kwargs: {url_resolver_kwargs}")
 
         return UrlResolver(**url_resolver_kwargs)
 
@@ -215,6 +221,21 @@ class Session():
         else:
             return self.creds.boto3_session(self._default_aws_creds_name)
 
+    def _gcs_creds(self) -> Optional['google.auth.credentials.Credentials']:
+        # TODO: Should save this
+        try:
+            if self._default_gcp_creds_name is None:
+                import google.auth
+                credentials, project = google.auth.default()
+                return credentials
+            else:
+                return self.creds.gcs(self._default_gcp_creds_name)
+        except OSError:
+            # Example:
+            #   OSError: Project was not passed and could not be determined from the environment.
+            logger.debug("google.cloud.storage not configured",
+                         exc_info=True)
+
     def _gcs_client(self) -> Optional['google.cloud.storage.Client']:
         try:
             import google.cloud.storage  # noqa
@@ -224,11 +245,11 @@ class Session():
             return None
 
         try:
-            if self._default_gcp_creds_name is None:
-                return google.cloud.storage.Client()
-            else:
-                gcs_creds = self.creds.gcs(self._default_gcp_creds_name)
+            gcs_creds = self._gcs_creds()
+            if gcs_creds is not None:
                 return google.cloud.storage.Client(credentials=gcs_creds)
+            else:
+                return None
         except OSError:
             # Example:
             #   OSError: Project was not passed and could not be determined from the environment.

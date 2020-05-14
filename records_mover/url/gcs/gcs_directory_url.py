@@ -24,6 +24,10 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
     def _directory(self, url: str) -> 'GCSDirectoryUrl':
         return GCSDirectoryUrl(url, gcs_client=self.client, gcp_credentials=self.credentials)
 
+    def _file(self, url: str) -> 'GCSFileUrl':
+        from .gcs_file_url import GCSFileUrl
+        return GCSFileUrl(url, gcs_client=self.client, gcp_credentials=self.credentials)
+
     def directory_in_this_directory(self, directory_name: str) -> 'GCSDirectoryUrl':
         return self._directory(f"{self.url}{directory_name}/")
 
@@ -40,17 +44,36 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
     def files_and_directories_in_directory(self) -> List[Union[BaseFileUrl, BaseDirectoryUrl]]:
         # https://stackoverflow.com/a/57099354/9795956
 
-        # TODO: Test this manully after creating a directory of a directory
-        file_urls = {}
-        directory_urls = {}
         service = googleapiclient.discovery.build('storage', 'v1',
                                                   credentials=self.credentials)
         prefix = self.blob
-        print(f"PREFIX IS [{prefix}]")
         if prefix == '/':
             # API doesn't seem to recognize the root prefix as anything other than ''
             prefix = ''
+        folders_req = service.objects().list(bucket=self.bucket,
+                                             prefix=prefix,
+                                             delimiter='/')
+        folders_resp = folders_req.execute()
+        folder_names = folders_resp.get('prefixes', [])
+        directory_urls = [
+            f"gs://{self.bucket}/{folder_name}"
+            for folder_name in folder_names
+            # I haven't seen this happen - this is for safety
+            if folder_name != prefix
+        ]
+
         blobs = self.bucket_obj.list_blobs(prefix=prefix, delimiter='/')
-        for blob in blobs:
-            ...
-        raise NotImplementedError()
+        blob_names = [
+            blob.name
+            for blob in blobs
+            # I've seen this happen with gs://bluelabs-test-recordsmover/bar/
+            if blob.name != prefix
+        ]
+        file_urls = [
+            f"gs://{self.bucket}/{blob_name}"
+            for blob_name in blob_names
+        ]
+
+        file_locs = [self._file(file_url) for file_url in file_urls]
+        directory_locs = [self._directory(directory_url) for directory_url in directory_urls]
+        return directory_locs + file_locs

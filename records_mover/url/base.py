@@ -43,12 +43,16 @@ class BaseDirectoryUrl:
         "Return entries in this directory."
         raise NotImplementedError()
 
-    def purge_directory(self) -> None:
-        "Delete all entries and subdirectories in the directory."
+    def directories_in_directory(self) -> List['BaseDirectoryUrl']:
+        "Return entries in this directory."
         raise NotImplementedError()
 
     def files_and_directories_in_directory(self) -> List[Union['BaseFileUrl', 'BaseDirectoryUrl']]:
-        "Return all file and folder entires under the current location"
+        "Return all file and folder entries directly under the current location.  Does not recurse."
+        return self.files_in_directory() + self.directories_in_directory()
+
+    def purge_directory(self) -> None:
+        "Delete all entries and subdirectories in the directory."
         raise NotImplementedError()
 
     def copy_to(self, other_loc: 'BaseDirectoryUrl') -> 'BaseDirectoryUrl':
