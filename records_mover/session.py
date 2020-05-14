@@ -10,6 +10,7 @@ from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
 from records_mover.logging import set_stream_logging
+from config_resolver import get_config
 import subprocess
 import os
 import sys
@@ -37,10 +38,25 @@ def _infer_session_type() -> str:
 
 
 def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
-    scratch_s3_url: Optional[str]
-
     if "SCRATCH_S3_URL" in os.environ:
         return os.environ["SCRATCH_S3_URL"]
+
+    # config_resolver logs at the WARNING level for each time it
+    # attempts to load a config file and doesn't find it - which given
+    # it searches a variety of places, is quite noisy.
+    #
+    # https://github.com/exhuma/config_resolver/blob/master/doc/intro.rst#logging
+    #
+    # https://github.com/exhuma/config_resolver/issues/69
+    logging.getLogger('config_resolver').setLevel(logging.ERROR)
+    config_result = get_config('records_mover', 'bluelabs')
+    cfg = config_result.config
+    if 'aws' in cfg:
+        s3_scratch_url: Optional[str] = cfg['aws'].get('s3_scratch_url')
+        if s3_scratch_url is not None:
+            return s3_scratch_url
+    else:
+        logger.debug('No config ini file found')
 
     if session_type == 'cli':
         try:
