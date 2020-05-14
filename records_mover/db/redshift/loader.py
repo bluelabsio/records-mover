@@ -14,7 +14,7 @@ from ..errors import CredsDoNotSupportS3Import
 from typing import Optional, Union, Callable, ContextManager, List, Iterator
 from ...url import BaseDirectoryUrl
 from botocore.credentials import Credentials
-from ...records.hints import complain_on_unhandled_hints
+from ...records.delimited import complain_on_unhandled_hints
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,5 @@
 import unittest
-from records_mover.records.hints import complain_on_unhandled_hints
+from records_mover.records.delimited import complain_on_unhandled_hints
 from records_mover.db.mysql.loader import MySQLLoader
 from records_mover.db.mysql.load_options import mysql_load_options
 from mock import Mock

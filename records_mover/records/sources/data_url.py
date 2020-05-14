@@ -2,7 +2,7 @@ from .fileobjs import FileobjsSource
 from urllib.parse import urlparse
 from .base import SupportsToFileobjsSource
 from contextlib import contextmanager
-from ..compression import sniff_compression_from_url
+from ..delimited import sniff_compression_from_url
 from ..processing_instructions import ProcessingInstructions
 from ...url.resolver import UrlResolver
 from ..records_format import BaseRecordsFormat

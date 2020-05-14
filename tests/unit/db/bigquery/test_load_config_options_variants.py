@@ -1,6 +1,6 @@
 import unittest
 
-from records_mover.records.hints import complain_on_unhandled_hints
+from records_mover.records.delimited import complain_on_unhandled_hints
 from records_mover.db.bigquery.load_job_config_options import load_job_config
 from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.records.processing_instructions import ProcessingInstructions

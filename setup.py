@@ -195,7 +195,6 @@ postgres_dependencies_source = [
 cli_dependencies_base = [
     'odictliteral',
     'jsonschema',
-    'typing_inspect',
     'docstring_parser',
 ]
 
@@ -259,6 +258,8 @@ setup(name='records-mover',
           'chardet',
           'tenacity>=6<7',
           'config-resolver>=5,<6',
+          'typing_inspect',
+          'typing-extensions',
       ],
       extras_require={
           'airflow': airflow_dependencies,
