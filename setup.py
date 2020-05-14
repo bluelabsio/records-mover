@@ -100,7 +100,11 @@ class MypyCoverageRatchetCommand(CoverageRatchetCommand):
 
 
 google_api_client_dependencies = [
-    'google-api-python-client>=1.5.0,<1.6.0',
+    # 1.8 seems to be required to use application default creds with
+    # 'googleapiclient.discovery.build':
+    #
+    # https://github.com/googleapis/google-auth-library-python/issues/190
+    'google-api-python-client>=1.8.0,<1.9.0',
 ]
 
 itest_dependencies = (

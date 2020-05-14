@@ -1,0 +1,3 @@
+class Blob:
+    def delete(self) -> None:
+        ...

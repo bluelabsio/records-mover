@@ -10,12 +10,14 @@ class GCSFileUrl(BaseFileUrl):
     def __init__(self,
                  url: str,
                  gcs_client: google.cloud.storage.Client,
+                 gcp_credentials: google.auth.credentials.Credentials,
                  **kwargs) -> None:
         self.url = url
         parsed = urlparse(url)
         self.blob = unquote(parsed.path[1:])
         self.bucket = parsed.netloc
         self.client = gcs_client
+        self.credentials = gcp_credentials
 
     def open(self, mode: str = "rb") -> IO[bytes]:
         return gs_open(bucket_id=self.bucket,
@@ -24,4 +26,4 @@ class GCSFileUrl(BaseFileUrl):
                        client=self.client)
 
     def _directory(self, url: str) -> GCSDirectoryUrl:
-        return GCSDirectoryUrl(url, gcs_client=self.client)
+        return GCSDirectoryUrl(url, gcs_client=self.client, gcp_credentials=self.credentials)
