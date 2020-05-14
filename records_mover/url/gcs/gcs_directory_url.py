@@ -41,7 +41,26 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
             # TODO: Does this work recursively?
             blob.delete()
 
-    def files_and_directories_in_directory(self) -> List[Union[BaseFileUrl, BaseDirectoryUrl]]:
+    def files_in_directory(self) -> List[BaseFileUrl]:
+        prefix = self.blob
+        if prefix == '/':
+            # API doesn't seem to recognize the root prefix as anything other than ''
+            prefix = ''
+
+        blobs = self.bucket_obj.list_blobs(prefix=prefix, delimiter='/')
+        blob_names = [
+            blob.name
+            for blob in blobs
+            # I've seen this happen with gs://bluelabs-test-recordsmover/bar/
+            if blob.name != prefix
+        ]
+        file_urls = [
+            f"gs://{self.bucket}/{blob_name}"
+            for blob_name in blob_names
+        ]
+        return [self._file(file_url) for file_url in file_urls]
+
+    def directories_in_directory(self) -> List[BaseDirectoryUrl]:
         # https://stackoverflow.com/a/57099354/9795956
 
         service = googleapiclient.discovery.build('storage', 'v1',
@@ -61,19 +80,4 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
             # I haven't seen this happen - this is for safety
             if folder_name != prefix
         ]
-
-        blobs = self.bucket_obj.list_blobs(prefix=prefix, delimiter='/')
-        blob_names = [
-            blob.name
-            for blob in blobs
-            # I've seen this happen with gs://bluelabs-test-recordsmover/bar/
-            if blob.name != prefix
-        ]
-        file_urls = [
-            f"gs://{self.bucket}/{blob_name}"
-            for blob_name in blob_names
-        ]
-
-        file_locs = [self._file(file_url) for file_url in file_urls]
-        directory_locs = [self._directory(directory_url) for directory_url in directory_urls]
-        return directory_locs + file_locs
+        return [self._directory(directory_url) for directory_url in directory_urls]
