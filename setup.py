@@ -227,7 +227,7 @@ unittest_dependencies = (
     pandas_dependencies
 )
 
-gs_dependencies = [
+gcs_dependencies = [
     'google-cloud-storage'
 ] + smart_open_dependencies
 
@@ -289,7 +289,7 @@ setup(name='records-mover',
           literally_every_single_database_binary_dependencies,
           'itest': itest_dependencies,
           'unittest': unittest_dependencies,
-          'gs': gs_dependencies,
+          'gcs': gcs_dependencies,
       },
       entry_points={
           'console_scripts': 'mvrec = records_mover.records.cli:main',
