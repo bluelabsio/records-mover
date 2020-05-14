@@ -37,7 +37,7 @@ class BaseDirectoryUrl:
 
     def file_in_this_directory(self, filename: str) -> 'BaseFileUrl':
         "Return an entry in the directory."
-        return self.url + filename
+        return self._file(self.url + filename)
 
     def files_in_directory(self) -> List['BaseFileUrl']:
         "Return entries in this directory."
