@@ -7,8 +7,6 @@ import google.cloud.storage
 
 
 class GCSFileUrl(BaseFileUrl):
-    client: google.cloud.storage.Client
-
     def __init__(self,
                  url: str,
                  gcs_client: google.cloud.storage.Client,
@@ -26,4 +24,4 @@ class GCSFileUrl(BaseFileUrl):
                        client=self.client)
 
     def _directory(self, url: str) -> GCSDirectoryUrl:
-        return GCSDirectoryUrl(url)
+        return GCSDirectoryUrl(url, gcs_client=self.client)

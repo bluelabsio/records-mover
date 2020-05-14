@@ -37,7 +37,7 @@ class BaseDirectoryUrl:
 
     def file_in_this_directory(self, filename: str) -> 'BaseFileUrl':
         "Return an entry in the directory."
-        raise NotImplementedError()
+        return self.url + filename
 
     def files_in_directory(self) -> List['BaseFileUrl']:
         "Return entries in this directory."
@@ -68,7 +68,7 @@ class BaseDirectoryUrl:
 
     def is_directory(self) -> bool:
         "Returns true"
-        raise NotImplementedError()
+        return self.url.endswith('/')
 
     def containing_directory(self: V) -> V:
         "Parent directory of this directory"

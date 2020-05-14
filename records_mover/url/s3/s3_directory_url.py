@@ -6,12 +6,6 @@ from typing import Dict, List
 
 
 class S3DirectoryUrl(S3BaseUrl, BaseDirectoryUrl):
-    def file_path_in_this_directory(self, filename: str) -> str:
-        return self.url + filename
-
-    def file_in_this_directory(self, filename: str) -> BaseFileUrl:
-        return self._file(self.file_path_in_this_directory(filename))
-
     def directory_in_this_directory(self, directory_name: str) -> 'S3DirectoryUrl':
         return self._directory(f"{self.url}{directory_name}/")
 
