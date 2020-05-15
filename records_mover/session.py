@@ -158,8 +158,6 @@ class Session():
         if gcs_client:
             url_resolver_kwargs['gcs_client'] = gcs_client
 
-        print(f"VMB: url_resolver_kwargs: {url_resolver_kwargs}")
-
         return UrlResolver(**url_resolver_kwargs)
 
     def get_default_db_engine(self) -> 'Engine':
