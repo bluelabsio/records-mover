@@ -150,8 +150,9 @@ class BaseFileUrl:
 
     def store_string(self, contents: str) -> None:
         "Save the specified string to the file."
-        with self.open(mode='wt') as f:
-            f.write(contents)
+
+        with self.open(mode='wb') as f:
+            f.write(contents.encode('utf-8'))
 
     def rename_to(self, new: 'BaseFileUrl') -> 'BaseFileUrl':
         "Rename this file"

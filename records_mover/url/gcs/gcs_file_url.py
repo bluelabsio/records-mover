@@ -18,12 +18,38 @@ class GCSFileUrl(BaseFileUrl):
         self.bucket = parsed.netloc
         self.client = gcs_client
         self.credentials = gcp_credentials
+        self.bucket_obj = self.client.bucket(self.bucket)
 
     def open(self, mode: str = "rb") -> IO[bytes]:
-        return gs_open(bucket_id=self.bucket,
-                       blob_id=self.blob,
-                       mode=mode,
-                       client=self.client)
+        try:
+            return gs_open(bucket_id=self.bucket,
+                           blob_id=self.blob,
+                           mode=mode,
+                           client=self.client)
+        except google.api_core.exceptions.NotFound:
+            # google.api_core.exceptions.NotFound: 404 blob
+            # SkosHyDshbo/_manifest not found in bucket-name-here
+            #
+            # smart-open version: 2.0
+            raise FileNotFoundError(f"{self} not found")
 
     def _directory(self, url: str) -> GCSDirectoryUrl:
         return GCSDirectoryUrl(url, gcs_client=self.client, gcp_credentials=self.credentials)
+
+    def _blob_obj(self) -> 'Blob':
+        return self.bucket_obj.blob(self.blob)
+
+    def size(self) -> int:
+        return self._blob_obj().size
+
+    def rename_to(self, new: 'BaseFileUrl') -> 'BaseFileUrl':
+        if not isinstance(new, GCSFileUrl):
+            raise NotImplementedError('Cannot rename a GCS file to a non-GCS file')
+        if new.bucket != self.bucket:
+            raise NotImplementedError('Cannot rename a GCS file in a different bucket')
+        # This actually does a copy behind the scenes, so don't get
+        # too excited:
+        self.bucket_obj.rename_blob(self._blob_obj(), new.blob)
+
+    def filename(self) -> str:
+        return self.url[self.url.rfind("/")+1:]
