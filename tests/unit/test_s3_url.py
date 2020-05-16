@@ -42,7 +42,7 @@ class TestS3Url(unittest.TestCase):
         out = self.s3_file_url.directory_in_this_directory('abc')
         self.assertEqual(out.url, 's3://mybucket/myparent/mychild/abc/')
 
-    @patch('records_mover.url.s3.s3_base_url.secrets')
+    @patch('records_mover.url.base.secrets')
     def test_temporary_directory(self, mock_secrets):
         self.mock_s3_resource.meta.client.list_objects.return_value = {
             'Contents': [{
