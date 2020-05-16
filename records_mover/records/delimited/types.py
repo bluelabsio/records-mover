@@ -53,6 +53,7 @@ BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
                                           'encoding': HintEncoding,
                                           'escape': HintEscape,
                                           'compression': HintCompression,
+                                          'record-terminator': HintRecordTerminator,
                                       },
                                       total=False)
 

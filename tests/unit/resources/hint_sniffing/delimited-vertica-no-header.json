@@ -5,15 +5,14 @@
     "quoting": null,
     "doublequote": false,
     "escape": null,
-    "compression": null,
     "header-row": false
   },
   "initial_hints": {
+    "escape": null,
     "field-delimiter": "\u0001",
     "record-terminator": "\u0002",
-    "header-row": false,
-    "quoting": null,
-    "doublequote": false
+    "doublequote": false,
+    "header-row": false
   },
-  "notes": "This one is a disaster in terms of what is able to be determined"
+  "notes": "Escaping is not currently sniffed.  We only sniff common newline types.  The Python csv.Sniffer module doesn't work with non-standard newline types."
 }
