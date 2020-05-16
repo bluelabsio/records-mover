@@ -152,7 +152,7 @@ class Session():
         gcs_creds = self._gcs_creds()
         if gcs_creds:
             url_resolver_kwargs['gcp_credentials'] = gcs_creds
-        gcs_client = self._gcs_client()
+        gcs_client = self._gcs_client(gcs_creds)
         if gcs_client:
             url_resolver_kwargs['gcs_client'] = gcs_client
 
@@ -218,7 +218,6 @@ class Session():
             return self.creds.boto3_session(self._default_aws_creds_name)
 
     def _gcs_creds(self) -> Optional['google.auth.credentials.Credentials']:
-        # TODO: Should save this
         try:
             if self._default_gcp_creds_name is None:
                 import google.auth
@@ -233,7 +232,8 @@ class Session():
                          exc_info=True)
             return None
 
-    def _gcs_client(self) -> Optional['google.cloud.storage.Client']:
+    def _gcs_client(self, gcs_creds: 'google.auth.credentials.Credentials')\
+            -> Optional['google.cloud.storage.Client']:
         try:
             import google.cloud.storage  # noqa
         except ModuleNotFoundError:
@@ -242,11 +242,7 @@ class Session():
             return None
 
         try:
-            gcs_creds = self._gcs_creds()
-            if gcs_creds is not None:
-                return google.cloud.storage.Client(credentials=gcs_creds)
-            else:
-                return None
+            return google.cloud.storage.Client(credentials=gcs_creds)
         except OSError:
             # Example:
             #   OSError: Project was not passed and could not be determined from the environment.
