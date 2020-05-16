@@ -37,7 +37,9 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
         if not self.is_directory():
             raise ValueError("Not a directory")
         # https://stackoverflow.com/questions/53165246/how-to-delete-gcs-folder-from-python
-        # TODO: see deprecation - https://googleapis.dev/python/storage/latest/buckets.html#google.cloud.storage.bucket.Bucket.list_blobs
+        # TODO: see deprecation -
+        # https://googleapis.dev/python/storage/latest/buckets.
+        # html#google.cloud.storage.bucket.Bucket.list_blobs
         blobs = self.bucket_obj.list_blobs(prefix=self.blob)
         for blob in blobs:
             # TODO: Does this work recursively?
