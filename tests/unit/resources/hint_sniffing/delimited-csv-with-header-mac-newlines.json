@@ -3,7 +3,7 @@
     "header-row": true,
     "escape": null,
     "quoting": "minimal",
-    "record-terminator": "\n"
+    "record-terminator": "\r"
   },
   "initial_hints": {
     "escape": null

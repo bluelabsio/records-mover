@@ -71,12 +71,3 @@ hint_encoding_from_chardet: Dict[str, HintEncoding] = {
     # even if the only data it saw was in ASCII, let's be ready to see more
     'ascii': 'UTF8',
 }
-
-hint_compression_from_pandas: Dict[Optional[str], HintCompression] = {
-    # https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html
-    # https://github.com/bluelabsio/knowledge/
-    #    blob/master/Engineering/Architecture/JobDataExchange/output-design.md#hints
-    'gzip': 'GZIP',
-    'bz2': 'BZIP',
-    None: None,
-}
