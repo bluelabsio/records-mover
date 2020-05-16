@@ -3,7 +3,7 @@ from records_mover.url import BaseDirectoryUrl, BaseFileUrl
 import google.auth.credentials
 import google.cloud.storage
 import googleapiclient.discovery
-from typing import List, Union, TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 if TYPE_CHECKING:
     from .gcs_file_url import GCSFileUrl
 

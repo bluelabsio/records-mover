@@ -4,7 +4,6 @@ from .records.records import Records
 from .url.base import BaseFileUrl, BaseDirectoryUrl
 from typing import Union, Optional, IO, Dict
 from .url.resolver import UrlResolver
-from .utils import lazyprop
 from db_facts.db_facts_types import DBFacts
 from enum import Enum
 from records_mover.creds.creds_via_lastpass import CredsViaLastPass

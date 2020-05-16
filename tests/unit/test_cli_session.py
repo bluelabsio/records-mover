@@ -1,6 +1,5 @@
 from records_mover import Session
 import unittest
-import google.auth
 from mock import patch, Mock
 
 
