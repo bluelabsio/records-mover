@@ -145,7 +145,6 @@ class Session():
 
     @property
     def url_resolver(self) -> UrlResolver:
-        # TODO: Make cache
         url_resolver_kwargs: Dict[str, object] = {}
         boto3_session = self._boto3_session()
         if boto3_session:
