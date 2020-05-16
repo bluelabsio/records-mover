@@ -7,3 +7,9 @@ class Bucket:
                    prefix: Optional[str] = None,
                    delimiter: Optional[str] = None) -> Iterator[Blob]:
         ...
+
+    def rename_blob(self, blob: Blob, new_name: str) -> Blob:
+        ...
+
+    def blob(self, blob_name: str) -> Blob:
+        ...

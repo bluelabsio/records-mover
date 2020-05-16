@@ -233,6 +233,7 @@ class Session():
             #   OSError: Project was not passed and could not be determined from the environment.
             logger.debug("google.cloud.storage not configured",
                          exc_info=True)
+            return None
 
     def _gcs_client(self) -> Optional['google.cloud.storage.Client']:
         try:

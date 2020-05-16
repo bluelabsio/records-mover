@@ -4,6 +4,8 @@ from typing import IO
 from records_mover.url import BaseFileUrl
 from smart_open.gcs import open as gs_open
 import google.cloud.storage
+from google.cloud.storage.blob import Blob
+import google.api_core.exceptions
 
 
 class GCSFileUrl(BaseFileUrl):
@@ -50,6 +52,8 @@ class GCSFileUrl(BaseFileUrl):
         # This actually does a copy behind the scenes, so don't get
         # too excited:
         self.bucket_obj.rename_blob(self._blob_obj(), new.blob)
+
+        return new
 
     def filename(self) -> str:
         return self.url[self.url.rfind("/")+1:]

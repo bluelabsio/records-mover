@@ -49,7 +49,10 @@ class BaseDirectoryUrl:
 
     def files_and_directories_in_directory(self) -> List[Union['BaseFileUrl', 'BaseDirectoryUrl']]:
         "Return all file and folder entries directly under the current location.  Does not recurse."
-        return self.files_in_directory() + self.directories_in_directory()
+        out: List[Union['BaseFileUrl', 'BaseDirectoryUrl']] = []
+        out.extend(self.files_in_directory())
+        out.extend(self.directories_in_directory())
+        return out
 
     def purge_directory(self) -> None:
         "Delete all entries and subdirectories in the directory."
