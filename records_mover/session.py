@@ -152,9 +152,9 @@ class Session():
         gcs_creds = self._gcs_creds()
         if gcs_creds:
             url_resolver_kwargs['gcp_credentials'] = gcs_creds
-        gcs_client = self._gcs_client(gcs_creds)
-        if gcs_client:
-            url_resolver_kwargs['gcs_client'] = gcs_client
+            gcs_client = self._gcs_client(gcs_creds)
+            if gcs_client:
+                url_resolver_kwargs['gcs_client'] = gcs_client
 
         return UrlResolver(**url_resolver_kwargs)
 
