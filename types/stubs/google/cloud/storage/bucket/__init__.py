@@ -1,4 +1,3 @@
-from typing import Iterator, Optional
 from google.cloud.storage.blob import Blob
 
 
