@@ -34,16 +34,11 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
         return self._directory(f"{self.url}{directory_name}/")
 
     def purge_directory(self) -> None:
-        if not self.is_directory():
-            raise ValueError("Not a directory")
-        # https://stackoverflow.com/questions/53165246/how-to-delete-gcs-folder-from-python
-        # TODO: see deprecation -
-        # https://googleapis.dev/python/storage/latest/buckets.
-        # html#google.cloud.storage.bucket.Bucket.list_blobs
-        blobs = self.bucket_obj.list_blobs(prefix=self.blob)
-        for blob in blobs:
-            # TODO: Does this work recursively?
-            blob.delete()
+        for dir_loc in self.directories_in_directory():
+            dir_loc.purge_directory()
+        for file_loc in self.files_in_directory():
+            file_loc.delete()
+        self.bucket_obj.blob(self.blob).delete()
 
     def files_in_directory(self) -> List[BaseFileUrl]:
         prefix = self.blob
@@ -51,7 +46,8 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
             # API doesn't seem to recognize the root prefix as anything other than ''
             prefix = ''
 
-        blobs = self.bucket_obj.list_blobs(prefix=prefix, delimiter='/')
+        blobs = self.client.list_blobs(bucket_or_name=self.bucket,
+                                       prefix=prefix, delimiter='/')
         blob_names = [
             blob.name
             for blob in blobs

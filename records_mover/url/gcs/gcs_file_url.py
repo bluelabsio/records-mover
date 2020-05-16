@@ -57,3 +57,6 @@ class GCSFileUrl(BaseFileUrl):
 
     def filename(self) -> str:
         return self.url[self.url.rfind("/")+1:]
+
+    def delete(self) -> None:
+        self._blob_obj().delete()
