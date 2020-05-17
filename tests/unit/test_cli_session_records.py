@@ -1,6 +1,6 @@
 from records_mover import Session
 import unittest
-from mock import patch, ANY
+from mock import patch, ANY, Mock
 
 
 @patch('records_mover.session.subprocess')
@@ -10,14 +10,22 @@ from mock import patch, ANY
     'AWS_ACCESS_KEY_ID': 'aws access key',
 })
 class TestCLISessionRecords(unittest.TestCase):
+    @patch('google.cloud.storage.Client')
+    @patch('google.auth.default')
     @patch('records_mover.session.Records')
     def test_records(self,
                      mock_Records,
+                     mock_google_auth_default,
+                     mock_google_cloud_storage_Client,
                      mock_subprocess):
+        mock_credentials = Mock(name='credentials')
+        mock_project = Mock(name='project')
+        mock_google_auth_default.return_value = (mock_credentials, mock_project)
         mock_subprocess.check_output.return_value = 'jdoe'.encode('utf-8')
         context = Session(session_type='cli',
                           default_db_creds_name=None,
-                          default_aws_creds_name=None)
+                          default_aws_creds_name=None,
+                          default_gcp_creds_name=None)
         self.assertEqual(mock_Records.return_value,
                          context.records)
         mock_Records.assert_called_with(db_driver=ANY,
