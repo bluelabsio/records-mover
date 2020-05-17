@@ -219,15 +219,20 @@ class Session():
 
     def _gcs_creds(self) -> Optional['google.auth.credentials.Credentials']:
         try:
+            import google.auth.exceptions
             if self._default_gcp_creds_name is None:
                 import google.auth
                 credentials, project = google.auth.default()
                 return credentials
             else:
                 return self.creds.gcs(self._default_gcp_creds_name)
-        except OSError:
-            # Example:
+        except (OSError, google.auth.exceptions.DefaultCredentialsError):
+            # Examples:
             #   OSError: Project was not passed and could not be determined from the environment.
+            #   google.auth.exceptions.DefaultCredentialsError: Could not automatically determine
+            #     credentials. Please set GOOGLE_APPLICATION_CREDENTIALS or explicitly create
+            #     credentials and re-run the application. For more information, please see
+            #     https://cloud.google.com/docs/authentication/getting-started
             logger.debug("google.cloud.storage not configured",
                          exc_info=True)
             return None
