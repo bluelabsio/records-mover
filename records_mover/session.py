@@ -226,7 +226,7 @@ class Session():
                 return credentials
             else:
                 return self.creds.gcs(self._default_gcp_creds_name)
-        except (OSError, google.auth.exceptions.DefaultCredentialsError):
+        except OSError:  # TODO: google.auth.exceptions.DefaultCredentialsError):
             # Examples:
             #   OSError: Project was not passed and could not be determined from the environment.
             #   google.auth.exceptions.DefaultCredentialsError: Could not automatically determine
