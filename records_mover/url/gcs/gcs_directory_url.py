@@ -43,6 +43,7 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
     def files_in_directory(self) -> List[BaseFileUrl]:
         prefix = self.blob
         if prefix == '/':
+            # TODO: Does this ever come out as '/'?  If so, doe sit need to be stripped from others?
             # API doesn't seem to recognize the root prefix as anything other than ''
             prefix = ''
 
@@ -67,6 +68,7 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
                                                   credentials=self.credentials)
         prefix = self.blob
         if prefix == '/':
+            # TODO: Does this ever come out as '/'?  If so, doe sit need to be stripped from others?
             # API doesn't seem to recognize the root prefix as anything other than ''
             prefix = ''
         folders_req = service.objects().list(bucket=self.bucket,

@@ -19,7 +19,7 @@ class S3DirectoryUrl(S3BaseUrl, BaseDirectoryUrl):
         prefix = self.key
         response = self.s3_client.list_objects_v2(Bucket=self.bucket, Prefix=prefix, Delimiter='/')
         prefix_keys = [content['Prefix'] for content in response.get('CommonPrefixes', [])]
-        urls = [f"s3://{self.bucket}/{prefix}/{key}" for key in prefix_keys]
+        urls = [f"s3://{self.bucket}/{prefix}{key}" for key in prefix_keys]
         return [self._directory(url) for url in urls]
 
     def purge_directory(self) -> None:
