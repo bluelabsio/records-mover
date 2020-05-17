@@ -8,6 +8,7 @@ class TestGCSDirectoryURL(unittest.TestCase):
         self.mock_client = Mock(name='client')
         self.mock_gcp_credentials = Mock(name='gcp_credentials')
         self.mock_url = 'gs://bucket/dir/'
+        self.mock_bucket_obj = self.mock_client.bucket.return_value
         self.loc = GCSDirectoryUrl(url=self.mock_url,
                                    gcs_client=self.mock_client,
                                    gcp_credentials=self.mock_gcp_credentials)

@@ -46,3 +46,11 @@ class TestGCSFileURL(unittest.TestCase):
     def test_filename(self):
         out = self.loc.filename()
         self.assertEqual(out, 'file.csv')
+
+    def test_rename_to(self):
+        mock_new = Mock(name='new', spec=GCSFileUrl)
+        mock_new.bucket = 'bucket'
+        mock_new.blob = Mock(name='blob')
+        out = self.loc.rename_to(mock_new)
+        self.mock_bucket_obj.rename_blob.assert_called_with(self.mock_blob_obj, mock_new.blob)
+        self.assertEqual(out, mock_new)
