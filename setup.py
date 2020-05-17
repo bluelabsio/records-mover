@@ -218,18 +218,19 @@ literally_every_single_database_binary_dependencies = (
     mysql_dependencies
 )
 
+gcs_dependencies = [
+    'google-cloud-storage'
+] + smart_open_dependencies
+
 unittest_dependencies = (
     cli_dependencies_base +
     airflow_dependencies +
     gsheet_dependencies +
     literally_every_single_database_binary_dependencies +
     aws_dependencies +
-    pandas_dependencies
+    pandas_dependencies +
+    gcs_dependencies
 )
-
-gcs_dependencies = [
-    'google-cloud-storage'
-] + smart_open_dependencies
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
