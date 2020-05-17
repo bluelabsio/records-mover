@@ -42,11 +42,6 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
 
     def files_in_directory(self) -> List[BaseFileUrl]:
         prefix = self.blob
-        if prefix == '/':
-            # TODO: Does this ever come out as '/'?  If so, doe sit need to be stripped from others?
-            # API doesn't seem to recognize the root prefix as anything other than ''
-            prefix = ''
-
         blobs = self.client.list_blobs(bucket_or_name=self.bucket,
                                        prefix=prefix, delimiter='/')
         blob_names = [
@@ -67,10 +62,6 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
         service = googleapiclient.discovery.build('storage', 'v1',
                                                   credentials=self.credentials)
         prefix = self.blob
-        if prefix == '/':
-            # TODO: Does this ever come out as '/'?  If so, doe sit need to be stripped from others?
-            # API doesn't seem to recognize the root prefix as anything other than ''
-            prefix = ''
         folders_req = service.objects().list(bucket=self.bucket,
                                              prefix=prefix,
                                              delimiter='/')
