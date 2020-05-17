@@ -130,7 +130,8 @@ class BaseFileUrl:
             return f.read().decode(encoding)
 
     def json_contents(self) -> Optional[JsonValue]:
-        "Return contents of this JSON file as a Python object, or None if file is empty (zero bytes)"
+        """Return contents of this JSON file as a Python object, or None if file is empty
+        (zero bytes)"""
         file_contents = self.string_contents()
         if len(file_contents) > 0:
             data = json.loads(file_contents)

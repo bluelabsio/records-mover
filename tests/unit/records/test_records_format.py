@@ -1,8 +1,6 @@
 import unittest
 from records_mover.records.records_format import RecordsFormat, DelimitedRecordsFormat
-from records_mover.url.base import BaseDirectoryUrl
-from mock import Mock, patch, call
-import json
+from mock import Mock, patch
 
 
 class TestRecordsFormat(unittest.TestCase):
