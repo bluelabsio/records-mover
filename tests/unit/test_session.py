@@ -3,6 +3,8 @@ from records_mover import Session
 import unittest
 
 
+@patch('google.cloud.storage.Client')
+@patch('google.auth.default')
 @patch('records_mover.session.get_config')
 @patch('records_mover.session.subprocess')
 @patch('records_mover.session.os')
@@ -12,7 +14,9 @@ class TestSession(unittest.TestCase):
                            mock_engine_from_db_facts,
                            mock_os,
                            mock_subprocess,
-                           mock_get_config):
+                           mock_get_config,
+                           mock_google_auth_default,
+                           mock_google_cloud_storage_Client):
         mock_db_creds_name = Mock(name='db_creds_name')
         mock_creds = Mock(name='creds')
         session = Session()
@@ -27,7 +31,9 @@ class TestSession(unittest.TestCase):
                                            mock_CredsViaEnv,
                                            mock_os,
                                            mock_subprocess,
-                                           mock_get_config):
+                                           mock_get_config,
+                                           mock_google_auth_default,
+                                           mock_google_cloud_storage_Client):
         mock_creds = mock_CredsViaEnv.return_value
         session = Session(session_type='itest')
         self.assertEqual(session.creds, mock_creds)
@@ -37,7 +43,9 @@ class TestSession(unittest.TestCase):
                                          mock_CredsViaEnv,
                                          mock_os,
                                          mock_subprocess,
-                                         mock_get_config):
+                                         mock_get_config,
+                                         mock_google_auth_default,
+                                         mock_google_cloud_storage_Client):
         mock_creds = mock_CredsViaEnv.return_value
         session = Session(session_type='env')
         self.assertEqual(session.creds, mock_creds)
@@ -49,7 +57,9 @@ class TestSession(unittest.TestCase):
                                               mock_db_facts_from_env,
                                               mock_os,
                                               mock_subprocess,
-                                              mock_get_config):
+                                              mock_get_config,
+                                              mock_google_auth_default,
+                                              mock_google_cloud_storage_Client):
         session = Session()
         self.assertEqual(session.get_default_db_engine(), mock_engine_from_db_facts.return_value)
         mock_db_facts_from_env.assert_called_with()
@@ -63,7 +73,9 @@ class TestSession(unittest.TestCase):
                                              mock_db_facts_from_env,
                                              mock_os,
                                              mock_subprocess,
-                                             mock_get_config):
+                                             mock_get_config,
+                                             mock_google_auth_default,
+                                             mock_google_cloud_storage_Client):
         session = Session()
         self.assertEqual(session.get_default_db_facts(), mock_db_facts_from_env.return_value)
         mock_db_facts_from_env.assert_called_with()
@@ -73,7 +85,9 @@ class TestSession(unittest.TestCase):
                                                mock_engine_from_db_facts,
                                                mock_os,
                                                mock_subprocess,
-                                               mock_get_config):
+                                               mock_get_config,
+                                               mock_google_auth_default,
+                                               mock_google_cloud_storage_Client):
         mock_creds = Mock(name='creds')
         mock_default_db_creds_name = Mock(name='default_db_creds_name')
         session = Session(creds=mock_creds,
@@ -87,7 +101,9 @@ class TestSession(unittest.TestCase):
                                 mock_set_stream_logging,
                                 mock_os,
                                 mock_subprocess,
-                                mock_get_config):
+                                mock_get_config,
+                                mock_google_auth_default,
+                                mock_google_cloud_storage_Client):
         session = Session()
         mock_name = Mock(name='name')
         mock_level = Mock(name='level')
@@ -110,9 +126,26 @@ class TestSession(unittest.TestCase):
                                     mock_set_stream_logging,
                                     mock_os,
                                     mock_subprocess,
-                                    mock_get_config):
+                                    mock_get_config,
+                                    mock_google_auth_default,
+                                    mock_google_cloud_storage_Client):
         mock_os.environ = {}
         mock_config_result = mock_get_config.return_value
         mock_config_result.config = {'aws': {'s3_scratch_url': 's3://foundit/'}}
         session = Session()
         self.assertEqual(session._scratch_s3_url, 's3://foundit/')
+
+    @patch('records_mover.session.UrlResolver')
+    def test_file_url(self,
+                      mock_UrlResolver,
+                      mock_os,
+                      mock_subprocess,
+                      mock_get_config,
+                      mock_google_auth_default,
+                      mock_google_cloud_storage_Client):
+        mock_credentials = Mock(name='credentials')
+        mock_project = Mock(name='project')
+        mock_google_auth_default.return_value = (mock_credentials, mock_project)
+        session = Session(scratch_s3_url='s3://bar/baz')
+        self.assertEqual(session.file_url('s3://bar/baz'),
+                         mock_UrlResolver.return_value.file_url.return_value)
