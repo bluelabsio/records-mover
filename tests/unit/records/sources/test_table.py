@@ -159,3 +159,18 @@ class TestTableRecordsSource(unittest.TestCase):
     def test_known_supported_records_formats_no_unloader(self):
         self.mock_driver.unloader.return_value = None
         self.assertEqual([], self.table_records_source.known_supported_records_formats())
+
+    def test_str(self):
+        self.mock_driver.db_engine.name = 'george'
+        self.assertEqual(str(self.table_records_source), 'TableRecordsSource(george)')
+
+    def test_with_cast_dataframe_types(self):
+        mock_df_1 = Mock(name='df_1')
+        mock_df_2 = Mock(name='df_2')
+        mock_dfs = [mock_df_1, mock_df_2]
+        mock_records_schema = Mock(name='records_schema')
+        out = self.table_records_source.with_cast_dataframe_types(mock_records_schema, mock_dfs)
+        self.assertEqual(list(out), [
+            mock_records_schema.cast_dataframe_types.return_value,
+            mock_records_schema.cast_dataframe_types.return_value,
+        ])
