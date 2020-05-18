@@ -106,10 +106,14 @@ def _infer_creds(session_type: str) -> BaseCreds:
                          f"{session_type}.")
 
 
+# This is a mypy-friendly way of doing a singleton object:
+#
+# https://github.com/python/typing/issues/236
 class PleaseInfer(Enum):
-    # This is a mypy-friendly way of doing a singleton object:
-    #
-    # https://github.com/python/typing/issues/236
+    token = 1
+
+
+class NotYetFetched(Enum):
     token = 1
 
 
@@ -141,22 +145,22 @@ class Session():
         self._default_gcp_creds_name = default_gcp_creds_name
         self._scratch_s3_url = scratch_s3_url
         self.creds = creds
-        self._records: Optional[Records] = None
+        self._records: Union[NotYetFetched, Records] = NotYetFetched.token
+        self.__gcs_creds: Union[NotYetFetched,
+                                Optional['google.auth.credentials.Credentials']] =\
+            NotYetFetched.token
+        self.__gcs_client: Union[NotYetFetched,
+                                 Optional['google.cloud.storage.Client']] =\
+            NotYetFetched.token
+        self.__boto3_session: Union[NotYetFetched,
+                                    Optional['boto3.session.Session']] =\
+            NotYetFetched.token
 
     @property
     def url_resolver(self) -> UrlResolver:
-        url_resolver_kwargs: Dict[str, object] = {}
-        boto3_session = self._boto3_session()
-        if boto3_session:
-            url_resolver_kwargs['boto3_session'] = boto3_session
-        gcs_creds = self._gcs_creds()
-        if gcs_creds:
-            url_resolver_kwargs['gcp_credentials'] = gcs_creds
-            gcs_client = self._gcs_client(gcs_creds)
-            if gcs_client:
-                url_resolver_kwargs['gcs_client'] = gcs_client
-
-        return UrlResolver(**url_resolver_kwargs)
+        return UrlResolver(boto3_session_getter=self._boto3_session,
+                           gcp_credentials_getter=self._gcs_creds,
+                           gcs_client_getter=self._gcs_client)
 
     def get_default_db_engine(self) -> 'Engine':
         from .db.connect import engine_from_db_facts
@@ -205,6 +209,9 @@ class Session():
         return self.url_resolver.directory_url(url)
 
     def _boto3_session(self) -> Optional['boto3.session.Session']:
+        if self.__boto3_session is not NotYetFetched.token:
+            return self.__boto3_session
+
         try:
             import boto3  # noqa
         except ModuleNotFoundError:
@@ -213,19 +220,25 @@ class Session():
             return None
 
         if self._default_aws_creds_name is None:
-            return boto3.session.Session()
+            self.__boto3_session = boto3.session.Session()
         else:
-            return self.creds.boto3_session(self._default_aws_creds_name)
+            self.__boto3_session = self.creds.boto3_session(self._default_aws_creds_name)
+        return self.__boto3_session
 
     def _gcs_creds(self) -> Optional['google.auth.credentials.Credentials']:
+        if self.__gcs_creds is not NotYetFetched.token:
+            return self.__gcs_creds
+
         try:
             import google.auth.exceptions
             if self._default_gcp_creds_name is None:
                 import google.auth
                 credentials, project = google.auth.default()
-                return credentials
+                self.__gcs_creds = credentials
             else:
-                return self.creds.gcs(self._default_gcp_creds_name)
+                creds = self.creds.gcs(self._default_gcp_creds_name)
+                self.__gcs_creds = creds
+                return creds
         except (OSError, google.auth.exceptions.DefaultCredentialsError):
             # Examples:
             #   OSError: Project was not passed and could not be determined from the environment.
@@ -235,10 +248,15 @@ class Session():
             #     https://cloud.google.com/docs/authentication/getting-started
             logger.debug("google.cloud.storage not configured",
                          exc_info=True)
-            return None
+            self.__gcs_creds = None
+        return self.__gcs_creds
 
-    def _gcs_client(self, gcs_creds: 'google.auth.credentials.Credentials')\
-            -> Optional['google.cloud.storage.Client']:
+    def _gcs_client(self) -> Optional['google.cloud.storage.Client']:
+        # TODO: cache
+
+        gcs_creds = self._gcs_creds()
+        if gcs_creds is None:
+            return None
         try:
             import google.cloud.storage  # noqa
         except ModuleNotFoundError:
@@ -290,7 +308,9 @@ class Session():
 
     @property
     def records(self) -> Records:
-        if self._records is None:
-            self._records = Records(db_driver=self.db_driver,
-                                    url_resolver=self.url_resolver)
+        if self._records is not NotYetFetched.token:
+            return self._records
+
+        self._records = Records(db_driver=self.db_driver,
+                                url_resolver=self.url_resolver)
         return self._records

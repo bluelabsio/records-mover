@@ -39,11 +39,10 @@ class TestCLISession(unittest.TestCase):
         mock_url_resolver = mock_UrlResolver.return_value
         mock_url_resolver.directory_url.assert_called_with('s3://chrisp-scratch/')
 
-        mock_session = mock_boto3_session.Session.return_value
-        mock_boto3_session.Session.assert_called_with()
-        mock_UrlResolver.assert_called_with(boto3_session=mock_session,
-                                            gcp_credentials=mock_gcp_credentials,
-                                            gcs_client=mock_storage_Client.return_value)
+        mock_boto3_session.Session.assert_not_called()
+        mock_UrlResolver.assert_called_with(boto3_session_getter=context._boto3_session,
+                                            gcp_credentials_getter=context._gcs_creds,
+                                            gcs_client_getter=context._gcs_client)
         mock_directory_url = mock_UrlResolver.return_value.directory_url
         mock_db_driver.assert_called_with(db=mock_db,
                                           url_resolver=context.url_resolver,
