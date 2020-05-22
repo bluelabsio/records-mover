@@ -63,4 +63,5 @@ class UrlResolver:
                 raise TypeError(f"Not a directory url: {url}")
             return out
         else:
-            raise NotImplementedError(f"Teach me how to create DirectoryUrls for {parsed_url.scheme}")
+            raise NotImplementedError("Teach me how to create DirectoryUrls for "
+                                      f"{parsed_url.scheme}")

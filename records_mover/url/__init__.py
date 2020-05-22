@@ -1,8 +1,6 @@
-from urllib.parse import urlparse
 from .base import BaseDirectoryUrl, BaseFileUrl
 import logging
-import inspect
-from typing import Dict, Type, Union, Callable, Any
+from typing import Dict, Type, Union, Callable
 
 CreatesUrls = Callable[..., Union[BaseFileUrl, BaseDirectoryUrl]]
 
