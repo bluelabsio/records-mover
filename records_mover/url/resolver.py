@@ -2,6 +2,7 @@ from urllib.parse import urlparse
 from .base import BaseFileUrl, BaseDirectoryUrl
 import inspect
 from typing import Callable, Optional, Dict, Any, Type, Union, TYPE_CHECKING
+from typing_extensions import TypedDict
 if TYPE_CHECKING:
     import google.cloud.storage  # noqa
     import boto3.session  # noqa
@@ -51,6 +52,12 @@ def init_urls() -> None:
 
 # TODO: Instead of three functions, how about passing in an object that includes an interface?
 
+class UrlClassKwArgs(TypedDict, total=False):
+    gcs_client: 'google.cloud.storage.Client'
+    gcp_credentials: 'google.auth.credentials.Credentials'
+    boto3_session: 'boto3.session.Session'
+
+
 class UrlResolver:
     def __init__(self,
                  boto3_session_getter:
@@ -63,7 +70,7 @@ class UrlResolver:
 
                  gcp_credentials_getter:
                  Callable[[],
-                          Optional['google.auth.credentials.Credentials']] = None)\
+                          Optional['google.auth.credentials.Credentials']])\
             -> None:
         self.boto3_session_getter = boto3_session_getter
         self.gcs_client_getter = gcs_client_getter
@@ -82,19 +89,28 @@ class UrlResolver:
         else:
             raise NotImplementedError(f"Teach me how to create FileUrls for {parsed_url.scheme}")
 
-    def kwargs_for_function(self, fn: Callable) -> Dict[str, Any]:
+    def kwargs_for_function(self, fn: Callable) -> UrlClassKwArgs:
         parameters: Dict[str, Type] = inspect.signature(fn).parameters
-        out: Dict[str, Any] = {}
-        # TODO: Can I get mypy to complain that I'm assigning a None
-        # thing to something that shouldn't ever be None?  Then I can
-        # add an error with a good message
+        out: UrlClassKwArgs = {}
         if 'boto3_session' in parameters:
-            out["boto3_session"] = self.boto3_session_getter()
+            session = self.boto3_session_getter()
+            if session is None:
+                raise EnvironmentError('URL requires an AWS boto3 session, but none '
+                                       'is configured.  Please configure your credentials.')
+            out["boto3_session"] = session
         if 'gcs_client' in parameters:
-            out["gcs_client"] = self.gcs_client_getter()
+            gcs_client = self.gcs_client_getter()
+            if gcs_client is None:
+                raise EnvironmentError('URL requires an GCP client for Google '
+                                       'Cloud Storage use, but none are configured.  '
+                                       'Please configure your credentials.')
+            out["gcs_client"] = gcs_client
         if 'gcp_credentials' in parameters:
-            out["gcp_credentials"] = self.gcp_credentials_getter()
-        print(f"kwargs: {out}")
+            gcp_credentials = self.gcp_credentials_getter()
+            if gcp_credentials is None:
+                raise EnvironmentError('URL requires GCP credentials, but none are configured.  '
+                                       'Please configure your credentials.')
+            out["gcp_credentials"] = gcp_credentials
         return out
 
     def directory_url(self, url: str) -> BaseDirectoryUrl:
