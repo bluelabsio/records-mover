@@ -2,11 +2,52 @@ from urllib.parse import urlparse
 from .base import BaseFileUrl, BaseDirectoryUrl
 import inspect
 # TODO: Should I move these data structures here?
-from records_mover.url import init_urls, file_url_ctors, directory_url_ctors
-from typing import Callable, Optional, Dict, Any, Type, TYPE_CHECKING
+from typing import Callable, Optional, Dict, Any, Type, Union, TYPE_CHECKING
 if TYPE_CHECKING:
     import google.cloud.storage  # noqa
     import boto3.session  # noqa
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+CreatesUrls = Callable[..., Union[BaseFileUrl, BaseDirectoryUrl]]
+
+
+directory_url_ctors: Dict[str, Union[Type[BaseDirectoryUrl], CreatesUrls]] = {}
+file_url_ctors: Dict[str, Union[Type[BaseFileUrl], CreatesUrls]] = {}
+
+
+def init_urls() -> None:
+    try:
+        from .s3.s3_url import S3Url
+    except ModuleNotFoundError:
+        logger.debug('No S3 support', exc_info=True)
+        S3Url = None  # type: ignore
+    try:
+        from .gcs.gcs_file_url import GCSFileUrl
+        from .gcs.gcs_directory_url import GCSDirectoryUrl
+    except ModuleNotFoundError:
+        logger.debug('No Google Cloud Storage support', exc_info=True)
+        GCSFileUrl = None  # type: ignore
+        GCSDirectoryUrl = None  # type: ignore
+    from .filesystem import FilesystemDirectoryUrl, FilesystemFileUrl
+    from .http import HttpFileUrl
+    if len(directory_url_ctors) == 0:
+        if S3Url is not None:
+            directory_url_ctors['s3'] = S3Url
+        if GCSDirectoryUrl is not None:
+            directory_url_ctors['gs'] = GCSDirectoryUrl
+        directory_url_ctors['file'] = FilesystemDirectoryUrl
+    if len(file_url_ctors) == 0:
+        if S3Url is not None:
+            file_url_ctors['s3'] = S3Url
+        if GCSFileUrl is not None:
+            file_url_ctors['gs'] = GCSFileUrl
+        file_url_ctors['file'] = FilesystemFileUrl
+
+        file_url_ctors['http'] = HttpFileUrl
+        file_url_ctors['https'] = HttpFileUrl
 
 
 class UrlResolver:
