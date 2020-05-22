@@ -49,6 +49,8 @@ def init_urls() -> None:
         file_url_ctors['https'] = HttpFileUrl
 
 
+# TODO: Instead of three functions, how about passing in an object that includes an interface?
+
 class UrlResolver:
     def __init__(self,
                  boto3_session_getter:
@@ -56,12 +58,12 @@ class UrlResolver:
                           Optional['boto3.session.Session']],
 
                  gcs_client_getter:
-                 Optional[Callable[[],
-                                   Optional['google.cloud.storage.Client']]] = None,
+                 Callable[[],
+                          Optional['google.cloud.storage.Client']],
 
                  gcp_credentials_getter:
-                 Optional[Callable[[],
-                                   Optional['google.auth.credentials.Credentials']]] = None)\
+                 Callable[[],
+                          Optional['google.auth.credentials.Credentials']] = None)\
             -> None:
         self.boto3_session_getter = boto3_session_getter
         self.gcs_client_getter = gcs_client_getter
