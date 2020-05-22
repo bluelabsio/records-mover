@@ -50,8 +50,6 @@ def init_urls() -> None:
         file_url_ctors['https'] = HttpFileUrl
 
 
-# TODO: Instead of three functions, how about passing in an object that includes an interface?
-
 class UrlClassKwArgs(TypedDict, total=False):
     gcs_client: 'google.cloud.storage.Client'
     gcp_credentials: 'google.auth.credentials.Credentials'
