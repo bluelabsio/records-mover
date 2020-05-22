@@ -1,8 +1,9 @@
 from urllib.parse import urlparse
 from .base import BaseFileUrl, BaseDirectoryUrl
+import inspect
 # TODO: Should I move these data structures here?
 from records_mover.url import init_urls, file_url_ctors, directory_url_ctors
-from typing import Callable, Optional, Dict, Any, TYPE_CHECKING
+from typing import Callable, Optional, Dict, Any, Type, TYPE_CHECKING
 if TYPE_CHECKING:
     import google.cloud.storage  # noqa
     import boto3.session  # noqa
@@ -39,14 +40,17 @@ class UrlResolver:
         else:
             raise NotImplementedError(f"Teach me how to create FileUrls for {parsed_url.scheme}")
 
-    def kwargs_for_function(self, f: Callable) -> Dict[str, Any]:
-        out: Dict[str, Any] = {
-            "boto3_session": self.boto3_session_getter(),
-        }
-        if self.gcs_client_getter is not None:
-            out["gcs_client"] = self.gcs_client_getter(),
-        if self.gcp_credentials_getter is not None:
+    def kwargs_for_function(self, fn: Callable) -> Dict[str, Any]:
+        parameters: Dict[str, Type] = inspect.signature(fn).parameters
+        out: Dict[str, Any] = {}
+        # TODO: Why shouldn't boto3_session_getter also be nullable
+        if 'boto3_session' in parameters:
+            out["boto3_session"] = self.boto3_session_getter()
+        if 'gcs_client' in parameters and self.gcs_client_getter is not None:
+            out["gcs_client"] = self.gcs_client_getter()
+        if 'gcp_credentials' in parameters and self.gcp_credentials_getter is not None:
             out["gcp_credentials"] = self.gcp_credentials_getter()
+        print(f"kwargs: {out}")
         return out
 
     def directory_url(self, url: str) -> BaseDirectoryUrl:
