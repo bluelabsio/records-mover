@@ -85,12 +85,14 @@ class UrlResolver:
     def kwargs_for_function(self, fn: Callable) -> Dict[str, Any]:
         parameters: Dict[str, Type] = inspect.signature(fn).parameters
         out: Dict[str, Any] = {}
-        # TODO: Why shouldn't boto3_session_getter also be nullable
+        # TODO: Can I get mypy to complain that I'm assigning a None
+        # thing to something that shouldn't ever be None?  Then I can
+        # add an error with a good message
         if 'boto3_session' in parameters:
             out["boto3_session"] = self.boto3_session_getter()
-        if 'gcs_client' in parameters and self.gcs_client_getter is not None:
+        if 'gcs_client' in parameters:
             out["gcs_client"] = self.gcs_client_getter()
-        if 'gcp_credentials' in parameters and self.gcp_credentials_getter is not None:
+        if 'gcp_credentials' in parameters:
             out["gcp_credentials"] = self.gcp_credentials_getter()
         print(f"kwargs: {out}")
         return out
