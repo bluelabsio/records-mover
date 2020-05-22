@@ -252,26 +252,31 @@ class Session():
         return self.__gcs_creds
 
     def _gcs_client(self) -> Optional['google.cloud.storage.Client']:
-        # TODO: cache
+        if self.__gcs_client is not NotYetFetched.token:
+            return self.__gcs_client
 
         gcs_creds = self._gcs_creds()
         if gcs_creds is None:
-            return None
+            self.__gcs_client = None
+            return self.__gcs_client
         try:
             import google.cloud.storage  # noqa
         except ModuleNotFoundError:
             logger.debug("google.cloud.storage not installed",
                          exc_info=True)
-            return None
+            self.__gcs_client = None
+            return self.__gcs_client
 
         try:
-            return google.cloud.storage.Client(credentials=gcs_creds)
+            self.__gcs_client = google.cloud.storage.Client(credentials=gcs_creds)
+            return self.__gcs_client
         except OSError:
             # Example:
             #   OSError: Project was not passed and could not be determined from the environment.
             logger.debug("google.cloud.storage not configured",
                          exc_info=True)
-            return None
+            self.__gcs_client = None
+            return self.__gcs_client
 
     def set_stream_logging(self,
                            name: str = 'records_mover',
