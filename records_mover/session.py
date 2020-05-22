@@ -145,7 +145,6 @@ class Session():
         self._default_gcp_creds_name = default_gcp_creds_name
         self._scratch_s3_url = scratch_s3_url
         self.creds = creds
-        self._records: Union[NotYetFetched, Records] = NotYetFetched.token
         self.__gcs_creds: Union[NotYetFetched,
                                 Optional['google.auth.credentials.Credentials']] =\
             NotYetFetched.token
@@ -238,7 +237,6 @@ class Session():
             else:
                 creds = self.creds.gcs(self._default_gcp_creds_name)
                 self.__gcs_creds = creds
-                return creds
         except (OSError, google.auth.exceptions.DefaultCredentialsError):
             # Examples:
             #   OSError: Project was not passed and could not be determined from the environment.
@@ -313,9 +311,5 @@ class Session():
 
     @property
     def records(self) -> Records:
-        if self._records is not NotYetFetched.token:
-            return self._records
-
-        self._records = Records(db_driver=self.db_driver,
-                                url_resolver=self.url_resolver)
-        return self._records
+        return Records(db_driver=self.db_driver,
+                       url_resolver=self.url_resolver)
