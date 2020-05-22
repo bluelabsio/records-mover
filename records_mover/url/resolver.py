@@ -1,7 +1,6 @@
 from urllib.parse import urlparse
 from .base import BaseFileUrl, BaseDirectoryUrl
 import inspect
-# TODO: Should I move these data structures here?
 from typing import Callable, Optional, Dict, Any, Type, Union, TYPE_CHECKING
 if TYPE_CHECKING:
     import google.cloud.storage  # noqa
