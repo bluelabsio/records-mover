@@ -36,7 +36,13 @@ def _infer_session_type() -> str:
     return 'cli'
 
 
-def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
+def _infer_aws_iam_user_name(self) -> Optional[str]:
+    return None
+
+
+def _infer_scratch_s3_url(session_type: str,
+                          creds: BaseCreds,
+                          default_aws_creds_name: Optional[str]) -> Optional[str]:
     if "SCRATCH_S3_URL" in os.environ:
         return os.environ["SCRATCH_S3_URL"]
 
@@ -53,7 +59,25 @@ def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
     if 'aws' in cfg:
         s3_scratch_url: Optional[str] = cfg['aws'].get('s3_scratch_url')
         if s3_scratch_url is not None:
-            return s3_scratch_url
+            #
+            # Automatically add IAM username after specified directory URL
+            #
+            root_home_directories = cfg['aws'].get('root_home_directories', False)
+            if root_home_directories:
+                #
+                # TODO: Which creds should be used here?  Should this
+                # determination be held until we need to determine the
+                # bucket, and the creds be passed in?  So this is a
+                # function rather than a value?https://bluelabs.slack.com/archives/G1MD1GKJB/p1590149305003500
+                #
+                aws_iam_user_name = self._infer_aws_iam_user_name()
+                if aws_iam_user_name is None:
+                    raise SyntaxError('Please provide SCRATCH_S3_URL environment variable - '
+                                      'could not determine your AWS IAM user name')
+                return f"{s3_scratch_url}/{aws_iam_user_name}/"
+            else:
+                return s3_scratch_url
+
     else:
         logger.debug('No config ini file found')
 
@@ -119,11 +143,11 @@ class Session():
         if creds is PleaseInfer.token:
             creds = _infer_creds(session_type)
 
-        if scratch_s3_url is PleaseInfer.token:
-            scratch_s3_url = _infer_scratch_s3_url(session_type)
-
         if default_aws_creds_name is PleaseInfer.token:
             default_aws_creds_name = _infer_default_aws_creds_name(session_type)
+
+        if scratch_s3_url is PleaseInfer.token:
+            scratch_s3_url = _infer_scratch_s3_url(session_type, creds, default_aws_creds_name)
 
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
