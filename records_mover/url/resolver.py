@@ -1,12 +1,12 @@
 from urllib.parse import urlparse
 from .base import BaseFileUrl, BaseDirectoryUrl
 import inspect
-from typing import Callable, Optional, Dict, Any, Type, Union, TYPE_CHECKING
+from typing import Callable, Optional, Dict, Type, Union, TYPE_CHECKING
 from typing_extensions import TypedDict
+import logging
 if TYPE_CHECKING:
     import google.cloud.storage  # noqa
     import boto3.session  # noqa
-import logging
 
 
 logger = logging.getLogger(__name__)
