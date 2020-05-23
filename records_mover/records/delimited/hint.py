@@ -8,6 +8,14 @@ HintT = TypeVar('HintT')
 
 
 class Hint(Generic[HintT], metaclass=ABCMeta):
+    def __init__(self,
+                 hint_name: HintName,
+                 default: HintT,
+                 description: str) -> None:
+        self.default = default
+        self.hint_name = hint_name
+        self.description = description
+
     @abstractmethod
     def validate(self,
                  hints: RecordsHints,
@@ -16,12 +24,6 @@ class Hint(Generic[HintT], metaclass=ABCMeta):
 
 
 class StringHint(Hint[str]):
-    def __init__(self,
-                 hint_name: HintName,
-                 default: str) -> None:
-        self.default = default
-        self.hint_name = hint_name
-
     def validate(self,
                  hints: RecordsHints,
                  fail_if_cant_handle_hint: bool) -> str:
@@ -44,12 +46,14 @@ class LiteralHint(Hint[LiteralHintT]):
     def __init__(self,
                  type_: Type[LiteralHintT],
                  hint_name: HintName,
-                 default: LiteralHintT) -> None:
+                 default: LiteralHintT,
+                 description: str) -> None:
         assert is_literal_type(type_), f"{hint_name} is not a Literal[]"
-        self.default = default
         self.type_ = type_
-        self.hint_name = hint_name
         self.valid_values: List[LiteralHintT] = list(get_args(type_))
+        super().__init__(hint_name=hint_name,
+                         default=default,
+                         description=description)
 
     def validate(self,
                  hints: RecordsHints,

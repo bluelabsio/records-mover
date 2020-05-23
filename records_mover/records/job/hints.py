@@ -3,6 +3,11 @@ from ...utils.json_schema import JsonParameter, JsonSchemaDocument
 from typing import Optional
 
 
+SUPPORTED_HINT_NAMES = [
+    'field-delimiter', 'compression', 'escape', 'quoting', 'encoding'
+]
+
+
 class SupportedHint:
     """Definition for supported hints"""
 
@@ -23,6 +28,8 @@ QUOTING_DESCRIPTION =\
          'minimal: quote only fields that contain ambiguous characters (the '
          'delimiter, the escape character, or a line terminator). '
          'default: never quote fields.')
+
+
 
 #
 # Note: Any expansion of these types should also be done in
