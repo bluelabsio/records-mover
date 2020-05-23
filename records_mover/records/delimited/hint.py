@@ -1,8 +1,9 @@
 from typing_inspect import is_literal_type, get_args
 from abc import ABCMeta, abstractmethod
 from .types import HintName, RecordsHints
-from records_mover.utils.json_schema import JsonSchemaDocument
-from typing import TypeVar, Generic, Type, List
+from typing import TypeVar, Generic, Type, List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from records_mover.utils.json_schema import JsonSchemaDocument
 
 
 HintT = TypeVar('HintT')
@@ -24,12 +25,14 @@ class Hint(Generic[HintT], metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def json_schema_document(self) -> JsonSchemaDocument:
+    def json_schema_document(self) -> 'JsonSchemaDocument':
         ...
 
 
 class StringHint(Hint[str]):
-    def json_schema_document(self) -> JsonSchemaDocument:
+    def json_schema_document(self) -> 'JsonSchemaDocument':
+        from records_mover.utils.json_schema import JsonSchemaDocument
+
         return JsonSchemaDocument('string',
                                   description=self.description)
 
@@ -64,7 +67,9 @@ class LiteralHint(Hint[LiteralHintT]):
                          default=default,
                          description=description)
 
-    def json_schema_document(self) -> JsonSchemaDocument:
+    def json_schema_document(self) -> 'JsonSchemaDocument':
+        from records_mover.utils.json_schema import JsonSchemaDocument
+
         json_schema_types = {
             bool: 'boolean',
             str: 'string',
