@@ -1,6 +1,7 @@
 from typing_inspect import is_literal_type, get_args
 from abc import ABCMeta, abstractmethod
 from .types import HintName, RecordsHints
+from records_mover.utils.json_schema import JsonSchemaDocument
 from typing import TypeVar, Generic, Type, List
 
 
@@ -22,8 +23,16 @@ class Hint(Generic[HintT], metaclass=ABCMeta):
                  fail_if_cant_handle_hint: bool) -> HintT:
         ...
 
+    @abstractmethod
+    def json_schema_document(self) -> JsonSchemaDocument:
+        ...
+
 
 class StringHint(Hint[str]):
+    def json_schema_document(self) -> JsonSchemaDocument:
+        return JsonSchemaDocument('string',
+                                  description=self.description)
+
     def validate(self,
                  hints: RecordsHints,
                  fail_if_cant_handle_hint: bool) -> str:
@@ -54,6 +63,28 @@ class LiteralHint(Hint[LiteralHintT]):
         super().__init__(hint_name=hint_name,
                          default=default,
                          description=description)
+
+    def json_schema_document(self) -> JsonSchemaDocument:
+        json_schema_types = {
+            bool: 'boolean',
+            str: 'string',
+            # Even though Python prints the word NoneType in many
+            # error messages, NoneType is not an identifier in
+            # Python. It’s not in builtins. You can only reach it with
+            # type(None).
+            #
+            # https://realpython.com/null-in-python/
+            type(None): 'null',
+        }
+
+        types_set = {
+            json_schema_types[type(valid_value)]
+            for valid_value in self.valid_values
+        }
+
+        return JsonSchemaDocument(list(types_set),
+                                  enum=self.valid_values,
+                                  description=self.description)
 
     def validate(self,
                  hints: RecordsHints,

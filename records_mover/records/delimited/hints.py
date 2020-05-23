@@ -1,16 +1,18 @@
-from .hint import LiteralHint, StringHint
+from .hint import LiteralHint, StringHint, Hint
 from .types import (
     HintHeaderRow, HintCompression, HintQuoting,
     HintDoublequote, HintEscape, HintEncoding, HintDateFormat, HintTimeOnlyFormat,
     HintDateTimeFormatTz, HintDateTimeFormat
 )
+from enum import Enum
 import logging
 
 
 logger = logging.getLogger(__name__)
 
 
-class Hints:
+class Hints(Enum):
+    value: Hint
     # mypy gives this when we pass the HintBlahBlah aliases in as an
     # argument here:
     #

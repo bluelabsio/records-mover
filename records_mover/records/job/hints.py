@@ -1,13 +1,15 @@
 """Defines hints supported by the job config parser."""
+from records_mover.records.delimited.hints import Hints
 from ...utils.json_schema import JsonParameter, JsonSchemaDocument
 from typing import Optional
 
 
 SUPPORTED_HINT_NAMES = [
-    'field-delimiter', 'compression', 'escape', 'quoting', 'encoding'
+    'field-delimiter', 'compression', 'escape', 'quoting', 'encoding', 'header-row'
 ]
 
 
+# TODO: This class isn't needed anymore if we can just provide Hint class
 class SupportedHint:
     """Definition for supported hints"""
 
@@ -22,52 +24,12 @@ class SupportedHint:
         return self.schema.name
 
 
-QUOTING_DESCRIPTION =\
-        ('How quotes are applied to individual fields. '
-         'all: quote all fields. '
-         'minimal: quote only fields that contain ambiguous characters (the '
-         'delimiter, the escape character, or a line terminator). '
-         'default: never quote fields.')
-
-
-
-#
-# Note: Any expansion of these types should also be done in
-# records.types
-#
 SUPPORTED_HINTS = [
     SupportedHint(
-        JsonParameter('field-delimiter',
-                      JsonSchemaDocument('string',
-                                         description=('Character used between fields '
-                                                      '(default is comma)')),
-                      optional=True)),
-    SupportedHint(
-        JsonParameter('compression',
-                      JsonSchemaDocument(['string', 'null'],
-                                         enum=['BZIP', 'GZIP', 'LZO', None],
-                                         description='Compression type of the file.'),
-                      optional=True)),
-    SupportedHint(
-        JsonParameter('escape',
-                      JsonSchemaDocument(['string', 'null'],
-                                         enum=['\\', None],
-                                         description="Character used to escape strings"),
-                      optional=True)),
-    SupportedHint(
-        JsonParameter('quoting',
-                      JsonSchemaDocument(['string', 'null'],
-                                         enum=['all', 'minimal', 'nonnumeric', None],
-                                         description=QUOTING_DESCRIPTION),
-                      optional=True)),
-    SupportedHint(
-        JsonParameter('encoding',
-                      JsonSchemaDocument(['string'],
-                                         enum=[
-                                             'UTF8', 'UTF16', 'UTF16LE', 'UTF16BE',
-                                             'LATIN1', 'CP1252'
-                                         ],
-                                         description="Text encoding of file"),
-                      optional=True)),
+        JsonParameter(hint_enum.value.hint_name,
+                      hint_enum.value.json_schema_document(),
+                      optional=True))
+    for hint_enum in list(Hints)
 ]
+
 SUPPORTED_HINT_LOOKUP = {hint.config_name: hint for hint in SUPPORTED_HINTS}
