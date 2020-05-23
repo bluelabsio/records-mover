@@ -80,14 +80,14 @@ class UrlResolver:
         if parsed_url.scheme in file_url_ctors:
             ctor = file_url_ctors[parsed_url.scheme]
 
-            out = ctor(url, **self.kwargs_for_function(ctor))
+            out = ctor(url, **self._kwargs_for_function(ctor))
             if not isinstance(out, BaseFileUrl):
                 raise TypeError(f"Not a file url: {url}")
             return out
         else:
             raise NotImplementedError(f"Teach me how to create FileUrls for {parsed_url.scheme}")
 
-    def kwargs_for_function(self, fn: Callable) -> UrlClassKwArgs:
+    def _kwargs_for_function(self, fn: Callable) -> UrlClassKwArgs:
         parameters: Dict[str, Type] = inspect.signature(fn).parameters
         out: UrlClassKwArgs = {}
         if 'boto3_session' in parameters:
@@ -116,7 +116,7 @@ class UrlResolver:
         parsed_url = urlparse(url)
         if parsed_url.scheme in directory_url_ctors:
             ctor = directory_url_ctors[parsed_url.scheme]
-            out = ctor(url, **self.kwargs_for_function(ctor))
+            out = ctor(url, **self._kwargs_for_function(ctor))
             if not isinstance(out, BaseDirectoryUrl):
                 raise TypeError(f"Not a directory url: {url}")
             return out
