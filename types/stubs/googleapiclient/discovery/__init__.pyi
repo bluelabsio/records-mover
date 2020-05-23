@@ -1,5 +1,5 @@
 from google.auth.credentials import Credentials
-from typing import Literal
+from typing_extensions import Literal
 
 
 class _ListRequest:
