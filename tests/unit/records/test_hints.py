@@ -35,10 +35,14 @@ class TestHints(unittest.TestCase):
             initial_hints = config['initial_hints']
 
             with open(csv_filename, 'rb') as fileobj:
-                hints = sniff_hints(fileobj, initial_hints=initial_hints)
-                self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
-                                f"Expected at least these hints while reading {basename}: "
-                                f"{required_hints}, found these hints: {hints}")
+                try:
+                    hints = sniff_hints(fileobj, initial_hints=initial_hints)
+                    self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
+                                    f"Expected at least these hints while reading {basename}: "
+                                    f"{required_hints}, found these hints: {hints}")
+                except Exception as e:
+                    if str(e) != config.get('raises'):
+                        raise
 
     def test_sniff_hints_gzipped_preinformed(self):
         for basename in self.sample_file_basenames():
@@ -54,10 +58,14 @@ class TestHints(unittest.TestCase):
             with open(csv_filename, 'rb') as uncompressed_fileobj:
                 gzipped_data = gzip.compress(uncompressed_fileobj.read())
                 fileobj = io.BytesIO(gzipped_data)
-                hints = sniff_hints(fileobj, initial_hints=initial_hints)
-                self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
-                                f"Expected at least these hints while reading {basename}: "
-                                f"{required_hints}, found these hints: {hints}")
+                try:
+                    hints = sniff_hints(fileobj, initial_hints=initial_hints)
+                    self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
+                                    f"Expected at least these hints while reading {basename}: "
+                                    f"{required_hints}, found these hints: {hints}")
+                except Exception as e:
+                    if str(e) != config.get('raises'):
+                        raise
 
     def test_sniff_hints_gzipped_sniffed(self):
         for basename in self.sample_file_basenames():
@@ -72,10 +80,14 @@ class TestHints(unittest.TestCase):
             with open(csv_filename, 'rb') as uncompressed_fileobj:
                 gzipped_data = gzip.compress(uncompressed_fileobj.read())
                 fileobj = io.BytesIO(gzipped_data)
-                hints = sniff_hints(fileobj, initial_hints=initial_hints)
-                self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
-                                f"Expected at least these hints while reading {basename}: "
-                                f"{required_hints}, found these hints: {hints}")
+                try:
+                    hints = sniff_hints(fileobj, initial_hints=initial_hints)
+                    self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
+                                    f"Expected at least these hints while reading {basename}: "
+                                    f"{required_hints}, found these hints: {hints}")
+                except Exception as e:
+                    if str(e) != config.get('raises'):
+                        raise
 
     def test_sniff_hints_bzipped_preinformed(self):
         for basename in self.sample_file_basenames():
@@ -91,10 +103,14 @@ class TestHints(unittest.TestCase):
             with open(csv_filename, 'rb') as uncompressed_fileobj:
                 gzipped_data = bz2.compress(uncompressed_fileobj.read())
                 fileobj = io.BytesIO(gzipped_data)
-                hints = sniff_hints(fileobj, initial_hints=initial_hints)
-                self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
-                                f"Expected at least these hints while reading {basename}: "
-                                f"{required_hints}, found these hints: {hints}")
+                try:
+                    hints = sniff_hints(fileobj, initial_hints=initial_hints)
+                    self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
+                                    f"Expected at least these hints while reading {basename}: "
+                                    f"{required_hints}, found these hints: {hints}")
+                except Exception as e:
+                    if str(e) != config.get('raises'):
+                        raise
 
     def test_sniff_hints_bzipped_sniffed(self):
         for basename in self.sample_file_basenames():
@@ -109,10 +125,14 @@ class TestHints(unittest.TestCase):
             with open(csv_filename, 'rb') as uncompressed_fileobj:
                 gzipped_data = bz2.compress(uncompressed_fileobj.read())
                 fileobj = io.BytesIO(gzipped_data)
-                hints = sniff_hints(fileobj, initial_hints=initial_hints)
-                self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
-                                f"Expected at least these hints while reading {basename}: "
-                                f"{required_hints}, found these hints: {hints}")
+                try:
+                    hints = sniff_hints(fileobj, initial_hints=initial_hints)
+                    self.assertTrue(set(required_hints.items()).issubset(set(hints.items())),
+                                    f"Expected at least these hints while reading {basename}: "
+                                    f"{required_hints}, found these hints: {hints}")
+                except Exception as e:
+                    if str(e) != config.get('raises'):
+                        raise
 
     @patch('records_mover.records.delimited.sniff.csv')
     @patch('records_mover.records.delimited.sniff.stream_csv')

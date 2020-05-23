@@ -252,6 +252,8 @@ def sniff_hints(fileobj: IO[bytes],
                                                           record_terminator_hint,
                                                           final_encoding_hint,
                                                           compression_hint)
+        else:
+            python_inferred_hints = {}
 
         #
         # Pandas can both validate that we chose correctly by parsing
