@@ -1,0 +1,6 @@
+{
+  "required": {},
+  "raises": "No columns to parse from file",
+  "initial_hints": {},
+  "notes": "Whatever it figures out is fine so long as it doesn't give an internal error"
+}
