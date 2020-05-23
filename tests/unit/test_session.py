@@ -163,6 +163,24 @@ class TestSession(unittest.TestCase):
         self.assertEqual(boto3_session,
                          mock_boto3_session.Session.return_value)
 
+    @patch('records_mover.session.CredsViaEnv')
+    @patch('boto3.session')
+    def test_session_boto3_session_via_url_resolver_specified(self,
+                                                              mock_boto3_session,
+                                                              mock_CredsViaEnv,
+                                                              mock_os,
+                                                              mock_subprocess,
+                                                              mock_get_config,
+                                                              mock_google_auth_default,
+                                                              mock_google_cloud_storage_Client):
+        mock_default_aws_creds_name = Mock(name='default_aws_creds_name')
+        session = Session(default_aws_creds_name=mock_default_aws_creds_name,
+                          session_type='env')
+        boto3_session = session.url_resolver.boto3_session_getter()
+        self.assertEqual(boto3_session,
+                         mock_CredsViaEnv.return_value.boto3_session.return_value)
+        mock_CredsViaEnv.return_value.boto3_session.assert_called_with(mock_default_aws_creds_name)
+
     @patch('boto3.session')
     def test_session_boto3_session_via_url_resolver_cached(self,
                                                            mock_boto3_session,
@@ -221,3 +239,21 @@ class TestSession(unittest.TestCase):
         session = Session()
         gcs_client = session.url_resolver.gcs_client_getter()
         self.assertEqual(gcs_client, mock_google_cloud_storage_Client.return_value)
+
+    def test_session_gcs_client_via_url_resolver_cached(self,
+                                                        mock_os,
+                                                        mock_subprocess,
+                                                        mock_get_config,
+                                                        mock_google_auth_default,
+                                                        mock_google_cloud_storage_Client):
+        mock_credentials = Mock(name='credentials')
+        mock_project = Mock(name='project')
+        mock_google_auth_default.return_value = (mock_credentials, mock_project)
+        session = Session()
+        gcs_client = session.url_resolver.gcs_client_getter()
+        self.assertEqual(gcs_client, mock_google_cloud_storage_Client.return_value)
+
+        second_gcs_client = session.url_resolver.gcs_client_getter()
+        self.assertEqual(second_gcs_client, mock_google_cloud_storage_Client.return_value)
+
+        mock_google_auth_default.assert_called_once_with()
