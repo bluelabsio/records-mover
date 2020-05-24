@@ -4,8 +4,8 @@ from typing import Any, Dict, List, Callable
 from records_mover import Session
 from ..records_format import DelimitedRecordsFormat
 from ..existing_table_handling import ExistingTableHandling
-from .hints import SUPPORTED_HINT_LOOKUP
 from ..delimited import RecordsHints
+from records_mover.records.delimited.types import HINT_NAMES
 from ...mover_types import JobConfig
 
 
@@ -35,8 +35,7 @@ class ConfigToArgs:
         elif 'initial_hints' in self.possible_args:
             if 'initial_hints' not in kwargs:
                 kwargs['initial_hints'] = {}
-            hint_definition = SUPPORTED_HINT_LOOKUP[param_name]
-            kwargs['initial_hints'][hint_definition.target_hint_name] = kwargs[param_name]
+            kwargs['initial_hints'][param_name] = kwargs[param_name]
         elif 'records_format' in self.possible_args:
             # user must want a delimited records format - e.g., on
             # output where initial hints are not a thing as we're not
@@ -128,7 +127,7 @@ class ConfigToArgs:
                 self.fill_in_existing_table_handling(kwargs)
             elif arg == 'variant':
                 self.fill_in_records_format(kwargs)
-            elif arg in SUPPORTED_HINT_LOOKUP:
+            elif arg in HINT_NAMES:
                 self.add_hint_parameter(kwargs, arg)
             else:
                 raise NotImplementedError(f"Teach me how to pass in {arg}")

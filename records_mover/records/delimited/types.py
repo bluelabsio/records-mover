@@ -1,4 +1,5 @@
-from typing import Optional, Union, Mapping, Dict
+from typing_inspect import get_args
+from typing import Optional, Union, Mapping, Dict, List
 from typing_extensions import Literal, TypedDict
 from records_mover.mover_types import JsonValue
 
@@ -37,13 +38,11 @@ HintDateTimeFormat = Literal["YYYY-MM-DD HH24:MI:SS",
                              "YYYY-MM-DD HH12:MI AM",
                              "MM/DD/YY HH24:MI"]
 
-
 HintFieldDelimiter = str
 
 HintRecordTerminator = str
 
 HintQuoteChar = str
-
 
 BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
                                       {
@@ -71,3 +70,5 @@ HintName = Literal["header-row",
                    "timeonlyformat",
                    "datetimeformattz",
                    "datetimeformat"]
+
+HINT_NAMES: List[HintName] = list(get_args(HintName))  # type: ignore
