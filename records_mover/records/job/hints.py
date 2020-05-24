@@ -1,6 +1,6 @@
 """Defines hints supported by the job config parser."""
 from records_mover.records.delimited.hints import Hints
-from ...utils.json_schema import JsonParameter, JsonSchemaDocument
+from ...utils.json_schema import JsonParameter
 from typing import Optional
 
 
