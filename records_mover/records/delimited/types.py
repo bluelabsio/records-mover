@@ -1,6 +1,11 @@
-from typing_inspect import get_args
+from typing_inspect import get_args, typed_dict_keys
 from typing import Optional, Union, Mapping, Dict, List
-from typing_extensions import Literal, TypedDict
+from typing_extensions import Literal
+# TypedDict isn't mypy specific, but typing_inspect currently doesn't
+# support typing_extensions.TypedDict.
+#
+# https://github.com/ilevkivskyi/typing_inspect/issues/50
+from mypy_extensions import TypedDict
 from records_mover.mover_types import JsonValue
 
 
@@ -44,19 +49,6 @@ HintRecordTerminator = str
 
 HintQuoteChar = str
 
-BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
-                                      {
-                                          'quoting': HintQuoting,
-                                          'header-row': HintHeaderRow,
-                                          'field-delimiter': HintFieldDelimiter,
-                                          'encoding': HintEncoding,
-                                          'escape': HintEscape,
-                                          'compression': HintCompression,
-                                          'record-terminator': HintRecordTerminator,
-                                      },
-                                      total=False)
-
-
 HintName = Literal["header-row",
                    "field-delimiter",
                    "compression",
@@ -72,3 +64,17 @@ HintName = Literal["header-row",
                    "datetimeformat"]
 
 HINT_NAMES: List[HintName] = list(get_args(HintName))  # type: ignore
+
+BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
+                                      {
+                                          'quoting': HintQuoting,
+                                          'header-row': HintHeaderRow,
+                                          'field-delimiter': HintFieldDelimiter,
+                                          'encoding': HintEncoding,
+                                          'escape': HintEscape,
+                                          'compression': HintCompression,
+                                          'record-terminator': HintRecordTerminator,
+                                      },
+                                      total=False)
+
+BOOTSTRAPPING_HINT_NAMES: List[HintName] = typed_dict_keys(BootstrappingRecordsHints)

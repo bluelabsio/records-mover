@@ -1,6 +1,7 @@
 from ...utils.json_schema import method_signature_to_json_schema, JsonParameter, JsonSchemaDocument
 from ..existing_table_handling import ExistingTableHandling
 from records_mover.records.delimited.hints import Hints
+from records_mover.records.delimited.types import BOOTSTRAPPING_HINT_NAMES
 from typing import Any, Dict, List, Callable
 from ...mover_types import JsonSchema
 
@@ -12,6 +13,12 @@ HINT_PARAMETERS = [
     for hint_enum in list(Hints)
 ]
 
+BOOTSTRAPPING_HINT_PARAMETERS = [
+    hint_parameter
+    for hint_parameter in HINT_PARAMETERS
+    if hint_parameter.name in BOOTSTRAPPING_HINT_NAMES
+]
+
 
 def method_to_json_schema(method: Callable[..., Any]) -> JsonSchema:
     special_handling: Dict[str, List[JsonParameter]] = {
@@ -19,7 +26,7 @@ def method_to_json_schema(method: Callable[..., Any]) -> JsonSchema:
         'db_engine': [JsonParameter('db_name', JsonSchemaDocument('string'))],
         'records_format': ([JsonParameter('variant', JsonSchemaDocument('string'), optional=True)] +
                            HINT_PARAMETERS),
-        'initial_hints': HINT_PARAMETERS,  # TODO: Downselect to initial_hints?
+        'initial_hints': BOOTSTRAPPING_HINT_PARAMETERS,
         'existing_table_handling':
         [JsonParameter('existing_table',
                        JsonSchemaDocument('string',
