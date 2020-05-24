@@ -9,10 +9,6 @@ from mypy_extensions import TypedDict
 from records_mover.mover_types import JsonValue
 
 
-RecordsValue = Optional[Union[bool, str]]
-RecordsHints = Mapping[str, JsonValue]
-MutableRecordsHints = Dict[str, JsonValue]
-
 HintEncoding = Literal["UTF8", "UTF16", "UTF16LE", "UTF16BE",
                        "UTF16BOM", "UTF8BOM", "LATIN1", "CP1252"]
 
@@ -65,6 +61,7 @@ HintName = Literal["header-row",
 
 HINT_NAMES: List[HintName] = list(get_args(HintName))  # type: ignore
 
+# TODO: Retire this
 BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
                                       {
                                           'quoting': HintQuoting,
@@ -77,4 +74,25 @@ BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
                                       },
                                       total=False)
 
+# TODO: Retire this
 BOOTSTRAPPING_HINT_NAMES: List[HintName] = typed_dict_keys(BootstrappingRecordsHints)
+
+TypedRecordsHints = TypedDict('TypedRecordsHints',
+                              {
+                                  'quoting': HintQuoting,
+                                  'header-row': HintHeaderRow,
+                                  'field-delimiter': HintFieldDelimiter,
+                                  'encoding': HintEncoding,
+                                  'escape': HintEscape,
+                                  'compression': HintCompression,
+                                  'record-terminator': HintRecordTerminator,
+                                  'quotechar': HintQuoteChar,
+                                  'doublequote': HintDoublequote,
+                                  'dateformat': HintDateFormat,
+                                  'timeonlyformat': HintTimeOnlyFormat,
+                                  'datetimeformattz': HintDateTimeFormatTz,
+                                  'datetimeformat': HintDateTimeFormat,
+                              },
+                              total=False)
+RecordsHints = Mapping[str, JsonValue]
+MutableRecordsHints = Dict[str, JsonValue]
