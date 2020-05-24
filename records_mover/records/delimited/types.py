@@ -94,5 +94,5 @@ TypedRecordsHints = TypedDict('TypedRecordsHints',
                                   'datetimeformat': HintDateTimeFormat,
                               },
                               total=False)
-RecordsHints = Mapping[str, JsonValue]
-MutableRecordsHints = Dict[str, JsonValue]
+RecordsHints = Mapping[str, object]
+MutableRecordsHints = Dict[str, object]
