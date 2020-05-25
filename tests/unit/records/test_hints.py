@@ -151,16 +151,20 @@ class TestHints(unittest.TestCase):
         mock_io.TextIOWrapper.return_value.newlines = '\n'
         mock_streaming_engine.compression = 'gzip'
         mock_streaming_engine.encoding = 'utf-8'
+        mock_sniffer = mock_csv.Sniffer.return_value
+        mock_sniff_results = mock_sniffer.sniff.return_value
+        mock_sniff_results.doublequote = True
+        mock_sniffer.has_header.return_value = False
         out = sniff_hints_from_fileobjs(fileobjs=mock_fileobjs,
                                         initial_hints=mock_initial_hints)
         self.assertEqual(out, {
             'compression': 'GZIP',
-            'doublequote': mock_csv.Sniffer().sniff().doublequote,
+            'doublequote': True,
             'encoding': 'UTF8',
             'quotechar': mock_csv.Sniffer().sniff().quotechar,
             'quoting': 'minimal',
             'field-delimiter': ',',
-            'header-row': mock_csv.Sniffer().has_header(),
+            'header-row': False,
             'record-terminator': str(mock_io.TextIOWrapper.return_value.newlines),
         })
 
