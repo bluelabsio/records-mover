@@ -2,7 +2,8 @@ from .hint import LiteralHint, StringHint, Hint
 from .types import (
     HintHeaderRow, HintCompression, HintQuoting,
     HintDoublequote, HintEscape, HintEncoding, HintDateFormat, HintTimeOnlyFormat,
-    HintDateTimeFormatTz, HintDateTimeFormat
+    HintDateTimeFormatTz, HintDateTimeFormat,
+    UntypedRecordsHints, TypedRecordsHints
 )
 from enum import Enum
 import logging
@@ -88,3 +89,14 @@ class Hints(Enum):
     field_delimiter = StringHint('field-delimiter',
                                  default=',',
                                  description='Character used between fields.')
+
+
+def validate_hints(untyped_hints: UntypedRecordsHints,
+                   fail_if_cant_handle_hint: bool) -> TypedRecordsHints:
+    typed_records_hints: TypedRecordsHints = {}
+    for key in untyped_hints:
+        hint_obj = Hints[key.replace('-', '_')].value
+        value = hint_obj.validate(untyped_hints,
+                                  fail_if_cant_handle_hint=fail_if_cant_handle_hint)
+        typed_records_hints[key] = value  # type: ignore
+    return typed_records_hints
