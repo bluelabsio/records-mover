@@ -1,5 +1,6 @@
 from ...utils import quiet_remove
-from ...records.delimited import cant_handle_hint
+from ...records.delimited import cant_handle_hint, ValidatedRecordsHints
+from records_mover.mover_types import _assert_never
 from sqlalchemy_redshift.commands import Format, Encoding, Compression
 from typing import Dict, Optional, Set
 from ...records import RecordsHints
@@ -8,64 +9,64 @@ RedshiftCopyOptions = Dict[str, Optional[object]]
 
 
 def redshift_copy_options(unhandled_hints: Set[str],
-                          hints: RecordsHints,
+                          hints: ValidatedRecordsHints,
                           fail_if_cant_handle_hint: bool,
                           fail_if_row_invalid: bool,
                           max_failure_rows: Optional[int]) -> RedshiftCopyOptions:
     redshift_options: RedshiftCopyOptions = {}
-    if hints['compression'] == 'GZIP':
+    if hints.compression == 'GZIP':
         redshift_options['compression'] = Compression.gzip
-    elif hints['compression'] == 'LZO':
+    elif hints.compression == 'LZO':
         redshift_options['compression'] = Compression.lzop
-    elif hints['compression'] == 'BZIP':
+    elif hints.compression == 'BZIP':
         redshift_options['compression'] = Compression.bzip2
+    elif hints.compression is None:
+        redshift_options['compression'] = None
     else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
-        redshift_options['compression'] = Compression(hints['compression'])
+        _assert_never(hints.compression)
     quiet_remove(unhandled_hints, 'compression')
-    if hints['dateformat'] is None:
+    if hints.dateformat is None:
         redshift_options['date_format'] = 'auto'
     else:
-        redshift_options['date_format'] = hints['dateformat']
+        redshift_options['date_format'] = hints.dateformat
     quiet_remove(unhandled_hints, 'dateformat')
-    if hints['encoding'] == 'UTF8':
+    if hints.encoding == 'UTF8':
         redshift_options['encoding'] = Encoding.utf8
-    elif hints['encoding'] == 'UTF16':
+    elif hints.encoding == 'UTF16':
         redshift_options['encoding'] = Encoding.utf16
-    elif hints['encoding'] == 'UTF16LE':
+    elif hints.encoding == 'UTF16LE':
         redshift_options['encoding'] = Encoding.utf16le
-    elif hints['encoding'] == 'UTF16BE':
+    elif hints.encoding == 'UTF16BE':
         redshift_options['encoding'] = Encoding.utf16be
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'encoding', hints)
-        redshift_options['encoding'] = Encoding(hints['encoding'])
+        redshift_options['encoding'] = Encoding(hints.encoding)
     quiet_remove(unhandled_hints, 'encoding')
-    redshift_options['quote'] = hints['quotechar']
+    redshift_options['quote'] = hints.quotechar
     quiet_remove(unhandled_hints, 'quotechar')
-    if hints['quoting'] == 'minimal':
-        if hints['escape'] is not None:
+    if hints.quoting == 'minimal':
+        if hints.escape is not None:
             cant_handle_hint(fail_if_cant_handle_hint, 'escape', hints)
-        if hints['field-delimiter'] != ',':
+        if hints.field_delimiter != ',':
             cant_handle_hint(fail_if_cant_handle_hint, 'field-delimiter', hints)
-        if hints['doublequote'] is not True:
+        if hints.doublequote is not True:
             cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
 
         redshift_options['format'] = Format.csv
     else:
-        redshift_options['delimiter'] = hints['field-delimiter']
-        if hints['escape'] == '\\':
+        redshift_options['delimiter'] = hints.field_delimiter
+        if hints.escape == '\\':
             redshift_options['escape'] = True
-        elif hints['escape'] is None:
+        elif hints.escape is None:
             redshift_options['escape'] = False
         else:
-            cant_handle_hint(fail_if_cant_handle_hint, 'escape', hints)
-            redshift_options['escape'] = False
-        if hints['quoting'] == 'all':
+            _assert_never(hints.escape)
+        if hints.quoting == 'all':
             redshift_options['remove_quotes'] = True
-            if hints['doublequote'] is not False:
+            if hints.doublequote is not False:
                 cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
 
-        elif hints['quoting'] is None:
+        elif hints.quoting is None:
             redshift_options['remove_quotes'] = False
         else:
             cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
@@ -73,7 +74,7 @@ def redshift_copy_options(unhandled_hints: Set[str],
     quiet_remove(unhandled_hints, 'escape')
     quiet_remove(unhandled_hints, 'field-delimiter')
     quiet_remove(unhandled_hints, 'doublequote')
-    if hints['datetimeformat'] is None:
+    if hints.datetimeformat is None:
         redshift_options['time_format'] = 'auto'
     else:
         # After testing, Redshift's date/time parsing doesn't actually
@@ -87,7 +88,7 @@ def redshift_copy_options(unhandled_hints: Set[str],
         # likely to handle a variety of formats:
         #
         # https://docs.aws.amazon.com/redshift/latest/dg/automatic-recognition.html
-        if hints['datetimeformat'] != hints['datetimeformattz']:
+        if hints.datetimeformat != hints.datetimeformattz:
             # The Redshift auto parser seems to take a good handling
             # at our various supported formats, so let's give it a
             # shot if we're not able to specify a specific format due
@@ -117,7 +118,7 @@ def redshift_copy_options(unhandled_hints: Set[str],
             # analytics=>
             redshift_options['time_format'] = 'auto'
         else:
-            redshift_options['time_format'] = hints['datetimeformat']
+            redshift_options['time_format'] = hints.datetimeformat
     quiet_remove(unhandled_hints, 'datetimeformat')
     quiet_remove(unhandled_hints, 'datetimeformattz')
     # Redshift doesn't support time-only fields, so these will
@@ -130,13 +131,13 @@ def redshift_copy_options(unhandled_hints: Set[str],
     else:
         # max allowed value
         redshift_options['max_error'] = 100000
-    if hints['record-terminator'] is not None and \
-       hints['record-terminator'] != "\n":
+    if hints.record_terminator is not None and \
+       hints.record_terminator != "\n":
 
         cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
     quiet_remove(unhandled_hints, 'record-terminator')
 
-    if hints['header-row']:
+    if hints.header_row:
         redshift_options['ignore_header'] = 1
     else:
         redshift_options['ignore_header'] = 0

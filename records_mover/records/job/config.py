@@ -43,7 +43,7 @@ class ConfigToArgs:
             # variant yet.  Let's assume the default variant to start -
             # maybe a future arg will reveal a more specific variant.
             kwargs['records_format'] =\
-                DelimitedRecordsFormat(hints={param_name: kwargs[param_name]})
+                DelimitedRecordsFormat(hints={param_name: kwargs[param_name]})  # type: ignore
         else:
             raise NotImplementedError(f"Could not find place for {param_name} in "
                                       f"{self.possible_args}")

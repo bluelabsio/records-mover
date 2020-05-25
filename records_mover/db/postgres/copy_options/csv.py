@@ -1,5 +1,6 @@
 from records_mover.utils import quiet_remove
-from records_mover.records.delimited import cant_handle_hint, RecordsHints
+from records_mover.records.records_format import DelimitedRecordsFormat
+from records_mover.records.delimited import cant_handle_hint, ValidatedRecordsHints
 from typing import Set
 from .mode import CopyOptionsMode
 from .common import postgres_copy_options_common
@@ -7,7 +8,7 @@ from .types import PostgresCopyOptions, CopyOptionsModeType, _assert_never
 
 
 def postgres_copy_options_csv(unhandled_hints: Set[str],
-                              hints: RecordsHints,
+                              hints: ValidatedRecordsHints,
                               fail_if_cant_handle_hint: bool,
                               mode: CopyOptionsModeType) ->\
         PostgresCopyOptions:
@@ -41,7 +42,7 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
     #  format.
     #
 
-    postgres_options['quote'] = hints['quotechar']
+    postgres_options['quote'] = hints.quotechar
     quiet_remove(unhandled_hints, 'quotechar')
 
     # ESCAPE
@@ -53,12 +54,12 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
     #  character. This option is allowed only when using CSV format.
     #
 
-    if not hints['doublequote']:
+    if not hints.doublequote:
         cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
     else:
         quiet_remove(unhandled_hints, 'doublequote')
 
-    if hints['escape'] is not None:
+    if hints.escape is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'escape', hints)
     else:
         quiet_remove(unhandled_hints, 'escape')
@@ -71,7 +72,7 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
     #  option is allowed only in COPY TO, and only when using CSV
     #  format.
     if mode is CopyOptionsMode.LOADING:
-        if hints['quoting'] != 'minimal':
+        if hints.quoting != 'minimal':
             cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
         else:
             quiet_remove(unhandled_hints, 'quoting')
@@ -86,9 +87,9 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
         # FORCE_QUOTE to force quotes when outputting non-NULL values
         # in specific columns.
 
-        if hints['quoting'] == 'minimal':
+        if hints.quoting == 'minimal':
             pass  # default
-        elif hints['quoting'] == 'all':
+        elif hints.quoting == 'all':
             postgres_options['force_quote'] = '*'
         else:
             cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
@@ -126,21 +127,21 @@ def postgres_copy_options_csv(unhandled_hints: Set[str],
     # dockerized-postgres public bigqueryformat # loads fine
 
     if mode is CopyOptionsMode.LOADING:
-        if hints['record-terminator'] in ("\n", "\r\n", "\r", None):
+        if hints.record_terminator in ("\n", "\r\n", "\r", None):
             quiet_remove(unhandled_hints, 'record-terminator')
         else:
             cant_handle_hint(fail_if_cant_handle_hint, 'records-terminator', hints)
     elif mode is CopyOptionsMode.UNLOADING:
         # No control for this is given - exports appear with unix
         # newlines.
-        if hints['record-terminator'] == "\n":
+        if hints.record_terminator == "\n":
             quiet_remove(unhandled_hints, 'record-terminator')
         else:
             cant_handle_hint(fail_if_cant_handle_hint, 'records-terminator', hints)
     else:
         _assert_never(mode)
 
-    if hints['compression'] is not None:
+    if hints.compression is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
     else:
         quiet_remove(unhandled_hints, 'compression')

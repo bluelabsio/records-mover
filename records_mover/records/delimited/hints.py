@@ -3,7 +3,7 @@ from .types import (
     HintHeaderRow, HintCompression, HintQuoting,
     HintDoublequote, HintEscape, HintEncoding, HintDateFormat, HintTimeOnlyFormat,
     HintDateTimeFormatTz, HintDateTimeFormat,
-    UntypedRecordsHints, TypedRecordsHints
+    UntypedRecordsHints, PartialRecordsHints
 )
 from enum import Enum
 import logging
@@ -91,9 +91,10 @@ class Hints(Enum):
                                  description='Character used between fields.')
 
 
-def validate_hints(untyped_hints: UntypedRecordsHints,
-                   fail_if_cant_handle_hint: bool) -> TypedRecordsHints:
-    typed_records_hints: TypedRecordsHints = {}
+# TODO: Shoudl this be a method on DelimitedRecordsFormat as well?
+def validate_partial_hints(untyped_hints: UntypedRecordsHints,
+                           fail_if_cant_handle_hint: bool) -> PartialRecordsHints:
+    typed_records_hints: PartialRecordsHints = {}
     for key in untyped_hints:
         hint_obj = Hints[key.replace('-', '_')].value
         value = hint_obj.validate(untyped_hints,

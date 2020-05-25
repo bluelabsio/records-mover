@@ -8,21 +8,15 @@ import gzip
 import bz2
 from .types import HintEncoding, HintRecordTerminator, HintQuoting, HintCompression
 from .conversions import hint_encoding_from_chardet
-from typing import List, IO, Optional, Iterator, NoReturn, Dict
+from typing import List, IO, Optional, Iterator, Dict
 from records_mover.utils.rewound_fileobj import rewound_fileobj
+from records_mover.mover_types import _assert_never
 import logging
 
 
 logger = logging.getLogger(__name__)
 
 HINT_INFERENCE_SAMPLING_SIZE_BYTES = 1024
-
-
-# mypy way of validating we're covering all cases of an enum
-#
-# https://github.com/python/mypy/issues/6366#issuecomment-560369716
-def _assert_never(x: NoReturn) -> NoReturn:
-    assert False, "Unhandled type: {}".format(type(x).__name__)
 
 
 @contextmanager
@@ -128,11 +122,12 @@ def csv_hints_from_python(fileobj: IO[bytes],
             dialect = sniffer.sniff(sample_with_unix_newlines)
             header_row = sniffer.has_header(sample_with_unix_newlines)
             out: RecordsHints = {
-                'doublequote': dialect.doublequote,
+                'doublequote': True if dialect.doublequote else False,
                 'field-delimiter': dialect.delimiter,
-                'quotechar': dialect.quotechar,
-                'header-row': header_row,
+                'header-row': True if header_row else False,
             }
+            if dialect.quotechar is not None:
+                out['quotechar'] = dialect.quotechar
             logger.info(f"Python csv.Dialect sniffed: {out}")
             return out
         except csv.Error as e:
@@ -264,20 +259,20 @@ def sniff_hints(fileobj: IO[bytes],
         streaming_hints['compression'] = compression_hint
         if encoding_hint is not None:
             streaming_hints['encoding'] = encoding_hint
-        streaming_hints.update(python_inferred_hints)  # type: ignore
+        streaming_hints.update(python_inferred_hints)
         pandas_inferred_hints = csv_hints_from_pandas(fileobj, streaming_hints)
 
         #
         # Let's combine these together and present back a refined
         # version of the initial hints:
         #
-        out = {
+        out: RecordsHints = {
             'compression': compression_hint,
             **pandas_inferred_hints,  # type: ignore
-            **python_inferred_hints,  # type: ignore
+            **python_inferred_hints,
             'encoding': final_encoding_hint,
-            **other_inferred_csv_hints,  # type: ignore
-            **initial_hints  # type: ignore
+            **other_inferred_csv_hints,
+            **initial_hints
         }
         logger.info(f"Inferred hints from combined sources: {out}")
         return out

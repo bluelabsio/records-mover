@@ -5,7 +5,7 @@ from ..schema import RecordsSchema
 from ..processing_instructions import ProcessingInstructions
 from ..records_format import BaseRecordsFormat
 from records_mover.records.delimited import (
-    BootstrappingRecordsHints, RecordsHints, UntypedRecordsHints, validate_hints
+    BootstrappingRecordsHints, RecordsHints, UntypedRecordsHints, validate_partial_hints
 )
 import logging
 from typing import Optional, Iterator, Mapping, IO
@@ -35,9 +35,9 @@ class UninferredFileobjsRecordsSource(SupportsToFileobjsSource):
         typed_hints = None
         if self.initial_hints is not None:
             typed_hints =\
-                validate_hints(self.initial_hints,
-                               fail_if_cant_handle_hint=processing_instructions.
-                               fail_if_cant_handle_hint)
+                validate_partial_hints(self.initial_hints,
+                                       fail_if_cant_handle_hint=processing_instructions.
+                                       fail_if_cant_handle_hint)
         with FileobjsSource.\
                 infer_if_needed(target_names_to_input_fileobjs=self.target_names_to_input_fileobjs,
                                 records_format=self.records_format,

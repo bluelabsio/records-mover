@@ -1,6 +1,6 @@
 from typing_inspect import is_literal_type, get_args
 from abc import ABCMeta, abstractmethod
-from .types import HintName, RecordsHints
+from .types import HintName, RecordsHints, UntypedRecordsHints
 from typing import TypeVar, Generic, Type, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from records_mover.utils.json_schema import JsonSchemaDocument
@@ -20,7 +20,7 @@ class Hint(Generic[HintT], metaclass=ABCMeta):
 
     @abstractmethod
     def validate(self,
-                 hints: RecordsHints,
+                 hints: UntypedRecordsHints,
                  fail_if_cant_handle_hint: bool) -> HintT:
         ...
 
@@ -37,7 +37,7 @@ class StringHint(Hint[str]):
                                   description=self.description)
 
     def validate(self,
-                 hints: RecordsHints,
+                 hints: UntypedRecordsHints,
                  fail_if_cant_handle_hint: bool) -> str:
         from .utils import cant_handle_hint
 
@@ -92,7 +92,7 @@ class LiteralHint(Hint[LiteralHintT]):
                                   description=self.description)
 
     def validate(self,
-                 hints: RecordsHints,
+                 hints: UntypedRecordsHints,
                  fail_if_cant_handle_hint: bool) -> LiteralHintT:
         from .utils import cant_handle_hint
 

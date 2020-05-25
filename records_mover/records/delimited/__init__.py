@@ -37,7 +37,7 @@ hints.
 
 from .types import BootstrappingRecordsHints, RecordsHints, MutableRecordsHints, UntypedRecordsHints
 from .validated_records_hints import ValidatedRecordsHints
-from .hints import validate_hints
+from .hints import validate_partial_hints
 from .utils import cant_handle_hint, complain_on_unhandled_hints
 from .compression import sniff_compression_from_url
 from .types import (

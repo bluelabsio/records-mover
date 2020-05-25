@@ -4,6 +4,7 @@ from typing import Set
 from ...records.load_plan import RecordsLoadPlan
 from ...records.records_format import DelimitedRecordsFormat, ParquetRecordsFormat
 from records_mover.records import RecordsHints
+from records_mover.records.delimited import validate_partial_hints
 from google.cloud.bigquery.job import CreateDisposition, WriteDisposition
 from google.cloud import bigquery
 import logging
@@ -106,8 +107,10 @@ def load_job_config(unhandled_hints: Set[str],
     config.schema_update_options = None
 
     if isinstance(load_plan.records_format, DelimitedRecordsFormat):
+        hints = validate_partial_hints(load_plan.records_format.hints,
+                                       fail_if_cant_handle_hint=load_plan.processing_instructions.fail_if_cant_handle_hint)
         add_load_job_csv_config(unhandled_hints,
-                                load_plan.records_format.hints,
+                                hints,
                                 fail_if_cant_handle_hint,
                                 config)
         return config

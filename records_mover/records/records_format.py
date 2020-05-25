@@ -1,6 +1,6 @@
 import logging
 from .processing_instructions import ProcessingInstructions
-from . import RecordsHints
+from . import RecordsHints, UntypedRecordsHints
 from .base_records_format import BaseRecordsFormat
 from typing import Mapping, Optional, TYPE_CHECKING
 from .delimited import MutableRecordsHints, ValidatedRecordsHints
@@ -15,7 +15,7 @@ class ParquetRecordsFormat(BaseRecordsFormat):
         self.format_type = 'parquet'
 
     def __str__(self) -> str:
-        return f"ParquetRecordsFormat"
+        return "ParquetRecordsFormat"
 
     def __repr__(self) -> str:
         return str(self)
@@ -26,7 +26,10 @@ class ParquetRecordsFormat(BaseRecordsFormat):
 
 class DelimitedRecordsFormat(BaseRecordsFormat):
     variant: str
-    hints: RecordsHints
+    # The strong type for 'hints' in the constructor is for IDE
+    # support--we don't actually trust input to this class to be well-typed,
+    # as it may come from public interface consumers.
+    hints: UntypedRecordsHints
     """Stores the full set of hints describing the format, combining both
     the default hints for the variant and any hint overrides provided
     in the constructor"""
@@ -60,16 +63,16 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
                     self.hints == other.hints)
         return False
 
-    def alter_hints(self, new_hints: RecordsHints) ->\
+    def alter_hints(self, new_hints: UntypedRecordsHints) ->\
             'DelimitedRecordsFormat':
         input_hints = dict(self.hints)  # make copy
         input_hints.update(new_hints)
         return DelimitedRecordsFormat(variant=self.variant,
-                                      hints=input_hints)
+                                      hints=input_hints)  # type: ignore
 
     def alter_variant(self, variant: str) -> 'DelimitedRecordsFormat':
         return DelimitedRecordsFormat(variant=variant,
-                                      hints=self.hints)
+                                      hints=self.hints)  # type: ignore
 
     def base_hints_from_variant(self,
                                 fail_if_dont_understand: bool = True) -> MutableRecordsHints:
@@ -88,7 +91,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
             'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
             'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
         }
-        combined_hints = dict(hint_defaults)
+        combined_hints: MutableRecordsHints = dict(hint_defaults)  # type: ignore
         format_driven_hints: MutableRecordsHints = {}  # noqa
         if self.variant == 'dumb':
             format_driven_hints['field-delimiter'] = ','
@@ -161,7 +164,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
         hints_from_variant = self.base_hints_from_variant()
         hint_overrides = {
             hint: v for hint, v in self.hints.items()
-            if hint not in hints_from_variant or v != hints_from_variant[hint]
+            if hint not in hints_from_variant or v != hints_from_variant[hint]  # type: ignore
         }
         if hint_overrides != {}:
             return f"DelimitedRecordsFormat({self.variant} - {hint_overrides})"

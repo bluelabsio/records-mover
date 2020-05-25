@@ -77,24 +77,25 @@ BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
 # TODO: Retire this
 BOOTSTRAPPING_HINT_NAMES: List[HintName] = typed_dict_keys(BootstrappingRecordsHints)
 
-TypedRecordsHints = TypedDict('TypedRecordsHints',
-                              {
-                                  'quoting': HintQuoting,
-                                  'header-row': HintHeaderRow,
-                                  'field-delimiter': HintFieldDelimiter,
-                                  'encoding': HintEncoding,
-                                  'escape': HintEscape,
-                                  'compression': HintCompression,
-                                  'record-terminator': HintRecordTerminator,
-                                  'quotechar': HintQuoteChar,
-                                  'doublequote': HintDoublequote,
-                                  'dateformat': HintDateFormat,
-                                  'timeonlyformat': HintTimeOnlyFormat,
-                                  'datetimeformattz': HintDateTimeFormatTz,
-                                  'datetimeformat': HintDateTimeFormat,
-                              },
-                              total=False)
-RecordsHints = Mapping[str, object]  # TODO: make this the typed one
+PartialRecordsHints = TypedDict('PartialRecordsHints',
+                                {
+                                    'quoting': HintQuoting,
+                                    'header-row': HintHeaderRow,
+                                    'field-delimiter': HintFieldDelimiter,
+                                    'encoding': HintEncoding,
+                                    'escape': HintEscape,
+                                    'compression': HintCompression,
+                                    'record-terminator': HintRecordTerminator,
+                                    'quotechar': HintQuoteChar,
+                                    'doublequote': HintDoublequote,
+                                    'dateformat': HintDateFormat,
+                                    'timeonlyformat': HintTimeOnlyFormat,
+                                    'datetimeformattz': HintDateTimeFormatTz,
+                                    'datetimeformat': HintDateTimeFormat,
+                                },
+                                total=False)
+# TODO: Rename this throughout?
+RecordsHints = PartialRecordsHints
 UntypedRecordsHints = Mapping[str, object]
-MutableRecordsHints = Dict[str, object]  # TODO: make this the typed one
+MutableRecordsHints = PartialRecordsHints
 MutableUntypedRecordsHints = Dict[str, object]

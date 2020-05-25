@@ -1,5 +1,5 @@
 from typing import NamedTuple, TypeVar
-from .types import (RecordsHints, HintHeaderRow, HintFieldDelimiter,
+from .types import (UntypedRecordsHints, HintHeaderRow, HintFieldDelimiter,
                     HintCompression, HintRecordTerminator,
                     HintQuoting, HintQuoteChar, HintDoublequote,
                     HintEscape, HintEncoding, HintDateFormat,
@@ -25,7 +25,7 @@ class ValidatedRecordsHints(NamedTuple):
     datetimeformat: HintDateTimeFormat
 
     @staticmethod
-    def validate(hints: RecordsHints,
+    def validate(hints: UntypedRecordsHints,
                  fail_if_cant_handle_hint: bool) -> 'ValidatedRecordsHints':
         T = TypeVar('T')
 
