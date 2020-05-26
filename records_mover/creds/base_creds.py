@@ -1,5 +1,5 @@
 from db_facts.db_facts_types import DBFacts
-from records_mover.database import db_facts_from_env  # TODO: Maybe move this to creds package?
+from .database import db_facts_from_env
 from typing import TYPE_CHECKING, Iterable, Union, Optional
 from enum import Enum
 import logging
