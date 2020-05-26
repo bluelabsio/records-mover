@@ -25,6 +25,12 @@ class BaseCreds():
         scopes = ('https://www.googleapis.com/auth/spreadsheets',)
         return self._gcp_creds(gcp_creds_name, scopes)
 
+    def gcs(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
+        scopes = ('https://www.googleapis.com/auth/devstorage.full_control',
+                  'https://www.googleapis.com/auth/devstorage.read_only',
+                  'https://www.googleapis.com/auth/devstorage.read_write')
+        return self._gcp_creds(gcp_creds_name, scopes)
+
     def _gcp_creds(self, gcp_creds_name: str,
                    scopes: Iterable[str]) -> 'google.auth.credentials.Credentials':
         raise NotImplementedError

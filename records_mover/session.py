@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from .db import DBDriver  # noqa
     from sqlalchemy.engine import Engine, Connection  # noqa
     import boto3  # noqa
+    import google.cloud.storage  # noqa
 
 
 logger = logging.getLogger(__name__)
@@ -77,6 +78,12 @@ def _infer_default_aws_creds_name(session_type: str) -> Optional[str]:
     return None
 
 
+def _infer_default_gcp_creds_name(session_type: str) -> Optional[str]:
+    if session_type == 'airflow':
+        return 'google_cloud_default'
+    return None
+
+
 def _infer_creds(session_type: str) -> BaseCreds:
     if session_type == 'airflow':
         return CredsViaAirflow()
@@ -99,10 +106,14 @@ def _infer_creds(session_type: str) -> BaseCreds:
                          f"{session_type}.")
 
 
+# This is a mypy-friendly way of doing a singleton object:
+#
+# https://github.com/python/typing/issues/236
 class PleaseInfer(Enum):
-    # This is a mypy-friendly way of doing a singleton object:
-    #
-    # https://github.com/python/typing/issues/236
+    token = 1
+
+
+class NotYetFetched(Enum):
     token = 1
 
 
@@ -110,6 +121,7 @@ class Session():
     def __init__(self,
                  default_db_creds_name: Optional[str] = None,
                  default_aws_creds_name: Union[None, str, PleaseInfer] = PleaseInfer.token,
+                 default_gcp_creds_name: Union[None, str, PleaseInfer] = PleaseInfer.token,
                  session_type: Union[str, PleaseInfer] = PleaseInfer.token,
                  scratch_s3_url: Union[None, str, PleaseInfer] = PleaseInfer.token,
                  creds: Union[BaseCreds, PleaseInfer] = PleaseInfer.token) -> None:
@@ -125,15 +137,29 @@ class Session():
         if default_aws_creds_name is PleaseInfer.token:
             default_aws_creds_name = _infer_default_aws_creds_name(session_type)
 
+        if default_gcp_creds_name is PleaseInfer.token:
+            default_gcp_creds_name = _infer_default_gcp_creds_name(session_type)
+
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
+        self._default_gcp_creds_name = default_gcp_creds_name
         self._scratch_s3_url = scratch_s3_url
         self.creds = creds
-        url_resolver_kwargs = {}
-        boto3_session = self._boto3_session()
-        if boto3_session:
-            url_resolver_kwargs['boto3_session'] = boto3_session
-        self.url_resolver = UrlResolver(**url_resolver_kwargs)
+        self.__gcs_creds: Union[NotYetFetched,
+                                Optional['google.auth.credentials.Credentials']] =\
+            NotYetFetched.token
+        self.__gcs_client: Union[NotYetFetched,
+                                 Optional['google.cloud.storage.Client']] =\
+            NotYetFetched.token
+        self.__boto3_session: Union[NotYetFetched,
+                                    Optional['boto3.session.Session']] =\
+            NotYetFetched.token
+
+    @property
+    def url_resolver(self) -> UrlResolver:
+        return UrlResolver(boto3_session_getter=self._boto3_session,
+                           gcp_credentials_getter=self._gcs_creds,
+                           gcs_client_getter=self._gcs_client)
 
     def get_default_db_engine(self) -> 'Engine':
         from .db.connect import engine_from_db_facts
@@ -182,6 +208,9 @@ class Session():
         return self.url_resolver.directory_url(url)
 
     def _boto3_session(self) -> Optional['boto3.session.Session']:
+        if self.__boto3_session is not NotYetFetched.token:
+            return self.__boto3_session
+
         try:
             import boto3  # noqa
         except ModuleNotFoundError:
@@ -190,9 +219,62 @@ class Session():
             return None
 
         if self._default_aws_creds_name is None:
-            return boto3.session.Session()
+            self.__boto3_session = boto3.session.Session()
         else:
-            return self.creds.boto3_session(self._default_aws_creds_name)
+            self.__boto3_session = self.creds.boto3_session(self._default_aws_creds_name)
+        return self.__boto3_session
+
+    def _gcs_creds(self) -> Optional['google.auth.credentials.Credentials']:
+        if self.__gcs_creds is not NotYetFetched.token:
+            return self.__gcs_creds
+
+        try:
+            import google.auth.exceptions
+            if self._default_gcp_creds_name is None:
+                import google.auth
+                credentials, project = google.auth.default()
+                self.__gcs_creds = credentials
+            else:
+                creds = self.creds.gcs(self._default_gcp_creds_name)
+                self.__gcs_creds = creds
+        except (OSError, google.auth.exceptions.DefaultCredentialsError):
+            # Examples:
+            #   OSError: Project was not passed and could not be determined from the environment.
+            #   google.auth.exceptions.DefaultCredentialsError: Could not automatically determine
+            #     credentials. Please set GOOGLE_APPLICATION_CREDENTIALS or explicitly create
+            #     credentials and re-run the application. For more information, please see
+            #     https://cloud.google.com/docs/authentication/getting-started
+            logger.debug("google.cloud.storage not configured",
+                         exc_info=True)
+            self.__gcs_creds = None
+        return self.__gcs_creds
+
+    def _gcs_client(self) -> Optional['google.cloud.storage.Client']:
+        if self.__gcs_client is not NotYetFetched.token:
+            return self.__gcs_client
+
+        gcs_creds = self._gcs_creds()
+        if gcs_creds is None:
+            self.__gcs_client = None
+            return self.__gcs_client
+        try:
+            import google.cloud.storage  # noqa
+        except ModuleNotFoundError:
+            logger.debug("google.cloud.storage not installed",
+                         exc_info=True)
+            self.__gcs_client = None
+            return self.__gcs_client
+
+        try:
+            self.__gcs_client = google.cloud.storage.Client(credentials=gcs_creds)
+            return self.__gcs_client
+        except OSError:
+            # Example:
+            #   OSError: Project was not passed and could not be determined from the environment.
+            logger.debug("google.cloud.storage not configured",
+                         exc_info=True)
+            self.__gcs_client = None
+            return self.__gcs_client
 
     def set_stream_logging(self,
                            name: str = 'records_mover',

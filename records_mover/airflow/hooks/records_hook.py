@@ -28,7 +28,9 @@ class RecordsHook(BaseHook):
 
     @property
     def _url_resolver(self) -> UrlResolver:
-        return UrlResolver(boto3_session=self._get_boto3_session())
+        return UrlResolver(boto3_session_getter=self._get_boto3_session,
+                           gcs_client_getter=lambda: None,
+                           gcp_credentials_getter=lambda: None)
 
     def _db_driver(self, db: Union[sqlalchemy.engine.Engine,
                                    sqlalchemy.engine.Connection]) -> DBDriver:

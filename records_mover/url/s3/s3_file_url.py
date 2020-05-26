@@ -59,7 +59,21 @@ class S3FileUrl(S3BaseUrl, BaseFileUrl):
             # Example: ValueError: 'b0KD9AkG7XA/_manifest' does not
             #  exist in the bucket 'vince-scratch', or is forbidden
             #  for access
+            #
+            # smart-open version: 1.8.x
             if 'does not exist in the bucket' in str(e):
+                raise FileNotFoundError(f"{self} not found")
+            else:
+                raise e
+        except OSError as e:
+            # Example: OSError: unable to access bucket:
+            # 'vince-scratch' key: 'Mv0o7H_YejI/_manifest' version:
+            # None error: An error occurred (NoSuchKey) when calling
+            # the GetObject operation: The specified key does not
+            # exist.
+            #
+            # smart-open version: 2.0
+            if 'NoSuchKey' in str(e):
                 raise FileNotFoundError(f"{self} not found")
             else:
                 raise e

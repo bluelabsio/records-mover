@@ -1,6 +1,6 @@
 from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
 from records_mover.url.filesystem import FilesystemDirectoryUrl
-from mock import patch, Mock
+from mock import patch, Mock, call
 import unittest
 
 
@@ -51,3 +51,28 @@ class TestS3DirectoryUrl(unittest.TestCase):
         with self.s3_directory_url.temporary_directory():
             self.mock_S3Url.assert_called()
         mock_s3_url.purge_directory.assert_called()
+
+    def test_directories_in_directory(self):
+        mock_s3_url = Mock(name='s3_url', spec=S3DirectoryUrl)
+        self.mock_S3Url.return_value = mock_s3_url
+        mock_s3_client = self.mock_boto3_session.client.return_value
+        mock_response = {
+            'CommonPrefixes': [
+                {
+                    'Prefix': 'prefix1/',
+                },
+                {
+                    'Prefix': 'prefix2/',
+                }
+            ]
+        }
+        mock_s3_client.list_objects_v2.return_value = mock_response
+        out = self.s3_directory_url.directories_in_directory()
+        mock_s3_client.list_objects_v2.assert_called_with(Bucket='bucket',
+                                                          Prefix='topdir/bottomdir/',
+                                                          Delimiter='/')
+        self.mock_S3Url.assert_has_calls([call('s3://bucket/topdir/bottomdir/prefix1/',
+                                               self.mock_boto3_session),
+                                          call('s3://bucket/topdir/bottomdir/prefix2/',
+                                               self.mock_boto3_session)])
+        self.assertEqual(out, [mock_s3_url, mock_s3_url])

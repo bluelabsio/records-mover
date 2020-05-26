@@ -14,8 +14,12 @@ class TestCLISession(unittest.TestCase):
     @patch('records_mover.db.factory.db_driver')
     @patch('records_mover.session.UrlResolver')
     @patch('boto3.session')
+    @patch('google.auth.default')
+    @patch('google.cloud.storage.Client')
     @patch.dict('os.environ', {}, clear=True)
     def test_db_driver_with_guessed_bucket_url(self,
+                                               mock_storage_Client,
+                                               mock_google_auth_default,
                                                mock_boto3_session,
                                                mock_UrlResolver,
                                                mock_db_driver,
@@ -27,14 +31,18 @@ class TestCLISession(unittest.TestCase):
                           default_aws_creds_name=None)
         mock_subprocess.check_output.return_value = b"s3://chrisp-scratch/"
         mock_db = Mock(name='db')
+        mock_gcp_credentials = Mock(name='gcp_credentials')
+        mock_gcp_project = Mock(name='gcp_project')
+        mock_google_auth_default.return_value = (mock_gcp_credentials, mock_gcp_project)
 
         driver = context.db_driver(mock_db)
         mock_url_resolver = mock_UrlResolver.return_value
         mock_url_resolver.directory_url.assert_called_with('s3://chrisp-scratch/')
 
-        mock_session = mock_boto3_session.Session.return_value
-        mock_boto3_session.Session.assert_called_with()
-        mock_UrlResolver.assert_called_with(boto3_session=mock_session)
+        mock_boto3_session.Session.assert_not_called()
+        mock_UrlResolver.assert_called_with(boto3_session_getter=context._boto3_session,
+                                            gcp_credentials_getter=context._gcs_creds,
+                                            gcs_client_getter=context._gcs_client)
         mock_directory_url = mock_UrlResolver.return_value.directory_url
         mock_db_driver.assert_called_with(db=mock_db,
                                           url_resolver=context.url_resolver,

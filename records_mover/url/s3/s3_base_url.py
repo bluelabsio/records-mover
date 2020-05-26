@@ -1,9 +1,7 @@
 from urllib.parse import urlparse, unquote
-import secrets
-from contextlib import contextmanager
 import boto3
 from botocore.credentials import ReadOnlyCredentials
-from typing import TypeVar, Iterator, Callable, Optional, Any, Union, TYPE_CHECKING
+from typing import TypeVar, Callable, Optional, Any, Union, TYPE_CHECKING
 from ..base import BaseDirectoryUrl, BaseFileUrl
 if TYPE_CHECKING:
     # http://mypy.readthedocs.io/en/latest/common_issues.html#import-cycles
@@ -76,13 +74,3 @@ class S3BaseUrl:
 
     def directory_in_this_directory(self: T, directory_name: str) -> BaseDirectoryUrl:
         raise NotImplementedError()
-
-    @contextmanager
-    def temporary_directory(self) -> Iterator[BaseDirectoryUrl]:
-        num_chars = 8
-        random_slug = secrets.token_urlsafe(num_chars)
-        temp_loc = self.directory_in_this_directory(random_slug)
-        try:
-            yield temp_loc
-        finally:
-            temp_loc.purge_directory()
