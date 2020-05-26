@@ -5,7 +5,7 @@ from ..schema import RecordsSchema
 from ..processing_instructions import ProcessingInstructions
 from ..records_format import BaseRecordsFormat
 from records_mover.records.delimited import (
-    BootstrappingRecordsHints, RecordsHints, UntypedRecordsHints, validate_partial_hints
+    UntypedRecordsHints, validate_partial_hints
 )
 import logging
 from typing import Optional, Iterator, Mapping, IO

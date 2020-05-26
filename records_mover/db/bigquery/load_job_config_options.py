@@ -105,10 +105,10 @@ def load_job_config(unhandled_hints: Set[str],
     # schema. ALLOW_FIELD_RELAXATION: allow relaxing a required
     # field in the original schema to nullable.
     config.schema_update_options = None
-
+    fail_if_cant_handle_hint = load_plan.processing_instructions.fail_if_cant_handle_hint
     if isinstance(load_plan.records_format, DelimitedRecordsFormat):
         hints = validate_partial_hints(load_plan.records_format.hints,
-                                       fail_if_cant_handle_hint=load_plan.processing_instructions.fail_if_cant_handle_hint)
+                                       fail_if_cant_handle_hint=fail_if_cant_handle_hint)
         add_load_job_csv_config(unhandled_hints,
                                 hints,
                                 fail_if_cant_handle_hint,
