@@ -7,7 +7,9 @@ class TestCredsViaLPass(unittest.TestCase):
     @patch('google.oauth2.service_account.Credentials')
     @patch('records_mover.creds.creds_via_lastpass.lpass_field')
     def test_google_sheets(self, mock_lpass_field, mock_Credentials):
-        creds_via_last_pass = CredsViaLastPass()
+        creds_via_last_pass = CredsViaLastPass(default_db_creds_name=None,
+                                               default_aws_creds_name=None,
+                                               default_gcp_creds_name=None)
         mock_gcp_creds_name = Mock(name='gcp_creds_name')
         mock_lpass_field.return_value = '{"a": 1}'
         mock_cred_details = {"a": 1}
@@ -20,13 +22,17 @@ class TestCredsViaLPass(unittest.TestCase):
 
     @patch('records_mover.creds.creds_via_lastpass.db')
     def test_db_facts(self, mock_db):
-        creds_via_lastpass = CredsViaLastPass()
+        creds_via_lastpass = CredsViaLastPass(default_db_creds_name=None,
+                                              default_aws_creds_name=None,
+                                              default_gcp_creds_name=None)
         out = creds_via_lastpass.db_facts('foo-bar-baz')
         mock_db.assert_called_with(['foo', 'bar', 'baz'])
         self.assertEqual(out, mock_db.return_value)
 
     @patch('boto3.session')
     def test_boto3_session(self, mock_boto3_session):
-        creds_via_lastpass = CredsViaLastPass()
+        creds_via_lastpass = CredsViaLastPass(default_db_creds_name=None,
+                                              default_aws_creds_name=None,
+                                              default_gcp_creds_name=None)
         out = creds_via_lastpass.boto3_session(None)
         self.assertEqual(out, mock_boto3_session.Session.return_value)
