@@ -145,21 +145,21 @@ class Session():
         self._default_gcp_creds_name = default_gcp_creds_name
         self._scratch_s3_url = scratch_s3_url
         self.creds = creds
-        self.__gcs_creds: Union[NotYetFetched,
-                                Optional['google.auth.credentials.Credentials']] =\
+        self.__default_gcs_creds: Union[NotYetFetched,
+                                        Optional['google.auth.credentials.Credentials']] =\
             NotYetFetched.token
-        self.__gcs_client: Union[NotYetFetched,
-                                 Optional['google.cloud.storage.Client']] =\
+        self.__default_gcs_client: Union[NotYetFetched,
+                                         Optional['google.cloud.storage.Client']] =\
             NotYetFetched.token
-        self.__boto3_session: Union[NotYetFetched,
-                                    Optional['boto3.session.Session']] =\
+        self.__default_boto3_session: Union[NotYetFetched,
+                                            Optional['boto3.session.Session']] =\
             NotYetFetched.token
 
     @property
     def url_resolver(self) -> UrlResolver:
-        return UrlResolver(boto3_session_getter=self._boto3_session,
-                           gcp_credentials_getter=self._gcs_creds,
-                           gcs_client_getter=self._gcs_client)
+        return UrlResolver(boto3_session_getter=self._default_boto3_session,
+                           gcp_credentials_getter=self._default_gcs_creds,
+                           gcs_client_getter=self._default_gcs_client)
 
     def get_default_db_engine(self) -> 'Engine':
         from .db.connect import engine_from_db_facts
@@ -207,9 +207,9 @@ class Session():
     def directory_url(self, url: str) -> BaseDirectoryUrl:
         return self.url_resolver.directory_url(url)
 
-    def _boto3_session(self) -> Optional['boto3.session.Session']:
-        if self.__boto3_session is not NotYetFetched.token:
-            return self.__boto3_session
+    def _default_boto3_session(self) -> Optional['boto3.session.Session']:
+        if self.__default_boto3_session is not NotYetFetched.token:
+            return self.__default_boto3_session
 
         try:
             import boto3  # noqa
@@ -219,24 +219,24 @@ class Session():
             return None
 
         if self._default_aws_creds_name is None:
-            self.__boto3_session = boto3.session.Session()
+            self.__default_boto3_session = boto3.session.Session()
         else:
-            self.__boto3_session = self.creds.boto3_session(self._default_aws_creds_name)
-        return self.__boto3_session
+            self.__default_boto3_session = self.creds.boto3_session(self._default_aws_creds_name)
+        return self.__default_boto3_session
 
-    def _gcs_creds(self) -> Optional['google.auth.credentials.Credentials']:
-        if self.__gcs_creds is not NotYetFetched.token:
-            return self.__gcs_creds
+    def _default_gcs_creds(self) -> Optional['google.auth.credentials.Credentials']:
+        if self.__default_gcs_creds is not NotYetFetched.token:
+            return self.__default_gcs_creds
 
         try:
             import google.auth.exceptions
             if self._default_gcp_creds_name is None:
                 import google.auth
                 credentials, project = google.auth.default()
-                self.__gcs_creds = credentials
+                self.__default_gcs_creds = credentials
             else:
                 creds = self.creds.gcs(self._default_gcp_creds_name)
-                self.__gcs_creds = creds
+                self.__default_gcs_creds = creds
         except (OSError, google.auth.exceptions.DefaultCredentialsError):
             # Examples:
             #   OSError: Project was not passed and could not be determined from the environment.
@@ -246,35 +246,35 @@ class Session():
             #     https://cloud.google.com/docs/authentication/getting-started
             logger.debug("google.cloud.storage not configured",
                          exc_info=True)
-            self.__gcs_creds = None
-        return self.__gcs_creds
+            self.__default_gcs_creds = None
+        return self.__default_gcs_creds
 
-    def _gcs_client(self) -> Optional['google.cloud.storage.Client']:
-        if self.__gcs_client is not NotYetFetched.token:
-            return self.__gcs_client
+    def _default_gcs_client(self) -> Optional['google.cloud.storage.Client']:
+        if self.__default_gcs_client is not NotYetFetched.token:
+            return self.__default_gcs_client
 
-        gcs_creds = self._gcs_creds()
+        gcs_creds = self._default_gcs_creds()
         if gcs_creds is None:
-            self.__gcs_client = None
-            return self.__gcs_client
+            self.__default_gcs_client = None
+            return self.__default_gcs_client
         try:
             import google.cloud.storage  # noqa
         except ModuleNotFoundError:
             logger.debug("google.cloud.storage not installed",
                          exc_info=True)
-            self.__gcs_client = None
-            return self.__gcs_client
+            self.__default_gcs_client = None
+            return self.__default_gcs_client
 
         try:
-            self.__gcs_client = google.cloud.storage.Client(credentials=gcs_creds)
-            return self.__gcs_client
+            self.__default_gcs_client = google.cloud.storage.Client(credentials=gcs_creds)
+            return self.__default_gcs_client
         except OSError:
             # Example:
             #   OSError: Project was not passed and could not be determined from the environment.
             logger.debug("google.cloud.storage not configured",
                          exc_info=True)
-            self.__gcs_client = None
-            return self.__gcs_client
+            self.__default_gcs_client = None
+            return self.__default_gcs_client
 
     def set_stream_logging(self,
                            name: str = 'records_mover',
