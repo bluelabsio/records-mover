@@ -1,6 +1,6 @@
 import chardet
 from contextlib import contextmanager
-from . import RecordsHints, BootstrappingRecordsHints
+from . import RecordsHints
 from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import csv
@@ -142,7 +142,7 @@ def csv_hints_from_python(fileobj: IO[bytes],
 
 
 def csv_hints_from_pandas(fileobj: IO[bytes],
-                          streaming_hints: BootstrappingRecordsHints) -> RecordsHints:
+                          streaming_hints: RecordsHints) -> RecordsHints:
     import pandas
 
     def attempt_parse(quoting: HintQuoting) -> RecordsHints:
@@ -188,7 +188,7 @@ def sniff_compression_hint(fileobj: IO[bytes]) -> HintCompression:
 
 
 def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
-                              initial_hints: BootstrappingRecordsHints) -> RecordsHints:
+                              initial_hints: RecordsHints) -> RecordsHints:
     if len(fileobjs) != 1:
         # https://app.asana.com/0/53283930106309/1131698268455054
         raise NotImplementedError('Cannot currently sniff hints from mulitple '
@@ -199,7 +199,7 @@ def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
 
 
 def sniff_hints(fileobj: IO[bytes],
-                initial_hints: BootstrappingRecordsHints) -> RecordsHints:
+                initial_hints: RecordsHints) -> RecordsHints:
     # Major limitations:
     #
     #  * If fileobj isn't rewindable, we can't sniff or we'd keep you

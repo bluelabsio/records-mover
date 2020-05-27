@@ -61,22 +61,6 @@ HintName = Literal["header-row",
 
 HINT_NAMES: List[HintName] = list(get_args(HintName))  # type: ignore
 
-# TODO: Retire this
-BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
-                                      {
-                                          'quoting': HintQuoting,
-                                          'header-row': HintHeaderRow,
-                                          'field-delimiter': HintFieldDelimiter,
-                                          'encoding': HintEncoding,
-                                          'escape': HintEscape,
-                                          'compression': HintCompression,
-                                          'record-terminator': HintRecordTerminator,
-                                      },
-                                      total=False)
-
-# TODO: Retire this
-BOOTSTRAPPING_HINT_NAMES: List[HintName] = typed_dict_keys(BootstrappingRecordsHints)
-
 PartialRecordsHints = TypedDict('PartialRecordsHints',
                                 {
                                     'quoting': HintQuoting,

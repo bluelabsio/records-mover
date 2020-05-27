@@ -15,7 +15,7 @@ class TestFileobjTarget(unittest.TestCase):
                                                             mock_prep_df_for_csv_output):
         mock_fileobj = Mock(name='fileobj')
         mock_records_format = DelimitedRecordsFormat(hints={
-            'encoding': 'mumble',
+            'encoding': 'UTF8',
             'compression': None,
             'header-row': False,
             'quoting': 'all'
@@ -39,7 +39,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             mode="a",
                                             date_format='%Y-%m-%d %H:%M:%S.%f%z',
                                             doublequote=False,
-                                            encoding='mumble',
+                                            encoding='UTF8',
                                             escapechar='\\',
                                             header=False,
                                             line_terminator='\n',
@@ -51,7 +51,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             mode="a",
                                             date_format='%Y-%m-%d %H:%M:%S.%f%z',
                                             doublequote=False,
-                                            encoding='mumble',
+                                            encoding='UTF8',
                                             escapechar='\\',
                                             header=False,
                                             line_terminator='\n',
@@ -69,7 +69,7 @@ class TestFileobjTarget(unittest.TestCase):
                                                               mock_prep_df_for_csv_output):
         mock_fileobj = Mock(name='fileobj')
         mock_records_format = DelimitedRecordsFormat(hints={
-            'encoding': 'mumble',
+            'encoding': 'UTF8',
             'compression': None,
             'header-row': True,
             'quoting': 'all'
@@ -93,7 +93,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             mode="a",
                                             date_format='%Y-%m-%d %H:%M:%S.%f%z',
                                             doublequote=False,
-                                            encoding='mumble',
+                                            encoding='UTF8',
                                             escapechar='\\',
                                             header=True,
                                             line_terminator='\n',
@@ -105,7 +105,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             mode="a",
                                             date_format='%Y-%m-%d %H:%M:%S.%f%z',
                                             doublequote=False,
-                                            encoding='mumble',
+                                            encoding='UTF8',
                                             escapechar='\\',
                                             header=False,
                                             line_terminator='\n',
@@ -123,7 +123,7 @@ class TestFileobjTarget(unittest.TestCase):
                                                           mock_prep_df_for_csv_output):
         mock_fileobj = Mock(name='fileobj')
         mock_records_format = DelimitedRecordsFormat(hints={
-            'encoding': 'mumble',
+            'encoding': 'UTF8',
             'compression': 'GZIP',
             'header-row': False,
             'quoting': 'all'
@@ -147,7 +147,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             compression='gzip',
                                             date_format='%Y-%m-%d %H:%M:%S.%f%z',
                                             doublequote=False,
-                                            encoding='mumble',
+                                            encoding='UTF8',
                                             escapechar='\\',
                                             header=False,
                                             line_terminator='\n',
@@ -160,7 +160,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             compression='gzip',
                                             date_format='%Y-%m-%d %H:%M:%S.%f%z',
                                             doublequote=False,
-                                            encoding='mumble',
+                                            encoding='UTF8',
                                             escapechar='\\',
                                             header=False,
                                             line_terminator='\n',
@@ -178,7 +178,7 @@ class TestFileobjTarget(unittest.TestCase):
                                                             mock_prep_df_for_csv_output):
         mock_fileobj = Mock(name='fileobj')
         mock_records_format = DelimitedRecordsFormat(hints={
-            'encoding': 'mumble',
+            'encoding': 'UTF8',
             'compression': 'GZIP',
             'header-row': True,
             'quoting': 'all'
@@ -202,7 +202,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             compression='gzip',
                                             date_format='%Y-%m-%d %H:%M:%S.%f%z',
                                             doublequote=False,
-                                            encoding='mumble',
+                                            encoding='UTF8',
                                             escapechar='\\',
                                             header=True,
                                             line_terminator='\n',
@@ -215,7 +215,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             compression='gzip',
                                             date_format='%Y-%m-%d %H:%M:%S.%f%z',
                                             doublequote=False,
-                                            encoding='mumble',
+                                            encoding='UTF8',
                                             escapechar='\\',
                                             header=False,
                                             line_terminator='\n',

@@ -1,6 +1,5 @@
 __all__ = [
     'UntypedRecordsHints',
-    'BootstrappingRecordsHints',
     'cant_handle_hint',
     'complain_on_unhandled_hints',
     'RecordsHints',
@@ -35,7 +34,7 @@ for the other details that are typically provided along with records
 hints.
 """
 
-from .types import BootstrappingRecordsHints, RecordsHints, MutableRecordsHints, UntypedRecordsHints
+from .types import RecordsHints, MutableRecordsHints, UntypedRecordsHints
 from .validated_records_hints import ValidatedRecordsHints
 from .hints import validate_partial_hints
 from .utils import cant_handle_hint, complain_on_unhandled_hints

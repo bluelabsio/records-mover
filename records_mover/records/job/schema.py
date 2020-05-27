@@ -1,7 +1,6 @@
 from ...utils.json_schema import method_signature_to_json_schema, JsonParameter, JsonSchemaDocument
 from ..existing_table_handling import ExistingTableHandling
 from records_mover.records.delimited.hints import Hints
-from records_mover.records.delimited.types import BOOTSTRAPPING_HINT_NAMES
 from typing import Any, Dict, List, Callable
 from ...mover_types import JsonSchema
 
@@ -16,7 +15,6 @@ HINT_PARAMETERS = [
 BOOTSTRAPPING_HINT_PARAMETERS = [
     hint_parameter
     for hint_parameter in HINT_PARAMETERS
-    if hint_parameter.name in BOOTSTRAPPING_HINT_NAMES
 ]
 
 

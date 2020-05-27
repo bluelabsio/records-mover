@@ -17,11 +17,9 @@ class TestRedshiftDBDriverImportBlueLabs(BaseTestRedshiftDBDriver):
 
             lines_scanned = self.load(christmas_tree_format_1_hints, fail_if=False)
 
-            self.assertCountEqual(mock_warning.mock_calls,
-                                  [call("Ignoring hint quoting = 'nonnumeric'"),
-                                   call('Ignoring hint dateformat = None'),
-                                   call('Ignoring hint datetimeformat = None'),
-                                   call("Ignoring hint record-terminator = '\\x02'")])
+            self.assertListEqual(mock_warning.mock_calls,
+                                 [call("Ignoring hint quoting = 'nonnumeric'"),
+                                  call("Ignoring hint record-terminator = '\\x02'")])
 
         expected_best_effort_args = {
             'access_key_id': 'fake_aws_id',
@@ -55,7 +53,6 @@ class TestRedshiftDBDriverImportBlueLabs(BaseTestRedshiftDBDriver):
             self.assertListEqual(mock_warning.mock_calls,
                                  [call("Ignoring hint escape = '@'"),
                                   call("Ignoring hint datetimeformattz = 'HH:MI:SSOF YYYY-MM-DD'"),
-                                  call('Ignoring hint datetimeformat = None'),
                                   call("Ignoring hint doublequote = True"),
                                   call("Ignoring hint record-terminator = '\\x02'")])
 

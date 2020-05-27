@@ -28,10 +28,8 @@ class TestPandasToCsvOptionsChristmasTree(unittest.TestCase):
         with patch.object(driver_logger, 'warning') as mock_warning:
             actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
             self.assertEqual(expected, actual)
-            self.assertCountEqual(mock_warning.mock_calls,
-                                  [call("Ignoring hint datetimeformat = None"),
-                                   call("Ignoring hint datetimeformattz = 'YYYY-MM-DD HH:MI:SSOF'"),
-                                   call("Ignoring hint compression = 'LZO'")])
+            self.assertListEqual(mock_warning.mock_calls,
+                                 [call("Ignoring hint compression = 'LZO'")])
             self.assertFalse(unhandled_hints)
 
     def test_pandas_to_csv_options_christmas_tree_format_2(self):
@@ -40,7 +38,7 @@ class TestPandasToCsvOptionsChristmasTree(unittest.TestCase):
             'date_format': '%m-%d-%Y %H:%M:%S.%f%z',
             'doublequote': True,
             'encoding': 'UTF8',
-            'escapechar': '@',
+            'escapechar': '\\',
             'header': False,
             'line_terminator': '\x02',
             'quotechar': '"',
@@ -55,9 +53,11 @@ class TestPandasToCsvOptionsChristmasTree(unittest.TestCase):
             actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
             self.assertEqual(expected, actual)
             self.\
-                assertCountEqual(mock_warning.mock_calls,
-                                 [call("Ignoring hint datetimeformat = None"),
-                                  call("Ignoring hint datetimeformattz = 'HH:MI:SSOF YYYY-MM-DD'")])
+                assertListEqual(mock_warning.mock_calls,
+                                [call("Ignoring hint escape = '@'"),
+                                 call("Ignoring hint datetimeformattz = 'HH:MI:SSOF YYYY-MM-DD'"),
+                                 call("Ignoring hint datetimeformattz = 'YYYY-MM-DD HH24:MI:SSOF'"),
+                                 call("Ignoring hint datetimeformat = 'YYYY-MM-DD HH24:MI:SS'")])
             self.assertFalse(unhandled_hints)
 
     def test_pandas_to_csv_options_christmas_tree_format_3(self):
@@ -66,10 +66,11 @@ class TestPandasToCsvOptionsChristmasTree(unittest.TestCase):
             'date_format': '%d-%m-%Y %H:%M:%S.%f%z',
             'doublequote': True,
             'encoding': 'UTF8',
-            'escapechar': '@',
+            'escapechar': '\\',
             'header': False,
             'line_terminator': '\x02',
             'quotechar': '"',
+            'quoting': 0,
             'sep': '\x01',
         }
         processing_instructions =\
@@ -79,19 +80,23 @@ class TestPandasToCsvOptionsChristmasTree(unittest.TestCase):
         with patch.object(driver_logger, 'warning') as mock_warning:
             actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
             self.assertEqual(expected, actual)
-            self.assertCountEqual(mock_warning.mock_calls,
-                                  [call("Ignoring hint datetimeformat = None"),
-                                   call("Ignoring hint datetimeformattz = 'HH:MI:SSOF YYYY-MM-DD'"),
-                                   call("Ignoring hint quoting = "
-                                        "'some_future_option_not_supported_now'")])
+            self.assertListEqual(mock_warning.mock_calls,
+                                 [call("Ignoring hint quoting = "
+                                       "'some_future_option_not_supported_now'"),
+                                  call("Ignoring hint escape = '@'"),
+                                  call("Ignoring hint datetimeformattz = 'HH:MI:SSOF YYYY-MM-DD'"),
+                                  call("Ignoring hint datetimeformattz = 'YYYY-MM-DD HH24:MI:SSOF'"),
+                                  call("Ignoring hint datetimeformat = 'YYYY-MM-DD HH24:MI:SS'")])
             self.assertFalse(unhandled_hints)
 
     def test_pandas_to_csv_options_christmas_tree_format_4(self):
         expected = {
             'compression': 'bz2',
+            'date_format': '%Y-%m-%d %H:%M:%S.%f%z',
+            'quoting': 0,
             'doublequote': True,
             'encoding': 'UTF8',
-            'escapechar': '@',
+            'escapechar': '\\',
             'header': False,
             'line_terminator': '\x02',
             'quotechar': '"',
@@ -104,11 +109,11 @@ class TestPandasToCsvOptionsChristmasTree(unittest.TestCase):
         with patch.object(driver_logger, 'warning') as mock_warning:
             actual = pandas_to_csv_options(records_format, unhandled_hints, processing_instructions)
             self.assertEqual(expected, actual)
-            self.assertCountEqual(mock_warning.mock_calls,
-                                  [call("Ignoring hint datetimeformat = None"),
-                                   call("Ignoring hint dateformat = "
-                                        "'totally_bogus_just_made_this_up'"),
-                                   call("Ignoring hint datetimeformattz = 'HH:MI:SSOF YYYY-MM-DD'"),
-                                   call("Ignoring hint quoting = "
-                                        "'some_future_option_not_supported_now'")])
+            self.assertListEqual(mock_warning.mock_calls,
+                                 [call("Ignoring hint quoting = "
+                                       "'some_future_option_not_supported_now'"),
+                                  call("Ignoring hint escape = '@'"),
+                                  call("Ignoring hint dateformat = "
+                                       "'totally_bogus_just_made_this_up'"),
+                                  call("Ignoring hint datetimeformattz = 'HH:MI:SSOF YYYY-MM-DD'")])
             self.assertFalse(unhandled_hints)

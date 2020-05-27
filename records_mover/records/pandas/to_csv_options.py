@@ -125,7 +125,7 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
                                        f"{hints.dateformat} HH24:MIOF",
                                        f"{hints.dateformat} HH24:MI")):
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
-        quiet_remove(unhandled_hints, 'datetimeformattz')
+    quiet_remove(unhandled_hints, 'datetimeformattz')
 
     valid_datetimeformat = [
         f"{hints.dateformat} HH24:MI:SS",
@@ -135,11 +135,11 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
     ]
     if (hints.datetimeformat not in valid_datetimeformat):
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
-        quiet_remove(unhandled_hints, 'datetimeformat')
+    quiet_remove(unhandled_hints, 'datetimeformat')
 
     if hints.timeonlyformat != 'HH24:MI:SS':
         cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', hints)
-        quiet_remove(unhandled_hints, 'timeonlyformat')
+    quiet_remove(unhandled_hints, 'timeonlyformat')
 
     pandas_options['sep'] = hints.field_delimiter
     quiet_remove(unhandled_hints, 'field-delimiter')
