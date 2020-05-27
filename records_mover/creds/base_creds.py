@@ -28,9 +28,9 @@ logger = logging.getLogger(__name__)
 # or environment variables).
 class BaseCreds():
     def __init__(self,
-                 default_db_creds_name: Optional[str],
-                 default_aws_creds_name: Optional[str],
-                 default_gcp_creds_name: Optional[str],
+                 default_db_creds_name: Optional[str] = None,
+                 default_aws_creds_name: Optional[str] = None,
+                 default_gcp_creds_name: Optional[str] = None,
                  default_db_facts: Union[NotYetFetched, DBFacts] = NotYetFetched.token,
                  default_boto3_session: Union[NotYetFetched,
                                               'boto3.session.Session',
