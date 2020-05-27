@@ -76,7 +76,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
 
     # TODO: Can this be made to return PartialRecordsHints?
     def base_hints_from_variant(self,
-                                fail_if_dont_understand: bool = True) -> MutableUntypedRecordsHints:
+                                fail_if_dont_understand: bool = True) -> PartialRecordsHints:
         hint_defaults: PartialRecordsHints = {
             'header-row': False,
             'field-delimiter': ',',
@@ -92,8 +92,8 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
             'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
             'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
         }
-        combined_hints: MutableUntypedRecordsHints = dict(hint_defaults)
-        format_driven_hints: MutableUntypedRecordsHints = {}  # noqa
+        combined_hints: PartialRecordsHints = dict(hint_defaults)  # type: ignore
+        format_driven_hints: PartialRecordsHints = {}  # noqa
         if self.variant == 'dumb':
             format_driven_hints['field-delimiter'] = ','
             format_driven_hints['record-terminator'] = "\n"
@@ -165,7 +165,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
         hints_from_variant = self.base_hints_from_variant()
         hint_overrides = {
             hint: v for hint, v in self.hints.items()
-            if hint not in hints_from_variant or v != hints_from_variant[hint]
+            if hint not in hints_from_variant or v != hints_from_variant[hint]  # type: ignore
         }
         if hint_overrides != {}:
             return f"DelimitedRecordsFormat({self.variant} - {hint_overrides})"
