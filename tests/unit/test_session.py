@@ -50,7 +50,7 @@ class TestSession(unittest.TestCase):
         session = Session(session_type='env')
         self.assertEqual(session.creds, mock_creds)
 
-    @patch('records_mover.session.db_facts_from_env')
+    @patch('records_mover.creds.base_creds.db_facts_from_env')
     @patch('records_mover.db.connect.engine_from_db_facts')
     def test_get_default_db_engine_no_default(self,
                                               mock_engine_from_db_facts,
@@ -66,7 +66,7 @@ class TestSession(unittest.TestCase):
         mock_db_facts = mock_db_facts_from_env.return_value
         mock_engine_from_db_facts.assert_called_with(mock_db_facts)
 
-    @patch('records_mover.session.db_facts_from_env')
+    @patch('records_mover.creds.base_creds.db_facts_from_env')
     @patch('records_mover.db.connect.engine_from_db_facts')
     def test_get_default_db_facts_no_default(self,
                                              mock_engine_from_db_facts,
@@ -77,24 +77,8 @@ class TestSession(unittest.TestCase):
                                              mock_google_auth_default,
                                              mock_google_cloud_storage_Client):
         session = Session()
-        self.assertEqual(session.get_default_db_facts(), mock_db_facts_from_env.return_value)
+        self.assertEqual(session.creds.default_db_facts(), mock_db_facts_from_env.return_value)
         mock_db_facts_from_env.assert_called_with()
-
-    @patch('records_mover.db.connect.engine_from_db_facts')
-    def test_get_default_db_facts_with_default(self,
-                                               mock_engine_from_db_facts,
-                                               mock_os,
-                                               mock_subprocess,
-                                               mock_get_config,
-                                               mock_google_auth_default,
-                                               mock_google_cloud_storage_Client):
-        mock_creds = Mock(name='creds')
-        mock_default_db_creds_name = Mock(name='default_db_creds_name')
-        session = Session(creds=mock_creds,
-                          default_db_creds_name=mock_default_db_creds_name)
-        self.assertEqual(session.get_default_db_facts(),
-                         mock_creds.db_facts.return_value)
-        mock_creds.db_facts.assert_called_with(mock_default_db_creds_name)
 
     @patch('records_mover.session.set_stream_logging')
     def test_set_stream_logging(self,
@@ -178,8 +162,11 @@ class TestSession(unittest.TestCase):
                           session_type='env')
         boto3_session = session.url_resolver.boto3_session_getter()
         self.assertEqual(boto3_session,
-                         mock_CredsViaEnv.return_value.boto3_session.return_value)
-        mock_CredsViaEnv.return_value.boto3_session.assert_called_with(mock_default_aws_creds_name)
+                         mock_CredsViaEnv.return_value.default_boto3_session.return_value)
+        mock_CredsViaEnv.assert_called_with(default_db_creds_name=None,
+                                            default_aws_creds_name=mock_default_aws_creds_name,
+                                            default_gcp_creds_name=None)
+        mock_CredsViaEnv.return_value.default_boto3_session.assert_called()
 
     @patch('boto3.session')
     def test_session_boto3_session_via_url_resolver_cached(self,

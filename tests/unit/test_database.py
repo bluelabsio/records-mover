@@ -1,4 +1,4 @@
-from records_mover.database import db_facts_from_env
+from records_mover.creds.database import db_facts_from_env
 
 
 from mock import patch
