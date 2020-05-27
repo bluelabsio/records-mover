@@ -1,5 +1,5 @@
 __all__ = [
-    'RecordsHints',
+    'PartialRecordsHints',
     'UntypedRecordsHints',
     'RecordsFormatType',
     'RecordsSchema',
@@ -13,7 +13,7 @@ __all__ = [
     'move'
 ]
 
-from .delimited import UntypedRecordsHints, RecordsHints
+from .delimited import UntypedRecordsHints, PartialRecordsHints
 from .types import RecordsFormatType, DelimitedVariant
 from .schema import RecordsSchema
 from .mover import move

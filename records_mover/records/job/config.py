@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Callable
 from records_mover import Session
 from ..records_format import DelimitedRecordsFormat
 from ..existing_table_handling import ExistingTableHandling
-from ..delimited import RecordsHints
+from ..delimited import PartialRecordsHints
 from records_mover.records.delimited.types import HINT_NAMES
 from ...mover_types import JobConfig
 
@@ -79,7 +79,7 @@ class ConfigToArgs:
                 # but now we know which variant they want
                 kwargs['records_format'] = kwargs['records_format'].alter_variant(kwargs['variant'])
             else:
-                hints: RecordsHints = {}
+                hints: PartialRecordsHints = {}
                 if 'initial_hints' in kwargs:
                     # Given the user gave us a variant, we won't be
                     # using "initial hints" to sniff with - the hint

@@ -78,8 +78,5 @@ PartialRecordsHints = TypedDict('PartialRecordsHints',
                                     'datetimeformat': HintDateTimeFormat,
                                 },
                                 total=False)
-# TODO: Rename this throughout?
-RecordsHints = PartialRecordsHints
 UntypedRecordsHints = Mapping[str, object]
-MutableRecordsHints = PartialRecordsHints
 MutableUntypedRecordsHints = Dict[str, object]

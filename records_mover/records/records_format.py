@@ -1,9 +1,9 @@
 import logging
 from .processing_instructions import ProcessingInstructions
-from . import RecordsHints, UntypedRecordsHints
+from . import PartialRecordsHints, UntypedRecordsHints
 from .base_records_format import BaseRecordsFormat
 from typing import Mapping, Optional, TYPE_CHECKING
-from .delimited import MutableRecordsHints, ValidatedRecordsHints
+from .delimited import MutableUntypedRecordsHints, ValidatedRecordsHints
 if TYPE_CHECKING:
     from . import RecordsFormatType  # noqa
 
@@ -36,7 +36,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
 
     def __init__(self,
                  variant: str='bluelabs',
-                 hints: RecordsHints={},
+                 hints: PartialRecordsHints={},
                  processing_instructions: ProcessingInstructions=ProcessingInstructions()) -> None:
         """See the `records format documentation
         <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#hints>`_
@@ -74,9 +74,10 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
         return DelimitedRecordsFormat(variant=variant,
                                       hints=self.hints)  # type: ignore
 
+    # TODO: Can this be made to return PartialRecordsHints?
     def base_hints_from_variant(self,
-                                fail_if_dont_understand: bool = True) -> MutableRecordsHints:
-        hint_defaults: RecordsHints = {
+                                fail_if_dont_understand: bool = True) -> MutableUntypedRecordsHints:
+        hint_defaults: PartialRecordsHints = {
             'header-row': False,
             'field-delimiter': ',',
             'record-terminator': "\n",
@@ -91,8 +92,8 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
             'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
             'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
         }
-        combined_hints: MutableRecordsHints = dict(hint_defaults)  # type: ignore
-        format_driven_hints: MutableRecordsHints = {}  # noqa
+        combined_hints: MutableUntypedRecordsHints = dict(hint_defaults)
+        format_driven_hints: MutableUntypedRecordsHints = {}  # noqa
         if self.variant == 'dumb':
             format_driven_hints['field-delimiter'] = ','
             format_driven_hints['record-terminator'] = "\n"
@@ -143,7 +144,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
         return combined_hints
 
     def add_hints_from_variant(self,
-                               provided_hints: RecordsHints,
+                               provided_hints: PartialRecordsHints,
                                processing_instructions: ProcessingInstructions) -> None:
         combined_hints =\
             self.base_hints_from_variant(processing_instructions.fail_if_dont_understand)
@@ -164,7 +165,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
         hints_from_variant = self.base_hints_from_variant()
         hint_overrides = {
             hint: v for hint, v in self.hints.items()
-            if hint not in hints_from_variant or v != hints_from_variant[hint]  # type: ignore
+            if hint not in hints_from_variant or v != hints_from_variant[hint]
         }
         if hint_overrides != {}:
             return f"DelimitedRecordsFormat({self.variant} - {hint_overrides})"
@@ -194,7 +195,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
 
 def RecordsFormat(format_type: 'RecordsFormatType' = 'delimited',
                   variant: str='bluelabs',
-                  hints: RecordsHints={},
+                  hints: PartialRecordsHints={},
                   processing_instructions:
                   ProcessingInstructions=ProcessingInstructions()) ->\
             'BaseRecordsFormat':

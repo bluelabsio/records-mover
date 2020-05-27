@@ -1,6 +1,6 @@
 import io
 from contextlib import contextmanager
-from records_mover.records.delimited import RecordsHints
+from records_mover.records.delimited import PartialRecordsHints
 from typing import Union, IO, Iterator, TYPE_CHECKING
 from .conversions import (
     python_encoding_from_hint,
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 @contextmanager
 def stream_csv(filepath_or_buffer: Union[str, IO[bytes]],
-               hints: RecordsHints)\
+               hints: PartialRecordsHints)\
                -> Iterator['TextFileReader']:
     """Returns a context manager that can be used to generate a full or
     partial dataframe from a CSV.  If partial, it will not read the

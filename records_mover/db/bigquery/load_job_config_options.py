@@ -3,7 +3,7 @@ from ...records.delimited import cant_handle_hint
 from typing import Set
 from ...records.load_plan import RecordsLoadPlan
 from ...records.records_format import DelimitedRecordsFormat, ParquetRecordsFormat
-from records_mover.records import RecordsHints
+from records_mover.records import PartialRecordsHints
 from records_mover.records.delimited import validate_partial_hints
 from google.cloud.bigquery.job import CreateDisposition, WriteDisposition
 from google.cloud import bigquery
@@ -124,7 +124,8 @@ def load_job_config(unhandled_hints: Set[str],
 
 
 def add_load_job_csv_config(unhandled_hints: Set[str],
-                            hints: RecordsHints,
+                            # TODO: Use validated hints
+                            hints: PartialRecordsHints,
                             fail_if_cant_handle_hint: bool,
                             config: bigquery.LoadJobConfig) -> None:
     # source_format: File format of the data.

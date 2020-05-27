@@ -1,6 +1,6 @@
 import chardet
 from contextlib import contextmanager
-from . import RecordsHints
+from . import PartialRecordsHints
 from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import csv
@@ -85,7 +85,7 @@ def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[HintEncoding]:
 def csv_hints_from_python(fileobj: IO[bytes],
                           record_terminator_hint: Optional[HintRecordTerminator],
                           encoding_hint: HintEncoding,
-                          compression: HintCompression) -> RecordsHints:
+                          compression: HintCompression) -> PartialRecordsHints:
     # https://docs.python.org/3/library/csv.html#csv.Sniffer
     with rewound_decompressed_fileobj(fileobj,
                                       compression) as fileobj:
@@ -121,7 +121,7 @@ def csv_hints_from_python(fileobj: IO[bytes],
                 sample_with_unix_newlines = sample
             dialect = sniffer.sniff(sample_with_unix_newlines)
             header_row = sniffer.has_header(sample_with_unix_newlines)
-            out: RecordsHints = {
+            out: PartialRecordsHints = {
                 'doublequote': True if dialect.doublequote else False,
                 'field-delimiter': dialect.delimiter,
                 'header-row': True if header_row else False,
@@ -142,10 +142,10 @@ def csv_hints_from_python(fileobj: IO[bytes],
 
 
 def csv_hints_from_pandas(fileobj: IO[bytes],
-                          streaming_hints: RecordsHints) -> RecordsHints:
+                          streaming_hints: PartialRecordsHints) -> PartialRecordsHints:
     import pandas
 
-    def attempt_parse(quoting: HintQuoting) -> RecordsHints:
+    def attempt_parse(quoting: HintQuoting) -> PartialRecordsHints:
         with rewound_fileobj(fileobj) as fresh_fileobj:
             current_hints = streaming_hints.copy()
             current_hints['quoting'] = quoting
@@ -188,7 +188,7 @@ def sniff_compression_hint(fileobj: IO[bytes]) -> HintCompression:
 
 
 def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
-                              initial_hints: RecordsHints) -> RecordsHints:
+                              initial_hints: PartialRecordsHints) -> PartialRecordsHints:
     if len(fileobjs) != 1:
         # https://app.asana.com/0/53283930106309/1131698268455054
         raise NotImplementedError('Cannot currently sniff hints from mulitple '
@@ -199,7 +199,7 @@ def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
 
 
 def sniff_hints(fileobj: IO[bytes],
-                initial_hints: RecordsHints) -> RecordsHints:
+                initial_hints: PartialRecordsHints) -> PartialRecordsHints:
     # Major limitations:
     #
     #  * If fileobj isn't rewindable, we can't sniff or we'd keep you
@@ -266,7 +266,7 @@ def sniff_hints(fileobj: IO[bytes],
         # Let's combine these together and present back a refined
         # version of the initial hints:
         #
-        out: RecordsHints = {
+        out: PartialRecordsHints = {
             'compression': compression_hint,
             **pandas_inferred_hints,  # type: ignore
             **python_inferred_hints,

@@ -1,5 +1,5 @@
 from records_mover.records.delimited.sniff import (
-    sniff_hints, sniff_hints_from_fileobjs, sniff_encoding_hint, RecordsHints
+    sniff_hints, sniff_hints_from_fileobjs, sniff_encoding_hint, PartialRecordsHints
 )
 from mock import MagicMock, patch
 import io
@@ -144,7 +144,7 @@ class TestHints(unittest.TestCase):
         mock_fileobj = MagicMock(name='fileobj')
         mock_fileobj.closed = False
         mock_fileobjs = [mock_fileobj]
-        mock_initial_hints: RecordsHints = {
+        mock_initial_hints: PartialRecordsHints = {
             'field-delimiter': ','
         }
         mock_streaming_engine = mock_stream_csv.return_value.__enter__.return_value._engine
@@ -193,7 +193,7 @@ class TestHints(unittest.TestCase):
             csv_bytes = csv.encode(python_encoding, errors='replace')
             with io.BytesIO(csv_bytes) as fileobj:
                 fileobjs = [fileobj]
-                initial_hints: RecordsHints = {
+                initial_hints: PartialRecordsHints = {
                     'field-delimiter': ','
                 }
                 if 'initial' in test_details:

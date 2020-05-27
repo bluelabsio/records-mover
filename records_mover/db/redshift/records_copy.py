@@ -3,7 +3,6 @@ from ...records.delimited import cant_handle_hint, ValidatedRecordsHints
 from records_mover.mover_types import _assert_never
 from sqlalchemy_redshift.commands import Format, Encoding, Compression
 from typing import Dict, Optional, Set
-from ...records import RecordsHints
 
 RedshiftCopyOptions = Dict[str, Optional[object]]
 

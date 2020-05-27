@@ -8,7 +8,7 @@ from .fileobjs import FileobjsSource  # noqa
 from .uninferred_fileobjs import UninferredFileobjsRecordsSource
 from .data_url import DataUrlRecordsSource
 from .directory import RecordsDirectoryRecordsSource
-from .. import RecordsHints
+from .. import PartialRecordsHints
 from .base import (SupportsRecordsDirectory, SupportsMoveToRecordsDirectory,  # noqa
                    SupportsToFileobjsSource, RecordsSource)
 from typing import Mapping, IO, Callable, Optional, Union, Iterable, TYPE_CHECKING
@@ -91,7 +91,7 @@ class RecordsSources(object):
     def fileobjs(self,
                  target_names_to_input_fileobjs: Mapping[str, IO[bytes]],
                  records_format: Optional[BaseRecordsFormat]=None,
-                 initial_hints: Optional[RecordsHints]=None,
+                 initial_hints: Optional[PartialRecordsHints]=None,
                  records_schema: Optional[RecordsSchema]=None)\
             -> Union[UninferredFileobjsRecordsSource, FileobjsSource]:
         """
@@ -118,7 +118,7 @@ class RecordsSources(object):
     def data_url(self,
                  input_url: str,
                  records_format: Optional[BaseRecordsFormat]=None,
-                 initial_hints: Optional[RecordsHints]=None,
+                 initial_hints: Optional[PartialRecordsHints]=None,
                  records_schema: Optional[RecordsSchema]=None)\
             -> DataUrlRecordsSource:
         """
@@ -154,7 +154,7 @@ class RecordsSources(object):
 
     def directory_from_url(self,
                            url: str,
-                           hints: RecordsHints={},
+                           hints: PartialRecordsHints={},
                            fail_if_dont_understand: bool=True)\
             -> RecordsDirectoryRecordsSource:
         """
@@ -179,7 +179,7 @@ class RecordsSources(object):
     def local_file(self,
                    filename: str,
                    records_format: Optional[BaseRecordsFormat]=None,
-                   initial_hints: Optional[RecordsHints]=None,
+                   initial_hints: Optional[PartialRecordsHints]=None,
                    records_schema: Optional[RecordsSchema]=None)\
             -> DataUrlRecordsSource:
         """
