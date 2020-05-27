@@ -74,7 +74,6 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
         return DelimitedRecordsFormat(variant=variant,
                                       hints=self.hints)  # type: ignore
 
-    # TODO: Can this be made to return PartialRecordsHints?
     def base_hints_from_variant(self,
                                 fail_if_dont_understand: bool = True) -> PartialRecordsHints:
         hint_defaults: PartialRecordsHints = {

@@ -91,7 +91,6 @@ class Hints(Enum):
                                  description='Character used between fields.')
 
 
-# TODO: Shoudl this be a method on DelimitedRecordsFormat as well?
 def validate_partial_hints(untyped_hints: UntypedRecordsHints,
                            fail_if_cant_handle_hint: bool) -> PartialRecordsHints:
     typed_records_hints: PartialRecordsHints = {}
