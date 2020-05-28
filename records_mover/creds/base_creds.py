@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Iterable, Union, Optional
 from records_mover.mover_types import PleaseInfer
 from config_resolver import get_config
 import os
-import subprocess
 import logging
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
@@ -157,24 +156,34 @@ class BaseCreds():
             self.__default_db_facts = self.db_facts(self._default_db_creds_name)
         return self.__default_db_facts
 
-    def _infer_scratch_s3_url(self) -> Optional[str]:
+    def _infer_scratch_s3_url(self,
+                              boto3_session: Optional['boto3.session.Session']) -> Optional[str]:
         if "SCRATCH_S3_URL" in os.environ:
             return os.environ["SCRATCH_S3_URL"]
 
-        # config_resolver logs at the WARNING level for each time it
-        # attempts to load a config file and doesn't find it - which given
-        # it searches a variety of places, is quite noisy.
-        #
-        # https://github.com/exhuma/config_resolver/blob/master/doc/intro.rst#logging
-        #
-        # https://github.com/exhuma/config_resolver/issues/69
-        logging.getLogger('config_resolver').setLevel(logging.ERROR)
         config_result = get_config('records_mover', 'bluelabs')
         cfg = config_result.config
         if 'aws' in cfg:
-            s3_scratch_url: Optional[str] = cfg['aws'].get('s3_scratch_url')
+            aws_cfg = cfg['aws']
+            s3_scratch_url: Optional[str] = aws_cfg.get('s3_scratch_url')
             if s3_scratch_url is not None:
-                return s3_scratch_url
+                append_iam_user_id_str: Optional[str] = aws_cfg.get('append_iam_user_id')
+                if append_iam_user_id_str is not None:
+                    if append_iam_user_id_str == 'true':
+                        append_iam_user_id = True
+                    elif append_iam_user_id_str == 'false':
+                        append_iam_user_id = False
+                    else:
+                        raise SyntaxError("Could not understand append_iam_user value - "
+                                          "Please set to true or false")
+                    if append_iam_user_id:
+                        # TODO: Make sure boto3_session is not None
+                        sts_client = boto3_session.client('sts')
+                        caller_identity = sts_client.get_caller_identity()
+                        arn = caller_identity['Arn']
+                        user_id = arn.split('/')[-1]
+                        s3_scratch_url = f"{s3_scratch_url}/{user_id}/"
+            return s3_scratch_url
         else:
             logger.debug('No config ini file found')
 
@@ -182,5 +191,5 @@ class BaseCreds():
 
     def default_scratch_s3_url(self) -> Optional[str]:
         if self._scratch_s3_url is PleaseInfer.token:
-            self._scratch_s3_url = self._infer_scratch_s3_url()
+            self._scratch_s3_url = self._infer_scratch_s3_url(self.default_boto3_session())
         return self._scratch_s3_url
