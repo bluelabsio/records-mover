@@ -119,9 +119,6 @@ class Session():
                  default_aws_creds_name: Union[None, str, PleaseInfer] = PleaseInfer.token,
                  default_gcp_creds_name: Union[None, str, PleaseInfer] = PleaseInfer.token,
                  session_type: Union[str, PleaseInfer] = PleaseInfer.token,
-                 # TODO: FIgure out if this should be
-                 # PleaseInfer.token, PleaseInfer.token or if those
-                 # concepts need to be combined?
                  scratch_s3_url: Union[None, str, PleaseInfer] = PleaseInfer.token,
                  creds: Union[BaseCreds, PleaseInfer] = PleaseInfer.token,
                  default_db_facts: Union[PleaseInfer, DBFacts] = PleaseInfer.token,
