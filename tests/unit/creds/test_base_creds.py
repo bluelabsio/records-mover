@@ -111,6 +111,26 @@ class TestBaseCreds(unittest.TestCase):
 
     @patch('records_mover.creds.base_creds.get_config')
     @patch('records_mover.creds.base_creds.os')
+    def test_s3_scratch_bucket_via_prefix_assumed_role(self,
+                                                       mock_os,
+                                                       mock_get_config):
+        mock_boto3_session = Mock(name='boto3_session')
+        mock_get_config.return_value.config = {
+            'aws': {
+                's3_scratch_url_appended_with_iam_user_id': 's3://group_bucket/subdir/'
+            }
+        }
+        mock_sts_client = mock_boto3_session.client.return_value
+        mock_sts_client.get_caller_identity.return_value = {
+            'Arn': 'arn:aws:sts::accountid:assumed-role/SomeAssumedRole/some-session-name'
+        }
+        creds = ExampleCredsSubclass(default_boto3_session=mock_boto3_session)
+        out = creds.default_scratch_s3_url()
+        self.assertIsNone(out)
+        mock_get_config.assert_called_with('records_mover', 'bluelabs')
+
+    @patch('records_mover.creds.base_creds.get_config')
+    @patch('records_mover.creds.base_creds.os')
     def test_s3_scratch_bucket_via_prefix_no_boto3_session(self,
                                                            mock_os,
                                                            mock_get_config):

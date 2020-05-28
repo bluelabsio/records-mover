@@ -177,10 +177,15 @@ class BaseCreds():
                     sts_client = boto3_session.client('sts')
                     caller_identity = sts_client.get_caller_identity()
                     arn = caller_identity['Arn']
-                    # TODO: What happens if nothing follows this?
-                    # e.g., what do I get with an assumed role?
-                    user_id = arn.split('/')[-1]
-                    s3_scratch_url = f"{s3_scratch_url_prefix}{user_id}/"
+                    last_section_of_arn = arn.split(':')[-1]
+                    # Check that this is an actual user and not, say,
+                    # an assumed role or something else.
+                    if last_section_of_arn.startswith('user/'):
+                        user_id = last_section_of_arn.split('/')[-1]
+                        s3_scratch_url = f"{s3_scratch_url_prefix}{user_id}/"
+                    else:
+                        logger.warning('Cannot generate S3 scratch URL with IAM user ID, '
+                                       f'as there is no username in {arn}')
             return s3_scratch_url
         else:
             logger.debug('No config ini file found')
