@@ -86,6 +86,7 @@ class S3HeadObjectOutput(TypedDict, total=False):
 class S3ClientTypeStub:
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#client
     def list_objects_v2(self, Bucket: str, Prefix: str,
+                        Delimiter: str = '/',
                         ContinuationToken: Optional[object] = None) -> ListObjectsResponseType:
         ...
 

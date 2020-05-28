@@ -23,8 +23,8 @@ class TestFilesystemFileUrl(unittest.TestCase):
         self.filesystem_file_url.store_string(mock_string)
         file_loc = Mock(name='file_loc')
         file_loc.local_file_path = '/my/file'
-        mock_open.assert_called_with('/topdir/bottomdir/file', 'wt')
-        mock_open.return_value.write.assert_called_with(mock_string)
+        mock_open.assert_called_with('/topdir/bottomdir/file', 'wb')
+        mock_open.return_value.write.assert_called_with(mock_string.encode.return_value)
 
     @patch("builtins.open", new_callable=mock_open)
     @patch("records_mover.url.base.blcopyfileobj")

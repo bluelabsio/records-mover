@@ -242,3 +242,20 @@ class TestField(unittest.TestCase):
         series = pd.Series(data)
         new_series = field.cast_series_type(series)
         self.assertEqual(new_series[0], '01:23:45')
+
+    def test_convert_datetime_to_datetimetz_not_datetime(self):
+        mock_name = Mock(name='name')
+        mock_field_type = 'time'
+        mock_constraints = Mock(name='constraints')
+        mock_statistics = Mock(name='statistics')
+        mock_representations = Mock(name='representations')
+        field = RecordsSchemaField(name=mock_name,
+                                   field_type=mock_field_type,
+                                   constraints=mock_constraints,
+                                   statistics=mock_statistics,
+                                   representations=mock_representations)
+        out = field.convert_datetime_to_datetimetz()
+        self.assertEqual(out.name, mock_name)
+        self.assertEqual(out.field_type, mock_field_type)
+        self.assertEqual(out.constraints, mock_constraints)
+        self.assertEqual(out.representations, mock_representations)

@@ -1,9 +1,6 @@
 import os
 from db_facts.db_facts_types import DBFacts
-from typing import Dict, Optional, TYPE_CHECKING
-if TYPE_CHECKING:
-    # http://mypy.readthedocs.io/en/latest/common_issues.html#import-cycles
-    from . import Session  # noqa
+from typing import Dict, Optional
 
 
 def db_facts_from_env() -> DBFacts:

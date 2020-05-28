@@ -7,7 +7,8 @@ from typing import Union
 logger = logging.getLogger(__name__)
 
 
-def S3Url(url: str, boto3_session: boto3.session.Session) -> Union[S3DirectoryUrl, S3FileUrl]:
+def S3Url(url: str, boto3_session: boto3.session.Session, **kwargs: object) -> Union[S3DirectoryUrl,
+                                                                                     S3FileUrl]:
     if url.endswith('/'):
         return S3DirectoryUrl(url, boto3_session=boto3_session, S3Url=S3Url)
     else:

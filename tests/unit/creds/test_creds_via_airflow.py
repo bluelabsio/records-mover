@@ -7,7 +7,9 @@ class TestCredsViaAirflow(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
-        self.creds_via_airflow = CredsViaAirflow()
+        self.creds_via_airflow = CredsViaAirflow(default_db_creds_name=None,
+                                                 default_aws_creds_name=None,
+                                                 default_gcp_creds_name=None)
 
     @patch('airflow.contrib.hooks.aws_hook.AwsHook')
     def test_boto3_session(self, mock_AwsHook):
