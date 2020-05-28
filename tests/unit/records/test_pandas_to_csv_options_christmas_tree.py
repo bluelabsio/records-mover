@@ -85,7 +85,8 @@ class TestPandasToCsvOptionsChristmasTree(unittest.TestCase):
                                        "'some_future_option_not_supported_now'"),
                                   call("Ignoring hint escape = '@'"),
                                   call("Ignoring hint datetimeformattz = 'HH:MI:SSOF YYYY-MM-DD'"),
-                                  call("Ignoring hint datetimeformattz = 'YYYY-MM-DD HH24:MI:SSOF'"),
+                                  call("Ignoring hint datetimeformattz = "
+                                       "'YYYY-MM-DD HH24:MI:SSOF'"),
                                   call("Ignoring hint datetimeformat = 'YYYY-MM-DD HH24:MI:SS'")])
             self.assertFalse(unhandled_hints)
 

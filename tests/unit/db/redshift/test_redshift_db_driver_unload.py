@@ -151,7 +151,8 @@ class TestRedshiftDBDriverUnload(BaseTestRedshiftDBDriver):
                                   call("Ignoring hint record-terminator = '\\x02'"),
                                   call("Ignoring hint doublequote = True"),
                                   call("Ignoring hint compression = 'BZIP'"),
-                                  call("Ignoring hint datetimeformattz = 'YYYY-MM-DD HH24:MI:SSOF'"),
+                                  call("Ignoring hint datetimeformattz = "
+                                       "'YYYY-MM-DD HH24:MI:SSOF'"),
                                   call("Ignoring hint dateformat = 'MM-DD-YYYY'")])
 
         expected_args = {
