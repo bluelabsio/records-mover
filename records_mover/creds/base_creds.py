@@ -166,23 +166,16 @@ class BaseCreds():
         if 'aws' in cfg:
             aws_cfg = cfg['aws']
             s3_scratch_url: Optional[str] = aws_cfg.get('s3_scratch_url')
-            if s3_scratch_url is not None:
-                append_iam_user_id_str: Optional[str] = aws_cfg.get('append_iam_user_id')
-                if append_iam_user_id_str is not None:
-                    if append_iam_user_id_str == 'true':
-                        append_iam_user_id = True
-                    elif append_iam_user_id_str == 'false':
-                        append_iam_user_id = False
-                    else:
-                        raise SyntaxError("Could not understand append_iam_user value - "
-                                          "Please set to true or false")
-                    if append_iam_user_id:
-                        # TODO: Make sure boto3_session is not None
-                        sts_client = boto3_session.client('sts')
-                        caller_identity = sts_client.get_caller_identity()
-                        arn = caller_identity['Arn']
-                        user_id = arn.split('/')[-1]
-                        s3_scratch_url = f"{s3_scratch_url}/{user_id}/"
+            if s3_scratch_url is None:
+                s3_scratch_url_prefix: Optional[str] =\
+                    aws_cfg.get('s3_scratch_url_appended_with_iam_user_id')
+                if s3_scratch_url_prefix is not None:
+                    # TODO: Make sure boto3_session is not None
+                    sts_client = boto3_session.client('sts')
+                    caller_identity = sts_client.get_caller_identity()
+                    arn = caller_identity['Arn']
+                    user_id = arn.split('/')[-1]
+                    s3_scratch_url = f"{s3_scratch_url_prefix}{user_id}/"
             return s3_scratch_url
         else:
             logger.debug('No config ini file found')
