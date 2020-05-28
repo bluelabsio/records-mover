@@ -4,7 +4,6 @@ from .records.records import Records
 from .url.base import BaseFileUrl, BaseDirectoryUrl
 from typing import Union, Optional, IO
 from .url.resolver import UrlResolver
-from enum import Enum
 from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv

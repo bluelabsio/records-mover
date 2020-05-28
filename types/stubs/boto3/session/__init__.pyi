@@ -188,6 +188,7 @@ class Session:
     def client(self, resource_type: Literal["s3"]) -> S3ClientTypeStub:
         ...
 
+    # flake8 gets confused with @overload in a pyi file
     @overload
-    def client(self, resource_type: Literal["sts"]) -> STSClientTypeStub:
+    def client(self, resource_type: Literal["sts"]) -> STSClientTypeStub:  # noqa: F811
         ...

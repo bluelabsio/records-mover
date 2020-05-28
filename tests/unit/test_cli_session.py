@@ -1,6 +1,6 @@
 from records_mover import Session
 import unittest
-from mock import patch, Mock, ANY
+from mock import patch
 
 
 @patch('records_mover.session.os')
