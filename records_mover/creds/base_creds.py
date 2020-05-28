@@ -174,7 +174,6 @@ class BaseCreds():
                         logger.warning('Cannot generate S3 scratch URL with IAM user ID, '
                                        'as I have no IAM user ID')
                         return None
-                    # TODO: Make sure boto3_session is not None
                     sts_client = boto3_session.client('sts')
                     caller_identity = sts_client.get_caller_identity()
                     arn = caller_identity['Arn']
