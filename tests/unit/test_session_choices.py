@@ -1,4 +1,5 @@
 from mock import patch
+from records_mover.mover_types import NotYetFetched
 import unittest
 
 
@@ -23,7 +24,11 @@ class TestSessionChoices(unittest.TestCase):
         self.assertEqual(session._scratch_s3_url, 's3://foo/')
         mock_CredsViaAirflow.assert_called_with(default_db_creds_name=None,
                                                 default_aws_creds_name='aws_default',
-                                                default_gcp_creds_name='google_cloud_default')
+                                                default_gcp_creds_name='google_cloud_default',
+                                                default_db_facts=NotYetFetched.token,
+                                                default_boto3_session=NotYetFetched.token,
+                                                default_gcp_creds=NotYetFetched.token,
+                                                default_gcs_client=NotYetFetched.token)
 
     def test_select_cli_session_by_default(self,
                                            mock_CredsViaAirflow,
@@ -34,7 +39,11 @@ class TestSessionChoices(unittest.TestCase):
         self.assertEqual(session._scratch_s3_url, 's3://foo/')
         mock_CredsViaLastPass.assert_called_with(default_db_creds_name=None,
                                                  default_aws_creds_name=None,
-                                                 default_gcp_creds_name=None)
+                                                 default_gcp_creds_name=None,
+                                                 default_db_facts=NotYetFetched.token,
+                                                 default_boto3_session=NotYetFetched.token,
+                                                 default_gcp_creds=NotYetFetched.token,
+                                                 default_gcs_client=NotYetFetched.token)
 
     @patch.dict('os.environ', {
         'RECORDS_MOVER_SESSION_TYPE': 'cli',
@@ -48,7 +57,11 @@ class TestSessionChoices(unittest.TestCase):
         self.assertEqual(session._scratch_s3_url, 's3://foo/')
         mock_CredsViaLastPass.assert_called_with(default_db_creds_name=None,
                                                  default_aws_creds_name=None,
-                                                 default_gcp_creds_name=None)
+                                                 default_gcp_creds_name=None,
+                                                 default_db_facts=NotYetFetched.token,
+                                                 default_boto3_session=NotYetFetched.token,
+                                                 default_gcp_creds=NotYetFetched.token,
+                                                 default_gcs_client=NotYetFetched.token)
 
     @patch.dict('os.environ', {
         'RECORDS_MOVER_SESSION_TYPE': 'airflow',
@@ -62,7 +75,11 @@ class TestSessionChoices(unittest.TestCase):
         self.assertEqual(session._scratch_s3_url, 's3://foo/')
         mock_CredsViaAirflow.assert_called_with(default_db_creds_name=None,
                                                 default_aws_creds_name='aws_default',
-                                                default_gcp_creds_name='google_cloud_default')
+                                                default_gcp_creds_name='google_cloud_default',
+                                                default_db_facts=NotYetFetched.token,
+                                                default_boto3_session=NotYetFetched.token,
+                                                default_gcp_creds=NotYetFetched.token,
+                                                default_gcs_client=NotYetFetched.token)
 
     @patch.dict('os.environ', {
         'RECORDS_MOVER_SESSION_TYPE': 'bogus',
@@ -87,7 +104,11 @@ class TestSessionChoices(unittest.TestCase):
         self.assertEqual(session._scratch_s3_url, 's3://foo/')
         mock_CredsViaAirflow.assert_called_with(default_db_creds_name=None,
                                                 default_aws_creds_name='aws_default',
-                                                default_gcp_creds_name='google_cloud_default')
+                                                default_gcp_creds_name='google_cloud_default',
+                                                default_db_facts=NotYetFetched.token,
+                                                default_boto3_session=NotYetFetched.token,
+                                                default_gcp_creds=NotYetFetched.token,
+                                                default_gcs_client=NotYetFetched.token)
 
     def test_select_cli_session_by_parameter(self,
                                              mock_CredsViaAirflow,
@@ -98,7 +119,11 @@ class TestSessionChoices(unittest.TestCase):
         self.assertEqual(session._scratch_s3_url, 's3://foo/')
         mock_CredsViaLastPass.assert_called_with(default_db_creds_name=None,
                                                  default_aws_creds_name=None,
-                                                 default_gcp_creds_name=None)
+                                                 default_gcp_creds_name=None,
+                                                 default_db_facts=NotYetFetched.token,
+                                                 default_boto3_session=NotYetFetched.token,
+                                                 default_gcp_creds=NotYetFetched.token,
+                                                 default_gcs_client=NotYetFetched.token)
 
     def test_select_invalid_session_by_parameter(self,
                                                  mock_CredsViaAirflow,

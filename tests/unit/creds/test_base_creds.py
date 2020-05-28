@@ -37,9 +37,22 @@ class TestBaseCreds(unittest.TestCase):
             'https://www.googleapis.com/auth/devstorage.read_write'
         ))
 
-    def test_default_default_db_facts_specified(self):
+    def test_default_default_db_facts_name_specified(self):
         creds = ExampleCredsSubclass(default_db_creds_name='my_db_creds',
                                      default_aws_creds_name=None,
                                      default_gcp_creds_name=None)
         out = creds.default_db_facts()
         self.assertEqual(out.db_creds_name, 'my_db_creds')
+
+    def test_default_default_gcs_facts_name_specified(self):
+        mock_gcp_creds_name = Mock(name='gcp_creds_name')
+        creds = ExampleCredsSubclass(default_db_creds_name=None,
+                                     default_aws_creds_name=None,
+                                     default_gcp_creds_name=mock_gcp_creds_name)
+        out = creds.default_gcs_creds()
+        self.assertEqual(out.gcp_creds_name, mock_gcp_creds_name)
+        self.assertTupleEqual(out.scopes, (
+            'https://www.googleapis.com/auth/devstorage.full_control',
+            'https://www.googleapis.com/auth/devstorage.read_only',
+            'https://www.googleapis.com/auth/devstorage.read_write'
+        ))

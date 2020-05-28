@@ -1,7 +1,7 @@
 from db_facts.db_facts_types import DBFacts
 from .database import db_facts_from_env
 from typing import TYPE_CHECKING, Iterable, Union, Optional
-from enum import Enum
+from records_mover.mover_types import NotYetFetched
 import logging
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
@@ -10,13 +10,6 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
-
-
-# This is a mypy-friendly way of doing a singleton object:
-#
-# https://github.com/python/typing/issues/236
-class NotYetFetched(Enum):
-    token = 1
 
 
 # this interfaces here are probably unstable until we figure out how
@@ -35,21 +28,27 @@ class NotYetFetched(Enum):
 # or environment variables).
 class BaseCreds():
     def __init__(self,
-                 default_db_creds_name: Optional[str],
-                 default_aws_creds_name: Optional[str],
-                 default_gcp_creds_name: Optional[str]) -> None:
+                 default_db_creds_name: Optional[str] = None,
+                 default_aws_creds_name: Optional[str] = None,
+                 default_gcp_creds_name: Optional[str] = None,
+                 default_db_facts: Union[NotYetFetched, DBFacts] = NotYetFetched.token,
+                 default_boto3_session: Union[NotYetFetched,
+                                              'boto3.session.Session',
+                                              None] = NotYetFetched.token,
+                 default_gcp_creds: Union[NotYetFetched,
+                                          'google.auth.credentials.Credentials',
+                                          None] = NotYetFetched.token,
+                 default_gcs_client: Union[NotYetFetched,
+                                           'google.cloud.storage.Client',
+                                           None] = NotYetFetched.token) -> None:
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
         self._default_gcp_creds_name = default_gcp_creds_name
-        self.__default_gcs_creds: Union[NotYetFetched,
-                                        Optional['google.auth.credentials.Credentials']] =\
-            NotYetFetched.token
-        self.__default_gcs_client: Union[NotYetFetched,
-                                         Optional['google.cloud.storage.Client']] =\
-            NotYetFetched.token
-        self.__default_boto3_session: Union[NotYetFetched,
-                                            Optional['boto3.session.Session']] =\
-            NotYetFetched.token
+
+        self.__default_db_facts = default_db_facts
+        self.__default_gcs_creds = default_gcp_creds
+        self.__default_gcs_client = default_gcs_client
+        self.__default_boto3_session = default_boto3_session
 
     def google_sheets(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
         scopes = ('https://www.googleapis.com/auth/spreadsheets',)
@@ -141,7 +140,11 @@ class BaseCreds():
             return self.__default_gcs_client
 
     def default_db_facts(self) -> DBFacts:
+        if self.__default_db_facts is not NotYetFetched.token:
+            return self.__default_db_facts
+
         if self._default_db_creds_name is None:
-            return db_facts_from_env()
+            self.__default_db_facts = db_facts_from_env()
         else:
-            return self.db_facts(self._default_db_creds_name)
+            self.__default_db_facts = self.db_facts(self._default_db_creds_name)
+        return self.__default_db_facts

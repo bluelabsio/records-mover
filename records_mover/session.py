@@ -1,3 +1,4 @@
+from db_facts.db_facts_types import DBFacts
 from .creds.base_creds import BaseCreds
 from .records.records import Records
 from .url.base import BaseFileUrl, BaseDirectoryUrl
@@ -8,6 +9,7 @@ from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
 from records_mover.logging import set_stream_logging
+from records_mover.mover_types import NotYetFetched
 from config_resolver import get_config
 import subprocess
 import os
@@ -85,11 +87,25 @@ def _infer_default_gcp_creds_name(session_type: str) -> Optional[str]:
 def _infer_creds(session_type: str,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
-                 default_gcp_creds_name: Optional[str]) -> BaseCreds:
+                 default_gcp_creds_name: Optional[str],
+                 default_db_facts: Union[NotYetFetched, DBFacts],
+                 default_boto3_session: Union[NotYetFetched,
+                                              'boto3.session.Session',
+                                              None],
+                 default_gcp_creds: Union[NotYetFetched,
+                                          'google.auth.credentials.Credentials',
+                                          None],
+                 default_gcs_client: Union[NotYetFetched,
+                                           'google.cloud.storage.Client',
+                                           None]) -> BaseCreds:
     if session_type == 'airflow':
         return CredsViaAirflow(default_db_creds_name=default_db_creds_name,
                                default_aws_creds_name=default_aws_creds_name,
-                               default_gcp_creds_name=default_gcp_creds_name)
+                               default_gcp_creds_name=default_gcp_creds_name,
+                               default_db_facts=default_db_facts,
+                               default_boto3_session=default_boto3_session,
+                               default_gcp_creds=default_gcp_creds,
+                               default_gcs_client=default_gcs_client)
     elif session_type == 'cli':
         #
         # https://app.asana.com/0/1128138765527694/1163219515343393
@@ -100,15 +116,27 @@ def _infer_creds(session_type: str,
         #
         return CredsViaLastPass(default_db_creds_name=default_db_creds_name,
                                 default_aws_creds_name=default_aws_creds_name,
-                                default_gcp_creds_name=default_gcp_creds_name)
+                                default_gcp_creds_name=default_gcp_creds_name,
+                                default_db_facts=default_db_facts,
+                                default_boto3_session=default_boto3_session,
+                                default_gcp_creds=default_gcp_creds,
+                                default_gcs_client=default_gcs_client)
     elif session_type == 'itest':
         return CredsViaEnv(default_db_creds_name=default_db_creds_name,
                            default_aws_creds_name=default_aws_creds_name,
-                           default_gcp_creds_name=default_gcp_creds_name)
+                           default_gcp_creds_name=default_gcp_creds_name,
+                           default_db_facts=default_db_facts,
+                           default_boto3_session=default_boto3_session,
+                           default_gcp_creds=default_gcp_creds,
+                           default_gcs_client=default_gcs_client)
     elif session_type == 'env':
         return CredsViaEnv(default_db_creds_name=default_db_creds_name,
                            default_aws_creds_name=default_aws_creds_name,
-                           default_gcp_creds_name=default_gcp_creds_name)
+                           default_gcp_creds_name=default_gcp_creds_name,
+                           default_db_facts=default_db_facts,
+                           default_boto3_session=default_boto3_session,
+                           default_gcp_creds=default_gcp_creds,
+                           default_gcs_client=default_gcs_client)
     elif session_type is not None:
         raise ValueError("Valid job context types: cli, airflow, docker-itest, env - "
                          "consider upgrading records-mover if you're looking for "
@@ -129,7 +157,17 @@ class Session():
                  default_gcp_creds_name: Union[None, str, PleaseInfer] = PleaseInfer.token,
                  session_type: Union[str, PleaseInfer] = PleaseInfer.token,
                  scratch_s3_url: Union[None, str, PleaseInfer] = PleaseInfer.token,
-                 creds: Union[BaseCreds, PleaseInfer] = PleaseInfer.token) -> None:
+                 creds: Union[BaseCreds, PleaseInfer] = PleaseInfer.token,
+                 default_db_facts: Union[NotYetFetched, DBFacts] = NotYetFetched.token,
+                 default_boto3_session: Union[NotYetFetched,
+                                              'boto3.session.Session',
+                                              None] = NotYetFetched.token,
+                 default_gcp_creds: Union[NotYetFetched,
+                                          'google.auth.credentials.Credentials',
+                                          None] = NotYetFetched.token,
+                 default_gcs_client: Union[NotYetFetched,
+                                           'google.cloud.storage.Client',
+                                           None] = NotYetFetched.token) -> None:
         if session_type is PleaseInfer.token:
             session_type = _infer_session_type()
 
@@ -143,7 +181,11 @@ class Session():
             creds = _infer_creds(session_type,
                                  default_db_creds_name=default_db_creds_name,
                                  default_aws_creds_name=default_aws_creds_name,
-                                 default_gcp_creds_name=default_gcp_creds_name)
+                                 default_gcp_creds_name=default_gcp_creds_name,
+                                 default_db_facts=default_db_facts,
+                                 default_boto3_session=default_boto3_session,
+                                 default_gcp_creds=default_gcp_creds,
+                                 default_gcs_client=default_gcs_client)
 
         if scratch_s3_url is PleaseInfer.token:
             scratch_s3_url = _infer_scratch_s3_url(session_type)
