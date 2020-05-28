@@ -53,6 +53,8 @@ class BaseCreds():
         self.__default_gcs_client = default_gcs_client
         self.__default_boto3_session = default_boto3_session
 
+        self._scratch_s3_url = scratch_s3_url
+
     def google_sheets(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
         scopes = ('https://www.googleapis.com/auth/spreadsheets',)
         return self._gcp_creds(gcp_creds_name, scopes)
@@ -151,3 +153,9 @@ class BaseCreds():
         else:
             self.__default_db_facts = self.db_facts(self._default_db_creds_name)
         return self.__default_db_facts
+
+    def default_scratch_s3_url(self) -> Optional[str]:
+        if self._scratch_s3_url is NotYetFetched.token:
+            # TODO: Bring over code from Session
+            raise NotImplementedError
+        return self._scratch_s3_url

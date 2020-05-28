@@ -21,7 +21,6 @@ class TestSessionChoices(unittest.TestCase):
                                                              mock_subprocess):
         session = self.mock_session()
         self.assertEqual(session.creds, mock_CredsViaAirflow.return_value)
-        self.assertEqual(session._scratch_s3_url, 's3://foo/')
         mock_CredsViaAirflow.assert_called_with(default_db_creds_name=None,
                                                 default_aws_creds_name='aws_default',
                                                 default_gcp_creds_name='google_cloud_default',
@@ -37,7 +36,6 @@ class TestSessionChoices(unittest.TestCase):
                                            mock_subprocess):
         session = self.mock_session()
         self.assertEqual(session.creds, mock_CredsViaLastPass.return_value)
-        self.assertEqual(session._scratch_s3_url, 's3://foo/')
         mock_CredsViaLastPass.assert_called_with(default_db_creds_name=None,
                                                  default_aws_creds_name=None,
                                                  default_gcp_creds_name=None,
@@ -56,7 +54,6 @@ class TestSessionChoices(unittest.TestCase):
                                                          mock_subprocess):
         session = self.mock_session()
         self.assertEqual(session.creds, mock_CredsViaLastPass.return_value)
-        self.assertEqual(session._scratch_s3_url, 's3://foo/')
         mock_CredsViaLastPass.assert_called_with(default_db_creds_name=None,
                                                  default_aws_creds_name=None,
                                                  default_gcp_creds_name=None,
@@ -75,7 +72,6 @@ class TestSessionChoices(unittest.TestCase):
                                                              mock_subprocess):
         session = self.mock_session()
         self.assertEqual(session.creds, mock_CredsViaAirflow.return_value)
-        self.assertEqual(session._scratch_s3_url, 's3://foo/')
         mock_CredsViaAirflow.assert_called_with(default_db_creds_name=None,
                                                 default_aws_creds_name='aws_default',
                                                 default_gcp_creds_name='google_cloud_default',
@@ -105,7 +101,6 @@ class TestSessionChoices(unittest.TestCase):
                                                  mock_subprocess):
         session = self.mock_session(session_type='airflow')
         self.assertEqual(session.creds, mock_CredsViaAirflow.return_value)
-        self.assertEqual(session._scratch_s3_url, 's3://foo/')
         mock_CredsViaAirflow.assert_called_with(default_db_creds_name=None,
                                                 default_aws_creds_name='aws_default',
                                                 default_gcp_creds_name='google_cloud_default',
@@ -121,7 +116,6 @@ class TestSessionChoices(unittest.TestCase):
                                              mock_subprocess):
         session = self.mock_session(session_type='cli')
         self.assertEqual(session.creds, mock_CredsViaLastPass.return_value)
-        self.assertEqual(session._scratch_s3_url, 's3://foo/')
         mock_CredsViaLastPass.assert_called_with(default_db_creds_name=None,
                                                  default_aws_creds_name=None,
                                                  default_gcp_creds_name=None,

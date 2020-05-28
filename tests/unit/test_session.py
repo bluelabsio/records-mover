@@ -118,7 +118,7 @@ class TestSession(unittest.TestCase):
         mock_config_result = mock_get_config.return_value
         mock_config_result.config = {'aws': {'s3_scratch_url': 's3://foundit/'}}
         session = Session()
-        self.assertEqual(session._scratch_s3_url, 's3://foundit/')
+        self.assertEqual(session.creds.default_scratch_s3_url(), 's3://foundit/')
 
     @patch('records_mover.session.UrlResolver')
     def test_file_url(self,

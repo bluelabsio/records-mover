@@ -22,12 +22,12 @@ class TestCLISessionRecords(unittest.TestCase):
         mock_project = Mock(name='project')
         mock_google_auth_default.return_value = (mock_credentials, mock_project)
         mock_subprocess.check_output.return_value = 'jdoe'.encode('utf-8')
-        context = Session(session_type='cli',
+        session = Session(session_type='cli',
                           default_db_creds_name=None,
                           default_aws_creds_name=None,
                           default_gcp_creds_name=None)
         self.assertEqual(mock_Records.return_value,
-                         context.records)
+                         session.records)
         mock_Records.assert_called_with(db_driver=ANY,
                                         url_resolver=ANY)
 
@@ -37,7 +37,7 @@ class TestCLISessionRecords(unittest.TestCase):
                                                     mock_Records,
                                                     mock_subprocess):
         mock_subprocess.check_output.return_value = 'jdoe'.encode('utf-8')
-        context = Session(session_type='cli',
+        session = Session(session_type='cli',
                           default_db_creds_name=None,
                           default_aws_creds_name=None)
-        self.assertEqual(context._scratch_s3_url, 's3://different-scratch-bucket/')
+        self.assertEqual(session.creds.default_scratch_s3_url(), 's3://different-scratch-bucket/')

@@ -202,8 +202,6 @@ class Session():
                                  default_gcs_client=default_gcs_client,
                                  scratch_s3_url=scratch_s3_url)
 
-        # TODO: get this from creds
-        self._scratch_s3_url = scratch_s3_url
         self.creds = creds
 
     @property
@@ -232,9 +230,10 @@ class Session():
         from .db.factory import db_driver
 
         kwargs = {}
-        if self._scratch_s3_url is not None:
+        scratch_s3_url = self.creds.default_scratch_s3_url()
+        if scratch_s3_url is not None:
             try:
-                s3_temp_base_loc = self.directory_url(self._scratch_s3_url)
+                s3_temp_base_loc = self.directory_url(scratch_s3_url)
                 kwargs['s3_temp_base_loc'] = s3_temp_base_loc
             except NotImplementedError:
                 logger.debug('boto3 not installed', exc_info=True)
