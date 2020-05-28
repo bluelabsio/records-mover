@@ -1,6 +1,6 @@
 from typing_inspect import is_literal_type, get_args
 from abc import ABCMeta, abstractmethod
-from .types import HintName, PartialRecordsHints, UntypedRecordsHints
+from .types import HintName, UntypedRecordsHints
 from typing import TypeVar, Generic, Type, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from records_mover.utils.json_schema import JsonSchemaDocument

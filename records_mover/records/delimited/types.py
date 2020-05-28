@@ -1,13 +1,11 @@
-from typing_inspect import get_args, typed_dict_keys
-from typing import Optional, Union, Mapping, Dict, List
+from typing_inspect import get_args
+from typing import Mapping, List
 from typing_extensions import Literal
 # TypedDict isn't mypy specific, but typing_inspect currently doesn't
 # support typing_extensions.TypedDict.
 #
 # https://github.com/ilevkivskyi/typing_inspect/issues/50
 from mypy_extensions import TypedDict
-from records_mover.mover_types import JsonValue
-
 
 HintEncoding = Literal["UTF8", "UTF16", "UTF16LE", "UTF16BE",
                        "UTF16BOM", "UTF8BOM", "LATIN1", "CP1252"]
@@ -79,4 +77,3 @@ PartialRecordsHints = TypedDict('PartialRecordsHints',
                                 },
                                 total=False)
 UntypedRecordsHints = Mapping[str, object]
-MutableUntypedRecordsHints = Dict[str, object]

@@ -1,5 +1,4 @@
 from records_mover.utils import quiet_remove
-from records_mover.records.records_format import DelimitedRecordsFormat
 from records_mover.records.delimited import cant_handle_hint, ValidatedRecordsHints
 from typing import Set
 from .types import PostgresCopyOptions
