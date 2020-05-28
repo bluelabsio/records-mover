@@ -170,10 +170,16 @@ class BaseCreds():
                 s3_scratch_url_prefix: Optional[str] =\
                     aws_cfg.get('s3_scratch_url_appended_with_iam_user_id')
                 if s3_scratch_url_prefix is not None:
+                    if boto3_session is None:
+                        logger.warning('Cannot generate S3 scratch URL with IAM user ID, '
+                                       'as I have no IAM user ID')
+                        return None
                     # TODO: Make sure boto3_session is not None
                     sts_client = boto3_session.client('sts')
                     caller_identity = sts_client.get_caller_identity()
                     arn = caller_identity['Arn']
+                    # TODO: What happens if nothing follows this?
+                    # e.g., what do I get with an assumed role?
                     user_id = arn.split('/')[-1]
                     s3_scratch_url = f"{s3_scratch_url_prefix}{user_id}/"
             return s3_scratch_url

@@ -1,4 +1,4 @@
-from typing import Any, List, IO, Union, Optional, Dict, Callable
+from typing import Any, List, IO, Union, Optional, Dict, Callable, overload
 from typing_extensions import Literal
 from mypy_extensions import TypedDict
 import datetime
@@ -165,6 +165,15 @@ class S3ResourceTypeStub:
     meta: S3MetaTypeStub
 
 
+class STSCallerIdentity(TypedDict):
+    Arn: str
+
+
+class STSClientTypeStub:
+    def get_caller_identity(self) -> STSCallerIdentity:
+        ...
+
+
 class Session:
     region_name: str
     resource: Any
@@ -175,5 +184,10 @@ class Session:
     def get_credentials(self) -> Optional[Credentials]:
         ...
 
+    @overload
     def client(self, resource_type: Literal["s3"]) -> S3ClientTypeStub:
+        ...
+
+    @overload
+    def client(self, resource_type: Literal["sts"]) -> STSClientTypeStub:
         ...
