@@ -9,9 +9,7 @@ from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
 from records_mover.logging import set_stream_logging
-from records_mover.mover_types import NotYetFetched
-from config_resolver import get_config
-import subprocess
+from records_mover.mover_types import PleaseInfer
 import os
 import sys
 import logging
@@ -37,41 +35,6 @@ def _infer_session_type() -> str:
     return 'cli'
 
 
-def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
-    if "SCRATCH_S3_URL" in os.environ:
-        return os.environ["SCRATCH_S3_URL"]
-
-    # config_resolver logs at the WARNING level for each time it
-    # attempts to load a config file and doesn't find it - which given
-    # it searches a variety of places, is quite noisy.
-    #
-    # https://github.com/exhuma/config_resolver/blob/master/doc/intro.rst#logging
-    #
-    # https://github.com/exhuma/config_resolver/issues/69
-    logging.getLogger('config_resolver').setLevel(logging.ERROR)
-    config_result = get_config('records_mover', 'bluelabs')
-    cfg = config_result.config
-    if 'aws' in cfg:
-        s3_scratch_url: Optional[str] = cfg['aws'].get('s3_scratch_url')
-        if s3_scratch_url is not None:
-            return s3_scratch_url
-    else:
-        logger.debug('No config ini file found')
-
-    if session_type == 'cli':
-        try:
-            #
-            # https://app.asana.com/0/1128138765527694/1163219515343393
-            #
-            # This method of configuration needs to be replaced with
-            # something more conventional and documented.
-            #
-            return subprocess.check_output("scratch-s3-url").decode('ASCII').rstrip()
-        except FileNotFoundError:
-            pass
-    return None
-
-
 def _infer_default_aws_creds_name(session_type: str) -> Optional[str]:
     if session_type == 'airflow':
         return 'aws_default'
@@ -88,17 +51,17 @@ def _infer_creds(session_type: str,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
                  default_gcp_creds_name: Optional[str],
-                 default_db_facts: Union[NotYetFetched, DBFacts],
-                 default_boto3_session: Union[NotYetFetched,
+                 default_db_facts: Union[PleaseInfer, DBFacts],
+                 default_boto3_session: Union[PleaseInfer,
                                               'boto3.session.Session',
                                               None],
-                 default_gcp_creds: Union[NotYetFetched,
+                 default_gcp_creds: Union[PleaseInfer,
                                           'google.auth.credentials.Credentials',
                                           None],
-                 default_gcs_client: Union[NotYetFetched,
+                 default_gcs_client: Union[PleaseInfer,
                                            'google.cloud.storage.Client',
                                            None],
-                 scratch_s3_url: Union[NotYetFetched,
+                 scratch_s3_url: Union[PleaseInfer,
                                        str,
                                        None]) -> BaseCreds:
     if session_type == 'airflow':
@@ -150,13 +113,6 @@ def _infer_creds(session_type: str,
                          f"{session_type}.")
 
 
-# This is a mypy-friendly way of doing a singleton object:
-#
-# https://github.com/python/typing/issues/236
-class PleaseInfer(Enum):
-    token = 1
-
-
 class Session():
     def __init__(self,
                  default_db_creds_name: Optional[str] = None,
@@ -164,20 +120,20 @@ class Session():
                  default_gcp_creds_name: Union[None, str, PleaseInfer] = PleaseInfer.token,
                  session_type: Union[str, PleaseInfer] = PleaseInfer.token,
                  # TODO: FIgure out if this should be
-                 # PleaseInfer.token, NotYetFetched.token or if those
+                 # PleaseInfer.token, PleaseInfer.token or if those
                  # concepts need to be combined?
                  scratch_s3_url: Union[None, str, PleaseInfer] = PleaseInfer.token,
                  creds: Union[BaseCreds, PleaseInfer] = PleaseInfer.token,
-                 default_db_facts: Union[NotYetFetched, DBFacts] = NotYetFetched.token,
-                 default_boto3_session: Union[NotYetFetched,
+                 default_db_facts: Union[PleaseInfer, DBFacts] = PleaseInfer.token,
+                 default_boto3_session: Union[PleaseInfer,
                                               'boto3.session.Session',
-                                              None] = NotYetFetched.token,
-                 default_gcp_creds: Union[NotYetFetched,
+                                              None] = PleaseInfer.token,
+                 default_gcp_creds: Union[PleaseInfer,
                                           'google.auth.credentials.Credentials',
-                                          None] = NotYetFetched.token,
-                 default_gcs_client: Union[NotYetFetched,
+                                          None] = PleaseInfer.token,
+                 default_gcs_client: Union[PleaseInfer,
                                            'google.cloud.storage.Client',
-                                           None] = NotYetFetched.token) -> None:
+                                           None] = PleaseInfer.token) -> None:
         if session_type is PleaseInfer.token:
             session_type = _infer_session_type()
 
@@ -186,10 +142,6 @@ class Session():
 
         if default_gcp_creds_name is PleaseInfer.token:
             default_gcp_creds_name = _infer_default_gcp_creds_name(session_type)
-
-        # TODO: Move this logic to creds interface
-        if scratch_s3_url is PleaseInfer.token:
-            scratch_s3_url = _infer_scratch_s3_url(session_type)
 
         if creds is PleaseInfer.token:
             creds = _infer_creds(session_type,

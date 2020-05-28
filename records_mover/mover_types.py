@@ -11,5 +11,5 @@ JsonValue = Optional[Union[bool, str, float, int, Mapping[str, Any], List[Any]]]
 # This is a mypy-friendly way of doing a singleton object:
 #
 # https://github.com/python/typing/issues/236
-class NotYetFetched(Enum):
+class PleaseInfer(Enum):
     token = 1

@@ -3,7 +3,6 @@ import unittest
 from mock import patch, ANY, Mock
 
 
-@patch('records_mover.session.subprocess')
 @patch.dict('os.environ', {
     'AWS_SECRET_ACCESS_KEY': 'aws secret key',
     'AWS_SESSION_TOKEN': 'aws session token',
@@ -16,12 +15,10 @@ class TestCLISessionRecords(unittest.TestCase):
     def test_records(self,
                      mock_Records,
                      mock_google_auth_default,
-                     mock_google_cloud_storage_Client,
-                     mock_subprocess):
+                     mock_google_cloud_storage_Client):
         mock_credentials = Mock(name='credentials')
         mock_project = Mock(name='project')
         mock_google_auth_default.return_value = (mock_credentials, mock_project)
-        mock_subprocess.check_output.return_value = 'jdoe'.encode('utf-8')
         session = Session(session_type='cli',
                           default_db_creds_name=None,
                           default_aws_creds_name=None,
@@ -34,9 +31,7 @@ class TestCLISessionRecords(unittest.TestCase):
     @patch('records_mover.session.Records')
     @patch.dict('os.environ', {'SCRATCH_S3_URL': 's3://different-scratch-bucket/'})
     def test_records_with_overridden_scratch_bucket(self,
-                                                    mock_Records,
-                                                    mock_subprocess):
-        mock_subprocess.check_output.return_value = 'jdoe'.encode('utf-8')
+                                                    mock_Records):
         session = Session(session_type='cli',
                           default_db_creds_name=None,
                           default_aws_creds_name=None)
