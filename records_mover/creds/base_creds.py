@@ -40,7 +40,10 @@ class BaseCreds():
                                           None] = NotYetFetched.token,
                  default_gcs_client: Union[NotYetFetched,
                                            'google.cloud.storage.Client',
-                                           None] = NotYetFetched.token) -> None:
+                                           None] = NotYetFetched.token,
+                 scratch_s3_url: Union[NotYetFetched,
+                                       str,
+                                       None] = NotYetFetched.token) -> None:
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
         self._default_gcp_creds_name = default_gcp_creds_name

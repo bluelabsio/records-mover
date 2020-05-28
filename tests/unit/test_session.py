@@ -170,7 +170,8 @@ class TestSession(unittest.TestCase):
                                             default_db_facts=NotYetFetched.token,
                                             default_boto3_session=NotYetFetched.token,
                                             default_gcp_creds=NotYetFetched.token,
-                                            default_gcs_client=NotYetFetched.token)
+                                            default_gcs_client=NotYetFetched.token,
+                                            scratch_s3_url=None)
         mock_CredsViaEnv.return_value.default_boto3_session.assert_called()
 
     @patch('boto3.session')

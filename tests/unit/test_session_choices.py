@@ -28,7 +28,8 @@ class TestSessionChoices(unittest.TestCase):
                                                 default_db_facts=NotYetFetched.token,
                                                 default_boto3_session=NotYetFetched.token,
                                                 default_gcp_creds=NotYetFetched.token,
-                                                default_gcs_client=NotYetFetched.token)
+                                                default_gcs_client=NotYetFetched.token,
+                                                scratch_s3_url='s3://foo/')
 
     def test_select_cli_session_by_default(self,
                                            mock_CredsViaAirflow,
@@ -43,7 +44,8 @@ class TestSessionChoices(unittest.TestCase):
                                                  default_db_facts=NotYetFetched.token,
                                                  default_boto3_session=NotYetFetched.token,
                                                  default_gcp_creds=NotYetFetched.token,
-                                                 default_gcs_client=NotYetFetched.token)
+                                                 default_gcs_client=NotYetFetched.token,
+                                                 scratch_s3_url='s3://foo/')
 
     @patch.dict('os.environ', {
         'RECORDS_MOVER_SESSION_TYPE': 'cli',
@@ -61,7 +63,8 @@ class TestSessionChoices(unittest.TestCase):
                                                  default_db_facts=NotYetFetched.token,
                                                  default_boto3_session=NotYetFetched.token,
                                                  default_gcp_creds=NotYetFetched.token,
-                                                 default_gcs_client=NotYetFetched.token)
+                                                 default_gcs_client=NotYetFetched.token,
+                                                 scratch_s3_url='s3://foo/')
 
     @patch.dict('os.environ', {
         'RECORDS_MOVER_SESSION_TYPE': 'airflow',
@@ -79,7 +82,8 @@ class TestSessionChoices(unittest.TestCase):
                                                 default_db_facts=NotYetFetched.token,
                                                 default_boto3_session=NotYetFetched.token,
                                                 default_gcp_creds=NotYetFetched.token,
-                                                default_gcs_client=NotYetFetched.token)
+                                                default_gcs_client=NotYetFetched.token,
+                                                scratch_s3_url='s3://foo/')
 
     @patch.dict('os.environ', {
         'RECORDS_MOVER_SESSION_TYPE': 'bogus',
@@ -92,7 +96,7 @@ class TestSessionChoices(unittest.TestCase):
             session = self.mock_session()
             print(f"Got session: {session}")
         self.assertEqual(str(r.exception),
-                         'Valid job context types: cli, airflow, docker-itest, env - '
+                         'Valid job context types: cli, airflow, itest, env - '
                          "consider upgrading records-mover if you're looking for bogus.")
 
     def test_select_airflow_session_by_parameter(self,
@@ -108,7 +112,8 @@ class TestSessionChoices(unittest.TestCase):
                                                 default_db_facts=NotYetFetched.token,
                                                 default_boto3_session=NotYetFetched.token,
                                                 default_gcp_creds=NotYetFetched.token,
-                                                default_gcs_client=NotYetFetched.token)
+                                                default_gcs_client=NotYetFetched.token,
+                                                scratch_s3_url='s3://foo/')
 
     def test_select_cli_session_by_parameter(self,
                                              mock_CredsViaAirflow,
@@ -123,7 +128,8 @@ class TestSessionChoices(unittest.TestCase):
                                                  default_db_facts=NotYetFetched.token,
                                                  default_boto3_session=NotYetFetched.token,
                                                  default_gcp_creds=NotYetFetched.token,
-                                                 default_gcs_client=NotYetFetched.token)
+                                                 default_gcs_client=NotYetFetched.token,
+                                                 scratch_s3_url='s3://foo/')
 
     def test_select_invalid_session_by_parameter(self,
                                                  mock_CredsViaAirflow,
@@ -132,5 +138,5 @@ class TestSessionChoices(unittest.TestCase):
         with self.assertRaises(ValueError) as r:
             self.mock_session(session_type='bogus')
         self.assertEqual(str(r.exception),
-                         "Valid job context types: cli, airflow, docker-itest, env - "
+                         "Valid job context types: cli, airflow, itest, env - "
                          "consider upgrading records-mover if you're looking for bogus.")
