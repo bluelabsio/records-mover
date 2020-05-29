@@ -163,8 +163,8 @@ class BaseCreds():
         caller_identity = sts_client.get_caller_identity()
         arn = caller_identity['Arn']
         last_section_of_arn = arn.split(':')[-1]
-        # Check that this is an actual user and not, say,
-        # an assumed role or something else.
+        # Check that this is an actual user and not, say, an assumed
+        # role or something else.
         if last_section_of_arn.startswith('user/'):
             username = last_section_of_arn.split('/')[-1]
             return f"{prefix}{username}/"
