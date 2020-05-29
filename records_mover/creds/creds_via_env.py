@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 class CredsViaEnv(BaseCreds):
     def _gcp_creds(self, gcp_creds_name: str,
                    scopes: Iterable[str]) -> 'google.auth.credentials.Credentials':
+        # TODO: Make this the default one?
         import google.oauth2.service_account
         notes_json_base64 = os.environ['GCP_SERVICE_ACCOUNT_JSON_BASE64']
         notes_json = base64.b64decode(notes_json_base64.encode('utf-8'))

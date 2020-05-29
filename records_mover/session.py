@@ -1,4 +1,5 @@
 from db_facts.db_facts_types import DBFacts
+from config_resolver import get_config
 from .creds.base_creds import BaseCreds
 from .records.records import Records
 from .url.base import BaseFileUrl, BaseDirectoryUrl
@@ -30,11 +31,20 @@ def _infer_session_type() -> str:
     if 'RECORDS_MOVER_SESSION_TYPE' in os.environ:
         return os.environ['RECORDS_MOVER_SESSION_TYPE']
 
+    config_result = get_config('records_mover', 'bluelabs')
+    cfg = config_result.config
+    if 'session' in cfg:
+        session_cfg = cfg['session']
+        session_type: Optional[str] = session_cfg.get('session_type')
+        if session_type is not None:
+            logger.info("Using session_type={session_cfg} from config file")
+            return session_type
+
     if 'AIRFLOW__CORE__EXECUTOR' in os.environ:
         # Guess based on an env variable sometimes set by Airflow
         return 'airflow'
 
-    return 'cli'
+    return 'env'
 
 
 def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
