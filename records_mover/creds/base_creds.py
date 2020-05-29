@@ -156,6 +156,23 @@ class BaseCreds():
             self.__default_db_facts = self.db_facts(self._default_db_creds_name)
         return self.__default_db_facts
 
+    def _append_aws_username_to_bucket(self,
+                                       prefix: str,
+                                       boto3_session: 'boto3.session.Session') -> Optional[str]:
+        sts_client = boto3_session.client('sts')
+        caller_identity = sts_client.get_caller_identity()
+        arn = caller_identity['Arn']
+        last_section_of_arn = arn.split(':')[-1]
+        # Check that this is an actual user and not, say,
+        # an assumed role or something else.
+        if last_section_of_arn.startswith('user/'):
+            username = last_section_of_arn.split('/')[-1]
+            return f"{prefix}{username}/"
+        else:
+            logger.warning('Cannot generate S3 scratch URL with IAM username, '
+                           f'as there is no username in {arn}')
+            return None
+
     def _infer_scratch_s3_url(self,
                               boto3_session: Optional['boto3.session.Session']) -> Optional[str]:
         if "SCRATCH_S3_URL" in os.environ:
@@ -166,31 +183,24 @@ class BaseCreds():
         if 'aws' in cfg:
             aws_cfg = cfg['aws']
             s3_scratch_url: Optional[str] = aws_cfg.get('s3_scratch_url')
-            if s3_scratch_url is None:
+            if s3_scratch_url is not None:
+                return s3_scratch_url
+            else:
                 s3_scratch_url_prefix: Optional[str] =\
-                    aws_cfg.get('s3_scratch_url_appended_with_iam_user_id')
+                    aws_cfg.get('s3_scratch_url_appended_with_iam_username')
                 if s3_scratch_url_prefix is not None:
                     if boto3_session is None:
-                        logger.warning('Cannot generate S3 scratch URL with IAM user ID, '
-                                       'as I have no IAM user ID')
+                        logger.warning('Cannot generate S3 scratch URL with IAM username, '
+                                       'as I have no IAM username')
                         return None
-                    sts_client = boto3_session.client('sts')
-                    caller_identity = sts_client.get_caller_identity()
-                    arn = caller_identity['Arn']
-                    last_section_of_arn = arn.split(':')[-1]
-                    # Check that this is an actual user and not, say,
-                    # an assumed role or something else.
-                    if last_section_of_arn.startswith('user/'):
-                        user_id = last_section_of_arn.split('/')[-1]
-                        s3_scratch_url = f"{s3_scratch_url_prefix}{user_id}/"
-                    else:
-                        logger.warning('Cannot generate S3 scratch URL with IAM user ID, '
-                                       f'as there is no username in {arn}')
-            return s3_scratch_url
+                    return self._append_aws_username_to_bucket(s3_scratch_url_prefix,
+                                                               boto3_session)
+                else:
+                    logger.debug('No S3 scratch bucket config found')
+                    return None
         else:
             logger.debug('No config ini file found')
-
-        return None
+            return None
 
     def default_scratch_s3_url(self) -> Optional[str]:
         if self._scratch_s3_url is PleaseInfer.token:

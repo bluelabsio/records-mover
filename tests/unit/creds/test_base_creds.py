@@ -97,7 +97,7 @@ class TestBaseCreds(unittest.TestCase):
         mock_boto3_session = Mock(name='boto3_session')
         mock_get_config.return_value.config = {
             'aws': {
-                's3_scratch_url_appended_with_iam_user_id': 's3://group_bucket/subdir/'
+                's3_scratch_url_appended_with_iam_username': 's3://group_bucket/subdir/'
             }
         }
         mock_sts_client = mock_boto3_session.client.return_value
@@ -117,7 +117,7 @@ class TestBaseCreds(unittest.TestCase):
         mock_boto3_session = Mock(name='boto3_session')
         mock_get_config.return_value.config = {
             'aws': {
-                's3_scratch_url_appended_with_iam_user_id': 's3://group_bucket/subdir/'
+                's3_scratch_url_appended_with_iam_username': 's3://group_bucket/subdir/'
             }
         }
         mock_sts_client = mock_boto3_session.client.return_value
@@ -137,7 +137,7 @@ class TestBaseCreds(unittest.TestCase):
         mock_boto3_session = None
         mock_get_config.return_value.config = {
             'aws': {
-                's3_scratch_url_appended_with_iam_user_id': 's3://group_bucket/subdir/'
+                's3_scratch_url_appended_with_iam_username': 's3://group_bucket/subdir/'
             }
         }
         creds = ExampleCredsSubclass(default_boto3_session=mock_boto3_session)
