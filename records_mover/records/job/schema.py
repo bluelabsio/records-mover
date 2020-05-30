@@ -12,6 +12,7 @@ HINT_PARAMETERS = [
     for hint_enum in list(Hints)
 ]
 
+
 def method_to_json_schema(method: Callable[..., Any]) -> JsonSchema:
     special_handling: Dict[str, List[JsonParameter]] = {
         'google_cloud_creds': [JsonParameter('gcp_creds_name', JsonSchemaDocument('string'))],
