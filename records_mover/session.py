@@ -1,5 +1,4 @@
 from db_facts.db_facts_types import DBFacts
-from config_resolver import get_config
 from .creds.base_creds import BaseCreds
 from .records.records import Records
 from .url.base import BaseFileUrl, BaseDirectoryUrl
@@ -11,6 +10,7 @@ from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
 from records_mover.logging import set_stream_logging
 from records_mover.mover_types import NotYetFetched
+from config_resolver import get_config
 import subprocess
 import os
 import sys
