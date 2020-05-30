@@ -1,5 +1,6 @@
 from mock import patch, Mock
 from records_mover import Session
+from records_mover.mover_types import NotYetFetched
 import unittest
 
 
@@ -165,7 +166,11 @@ class TestSession(unittest.TestCase):
                          mock_CredsViaEnv.return_value.default_boto3_session.return_value)
         mock_CredsViaEnv.assert_called_with(default_db_creds_name=None,
                                             default_aws_creds_name=mock_default_aws_creds_name,
-                                            default_gcp_creds_name=None)
+                                            default_gcp_creds_name=None,
+                                            default_db_facts=NotYetFetched.token,
+                                            default_boto3_session=NotYetFetched.token,
+                                            default_gcp_creds=NotYetFetched.token,
+                                            default_gcs_client=NotYetFetched.token)
         mock_CredsViaEnv.return_value.default_boto3_session.assert_called()
 
     @patch('boto3.session')
