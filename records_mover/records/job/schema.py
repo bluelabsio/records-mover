@@ -12,19 +12,13 @@ HINT_PARAMETERS = [
     for hint_enum in list(Hints)
 ]
 
-BOOTSTRAPPING_HINT_PARAMETERS = [
-    hint_parameter
-    for hint_parameter in HINT_PARAMETERS
-]
-
-
 def method_to_json_schema(method: Callable[..., Any]) -> JsonSchema:
     special_handling: Dict[str, List[JsonParameter]] = {
         'google_cloud_creds': [JsonParameter('gcp_creds_name', JsonSchemaDocument('string'))],
         'db_engine': [JsonParameter('db_name', JsonSchemaDocument('string'))],
         'records_format': ([JsonParameter('variant', JsonSchemaDocument('string'), optional=True)] +
                            HINT_PARAMETERS),
-        'initial_hints': BOOTSTRAPPING_HINT_PARAMETERS,
+        'initial_hints': HINT_PARAMETERS,
         'existing_table_handling':
         [JsonParameter('existing_table',
                        JsonSchemaDocument('string',
