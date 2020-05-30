@@ -2,6 +2,7 @@ from mock import patch
 from records_mover.mover_types import NotYetFetched
 import unittest
 
+
 @patch('records_mover.session.subprocess')
 @patch('records_mover.session.CredsViaLastPass')
 @patch('records_mover.session.CredsViaAirflow')

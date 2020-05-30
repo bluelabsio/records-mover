@@ -13,6 +13,7 @@ LookupMetadata = namedtuple(
     "LookupMetadata", ["active_path", "loaded_files", "config_id", "prefix_filter"]
 )
 
+
 class LookupResult(NamedTuple):
     config: Dict[str, Dict[str, Any]]
     meta: LookupMetadata

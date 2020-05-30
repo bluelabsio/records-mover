@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch, Mock
 import records_mover
 
+
 @patch('google.auth.default')
 @patch('google.cloud.storage.Client')
 @patch('records_mover.session.get_config')
