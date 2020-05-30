@@ -11,7 +11,6 @@ from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
 from records_mover.logging import set_stream_logging
 from records_mover.mover_types import NotYetFetched
-from config_resolver import get_config
 import subprocess
 import os
 import sys
@@ -117,13 +116,14 @@ def _infer_creds(session_type: str,
                                default_gcp_creds=default_gcp_creds,
                                default_gcs_client=default_gcs_client)
     elif session_type == 'cli':
-        #
-        # https://app.asana.com/0/1128138765527694/1163219515343393
-        #
-        # Most people don't use LastPass; other secrets managements
-        # should be supported and configurable at the system- and
-        # user- level.
-        #
+        return CredsViaEnv(default_db_creds_name=default_db_creds_name,
+                           default_aws_creds_name=default_aws_creds_name,
+                           default_gcp_creds_name=default_gcp_creds_name,
+                           default_db_facts=default_db_facts,
+                           default_boto3_session=default_boto3_session,
+                           default_gcp_creds=default_gcp_creds,
+                           default_gcs_client=default_gcs_client)
+    elif session_type == 'lpass':
         return CredsViaLastPass(default_db_creds_name=default_db_creds_name,
                                 default_aws_creds_name=default_aws_creds_name,
                                 default_gcp_creds_name=default_gcp_creds_name,
@@ -148,7 +148,7 @@ def _infer_creds(session_type: str,
                            default_gcp_creds=default_gcp_creds,
                            default_gcs_client=default_gcs_client)
     elif session_type is not None:
-        raise ValueError("Valid job context types: cli, airflow, docker-itest, env - "
+        raise ValueError("Valid job context types: cli, lpass, airflow, docker-itest, env - "
                          "consider upgrading records-mover if you're looking for "
                          f"{session_type}.")
 

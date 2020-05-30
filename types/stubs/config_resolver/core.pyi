@@ -5,15 +5,18 @@ from collections import namedtuple
 from config_resolver.handler.ini import IniHandler as IniHandler  # noqa
 from logging import Filter, Logger
 from packaging.version import Version
-from typing import Any, Dict, Generator, List, Optional, Tuple, Type
+from typing import Any, Dict, Generator, List, Optional, Tuple, Type, NamedTuple
 
 ConfigID = namedtuple("ConfigID", "group app")
-
-LookupResult = namedtuple("LookupResult", "config meta")
 
 LookupMetadata = namedtuple(
     "LookupMetadata", ["active_path", "loaded_files", "config_id", "prefix_filter"]
 )
+
+class LookupResult(NamedTuple):
+    config: Dict[str, Dict[str, Any]]
+    meta: LookupMetadata
+
 
 FileReadability = namedtuple("FileReadability", "is_readable filename reason version")
 

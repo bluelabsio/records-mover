@@ -2,11 +2,12 @@ import unittest
 from unittest.mock import patch, Mock
 import records_mover
 
-
 @patch('google.auth.default')
 @patch('google.cloud.storage.Client')
+@patch('records_mover.session.get_config')
 class TestTopLevel(unittest.TestCase):
     def test_sources(self,
+                     mock_get_config,
                      mock_Client,
                      mock_google_auth_default):
         mock_credentials = Mock(name='credentials')
@@ -16,6 +17,7 @@ class TestTopLevel(unittest.TestCase):
                          records_mover.records.sources.factory.RecordsSources)
 
     def test_targets(self,
+                     mock_get_config,
                      mock_Client,
                      mock_google_auth_default):
         mock_credentials = Mock(name='credentials')

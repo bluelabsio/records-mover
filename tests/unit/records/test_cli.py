@@ -1,4 +1,3 @@
-
 import unittest
 from mock import patch, call, Mock
 from records_mover.records.cli import main
@@ -11,8 +10,10 @@ from records_mover.records.cli import main
 @patch('records_mover.records.cli.run_records_mover_job')
 @patch('records_mover.records.cli.JobConfigSchemaAsArgsParser')
 @patch('records_mover.records.cli.arguments_output_to_config')
+@patch('records_mover.session.get_config')
 class TestCLI(unittest.TestCase):
     def test_main(self,
+                  mock_get_config,
                   mock_arguments_output_to_config,
                   mock_JobConfigSchemaAsArgsParser,
                   mock_run_records_mover_job,
