@@ -148,7 +148,7 @@ def _infer_creds(session_type: str,
                            default_gcp_creds=default_gcp_creds,
                            default_gcs_client=default_gcs_client)
     elif session_type is not None:
-        raise ValueError("Valid job context types: cli, lpass, airflow, docker-itest, env - "
+        raise ValueError("Valid session types: cli, lpass, airflow, docker-itest, env - "
                          "consider upgrading records-mover if you're looking for "
                          f"{session_type}.")
 

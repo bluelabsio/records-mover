@@ -105,7 +105,7 @@ class TestSessionChoices(unittest.TestCase):
             session = self.mock_session()
             print(f"Got session: {session}")
         self.assertEqual(str(r.exception),
-                         'Valid job context types: cli, lpass, airflow, docker-itest, env - '
+                         'Valid session types: cli, lpass, airflow, docker-itest, env - '
                          "consider upgrading records-mover if you're looking for bogus.")
 
     def test_select_airflow_session_by_parameter(self,
@@ -173,5 +173,5 @@ class TestSessionChoices(unittest.TestCase):
         with self.assertRaises(ValueError) as r:
             self.mock_session(session_type='bogus')
         self.assertEqual(str(r.exception),
-                         "Valid job context types: cli, lpass, airflow, docker-itest, env - "
+                         "Valid session types: cli, lpass, airflow, docker-itest, env - "
                          "consider upgrading records-mover if you're looking for bogus.")
