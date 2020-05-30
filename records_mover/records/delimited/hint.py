@@ -87,9 +87,19 @@ class LiteralHint(Hint[LiteralHintT]):
             for valid_value in self.valid_values
         }
 
-        return JsonSchemaDocument(list(types_set),
-                                  enum=self.valid_values,
-                                  description=self.description)
+        if all([t == 'boolean' for t in types_set]):
+            # We use Literal[True, False] as a type instead of bool as
+            # mypy's exhaustive type matching doesn't work with 'bool'.
+            #
+            # Let's translate that back to boolean here.
+            return JsonSchemaDocument('boolean',
+                                      description=self.description)
+
+            pass
+        else:
+            return JsonSchemaDocument(list(types_set),
+                                      enum=self.valid_values,
+                                      description=self.description)
 
     def validate(self,
                  hints: UntypedRecordsHints,

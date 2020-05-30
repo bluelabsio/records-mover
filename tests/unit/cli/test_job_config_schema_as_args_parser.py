@@ -35,6 +35,9 @@ class TestJobConfigSchemaAsArgsParser(unittest.TestCase):
                     'type': 'boolean',
                     'default': False,
                 },
+                'boolwithnodefault': {
+                    'type': 'boolean',
+                },
                 'enumwithnulloption': {
                     'type': ['string', 'null'],
                     'enum': ['a', 'b', None]
@@ -108,6 +111,26 @@ class TestJobConfigSchemaAsArgsParser(unittest.TestCase):
         self.assertEqual(str(r.exception.__context__),
                          "argument --enumwithnulloption: invalid choice: 'x' "
                          "(choose from 'a', 'b')")
+
+    def test_boolean_no_default_true(self) -> None:
+        parser = JobConfigSchemaAsArgsParser.from_description(self.job_config_schema, 'testjob')
+        out = parser.parse(['--boolwithnodefault'])
+        expected = {
+            'divisions': ['candidates', 'counties', 'townships', 'precincts'],
+            'boolwithdefaultfalse': False, 'boolwithdefaulttrue': True,
+            'boolwithnodefault': True,
+        }
+        self.assertEqual(expected, out)
+
+    def test_boolean_no_default_false(self) -> None:
+        parser = JobConfigSchemaAsArgsParser.from_description(self.job_config_schema, 'testjob')
+        out = parser.parse(['--no_boolwithnodefault'])
+        expected = {
+            'divisions': ['candidates', 'counties', 'townships', 'precincts'],
+            'boolwithdefaultfalse': False, 'boolwithdefaulttrue': True,
+            'boolwithnodefault': False,
+        }
+        self.assertEqual(expected, out)
 
     def test_bad_syntax_1(self):
         bad_job_config_schema = {
