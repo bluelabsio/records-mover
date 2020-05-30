@@ -35,7 +35,7 @@ logging.getLogger().addHandler(stdout_handler)
 class BaseRecordsIntegrationTest(unittest.TestCase):
     def setUp(self):
         # Ensure we're not getting any DWIM behavior out of the CLI
-        # job context:
+        # session:
         os.environ['RECORDS_MOVER_SESSION_TYPE'] = 'itest'
 
         self.resources_dir = os.path.dirname(os.path.abspath(__file__)) + '/../../resources'
