@@ -1,6 +1,5 @@
 from records_mover.url.resolver import file_url_ctors, directory_url_ctors, UrlResolver
 from records_mover.url.base import BaseFileUrl, BaseDirectoryUrl
-from mock import Mock
 import unittest
 
 
