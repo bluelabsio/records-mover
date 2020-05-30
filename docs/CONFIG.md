@@ -140,7 +140,7 @@ Similarly, GCP supports pointing to a file with application
 credentials via the `GOOGLE_APPLICATION_CREDENTIALS` environment
 variable.
 
-When using the default 'env' session type, Records mover also supports
+When using the default 'env' session type, Records Mover also supports
 providing a base64ed version of the GCP service account credentials via
 the `GCP_SERVICE_ACCOUNT_JSON_BASE64` env variable.
 
