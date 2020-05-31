@@ -1,4 +1,6 @@
-from typing import Union, List, IO, Tuple, Optional
+from contextlib import contextmanager
+from typing import Union, List, IO, Tuple, Optional, Iterator, Callable, ContextManager
+from ...url import BaseDirectoryUrl
 from ...records.delimited import complain_on_unhandled_hints
 import pprint
 import sqlalchemy
@@ -22,9 +24,12 @@ logger = logging.getLogger(__name__)
 class BigQueryLoader(LoaderFromFileobj):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
-                 url_resolver: UrlResolver) -> None:
+                 url_resolver: UrlResolver,
+                 temporary_gcs_directory_loc: Callable[[],
+                                                       ContextManager[BaseDirectoryUrl]]) -> None:
         self.db = db
         self.url_resolver = url_resolver
+        self.temporary_gcs_directory_loc = temporary_gcs_directory_loc
 
     def _parse_bigquery_schema_name(self, schema: str) -> Tuple[Optional[str], str]:
         # https://github.com/mxmzdlv/pybigquery/blob/master/pybigquery/sqlalchemy_bigquery.py#L320
@@ -88,6 +93,15 @@ class BigQueryLoader(LoaderFromFileobj):
              table: str,
              load_plan: RecordsLoadPlan,
              directory: RecordsDirectory) -> int:
+
+        if directory.scheme != 'gs':
+            with self.temporary_gcs_directory_loc() as temp_gcs_loc:
+                gcs_directory = directory.copy_to(temp_gcs_loc)
+                return self.load(schema=schema,
+                                 table=table,
+                                 load_plan=load_plan,
+                                 directory=gcs_directory)
+
         logger.info("Loading from records directory into BigQuery")
         # https://googleapis.github.io/google-cloud-python/latest/bigquery/usage/tables.html#creating-a-table
         connection: Connection =\
@@ -114,6 +128,10 @@ class BigQueryLoader(LoaderFromFileobj):
         assert job.output_rows is not None  # should be populated after job result is obtained
         return job.output_rows
 
+    @contextmanager
+    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        with self.temporary_gcs_directory_loc() as temp_loc:
+            yield temp_loc
 
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         try:

@@ -4,11 +4,14 @@ from ...records import RecordsSchema
 from ...records.records_format import BaseRecordsFormat, ParquetRecordsFormat
 from ...utils.limits import INT64_MAX, INT64_MIN, FLOAT64_SIGNIFICAND_BITS, num_digits
 import re
-from typing import Union, Optional, Tuple
+from typing import Union, Optional, Tuple, Iterator
 from ...url.resolver import UrlResolver
 import sqlalchemy
 from .loader import BigQueryLoader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
+from ...url.base import BaseDirectoryUrl
+from contextlib import contextmanager
+from ..errors import NoTemporaryBucketConfiguration
 
 
 logger = logging.getLogger(__name__)
@@ -18,9 +21,22 @@ class BigQueryDBDriver(DBDriver):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
                  url_resolver: UrlResolver,
+                 gcs_temp_base_loc: Optional[BaseDirectoryUrl]=None,
                  **kwargs: object) -> None:
         super().__init__(db)
-        self._bigquery_loader = BigQueryLoader(db=self.db, url_resolver=url_resolver)
+        self.gcs_temp_base_loc = gcs_temp_base_loc
+        self._bigquery_loader =\
+            BigQueryLoader(db=self.db,
+                           url_resolver=url_resolver,
+                           temporary_gcs_directory_loc=self.temporary_gcs_directory_loc)
+
+    @contextmanager
+    def temporary_gcs_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        if self.gcs_temp_base_loc is None:
+            raise NoTemporaryBucketConfiguration('Please provide a scratch GCS URL in your config')
+        else:
+            with self.gcs_temp_base_loc.temporary_directory() as temp_loc:
+                yield temp_loc
 
     def loader(self) -> Optional[LoaderFromRecordsDirectory]:
         return self._bigquery_loader
