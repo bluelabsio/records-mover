@@ -36,7 +36,7 @@ def _infer_session_type() -> str:
         session_cfg = cfg['session']
         session_type: Optional[str] = session_cfg.get('session_type')
         if session_type is not None:
-            logger.info("Using session_type={session_cfg} from config file")
+            logger.info(f"Using session_type={session_type} from config file")
             return session_type
 
     if 'AIRFLOW__CORE__EXECUTOR' in os.environ:
