@@ -1,3 +1,4 @@
+from config_resolver import get_config
 from db_facts.db_facts_types import DBFacts
 from .creds.base_creds import BaseCreds
 from .records.records import Records
@@ -27,11 +28,20 @@ def _infer_session_type() -> str:
     if 'RECORDS_MOVER_SESSION_TYPE' in os.environ:
         return os.environ['RECORDS_MOVER_SESSION_TYPE']
 
+    config_result = get_config('records_mover', 'bluelabs')
+    cfg = config_result.config
+    if 'session' in cfg:
+        session_cfg = cfg['session']
+        session_type: Optional[str] = session_cfg.get('session_type')
+        if session_type is not None:
+            logger.info(f"Using session_type={session_type} from config file")
+            return session_type
+
     if 'AIRFLOW__CORE__EXECUTOR' in os.environ:
         # Guess based on an env variable sometimes set by Airflow
         return 'airflow'
 
-    return 'cli'
+    return 'env'
 
 
 def _infer_default_aws_creds_name(session_type: str) -> Optional[str]:
@@ -73,13 +83,14 @@ def _infer_creds(session_type: str,
                                default_gcs_client=default_gcs_client,
                                scratch_s3_url=scratch_s3_url)
     elif session_type == 'cli':
-        #
-        # https://app.asana.com/0/1128138765527694/1163219515343393
-        #
-        # Most people don't use LastPass; other secrets managements
-        # should be supported and configurable at the system- and
-        # user- level.
-        #
+        return CredsViaEnv(default_db_creds_name=default_db_creds_name,
+                           default_aws_creds_name=default_aws_creds_name,
+                           default_gcp_creds_name=default_gcp_creds_name,
+                           default_db_facts=default_db_facts,
+                           default_boto3_session=default_boto3_session,
+                           default_gcp_creds=default_gcp_creds,
+                           default_gcs_client=default_gcs_client)
+    elif session_type == 'lpass':
         return CredsViaLastPass(default_db_creds_name=default_db_creds_name,
                                 default_aws_creds_name=default_aws_creds_name,
                                 default_gcp_creds_name=default_gcp_creds_name,
@@ -107,7 +118,7 @@ def _infer_creds(session_type: str,
                            default_gcs_client=default_gcs_client,
                            scratch_s3_url=scratch_s3_url)
     elif session_type is not None:
-        raise ValueError("Valid session types: cli, airflow, itest, env - "
+        raise ValueError("Valid session types: cli, lpass, airflow, itest, env - "
                          "consider upgrading records-mover if you're looking for "
                          f"{session_type}.")
 

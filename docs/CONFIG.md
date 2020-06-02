@@ -4,7 +4,7 @@ There are key areas where records mover needs configuration:
 
 1. Database connection details
 2. Temporary locations
-3. Cloud credentials for object stores
+3. Cloud credentials (e.g., S3/GCS/Google Sheets)
 
 ## Database connection details
 
@@ -87,7 +87,7 @@ object store - see below for how to configure that.
 
 To specify the temporary location for Redshift exports and imports,
 you can either set the environment variable `SCRATCH_S3_URL` to your
-URL or configure a TOML-style file in one of the following locations:
+URL or configure a INI-style file in one of the following locations:
 
 * `/etc/bluelabs/records_mover/app.ini`
 * `/etc/xdg/bluelabs/records_mover/app.ini`
@@ -96,7 +96,7 @@ URL or configure a TOML-style file in one of the following locations:
 
 Example file:
 
-```toml
+```ini
 [aws]
 s3_scratch_url = "s3://mybucket/path/"
 ```
@@ -124,3 +124,72 @@ downloaded for local processing) will be stored per Python's
 which allow for configuration via the `TMPDIR`, `TEMP` or `TMP` env
 variables, and generally default to
 [something reasonable per your OS](https://docs.python.org/3/library/tempfile.html#tempfile.gettempdir).
+
+## Cloud credentials (e.g., S3/GCS/Google Sheets)
+
+To be able to access cloud resources, including S3, GCS and Google
+Sheets, Records Mover requires credentials.
+
+There are multiple ways to configure these:
+
+1. Vendor system configuration (Python and mvrec)
+2. Setting environment variables (Python only)
+3. Passing in pre-configured default credential objects (Python only)
+4. Using a third-party secrets manager (Python and mvrec)
+5. Airflow connections (Python via Airflow)
+
+### Vendor system configuration (Python and mvrec)
+
+Both AWS and GCP have Python libraries which support using credentials
+you configure in different ways.  Unless told otherwise, Records Mover
+will use these credentials as the "default credentials" available via
+the 'creds' property under the Session object.
+
+### Setting environment variables (Python and mvrec)
+
+AWS natively supports setting credentials using the
+`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`/`AWS_SESSION_TOKEN`
+environment variables.
+
+Similarly, GCP supports pointing to a file with application
+credentials via the `GOOGLE_APPLICATION_CREDENTIALS` environment
+variable.
+
+When using the default 'env' session type, Records Mover also supports
+providing a base64ed version of the GCP service account credentials via
+the `GCP_SERVICE_ACCOUNT_JSON_BASE64` env variable.
+
+### Passing in pre-configured default credential objects (Python only)
+
+You can pass in credentials objects directly to a Session() object
+using the `default_gcs_client`, `default_gcp_creds` and/or
+`default_boto3_session` arguments.
+
+### Using a third-party secrets manager (Python and mvrec)
+
+To use a secrets manager of some type, you can instruct Records Mover
+to use a different instance of the 'BaseCreds' class which knows how
+to use your specific type of secrets manager.
+
+An [example implementation](https://github.com/bluelabsio/records-mover/blob/master/records_mover/creds/creds_via_lastpass.py)
+ships with Records Mover to use LastPass' CLI tool to fetch (for
+instance) GCP credentials via LastPass.
+
+You can either pass in a instance of a BaseCreds subclass as the
+'creds' argument to the Session() constructor in Python, pass in the
+string 'lpass' as the value of the 'session_type' parameter to the
+Session() constructor, or provide the following config in the `.ini`
+file referenced above:
+
+```ini
+[session]
+session_type = "lpass"
+```
+
+### Airflow connections (Python via Airflow)
+
+Similarly, Records Mover ships with a BaseCreds instance which knows
+how to fetch credentials using Airflow connections.  While Records
+Mover will attempt to auto-detect to determine if it is running under
+Airflow, you can explicitly tell Records Mover to use this mode by
+setting session_type to "airflow" using one of the above methods.

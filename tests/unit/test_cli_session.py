@@ -14,7 +14,7 @@ class TestCLISession(unittest.TestCase):
     def test_creds(self,
                    mock_CredsViaLastPass,
                    mock_os):
-        session = Session(session_type='cli',
+        session = Session(session_type='lpass',
                           default_db_creds_name=None,
                           default_aws_creds_name=None)
         self.assertEqual(mock_CredsViaLastPass.return_value, session.creds)
@@ -25,7 +25,7 @@ class TestCLISession(unittest.TestCase):
                                              mock_engine_from_db_facts,
                                              mock_CredsViaLastPass,
                                              mock_os):
-        session = Session(session_type='cli',
+        session = Session(session_type='lpass',
                           default_db_creds_name='foo',
                           default_aws_creds_name=None)
         mock_creds = mock_CredsViaLastPass.return_value
