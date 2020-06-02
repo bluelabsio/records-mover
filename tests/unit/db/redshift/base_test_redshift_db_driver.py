@@ -51,7 +51,7 @@ class BaseTestRedshiftDBDriver(unittest.TestCase):
         processing_instructions.fail_if_cant_handle_hint = fail_if
         processing_instructions.fail_if_dont_understand = fail_if
         processing_instructions.fail_if_row_invalid = fail_if
-        self.mock_records_load_plan.records_format.hints = hints
+        self.mock_records_load_plan.records_format = DelimitedRecordsFormat(hints=hints)
         self.mock_records_load_plan.processing_instructions = processing_instructions
         return self.redshift_db_driver.loader().\
             load(schema='myschema',

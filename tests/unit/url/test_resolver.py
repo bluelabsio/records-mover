@@ -16,6 +16,16 @@ class NeedyFileUrl(BaseFileUrl):
 
 
 class TestUrlResolver(unittest.TestCase):
+    def tearDown(self):
+        if 'dummy' in directory_url_ctors:
+            del directory_url_ctors['dummy']
+        if 'dummy' in file_url_ctors:
+            del file_url_ctors['dummy']
+        if 'needy' in directory_url_ctors:
+            del directory_url_ctors['needy']
+        if 'needy' in file_url_ctors:
+            del file_url_ctors['needy']
+
     def setUp(self):
         self.mock_DummyFileUrl = Mock(name='DummyFileUrl', spec=BaseFileUrl)
         self.mock_DummyFileUrl.return_value = Mock(name='dummyfileurl',

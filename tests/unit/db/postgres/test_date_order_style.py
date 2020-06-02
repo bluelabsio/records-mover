@@ -1,4 +1,5 @@
 import unittest
+from records_mover.records import DelimitedRecordsFormat
 from records_mover.db.postgres.copy_options.date_input_style import determine_input_date_order_style
 
 
@@ -48,14 +49,19 @@ class TestDateOrderStyle(unittest.TestCase):
             ),
         ]
         fail_if_cant_handle_hint = True
-        for hints, expected_result in tests:
+        for raw_hints, expected_result in tests:
+            records_format = DelimitedRecordsFormat(hints=raw_hints)
             if expected_result == NotImplementedError:
                 with self.assertRaises(NotImplementedError):
+                    validated_hints = records_format.\
+                        validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
                     determine_input_date_order_style(unhandled_hints,
-                                                     hints,
+                                                     validated_hints,
                                                      fail_if_cant_handle_hint)
             else:
+                validated_hints = records_format.\
+                    validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
                 out = determine_input_date_order_style(unhandled_hints,
-                                                       hints,
+                                                       validated_hints,
                                                        fail_if_cant_handle_hint)
                 self.assertEqual(out, expected_result)

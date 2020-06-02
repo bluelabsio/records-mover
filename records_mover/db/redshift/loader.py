@@ -49,7 +49,10 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
         to = Table(table, self.meta, schema=schema)  # no autoload
         unhandled_hints = set(load_plan.records_format.hints.keys())
         processing_instructions = load_plan.processing_instructions
-        redshift_options = redshift_copy_options(unhandled_hints, load_plan.records_format.hints,
+        validated_hints = load_plan.records_format.\
+            validate(fail_if_cant_handle_hint=processing_instructions.fail_if_cant_handle_hint)
+        redshift_options = redshift_copy_options(unhandled_hints,
+                                                 validated_hints,
                                                  processing_instructions.fail_if_cant_handle_hint,
                                                  processing_instructions.fail_if_row_invalid,
                                                  processing_instructions.max_failure_rows)
@@ -106,7 +109,10 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
                 return False
             unhandled_hints = set(load_plan.records_format.hints.keys())
             processing_instructions = load_plan.processing_instructions
-            redshift_copy_options(unhandled_hints, load_plan.records_format.hints,
+            hints = load_plan.records_format.\
+                validate(fail_if_cant_handle_hint=processing_instructions.fail_if_cant_handle_hint)
+            redshift_copy_options(unhandled_hints,
+                                  hints,
                                   processing_instructions.fail_if_cant_handle_hint,
                                   processing_instructions.fail_if_row_invalid,
                                   processing_instructions.max_failure_rows)

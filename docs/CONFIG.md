@@ -101,6 +101,21 @@ Example file:
 s3_scratch_url = "s3://mybucket/path/"
 ```
 
+If you want to use a single scratch bucket for multiple individuals
+without granting them the ability to see each others' files, you can
+use this configuration:
+
+```toml
+[aws]
+s3_scratch_url_appended_with_iam_username = "s3://mybucket/home/"
+```
+
+In this case, creds tied to an AWS user named `first.last` would end
+up with a scratch bucket location of `s3://mybucket/home/first.last/`.
+This will allow use of the permissioning pattern which AWS has
+documented
+[here](https://aws.amazon.com/blogs/security/writing-iam-policies-grant-access-to-user-specific-folders-in-an-amazon-s3-bucket/).
+
 ### Filesystem
 
 Temporary files written to the filesystem (including large data files

@@ -1,17 +1,15 @@
+from config_resolver import get_config
 from db_facts.db_facts_types import DBFacts
 from .creds.base_creds import BaseCreds
 from .records.records import Records
 from .url.base import BaseFileUrl, BaseDirectoryUrl
 from typing import Union, Optional, IO
 from .url.resolver import UrlResolver
-from enum import Enum
 from records_mover.creds.creds_via_lastpass import CredsViaLastPass
 from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
 from records_mover.logging import set_stream_logging
-from records_mover.mover_types import NotYetFetched
-from config_resolver import get_config
-import subprocess
+from records_mover.mover_types import PleaseInfer
 import os
 import sys
 import logging
@@ -46,41 +44,6 @@ def _infer_session_type() -> str:
     return 'env'
 
 
-def _infer_scratch_s3_url(session_type: str) -> Optional[str]:
-    if "SCRATCH_S3_URL" in os.environ:
-        return os.environ["SCRATCH_S3_URL"]
-
-    # config_resolver logs at the WARNING level for each time it
-    # attempts to load a config file and doesn't find it - which given
-    # it searches a variety of places, is quite noisy.
-    #
-    # https://github.com/exhuma/config_resolver/blob/master/doc/intro.rst#logging
-    #
-    # https://github.com/exhuma/config_resolver/issues/69
-    logging.getLogger('config_resolver').setLevel(logging.ERROR)
-    config_result = get_config('records_mover', 'bluelabs')
-    cfg = config_result.config
-    if 'aws' in cfg:
-        s3_scratch_url: Optional[str] = cfg['aws'].get('s3_scratch_url')
-        if s3_scratch_url is not None:
-            return s3_scratch_url
-    else:
-        logger.debug('No config ini file found')
-
-    if session_type == 'cli':
-        try:
-            #
-            # https://app.asana.com/0/1128138765527694/1163219515343393
-            #
-            # This method of configuration needs to be replaced with
-            # something more conventional and documented.
-            #
-            return subprocess.check_output("scratch-s3-url").decode('ASCII').rstrip()
-        except FileNotFoundError:
-            pass
-    return None
-
-
 def _infer_default_aws_creds_name(session_type: str) -> Optional[str]:
     if session_type == 'airflow':
         return 'aws_default'
@@ -97,16 +60,19 @@ def _infer_creds(session_type: str,
                  default_db_creds_name: Optional[str],
                  default_aws_creds_name: Optional[str],
                  default_gcp_creds_name: Optional[str],
-                 default_db_facts: Union[NotYetFetched, DBFacts],
-                 default_boto3_session: Union[NotYetFetched,
+                 default_db_facts: Union[PleaseInfer, DBFacts],
+                 default_boto3_session: Union[PleaseInfer,
                                               'boto3.session.Session',
                                               None],
-                 default_gcp_creds: Union[NotYetFetched,
+                 default_gcp_creds: Union[PleaseInfer,
                                           'google.auth.credentials.Credentials',
                                           None],
-                 default_gcs_client: Union[NotYetFetched,
+                 default_gcs_client: Union[PleaseInfer,
                                            'google.cloud.storage.Client',
-                                           None]) -> BaseCreds:
+                                           None],
+                 scratch_s3_url: Union[PleaseInfer,
+                                       str,
+                                       None]) -> BaseCreds:
     if session_type == 'airflow':
         return CredsViaAirflow(default_db_creds_name=default_db_creds_name,
                                default_aws_creds_name=default_aws_creds_name,
@@ -114,7 +80,8 @@ def _infer_creds(session_type: str,
                                default_db_facts=default_db_facts,
                                default_boto3_session=default_boto3_session,
                                default_gcp_creds=default_gcp_creds,
-                               default_gcs_client=default_gcs_client)
+                               default_gcs_client=default_gcs_client,
+                               scratch_s3_url=scratch_s3_url)
     elif session_type == 'cli':
         return CredsViaEnv(default_db_creds_name=default_db_creds_name,
                            default_aws_creds_name=default_aws_creds_name,
@@ -130,7 +97,8 @@ def _infer_creds(session_type: str,
                                 default_db_facts=default_db_facts,
                                 default_boto3_session=default_boto3_session,
                                 default_gcp_creds=default_gcp_creds,
-                                default_gcs_client=default_gcs_client)
+                                default_gcs_client=default_gcs_client,
+                                scratch_s3_url=scratch_s3_url)
     elif session_type == 'itest':
         return CredsViaEnv(default_db_creds_name=default_db_creds_name,
                            default_aws_creds_name=default_aws_creds_name,
@@ -138,7 +106,8 @@ def _infer_creds(session_type: str,
                            default_db_facts=default_db_facts,
                            default_boto3_session=default_boto3_session,
                            default_gcp_creds=default_gcp_creds,
-                           default_gcs_client=default_gcs_client)
+                           default_gcs_client=default_gcs_client,
+                           scratch_s3_url=scratch_s3_url)
     elif session_type == 'env':
         return CredsViaEnv(default_db_creds_name=default_db_creds_name,
                            default_aws_creds_name=default_aws_creds_name,
@@ -146,18 +115,12 @@ def _infer_creds(session_type: str,
                            default_db_facts=default_db_facts,
                            default_boto3_session=default_boto3_session,
                            default_gcp_creds=default_gcp_creds,
-                           default_gcs_client=default_gcs_client)
+                           default_gcs_client=default_gcs_client,
+                           scratch_s3_url=scratch_s3_url)
     elif session_type is not None:
-        raise ValueError("Valid session types: cli, lpass, airflow, docker-itest, env - "
+        raise ValueError("Valid session types: cli, lpass, airflow, itest, env - "
                          "consider upgrading records-mover if you're looking for "
                          f"{session_type}.")
-
-
-# This is a mypy-friendly way of doing a singleton object:
-#
-# https://github.com/python/typing/issues/236
-class PleaseInfer(Enum):
-    token = 1
 
 
 class Session():
@@ -168,16 +131,16 @@ class Session():
                  session_type: Union[str, PleaseInfer] = PleaseInfer.token,
                  scratch_s3_url: Union[None, str, PleaseInfer] = PleaseInfer.token,
                  creds: Union[BaseCreds, PleaseInfer] = PleaseInfer.token,
-                 default_db_facts: Union[NotYetFetched, DBFacts] = NotYetFetched.token,
-                 default_boto3_session: Union[NotYetFetched,
+                 default_db_facts: Union[PleaseInfer, DBFacts] = PleaseInfer.token,
+                 default_boto3_session: Union[PleaseInfer,
                                               'boto3.session.Session',
-                                              None] = NotYetFetched.token,
-                 default_gcp_creds: Union[NotYetFetched,
+                                              None] = PleaseInfer.token,
+                 default_gcp_creds: Union[PleaseInfer,
                                           'google.auth.credentials.Credentials',
-                                          None] = NotYetFetched.token,
-                 default_gcs_client: Union[NotYetFetched,
+                                          None] = PleaseInfer.token,
+                 default_gcs_client: Union[PleaseInfer,
                                            'google.cloud.storage.Client',
-                                           None] = NotYetFetched.token) -> None:
+                                           None] = PleaseInfer.token) -> None:
         if session_type is PleaseInfer.token:
             session_type = _infer_session_type()
 
@@ -195,12 +158,9 @@ class Session():
                                  default_db_facts=default_db_facts,
                                  default_boto3_session=default_boto3_session,
                                  default_gcp_creds=default_gcp_creds,
-                                 default_gcs_client=default_gcs_client)
+                                 default_gcs_client=default_gcs_client,
+                                 scratch_s3_url=scratch_s3_url)
 
-        if scratch_s3_url is PleaseInfer.token:
-            scratch_s3_url = _infer_scratch_s3_url(session_type)
-
-        self._scratch_s3_url = scratch_s3_url
         self.creds = creds
 
     @property
@@ -229,9 +189,10 @@ class Session():
         from .db.factory import db_driver
 
         kwargs = {}
-        if self._scratch_s3_url is not None:
+        scratch_s3_url = self.creds.default_scratch_s3_url()
+        if scratch_s3_url is not None:
             try:
-                s3_temp_base_loc = self.directory_url(self._scratch_s3_url)
+                s3_temp_base_loc = self.directory_url(scratch_s3_url)
                 kwargs['s3_temp_base_loc'] = s3_temp_base_loc
             except NotImplementedError:
                 logger.debug('boto3 not installed', exc_info=True)
