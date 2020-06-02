@@ -58,7 +58,7 @@ class TestMySQLLoadOptions(unittest.TestCase):
     def test_mysql_load_options_bogus_quoting(self) -> None:
         records_format = DelimitedRecordsFormat(variant='bluelabs',
                                                 hints={
-                                                    'quoting': 'no thanks',
+                                                    'quoting': 'no thanks',  # type: ignore
                                                     'doublequote': True,
                                                     'compression': None,
                                                 })
@@ -89,7 +89,7 @@ class TestMySQLLoadOptions(unittest.TestCase):
         records_format = DelimitedRecordsFormat(variant='bluelabs',
                                                 hints={
                                                     'quoting': 'all',
-                                                    'doublequote': 'mumble',
+                                                    'doublequote': 'mumble',  # type: ignore
                                                     'compression': None,
                                                 })
         unhandled_hints = set(records_format.hints.keys())

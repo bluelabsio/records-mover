@@ -55,9 +55,9 @@ christmas_tree_format_1_hints = {
     'doublequote': False,
     'escape': '\\',
     'encoding': 'UTF8',
-    'dateformat': None,
+    'dateformat': 'YYYY-MM-DD',
     'timeonlyformat': 'HH24:MI:SS',
-    'datetimeformat': None,
+    'datetimeformat': 'YYYY-MM-DD HH24:MI:SS',
     'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
     'header-row': True,
 }
@@ -73,7 +73,7 @@ christmas_tree_format_2_hints = {
     'encoding': 'UTF8',
     'dateformat': 'MM-DD-YYYY',
     'timeonlyformat': 'HH24:MI:SS',
-    'datetimeformat': None,
+    'datetimeformat': 'YYYY-MM-DD HH24:MI:SS',
     'datetimeformattz': 'HH:MI:SSOF YYYY-MM-DD',  # also not allowed
     'header-row': False,
 }
@@ -89,7 +89,7 @@ christmas_tree_format_3_hints = {
     'encoding': 'UTF8',
     'dateformat': 'DD-MM-YYYY',
     'timeonlyformat': 'HH24:MI:SS',
-    'datetimeformat': None,
+    'datetimeformat': 'YYYY-MM-DD HH24:MI:SS',
     'datetimeformattz': 'HH:MI:SSOF YYYY-MM-DD',  # also not allowed
     'header-row': False,
 }
@@ -105,7 +105,7 @@ christmas_tree_format_4_hints = {
     'encoding': 'UTF8',
     'dateformat': 'totally_bogus_just_made_this_up',
     'timeonlyformat': 'HH24:MI:SS',
-    'datetimeformat': None,
+    'datetimeformat': 'YYYY-MM-DD HH24:MI:SS',
     'datetimeformattz': 'HH:MI:SSOF YYYY-MM-DD',  # also not allowed
     'header-row': False,
 }

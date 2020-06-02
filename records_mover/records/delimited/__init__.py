@@ -1,9 +1,9 @@
 __all__ = [
-    'BootstrappingRecordsHints',
+    'UntypedRecordsHints',
+    'validate_partial_hints',
     'cant_handle_hint',
     'complain_on_unhandled_hints',
-    'RecordsHints',
-    'MutableRecordsHints',
+    'PartialRecordsHints',
     'ValidatedRecordsHints',
     'sniff_compression_from_url',
     'HintEncoding',
@@ -34,8 +34,9 @@ for the other details that are typically provided along with records
 hints.
 """
 
-from .types import BootstrappingRecordsHints, RecordsHints, MutableRecordsHints
+from .types import PartialRecordsHints, UntypedRecordsHints
 from .validated_records_hints import ValidatedRecordsHints
+from .hints import validate_partial_hints
 from .utils import cant_handle_hint, complain_on_unhandled_hints
 from .compression import sniff_compression_from_url
 from .types import (
