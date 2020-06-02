@@ -18,5 +18,5 @@ def _assert_never(x: NoReturn) -> NoReturn:
 # mypy-friendly way of doing a singleton object:
 #
 # https://github.com/python/typing/issues/236
-class NotYetFetched(Enum):
+class PleaseInfer(Enum):
     token = 1
