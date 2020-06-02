@@ -146,12 +146,34 @@ class JobConfigSchemaAsArgsParser():
             return  # no immediate argument to add
         elif 'type' in value and value['type'] == 'boolean':
             # https://stackoverflow.com/questions/9183936/boolean-argument-for-script
-            if 'default' in value and value['default'] is True:
-                # if --no_foo is specified, set foo variable to False
-                arg_name = "--no_" + formatted_key_name
-                kwargs['action'] = 'store_false'
+            if 'default' in value:
+                if value['default'] is True:
+                    # if --no_foo is specified, set foo variable to False
+                    arg_name = "--no_" + formatted_key_name
+                    kwargs['action'] = 'store_false'
+                else:
+                    kwargs['action'] = 'store_true'
             else:
-                kwargs['action'] = 'store_true'
+                if key in required_keys:
+                    raise NotImplementedError("Teach me how to handle a required boolean "
+                                              "with no default")
+                else:
+                    # the regular --foo will set this to True:
+                    kwargs['action'] = 'store_const'
+                    # store_true sets a default, so we use store_const
+                    kwargs['const'] = True
+
+                    # and we'll add an arg that maps to False for this key:
+                    false_arg_kwargs: ArgParseArgument = {}
+                    # if --no_foo is specified, set foo variable to False
+                    split_key_name = formatted_key_name.split('.')
+                    false_arg_arg_name = '--' + '.'.join([*split_key_name[:-1],
+                                                          'no_' + split_key_name[-1]])
+                    false_arg_kwargs['action'] = 'store_const'
+                    false_arg_kwargs['const'] = False
+                    false_arg_kwargs['dest'] = key
+                    false_arg_kwargs['required'] = False
+                    self.arg_parser.add_argument(false_arg_arg_name, **false_arg_kwargs)
         else:
             raise Exception("Did not know how to handle key " + key +
                             " and value " + str(value))

@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 # If this seems to work, we can extend this idea out to Kubernetes
 # secrets by writing a separate backend for it (and if we need to
 # support both Airflow and Kubernetes secrets depending on the
-# situation, let the job context pick which backend we're using for
+# situation, let the session pick which backend we're using for
 # creds based on out of band information, like how it was constructed
 # or environment variables).
 class BaseCreds():

@@ -26,7 +26,7 @@ def details_from_numpy_dtype(dtype: numpy.dtype,
     else:
         field_type = RecordsSchemaField.python_type_to_field_type(dtype.type)
         if field_type is None:
-            raise NotImplementedError(f"Teach me how to handle Pandas/numpy dtype {dtype}"
+            raise NotImplementedError(f"Teach me how to handle Pandas/numpy dtype {dtype} "
                                       f"which is dtype.type {dtype.type}")
 
     constraints = RecordsSchemaFieldConstraints.from_numpy_dtype(dtype, unique=unique)

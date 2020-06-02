@@ -3,7 +3,7 @@ from .fileobjs import FileobjsSource
 from contextlib import ExitStack
 from ..records_directory import RecordsDirectory
 from ..records_format import DelimitedRecordsFormat
-from .. import RecordsHints
+from .. import PartialRecordsHints
 from contextlib import contextmanager
 from typing import Iterator, Optional
 from ..processing_instructions import ProcessingInstructions
@@ -17,7 +17,7 @@ class RecordsDirectoryRecordsSource(SupportsRecordsDirectory,
                  directory: RecordsDirectory,
                  fail_if_dont_understand: bool,
                  url_resolver: UrlResolver,
-                 override_hints: RecordsHints={}) -> None:
+                 override_hints: PartialRecordsHints={}) -> None:
         self.records_format = directory.load_format(fail_if_dont_understand=fail_if_dont_understand)
         if isinstance(self.records_format, DelimitedRecordsFormat):
             self.records_format = self.records_format.alter_hints(override_hints)

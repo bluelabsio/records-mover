@@ -110,11 +110,9 @@ class TestVerticaImportOptions(unittest.TestCase):
             'trailing_nullcols': False,
         }
         self.assertDictEqual(options, expected_options)
-        self.assertCountEqual(mock_warning.mock_calls,
-                              [call("Ignoring hint compression = 'LZO'"),
-                               call("Ignoring hint dateformat = None"),
-                               call("Ignoring hint datetimeformat = None"),
-                               call("Ignoring hint quoting = 'nonnumeric'")])
+        self.assertListEqual(mock_warning.mock_calls,
+                             [call("Ignoring hint compression = 'LZO'"),
+                              call("Ignoring hint quoting = 'nonnumeric'")])
         self.assertEqual(unhandled_hints, set())
 
     def test_weird_timeonlyformat(self):

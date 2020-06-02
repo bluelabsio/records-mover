@@ -7,7 +7,7 @@ import io
 from ..results import MoveResult
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from ..delimited import sniff_hints_from_fileobjs
-from .. import BootstrappingRecordsHints
+from .. import PartialRecordsHints
 from ..processing_instructions import ProcessingInstructions
 from ...records.delimited import complain_on_unhandled_hints
 from ..delimited import python_encoding_from_hint
@@ -44,7 +44,7 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
                         processing_instructions: ProcessingInstructions,
                         records_format: Optional[BaseRecordsFormat],
                         records_schema: Optional[RecordsSchema],
-                        initial_hints: Optional[BootstrappingRecordsHints]) ->\
+                        initial_hints: Optional[PartialRecordsHints]) ->\
             Iterator['FileobjsSource']:
         try:
             if records_format is None:

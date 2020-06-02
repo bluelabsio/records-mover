@@ -1,5 +1,5 @@
 from records_mover.records.load_plan import RecordsLoadPlan
-from records_mover.records.delimited import RecordsHints
+from records_mover.records.delimited import ValidatedRecordsHints
 from records_mover.records.records_format import DelimitedRecordsFormat
 import logging
 from typing import Set, Tuple, Optional
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # https://www.postgresql.org/docs/9.2/sql-copy.html
 
 
-def needs_csv_format(hints: RecordsHints) -> bool:
+def needs_csv_format(hints: ValidatedRecordsHints) -> bool:
     # This format option is used for importing and exporting the Comma
     # Separated Value (CSV) file format used by many other programs,
     # such as spreadsheets. Instead of the escaping rules used by
@@ -31,7 +31,7 @@ def needs_csv_format(hints: RecordsHints) -> bool:
     # QUOTE character or the ESCAPE character is preceded by the
     # escape character. You can also use FORCE_QUOTE to force quotes
     # when outputting non-NULL values in specific columns.
-    if hints['header-row'] or (hints['quoting'] is not None):
+    if hints.header_row or (hints.quoting is not None):
         return True
 
     return False
@@ -44,7 +44,7 @@ def postgres_copy_to_options(unhandled_hints: Set[str],
                                          Tuple[DateOutputStyle,
                                                Optional[DateOrderStyle],
                                                PostgresCopyOptions]:
-    hints = delimited_records_format.hints
+    hints = delimited_records_format.validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
 
     if needs_csv_format(hints):
         copy_options = postgres_copy_options_csv(unhandled_hints,
@@ -74,7 +74,7 @@ def postgres_copy_from_options(unhandled_hints: Set[str],
     if not isinstance(load_plan.records_format, DelimitedRecordsFormat):
         raise NotImplementedError("Not currently able to import "
                                   f"{load_plan.records_format.format_type}")
-    hints = load_plan.records_format.hints
+    hints = load_plan.records_format.validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
 
     if needs_csv_format(hints):
         postgres_copy_options = postgres_copy_options_csv(unhandled_hints,

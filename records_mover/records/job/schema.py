@@ -1,8 +1,16 @@
 from ...utils.json_schema import method_signature_to_json_schema, JsonParameter, JsonSchemaDocument
 from ..existing_table_handling import ExistingTableHandling
+from records_mover.records.delimited.hints import Hints
 from typing import Any, Dict, List, Callable
 from ...mover_types import JsonSchema
-from .hints import SUPPORTED_HINTS
+
+
+HINT_PARAMETERS = [
+    JsonParameter(hint_enum.value.hint_name,
+                  hint_enum.value.json_schema_document(),
+                  optional=True)
+    for hint_enum in list(Hints)
+]
 
 
 def method_to_json_schema(method: Callable[..., Any]) -> JsonSchema:
@@ -10,8 +18,8 @@ def method_to_json_schema(method: Callable[..., Any]) -> JsonSchema:
         'google_cloud_creds': [JsonParameter('gcp_creds_name', JsonSchemaDocument('string'))],
         'db_engine': [JsonParameter('db_name', JsonSchemaDocument('string'))],
         'records_format': ([JsonParameter('variant', JsonSchemaDocument('string'), optional=True)] +
-                           [hint.schema for hint in SUPPORTED_HINTS]),
-        'initial_hints': [hint.schema for hint in SUPPORTED_HINTS],
+                           HINT_PARAMETERS),
+        'initial_hints': HINT_PARAMETERS,
         'existing_table_handling':
         [JsonParameter('existing_table',
                        JsonSchemaDocument('string',

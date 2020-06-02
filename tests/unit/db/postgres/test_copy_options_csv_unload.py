@@ -15,9 +15,10 @@ class TestCopyOptionsCsvUnload(unittest.TestCase):
         unhandled_hints = set(records_format.hints)
         fail_if_cant_handle_hint = True
         mode = CopyOptionsMode.UNLOADING
+        hints = records_format.validate(fail_if_cant_handle_hint=True)
 
         out = postgres_copy_options_csv(unhandled_hints,
-                                        records_format.hints,
+                                        hints,
                                         fail_if_cant_handle_hint,
                                         mode)
         self.assertEqual(out, {
@@ -40,7 +41,7 @@ class TestCopyOptionsCsvUnload(unittest.TestCase):
         mode = CopyOptionsMode.UNLOADING
 
         out = postgres_copy_options_csv(unhandled_hints,
-                                        records_format.hints,
+                                        records_format.validate(fail_if_cant_handle_hint=True),
                                         fail_if_cant_handle_hint,
                                         mode)
         self.assertEqual(out, {
@@ -64,6 +65,6 @@ class TestCopyOptionsCsvUnload(unittest.TestCase):
 
         with self.assertRaises(NotImplementedError):
             postgres_copy_options_csv(unhandled_hints,
-                                      records_format.hints,
+                                      records_format.validate(fail_if_cant_handle_hint=True),
                                       fail_if_cant_handle_hint,
                                       CopyOptionsMode.UNLOADING)
