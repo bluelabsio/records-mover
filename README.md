@@ -1,8 +1,6 @@
-<div style="max-width: 75%;padding: 1.5rem 0 1.5rem 0;">
 <img
  src="https://raw.githubusercontent.com/bluelabsio/records-mover/add_logo/docs/records-mover-horizontal.png"
  alt="Records Mover">
-</div>
 
 Records mover is a command-line tool and Python library you can
 use to move relational data from one place to another.
