@@ -1,5 +1,5 @@
 <img
- src="https://raw.githubusercontent.com/bluelabsio/records-mover/add_logo/docs/records-mover-horizontal.png"
+ src="https://raw.githubusercontent.com/bluelabsio/records-mover/master/docs/records-mover-horizontal.png"
  alt="Records Mover">
 
 Records mover is a command-line tool and Python library you can
