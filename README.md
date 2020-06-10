@@ -1,4 +1,6 @@
-# Records Mover - mvrec
+<img
+ src="https://raw.githubusercontent.com/bluelabsio/records-mover/add_logo/docs/records-mover-horizontal.png"
+ alt="Records Mover">
 
 Records mover is a command-line tool and Python library you can
 use to move relational data from one place to another.

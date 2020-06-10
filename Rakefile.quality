@@ -31,5 +31,5 @@ Quality::Rake::Task.new do |t|
   ]
 
   t.source_files_exclude_glob =
-    '{cover/**/*,tests/integration/records/records_schema_v1_schema.json,tests/unit/records/schema/future_incompatible_redshift_example_1.json,tests/unit/records/schema/pandas_example_1.json,tests/unit/records/schema/redshift_example_1.json,records_mover/db/bigquery/load_job_config_options.py,records_mover/records/pandas/read_csv_options.py,.circleci/config.yml,CODE_OF_CONDUCT.md,LICENSE,types/stubs/inspect.pyi,records_mover/db/postgres/sqlalchemy_postgres_copy.py,docs/schema/redshift_example_1.json,docs/schema/pandas_example_1.json,docs/RECORDS_SPEC.md,docs/schema/SCHEMAv1.md}'
+    '{cover/**/*,tests/integration/records/records_schema_v1_schema.json,tests/unit/records/schema/future_incompatible_redshift_example_1.json,tests/unit/records/schema/pandas_example_1.json,tests/unit/records/schema/redshift_example_1.json,records_mover/db/bigquery/load_job_config_options.py,records_mover/records/pandas/read_csv_options.py,.circleci/config.yml,CODE_OF_CONDUCT.md,LICENSE,types/stubs/inspect.pyi,records_mover/db/postgres/sqlalchemy_postgres_copy.py,docs/schema/redshift_example_1.json,docs/schema/pandas_example_1.json,docs/RECORDS_SPEC.md,docs/schema/SCHEMAv1.md,docs/records-mover-horizontal.png}'
 end
