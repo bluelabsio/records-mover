@@ -292,6 +292,7 @@ setup(name='records-mover',
           'itest': itest_dependencies,
           'unittest': unittest_dependencies,
           'gcs': gcs_dependencies,
+          'parquet': parquet_dependencies,
       },
       entry_points={
           'console_scripts': 'mvrec = records_mover.records.cli:main',
