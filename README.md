@@ -33,7 +33,7 @@ from one to the other.
 Installing:
 
 ```sh
-pip3 install 'records_mover[cli,postgres,redshift]'
+pip3 install 'records_mover[cli,postgres-binary,redshift-binary]'
 ```
 
 Loading a CSV into a database:
@@ -65,7 +65,7 @@ First, install records_mover.  We'll also use Pandas, so we'll install
 that, too, as well as a driver for Postgres.
 
 ```sh
-pip3 install records_mover[pandas,postgres]
+pip3 install records_mover[pandas,postgres-source]
 ```
 
 Now we can run this code:
