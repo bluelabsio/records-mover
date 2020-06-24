@@ -1,5 +1,4 @@
 import datetime
-import numpy as np
 from ...processing_instructions import ProcessingInstructions
 import logging
 from typing import Optional, Dict, Any, Type, cast, Union, TYPE_CHECKING
@@ -77,6 +76,8 @@ class RecordsSchemaField:
 
     @staticmethod
     def python_type_to_field_type(specific_type: Type[Any]) -> Optional['FieldType']:
+        import numpy as np
+
         # Note: records spec doesn't cover complex number types, so
         # np.complex_, complex64 and complex128 are not supported
         # except as a string.
@@ -185,6 +186,8 @@ class RecordsSchemaField:
         return series.astype(self.to_numpy_dtype())
 
     def to_numpy_dtype(self) -> Union[Type[Any], str]:
+        import numpy as np
+
         if self.field_type == 'integer':
             int_constraints =\
                 cast(Optional[RecordsSchemaFieldIntegerConstraints], self.constraints)
