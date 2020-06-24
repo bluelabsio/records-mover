@@ -559,8 +559,8 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - cli-extra-test:
           name: cli-extra-test
-          requires:
-            - redshift-itest
+#          requires:  # TODO
+#            - redshift-itest
       - deploy:
           context: PyPI
           requires:
