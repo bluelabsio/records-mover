@@ -222,11 +222,7 @@ gcs_dependencies = [
     'google-cloud-storage'
 ] + smart_open_dependencies
 
-unittest_dependencies = [
-    'nose',
-    'coverage',
-    'mock',
-] + (
+unittest_dependencies = (
     cli_dependencies_base +
     airflow_dependencies +
     gsheet_dependencies +

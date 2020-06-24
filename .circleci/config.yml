@@ -364,6 +364,8 @@ workflows:
           extras: '[unittest]'
           python_version: "3.6"
           pandas_version: "<1"
+          # includes nose, mypy and friends
+          include_dev_dependencies: true
           requires:
             - redshift-itest
           filters:
@@ -374,6 +376,8 @@ workflows:
           extras: '[unittest]'
           python_version: "3.7"
           pandas_version: ">=1"
+          # includes nose, mypy and friends
+          include_dev_dependencies: true
           requires:
             - redshift-itest
           filters:
@@ -384,6 +388,8 @@ workflows:
           extras: '[unittest]'
           python_version: "3.8"
           pandas_version: ">=1"
+          # includes nose, mypy and friends
+          include_dev_dependencies: true
           coverage: true
           filters:
             tags:
