@@ -222,7 +222,22 @@ gcs_dependencies = [
     'google-cloud-storage'
 ] + smart_open_dependencies
 
-unittest_dependencies = (
+
+typecheck_dependencies = [
+    'mypy==0.770',
+    'lxml', # needed by mypy HTML coverage reporting
+    # this is pre-release, but seems to work!  Let's keep it pinned to a
+    # commit until they make a release, just in case they break
+    # compatibility.  Feel free to try to update!
+    'git+https://github.com/numpy/numpy-stubs.git@be9a479#egg=numpy-stubs',
+    'sqlalchemy-stubs>=0.3',
+]
+
+unittest_dependencies = [
+    'nose',
+    'coverage',
+    'mock',
+] + (
     cli_dependencies_base +
     airflow_dependencies +
     gsheet_dependencies +
@@ -291,6 +306,7 @@ setup(name='records-mover',
           literally_every_single_database_binary_dependencies,
           'itest': itest_dependencies,
           'unittest': unittest_dependencies,
+          'typecheck': typecheck_dependencies,
           'gcs': gcs_dependencies,
           'parquet': parquet_dependencies,
       },
