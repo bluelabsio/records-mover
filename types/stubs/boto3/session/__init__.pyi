@@ -1,4 +1,4 @@
-from typing import Any, List, IO, Union, Optional, Dict, Callable
+from typing import Any, List, IO, Union, Optional, Dict, Callable, overload
 from typing_extensions import Literal
 from mypy_extensions import TypedDict
 import datetime
@@ -86,6 +86,7 @@ class S3HeadObjectOutput(TypedDict, total=False):
 class S3ClientTypeStub:
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#client
     def list_objects_v2(self, Bucket: str, Prefix: str,
+                        Delimiter: str = '/',
                         ContinuationToken: Optional[object] = None) -> ListObjectsResponseType:
         ...
 
@@ -164,6 +165,15 @@ class S3ResourceTypeStub:
     meta: S3MetaTypeStub
 
 
+class STSCallerIdentity(TypedDict):
+    Arn: str
+
+
+class STSClientTypeStub:
+    def get_caller_identity(self) -> STSCallerIdentity:
+        ...
+
+
 class Session:
     region_name: str
     resource: Any
@@ -174,5 +184,11 @@ class Session:
     def get_credentials(self) -> Optional[Credentials]:
         ...
 
+    @overload
     def client(self, resource_type: Literal["s3"]) -> S3ClientTypeStub:
+        ...
+
+    # flake8 gets confused with @overload in a pyi file
+    @overload
+    def client(self, resource_type: Literal["sts"]) -> STSClientTypeStub:  # noqa: F811
         ...

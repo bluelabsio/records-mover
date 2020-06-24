@@ -41,7 +41,7 @@ class TestRedshiftLoader(unittest.TestCase):
                                processing_instructions=mock_processing_instructions)
         mock_redshift_copy_options.\
             assert_called_with(set(),
-                               mock_load_plan.records_format.hints,
+                               mock_load_plan.records_format.validate.return_value,
                                mock_processing_instructions.fail_if_cant_handle_hint,
                                mock_processing_instructions.fail_if_row_invalid,
                                mock_processing_instructions.max_failure_rows)

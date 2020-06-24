@@ -84,7 +84,7 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
                                       processing_instructions=processing_instructions)
 
     def with_cast_dataframe_types(self,
-                                  records_schema,
+                                  records_schema: RecordsSchema,
                                   dfs: Iterator['DataFrame']) -> Iterator['DataFrame']:
         for df in dfs:
             yield records_schema.cast_dataframe_types(df)

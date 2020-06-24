@@ -1,6 +1,6 @@
 import csv
 from ...utils import quiet_remove
-from ..hints import cant_handle_hint
+from ..delimited import cant_handle_hint
 from ..processing_instructions import ProcessingInstructions
 from ..records_format import DelimitedRecordsFormat
 from records_mover.records.schema import RecordsSchema
@@ -18,7 +18,8 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     ...
     # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html#pandas.read_csv
 
-    hints = records_format.hints
+    hints = records_format.\
+        validate(fail_if_cant_handle_hint=processing_instructions.fail_if_cant_handle_hint)
 
     fail_if_cant_handle_hint = processing_instructions.fail_if_cant_handle_hint
 
@@ -60,7 +61,7 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     #
     # Alias for sep.
     #
-    pandas_options['delimiter'] = hints['field-delimiter']
+    pandas_options['delimiter'] = hints.field_delimiter
     quiet_remove(unhandled_hints, 'field-delimiter')
 
     #
@@ -80,7 +81,7 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # skip_blank_lines=True, so header=0 denotes the first line of
     # data rather than the first line of the file.
     #
-    if hints['header-row']:
+    if hints.header_row:
         pandas_options['header'] = 0
     else:
         pandas_options['header'] = None
@@ -194,7 +195,7 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # engine is currently more feature-complete.
     #
 
-    non_standard_record_terminator = hints['record-terminator'] not in ['\n', '\r\n', '\r']
+    non_standard_record_terminator = hints.record_terminator not in ['\n', '\r\n', '\r']
 
     if non_standard_record_terminator:
         # the 'lineterminator' option below is only valid for c parser
@@ -430,17 +431,17 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
         return (dateish_format.startswith('DD-MM-') or
                 dateish_format.startswith('DD/MM/'))
 
-    assert isinstance(hints['dateformat'], str)
-    assert isinstance(hints['datetimeformat'], str)
-    assert isinstance(hints['datetimeformattz'], str)
-    consistent_formats = (day_first(hints['dateformat']) ==
-                          day_first(hints['datetimeformat']) ==
-                          day_first(hints['datetimeformattz']))
+    assert isinstance(hints.dateformat, str)
+    assert isinstance(hints.datetimeformat, str)
+    assert isinstance(hints.datetimeformattz, str)
+    consistent_formats = (day_first(hints.dateformat) ==
+                          day_first(hints.datetimeformat) ==
+                          day_first(hints.datetimeformattz))
 
     if not consistent_formats:
         cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', hints)
 
-    pandas_options['dayfirst'] = day_first(hints['dateformat'])
+    pandas_options['dayfirst'] = day_first(hints.dateformat)
 
     quiet_remove(unhandled_hints, 'dateformat')
     quiet_remove(unhandled_hints, 'timeonlyformat')
@@ -480,13 +481,13 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     #
     # New in version 0.18.1: support for ‘zip’ and ‘xz’ compression.
     #
-    if hints['compression'] is None:
-        # hints['compression']=None will output an uncompressed csv,
+    if hints.compression is None:
+        # hints.compression=None will output an uncompressed csv,
         # which is the pandas default.
         pandas_options['compression'] = None
-    elif hints['compression'] == 'GZIP':
+    elif hints.compression == 'GZIP':
         pandas_options['compression'] = 'gzip'
-    elif hints['compression'] == 'BZIP':
+    elif hints.compression == 'BZIP':
         pandas_options['compression'] = 'bz2'
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
@@ -515,7 +516,7 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # Character to break file into lines. Only valid with C parser.
     #
     if non_standard_record_terminator:
-        pandas_options['lineterminator'] = hints['record-terminator']
+        pandas_options['lineterminator'] = hints.record_terminator
     quiet_remove(unhandled_hints, 'record-terminator')
 
     #
@@ -525,7 +526,7 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # item. Quoted items can include the delimiter and it will be
     # ignored.
     #
-    pandas_options['quotechar'] = hints['quotechar']
+    pandas_options['quotechar'] = hints.quotechar
     quiet_remove(unhandled_hints, 'quotechar')
 
     #
@@ -536,13 +537,13 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # QUOTE_NONE (3).
     #
 
-    if hints['quoting'] is None:
+    if hints.quoting is None:
         pandas_options['quoting'] = csv.QUOTE_NONE
-    elif hints['quoting'] == 'all':
+    elif hints.quoting == 'all':
         pandas_options['quoting'] = csv.QUOTE_ALL
-    elif hints['quoting'] == 'minimal':
+    elif hints.quoting == 'minimal':
         pandas_options['quoting'] = csv.QUOTE_MINIMAL
-    elif hints['quoting'] == 'nonnumeric':
+    elif hints.quoting == 'nonnumeric':
         pandas_options['quoting'] = csv.QUOTE_NONNUMERIC
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
@@ -555,7 +556,7 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # indicate whether or not to interpret two consecutive quotechar
     # elements INSIDE a field as a single quotechar element.
     #
-    pandas_options['doublequote'] = hints['doublequote']
+    pandas_options['doublequote'] = hints.doublequote
     quiet_remove(unhandled_hints, 'doublequote')
 
     #
@@ -563,10 +564,10 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     #
     # One-character string used to escape other characters.
     #
-    if hints['escape'] is None:
+    if hints.escape is None:
         pass
     else:
-        pandas_options['escapechar'] = hints['escape']
+        pandas_options['escapechar'] = hints.escape
     quiet_remove(unhandled_hints, 'escape')
 
     #
@@ -593,8 +594,8 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
 
     # should only be specified when reading from a filepath
     #
-    if hints['compression'] is not None:
-        pandas_options['encoding'] = hints['encoding']
+    if hints.compression is not None:
+        pandas_options['encoding'] = hints.encoding
     quiet_remove(unhandled_hints, 'encoding')
 
     #

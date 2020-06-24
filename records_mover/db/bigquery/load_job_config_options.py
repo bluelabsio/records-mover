@@ -1,9 +1,10 @@
 from ...utils import quiet_remove
-from ...records.hints import cant_handle_hint
+from ...records.delimited import cant_handle_hint
 from typing import Set
 from ...records.load_plan import RecordsLoadPlan
 from ...records.records_format import DelimitedRecordsFormat, ParquetRecordsFormat
-from records_mover.records import RecordsHints
+from records_mover.records.delimited import ValidatedRecordsHints
+from records_mover.mover_types import _assert_never
 from google.cloud.bigquery.job import CreateDisposition, WriteDisposition
 from google.cloud import bigquery
 import logging
@@ -104,10 +105,11 @@ def load_job_config(unhandled_hints: Set[str],
     # schema. ALLOW_FIELD_RELAXATION: allow relaxing a required
     # field in the original schema to nullable.
     config.schema_update_options = None
-
+    fail_if_cant_handle_hint = load_plan.processing_instructions.fail_if_cant_handle_hint
     if isinstance(load_plan.records_format, DelimitedRecordsFormat):
+        hints = load_plan.records_format.validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
         add_load_job_csv_config(unhandled_hints,
-                                load_plan.records_format.hints,
+                                hints,
                                 fail_if_cant_handle_hint,
                                 config)
         return config
@@ -121,7 +123,7 @@ def load_job_config(unhandled_hints: Set[str],
 
 
 def add_load_job_csv_config(unhandled_hints: Set[str],
-                            hints: RecordsHints,
+                            hints: ValidatedRecordsHints,
                             fail_if_cant_handle_hint: bool,
                             config: bigquery.LoadJobConfig) -> None:
     # source_format: File format of the data.
@@ -131,7 +133,7 @@ def add_load_job_csv_config(unhandled_hints: Set[str],
     # The supported values are UTF-8 or ISO-8859-1.
     # "UTF-8 or ISO-8859-1"
     #
-    if hints['encoding'] == 'UTF8':
+    if hints.encoding == 'UTF8':
         config.encoding = 'UTF-8'
     else:
         # Currently records hints don't support ISO-8859-1
@@ -139,8 +141,8 @@ def add_load_job_csv_config(unhandled_hints: Set[str],
     quiet_remove(unhandled_hints, 'encoding')
 
     # field_delimiter: The separator for fields in a CSV file.
-    assert isinstance(hints['field-delimiter'], str)
-    config.field_delimiter = hints['field-delimiter']
+    assert isinstance(hints.field_delimiter, str)
+    config.field_delimiter = hints.field_delimiter
     quiet_remove(unhandled_hints, 'field-delimiter')
 
     # allow_jagged_rows: Allow missing trailing optional columns (CSV only).
@@ -174,37 +176,37 @@ def add_load_job_csv_config(unhandled_hints: Set[str],
     # * nonnumeric quoting works fine
     # * full quoting works fine
 
-    if hints['quoting'] is None:
+    if hints.quoting is None:
         config.quote_character = ''
-    elif hints['quoting'] in ['all', 'minimal', 'nonnumeric']:
+    elif hints.quoting == 'all' or hints.quoting == 'minimal' or hints.quoting == 'nonnumeric':
         # allow_quoted_newlines: Allow quoted data containing newline
         # characters (CSV only).
 
         config.allow_quoted_newlines = True
 
-        assert isinstance(hints['quotechar'], str)
-        config.quote_character = hints['quotechar']
-        if hints['doublequote']:
+        assert isinstance(hints.quotechar, str)
+        config.quote_character = hints.quotechar
+        if hints.doublequote:
             pass
         else:
             cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
 
     else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
+        _assert_never(hints.quoting)
     quiet_remove(unhandled_hints, 'quoting')
     quiet_remove(unhandled_hints, 'quotechar')
     quiet_remove(unhandled_hints, 'doublequote')
 
     # No mention of escaping in BigQuery documentation, and in
     # practice backslashes come through without being interpreted.
-    if hints['escape'] is None:
+    if hints.escape is None:
         pass
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'escape', hints)
     quiet_remove(unhandled_hints, 'escape')
 
     # skip_leading_rows: Number of rows to skip when reading data (CSV only).
-    if hints['header-row']:
+    if hints.header_row:
         config.skip_leading_rows = 1
     else:
         config.skip_leading_rows = 0
@@ -213,7 +215,7 @@ def add_load_job_csv_config(unhandled_hints: Set[str],
     # "When you load CSV or JSON data, values in DATE columns must
     #  use the dash (-) separator and the date must be in the
     # following format: YYYY-MM-DD (year-month-day)."
-    if hints['dateformat'] == 'YYYY-MM-DD':
+    if hints.dateformat == 'YYYY-MM-DD':
         pass
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', hints)
@@ -307,20 +309,20 @@ def add_load_job_csv_config(unhandled_hints: Set[str],
     # https://stackoverflow.com/questions/44836581/does-python-time-strftime-process-timezone-options-correctly-for-rfc-3339
     # https://stackoverflow.com/questions/28729212/pandas-save-date-in-iso-format
     #
-    if hints['datetimeformat'] in ['YYYY-MM-DD HH24:MI:SS', 'YYYY-MM-DD HH:MI:SS']:
+    if hints.datetimeformat in ['YYYY-MM-DD HH24:MI:SS', 'YYYY-MM-DD HH:MI:SS']:
         pass
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
     quiet_remove(unhandled_hints, 'datetimeformat')
 
-    if hints['datetimeformattz'] in ['YYYY-MM-DD HH:MI:SSOF',
-                                     'YYYY-MM-DD HH:MI:SS']:
+    if hints.datetimeformattz in ['YYYY-MM-DD HH:MI:SSOF',
+                                  'YYYY-MM-DD HH:MI:SS']:
         pass
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
     quiet_remove(unhandled_hints, 'datetimeformattz')
 
-    if hints['timeonlyformat'] == 'HH24:MI:SS':
+    if hints.timeonlyformat == 'HH24:MI:SS':
         pass
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', hints)
@@ -328,7 +330,7 @@ def add_load_job_csv_config(unhandled_hints: Set[str],
 
     # No options to change this.  Tested with unix newlines, dos
     # newlines and mac newlines and all were understood.:
-    if hints['record-terminator'] in ['\n', '\r\n', '\r', None]:
+    if hints.record_terminator in ['\n', '\r\n', '\r', None]:
         pass
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
@@ -338,7 +340,7 @@ def add_load_job_csv_config(unhandled_hints: Set[str],
     # gzip and works great.  .bz2 gives "400 Unsupported
     # compression type".  Not sure about .lzo, but pandas can't
     # handle it regardless, so doubt it's handled.
-    if hints['compression'] is None or hints['compression'] == 'GZIP':
+    if hints.compression is None or hints.compression == 'GZIP':
         pass
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)

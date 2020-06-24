@@ -1,0 +1,10 @@
+{
+  "required": {
+    "record-terminator": "\n",
+    "header-row": true
+  },
+  "initial_hints": {
+    "header-row": true
+  },
+  "notes": "Python's sniffer doesn't do well on single-column files, meaning we don't get header-row info even if field delimiters are somewhat irrelevant"
+}

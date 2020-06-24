@@ -6,11 +6,11 @@ from ...utils.concat_files import ConcatFiles
 import io
 from ..results import MoveResult
 from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
-from ..hints import sniff_hints_from_fileobjs
-from .. import BootstrappingRecordsHints
+from ..delimited import sniff_hints_from_fileobjs
+from .. import PartialRecordsHints
 from ..processing_instructions import ProcessingInstructions
-from ...records.hints import complain_on_unhandled_hints
-from ..csv_streamer import python_encoding_from_hint
+from ...records.delimited import complain_on_unhandled_hints
+from ..delimited import python_encoding_from_hint
 from ..schema import RecordsSchema
 import logging
 from typing import Mapping, IO, Optional, Iterator, List, Any, TYPE_CHECKING
@@ -44,7 +44,7 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
                         processing_instructions: ProcessingInstructions,
                         records_format: Optional[BaseRecordsFormat],
                         records_schema: Optional[RecordsSchema],
-                        initial_hints: Optional[BootstrappingRecordsHints]) ->\
+                        initial_hints: Optional[PartialRecordsHints]) ->\
             Iterator['FileobjsSource']:
         try:
             if records_format is None:
@@ -129,7 +129,7 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
         text_fileobj = None
         if hints['compression'] is None:
             hint_encoding: str = hints['encoding']  # type: ignore
-            python_encoding = python_encoding_from_hint[hint_encoding]
+            python_encoding = python_encoding_from_hint[hint_encoding]  # type: ignore
             text_fileobj = io.TextIOWrapper(single_fileobj, encoding=python_encoding)
             target_fileobj = text_fileobj
         try:

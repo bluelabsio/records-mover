@@ -5,9 +5,7 @@
     "quoting": null
   },
   "initial_hints": {
-    "header-row": false,
-    "escape": "\\",
-    "quoting": null
+    "escape": "\\"
   },
-  "notes": "Nothing here is correctly guessed by our current system.  Boo."
+  "notes": "Escaping is not currently sniffed."
 }

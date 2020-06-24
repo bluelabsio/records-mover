@@ -2,7 +2,7 @@
 from records_mover import Session
 from ..processing_instructions import ProcessingInstructions
 from ..results import MoveResult
-from ...types import JobConfig
+from ...mover_types import JobConfig
 from .config import config_to_args
 import logging
 

@@ -8,18 +8,19 @@ from .processing_instructions import ProcessingInstructions
 from records_mover.cli.job_config_schema_as_args_parser import (JobConfigSchemaAsArgsParser,
                                                                 arguments_output_to_config)
 from records_mover.logging import set_stream_logging
-from typing import Callable, Dict, Any
-from ..types import JsonSchema, JobConfig
+from ..mover_types import JsonSchema, JobConfig
 from ..version import __version__
 import sys
+from typing import Callable, Dict, Any, TYPE_CHECKING
+if TYPE_CHECKING:
+    from records_mover import Session
 
 
-def populate_subparser(sub_parser: argparse.ArgumentParser,
+def populate_subparser(bootstrap_session: 'Session',
+                       sub_parser: argparse.ArgumentParser,
                        source_method_name: str,
                        target_method_name: str,
                        subjob_name: str) -> JobConfig:
-    from records_mover import Session
-    bootstrap_session = Session()
     source_method = getattr(bootstrap_session.records.sources, source_method_name)
     target_method = getattr(bootstrap_session.records.targets, target_method_name)
     job_config_schema = {
@@ -49,6 +50,11 @@ def make_job_fn(source_method_name: str,
 
 
 def main() -> None:
+    # https://github.com/googleapis/google-auth-library-python/issues/271
+    import warnings
+    warnings.filterwarnings("ignore",
+                            "Your application has authenticated using end user credentials")
+
     # skip in-memory sources/targets like dataframes that don't make
     # sense from the command-line
     source_method_name_by_cli_name = {
@@ -82,6 +88,9 @@ def main() -> None:
     # https://stackoverflow.com/questions/15405636/pythons-argparse-to-show-programs-version-with-prog-and-version-string-formatt
     parser.add_argument('-V', '--version', action='version', version="%(prog)s ("+__version__+")")
     subparsers = parser.add_subparsers(help='subcommand_help')
+    from records_mover import Session
+    bootstrap_session = Session()
+
     for source in sources:
         for target in targets:
             name = f"{source}2{target}"
@@ -89,7 +98,8 @@ def main() -> None:
             source_method_name = source_method_name_by_cli_name[source]
             target_method_name = target_method_name_by_cli_name[target]
             job_config_schema = \
-                populate_subparser(sub_parser, source_method_name, target_method_name,
+                populate_subparser(bootstrap_session,
+                                   sub_parser, source_method_name, target_method_name,
                                    subjob_name=name)
             sub_parser.set_defaults(func=make_job_fn(source_method_name=source_method_name,
                                                      target_method_name=target_method_name,

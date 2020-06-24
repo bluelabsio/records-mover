@@ -1,8 +1,9 @@
 import csv
 from ...utils import quiet_remove
-from ..hints import cant_handle_hint
+from ..delimited import cant_handle_hint
 from ..processing_instructions import ProcessingInstructions
 from ..records_format import DelimitedRecordsFormat
+from records_mover.mover_types import _assert_never
 import logging
 from typing import Set, Dict
 
@@ -14,55 +15,56 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
                           unhandled_hints: Set[str],
                           processing_instructions: ProcessingInstructions) -> Dict[str, object]:
     # https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.to_csv.html
-    hints = records_format.hints
+    hints = records_format.\
+        validate(fail_if_cant_handle_hint=processing_instructions.fail_if_cant_handle_hint)
 
     fail_if_cant_handle_hint = processing_instructions.fail_if_cant_handle_hint
 
     pandas_options: Dict[str, object] = {}
 
-    pandas_options['encoding'] = hints['encoding']
+    pandas_options['encoding'] = hints.encoding
     quiet_remove(unhandled_hints, 'encoding')
 
-    if hints['compression'] is None:
+    if hints.compression is None:
         # hints['compression']=None will output an uncompressed csv,
         # which is the pandas default.
         pass
-    elif hints['compression'] == 'GZIP':
+    elif hints.compression == 'GZIP':
         pandas_options['compression'] = 'gzip'
-    elif hints['compression'] == 'BZIP':
+    elif hints.compression == 'BZIP':
         pandas_options['compression'] = 'bz2'
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
     quiet_remove(unhandled_hints, 'compression')
 
-    if hints['quoting'] is None:
+    if hints.quoting is None:
         pandas_options['quoting'] = csv.QUOTE_NONE
-    elif hints['quoting'] == 'all':
+    elif hints.quoting == 'all':
         pandas_options['quoting'] = csv.QUOTE_ALL
-    elif hints['quoting'] == 'minimal':
+    elif hints.quoting == 'minimal':
         pandas_options['quoting'] = csv.QUOTE_MINIMAL
-    elif hints['quoting'] == 'nonnumeric':
+    elif hints.quoting == 'nonnumeric':
         pandas_options['quoting'] = csv.QUOTE_NONNUMERIC
     else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
+        _assert_never(hints.quoting)
     quiet_remove(unhandled_hints, 'quoting')
 
-    pandas_options['doublequote'] = hints['doublequote']
+    pandas_options['doublequote'] = hints.doublequote
     quiet_remove(unhandled_hints, 'doublequote')
-    pandas_options['quotechar'] = hints['quotechar']
+    pandas_options['quotechar'] = hints.quotechar
     quiet_remove(unhandled_hints, 'quotechar')
 
-    if hints['escape'] is None:
+    if hints.escape is None:
         pass
     else:
-        pandas_options['escapechar'] = hints['escape']
+        pandas_options['escapechar'] = hints.escape
     quiet_remove(unhandled_hints, 'escape')
 
-    pandas_options['header'] = hints['header-row']
+    pandas_options['header'] = hints.header_row
     quiet_remove(unhandled_hints, 'header-row')
 
-    if hints['dateformat'] is None:
-        if hints['datetimeformattz'] == hints['datetimeformat']:
+    if hints.dateformat is None:
+        if hints.datetimeformattz == hints.datetimeformat:
             # BigQuery requires that timezone offsets have a colon;
             # Python (and thus Pandas) doesn't support adding the
             # colon with strftime.  However, we can specify things
@@ -86,23 +88,23 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f'
         else:
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f%z'
-    elif hints['dateformat'] == 'YYYY-MM-DD':
-        if hints['datetimeformattz'] == hints['datetimeformat']:
+    elif hints.dateformat == 'YYYY-MM-DD':
+        if hints.datetimeformattz == hints.datetimeformat:
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f'
         else:
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f%z'
-    elif hints['dateformat'] == 'MM-DD-YYYY':
-        if hints['datetimeformattz'] == hints['datetimeformat']:
+    elif hints.dateformat == 'MM-DD-YYYY':
+        if hints.datetimeformattz == hints.datetimeformat:
             pandas_options['date_format'] = '%m-%d-%Y %H:%M:%S.%f'
         else:
             pandas_options['date_format'] = '%m-%d-%Y %H:%M:%S.%f%z'
-    elif hints['dateformat'] == 'DD-MM-YYYY':
-        if hints['datetimeformattz'] == hints['datetimeformat']:
+    elif hints.dateformat == 'DD-MM-YYYY':
+        if hints.datetimeformattz == hints.datetimeformat:
             pandas_options['date_format'] = '%d-%m-%Y %H:%M:%S.%f'
         else:
             pandas_options['date_format'] = '%d-%m-%Y %H:%M:%S.%f%z'
-    elif hints['dateformat'] == 'MM/DD/YY':
-        if hints['datetimeformattz'] == hints['datetimeformat']:
+    elif hints.dateformat == 'MM/DD/YY':
+        if hints.datetimeformattz == hints.datetimeformat:
             pandas_options['date_format'] = '%m/%d/%y %H:%M:%S.%f'
         else:
             pandas_options['date_format'] = '%m/%d/%y %H:%M:%S.%f%z'
@@ -114,35 +116,35 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
     #
     # might be nice someday to only emit the errors if the actual data
     # being moved is affected by whatever limitation...
-    if (hints['datetimeformattz'] not in(f"{hints.get('dateformat', 'YYYY-MM-DD')} HH24:MI:SSOF",
-                                         f"{hints.get('dateformat', 'YYYY-MM-DD')} HH:MI:SSOF",
-                                         f"{hints.get('dateformat', 'YYYY-MM-DD')} HH24:MI:SS",
-                                         f"{hints.get('dateformat', 'YYYY-MM-DD')} HH:MI:SS",
-                                         f"{hints.get('dateformat', 'YYYY-MM-DD')} HH:MIOF",
-                                         f"{hints.get('dateformat', 'YYYY-MM-DD')} HH:MI",
-                                         f"{hints.get('dateformat', 'YYYY-MM-DD')} HH24:MIOF",
-                                         f"{hints.get('dateformat', 'YYYY-MM-DD')} HH24:MI")):
+    if (hints.datetimeformattz not in (f"{hints.dateformat} HH24:MI:SSOF",
+                                       f"{hints.dateformat} HH:MI:SSOF",
+                                       f"{hints.dateformat} HH24:MI:SS",
+                                       f"{hints.dateformat} HH:MI:SS",
+                                       f"{hints.dateformat} HH:MIOF",
+                                       f"{hints.dateformat} HH:MI",
+                                       f"{hints.dateformat} HH24:MIOF",
+                                       f"{hints.dateformat} HH24:MI")):
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
     quiet_remove(unhandled_hints, 'datetimeformattz')
 
     valid_datetimeformat = [
-            f"{hints.get('dateformat', 'YYYY-MM-DD')} HH24:MI:SS",
-            f"{hints.get('dateformat', 'YYYY-MM-DD')} HH:MI:SS",
-            f"{hints.get('dateformat', 'YYYY-MM-DD')} HH24:MI",
-            f"{hints.get('dateformat', 'YYYY-MM-DD')} HH:MI",
+        f"{hints.dateformat} HH24:MI:SS",
+        f"{hints.dateformat} HH:MI:SS",
+        f"{hints.dateformat} HH24:MI",
+        f"{hints.dateformat} HH:MI",
     ]
-    if (hints['datetimeformat'] not in valid_datetimeformat):
+    if (hints.datetimeformat not in valid_datetimeformat):
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
     quiet_remove(unhandled_hints, 'datetimeformat')
 
-    if hints['timeonlyformat'] != 'HH24:MI:SS':
+    if hints.timeonlyformat != 'HH24:MI:SS':
         cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', hints)
     quiet_remove(unhandled_hints, 'timeonlyformat')
 
-    pandas_options['sep'] = hints['field-delimiter']
+    pandas_options['sep'] = hints.field_delimiter
     quiet_remove(unhandled_hints, 'field-delimiter')
 
-    pandas_options['line_terminator'] = hints['record-terminator']
+    pandas_options['line_terminator'] = hints.record_terminator
     quiet_remove(unhandled_hints, 'record-terminator')
 
     return pandas_options

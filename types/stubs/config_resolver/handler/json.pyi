@@ -1,0 +1,19 @@
+from .base import Handler as Handler
+from packaging.version import Version
+from typing import Any, Dict, Optional
+
+TJsonConfig = Dict[str, Any]
+
+
+class JsonHandler(Handler[TJsonConfig]):
+    DEFAULT_FILENAME: str = ...
+    @staticmethod
+    def empty() -> TJsonConfig: ...
+    @staticmethod
+    def from_string(data: str) -> TJsonConfig: ...
+    @staticmethod
+    def from_filename(filename: str) -> TJsonConfig: ...
+    @staticmethod
+    def get_version(config: TJsonConfig) -> Optional[Version]: ...
+    @staticmethod
+    def update_from_file(config: TJsonConfig, filename: str) -> None: ...

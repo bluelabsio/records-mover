@@ -1,6 +1,5 @@
 from records_mover.utils import quiet_remove
-from records_mover.records.hints import cant_handle_hint
-from records_mover.records.types import RecordsHints
+from records_mover.records.delimited import cant_handle_hint, ValidatedRecordsHints
 from typing import Set
 from .types import PostgresCopyOptions
 
@@ -16,7 +15,7 @@ postgres_encoding_names = {
 
 
 def postgres_copy_options_common(unhandled_hints: Set[str],
-                                 hints: RecordsHints,
+                                 hints: ValidatedRecordsHints,
                                  fail_if_cant_handle_hint: bool,
                                  original_postgres_options: PostgresCopyOptions) ->\
         PostgresCopyOptions:
@@ -28,7 +27,7 @@ def postgres_copy_options_common(unhandled_hints: Set[str],
     #  this option is omitted, the current client encoding is
     #  used. See the Notes below for more details.
 
-    encoding_hint: str = hints['encoding']  # type: ignore
+    encoding_hint = hints.encoding
     if encoding_hint in postgres_encoding_names:
         postgres_options['encoding'] = postgres_encoding_names[encoding_hint]
         quiet_remove(unhandled_hints, 'encoding')
@@ -52,7 +51,7 @@ def postgres_copy_options_common(unhandled_hints: Set[str],
     #  is ignored. This option is allowed only when using CSV format.
     #
     quiet_remove(unhandled_hints, 'header-row')
-    postgres_options['header'] = hints['header-row']
+    postgres_options['header'] = hints.header_row
 
     # OIDS
     #
@@ -68,7 +67,7 @@ def postgres_copy_options_common(unhandled_hints: Set[str],
     #  format, a comma in CSV format. This must be a single one-byte
     #  character. This option is not allowed when using binary format.
     #
-    postgres_options['delimiter'] = hints['field-delimiter']
+    postgres_options['delimiter'] = hints.field_delimiter
     quiet_remove(unhandled_hints, 'field-delimiter')
 
     return postgres_options

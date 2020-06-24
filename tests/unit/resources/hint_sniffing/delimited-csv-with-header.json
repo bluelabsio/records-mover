@@ -2,10 +2,11 @@
   "required": {
     "header-row": true,
     "escape": null,
-    "quoting": "minimal"
+    "quoting": "minimal",
+    "record-terminator": "\n"
   },
   "initial_hints": {
-    "quoting": "minimal"
+    "escape": null
   },
-  "notes": "Doesn't look like current code tries to sniff quoting"
+  "notes": "Escaping is not currently sniffed."
 }

@@ -1,4 +1,6 @@
-# Records Mover - mvrec
+<img
+ src="https://raw.githubusercontent.com/bluelabsio/records-mover/master/docs/records-mover-horizontal.png"
+ alt="Records Mover">
 
 Records mover is a command-line tool and Python library you can
 use to move relational data from one place to another.
@@ -31,7 +33,7 @@ from one to the other.
 Installing:
 
 ```sh
-pip3 install 'records_mover[cli,postgres,redshift]'
+pip3 install 'records_mover[cli,postgres-binary,redshift-binary]'
 ```
 
 Loading a CSV into a database:
@@ -63,7 +65,7 @@ First, install records_mover.  We'll also use Pandas, so we'll install
 that, too, as well as a driver for Postgres.
 
 ```sh
-pip3 install records_mover[pandas,postgres]
+pip3 install records_mover[pandas,postgres-source]
 ```
 
 Now we can run this code:

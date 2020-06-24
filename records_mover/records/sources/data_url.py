@@ -2,12 +2,12 @@ from .fileobjs import FileobjsSource
 from urllib.parse import urlparse
 from .base import SupportsToFileobjsSource
 from contextlib import contextmanager
-from ..compression import sniff_compression_from_url
+from ..delimited import sniff_compression_from_url
 from ..processing_instructions import ProcessingInstructions
 from ...url.resolver import UrlResolver
 from ..records_format import BaseRecordsFormat
 from ..schema import RecordsSchema
-from .. import BootstrappingRecordsHints
+from .. import PartialRecordsHints
 import logging
 from typing import Optional, Iterator
 
@@ -20,7 +20,7 @@ class DataUrlRecordsSource(SupportsToFileobjsSource):
                  url_resolver: UrlResolver,
                  records_format: Optional[BaseRecordsFormat]=None,
                  records_schema: Optional[RecordsSchema]=None,
-                 initial_hints: Optional[BootstrappingRecordsHints]=None) -> None:
+                 initial_hints: Optional[PartialRecordsHints]=None) -> None:
         self.input_url = input_url
         self.url_resolver = url_resolver
         self.records_format = records_format

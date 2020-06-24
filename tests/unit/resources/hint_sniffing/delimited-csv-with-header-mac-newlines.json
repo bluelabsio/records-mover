@@ -1,0 +1,12 @@
+{
+  "required": {
+    "header-row": true,
+    "escape": null,
+    "quoting": "minimal",
+    "record-terminator": "\r"
+  },
+  "initial_hints": {
+    "escape": null
+  },
+  "notes": "Escaping is not currently sniffed."
+}

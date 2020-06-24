@@ -1,6 +1,8 @@
 from contextlib import contextmanager
+import secrets
 import json
-from typing import TypeVar, Iterator, IO, Any, Mapping, Optional, List, Union
+from records_mover.mover_types import JsonValue
+from typing import TypeVar, Iterator, IO, Any, Optional, List, Union
 
 V = TypeVar('V', bound='BaseDirectoryUrl')
 
@@ -26,24 +28,34 @@ class BaseDirectoryUrl:
     def __init__(self, url: str, **kwargs) -> None:
         raise NotImplementedError()
 
-    def directory_in_this_directory(self, directory_name: str) -> 'BaseDirectoryUrl':
+    def _file(self, url: str) -> 'BaseFileUrl':
+        raise NotImplementedError
+
+    def directory_in_this_directory(self: V, directory_name: str) -> V:
         "Create a subdirectory within this file's current directory with the given name"
         raise NotImplementedError()
 
     def file_in_this_directory(self, filename: str) -> 'BaseFileUrl':
         "Return an entry in the directory."
-        raise NotImplementedError()
+        return self._file(self.url + filename)
 
     def files_in_directory(self) -> List['BaseFileUrl']:
         "Return entries in this directory."
         raise NotImplementedError()
 
-    def purge_directory(self) -> None:
-        "Delete all entries and subdirectories in the directory."
+    def directories_in_directory(self) -> List['BaseDirectoryUrl']:
+        "Return entries in this directory."
         raise NotImplementedError()
 
     def files_and_directories_in_directory(self) -> List[Union['BaseFileUrl', 'BaseDirectoryUrl']]:
-        "Return all file and folder entires under the current location"
+        "Return all file and folder entries directly under the current location.  Does not recurse."
+        out: List[Union['BaseFileUrl', 'BaseDirectoryUrl']] = []
+        out.extend(self.files_in_directory())
+        out.extend(self.directories_in_directory())
+        return out
+
+    def purge_directory(self) -> None:
+        "Delete all entries and subdirectories in the directory."
         raise NotImplementedError()
 
     def copy_to(self, other_loc: 'BaseDirectoryUrl') -> 'BaseDirectoryUrl':
@@ -63,7 +75,7 @@ class BaseDirectoryUrl:
 
     def is_directory(self) -> bool:
         "Returns true"
-        raise NotImplementedError()
+        return self.url.endswith('/')
 
     def containing_directory(self: V) -> V:
         "Parent directory of this directory"
@@ -72,7 +84,13 @@ class BaseDirectoryUrl:
     @contextmanager
     def temporary_directory(self: V) -> Iterator[V]:
         "Yields a temporary DirectoryUrl in current location"
-        raise NotImplementedError()
+        num_chars = 8
+        random_slug = secrets.token_urlsafe(num_chars)
+        temp_loc = self.directory_in_this_directory(random_slug)
+        try:
+            yield temp_loc
+        finally:
+            temp_loc.purge_directory()
 
     def filename(self) -> str:
         "Filename, stripped of any directory information"
@@ -99,6 +117,9 @@ class BaseFileUrl:
     def __init__(self, url: str, **kwargs) -> None:
         raise NotImplementedError()
 
+    def _directory(self, url: str) -> BaseDirectoryUrl:
+        raise NotImplementedError()
+
     def directory_in_this_directory(self, directory_name: str) -> BaseDirectoryUrl:
         "Create a subdirectory within this file's current directory with the given name"
         raise NotImplementedError()
@@ -108,7 +129,9 @@ class BaseFileUrl:
         with self.open() as f:
             return f.read().decode(encoding)
 
-    def json_contents(self) -> Optional[Mapping[Any, Any]]:
+    def json_contents(self) -> Optional[JsonValue]:
+        """Return contents of this JSON file as a Python object, or None if file is empty
+        (zero bytes)"""
         file_contents = self.string_contents()
         if len(file_contents) > 0:
             data = json.loads(file_contents)
@@ -132,8 +155,9 @@ class BaseFileUrl:
 
     def store_string(self, contents: str) -> None:
         "Save the specified string to the file."
-        with self.open(mode='wt') as f:
-            f.write(contents)
+
+        with self.open(mode='wb') as f:
+            f.write(contents.encode('utf-8'))
 
     def rename_to(self, new: 'BaseFileUrl') -> 'BaseFileUrl':
         "Rename this file"
@@ -159,7 +183,8 @@ class BaseFileUrl:
 
     def containing_directory(self) -> BaseDirectoryUrl:
         "Returns the parent directory of this file."
-        raise NotImplementedError()
+        parent_url = '/'.join(self.url.split('/')[:-1]) + '/'
+        return self._directory(parent_url)
 
     @contextmanager
     def temporary_directory(self) -> Iterator[BaseDirectoryUrl]:

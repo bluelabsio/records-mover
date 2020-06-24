@@ -3,7 +3,7 @@ from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.records.processing_instructions import ProcessingInstructions
 from records_mover.db.vertica.records_import_options import vertica_import_options
 from ...records.format_hints import christmas_tree_format_1_hints
-from records_mover.records.hints import logger as driver_logger
+from records_mover.records.delimited.utils import logger as driver_logger
 import unittest
 from mock import call, patch
 
@@ -110,11 +110,9 @@ class TestVerticaImportOptions(unittest.TestCase):
             'trailing_nullcols': False,
         }
         self.assertDictEqual(options, expected_options)
-        self.assertCountEqual(mock_warning.mock_calls,
-                              [call("Ignoring hint compression = 'LZO'"),
-                               call("Ignoring hint dateformat = None"),
-                               call("Ignoring hint datetimeformat = None"),
-                               call("Ignoring hint quoting = 'nonnumeric'")])
+        self.assertListEqual(mock_warning.mock_calls,
+                             [call("Ignoring hint compression = 'LZO'"),
+                              call("Ignoring hint quoting = 'nonnumeric'")])
         self.assertEqual(unhandled_hints, set())
 
     def test_weird_timeonlyformat(self):

@@ -1,21 +1,20 @@
 from records_mover.utils import quiet_remove
-from records_mover.records.types import RecordsHints
-from records_mover.records.hints import cant_handle_hint
+from records_mover.records.delimited import cant_handle_hint, ValidatedRecordsHints
 from typing import Set, Tuple, Optional
 from .types import DateOrderStyle, DateOutputStyle
 
 
 def determine_date_output_style(unhandled_hints: Set[str],
-                                hints: RecordsHints,
+                                hints: ValidatedRecordsHints,
                                 fail_if_cant_handle_hint: bool) -> \
         Tuple[DateOutputStyle, Optional[DateOrderStyle]]:
 
     # see docs in the types module
 
-    dateformat = hints['dateformat']
-    timeonlyformat = hints['timeonlyformat']
-    datetimeformattz = hints['datetimeformattz']
-    datetimeformat = hints['datetimeformat']
+    dateformat = hints.dateformat
+    timeonlyformat = hints.timeonlyformat
+    datetimeformattz = hints.datetimeformattz
+    datetimeformat = hints.datetimeformat
 
     date_order_style: Optional[DateOrderStyle] = None
 

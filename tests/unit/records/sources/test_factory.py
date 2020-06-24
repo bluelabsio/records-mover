@@ -25,6 +25,20 @@ class TestFactory(unittest.TestCase):
                                processing_instructions=mock_processing_instructions)
         self.assertEqual(df, mock_DataframesRecordsSource.return_value)
 
+    @patch('records_mover.records.sources.dataframes.DataframesRecordsSource')
+    def test_dataframes(self, mock_DataframesRecordsSource):
+        mock_df = Mock(name='df')
+        mock_processing_instructions = Mock(name='processing_instructions')
+        df = self.records_sources.\
+            dataframes(dfs=[mock_df],
+                       processing_instructions=mock_processing_instructions)
+        mock_DataframesRecordsSource.\
+            assert_called_with(dfs=ANY,
+                               include_index=False,
+                               records_schema=None,
+                               processing_instructions=mock_processing_instructions)
+        self.assertEqual(df, mock_DataframesRecordsSource.return_value)
+
     @patch('records_mover.records.sources.factory.UninferredFileobjsRecordsSource')
     def test_fileobjs(self, mock_UninferredFileobjsSource):
         mock_target_names_to_fileobjs = Mock(name='target_names_to_fileobjs')
@@ -81,8 +95,8 @@ class TestFactory(unittest.TestCase):
                                out_of_band_column_headers=None)
         self.assertEqual(out, mock_GoogleSheetsRecordsSource.return_value)
 
-    @patch('records_mover.records.compression.os')
-    @patch('records_mover.records.compression.urlparse')
+    @patch('records_mover.records.delimited.compression.os')
+    @patch('records_mover.records.delimited.compression.urlparse')
     @patch('records_mover.records.sources.factory.pathlib')
     def test_local_file(self,
                         mock_pathlib,

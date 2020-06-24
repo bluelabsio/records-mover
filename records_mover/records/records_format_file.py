@@ -1,7 +1,7 @@
 from .records_format import BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
 from ..url.base import BaseDirectoryUrl, BaseFileUrl
 from .processing_instructions import ProcessingInstructions
-from .types import RecordsHints
+from .delimited import PartialRecordsHints
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ class RecordsFormatFile:
                               fail_if_dont_understand: bool) -> BaseRecordsFormat:
         data = format_loc.json_contents()
         variant = None
-        hints: RecordsHints = {}
+        hints: PartialRecordsHints = {}
         # For simple form (such as with avro or parquet), this file MUST be empty.
         if data is None:
             # For detailed form (such as delimited), it MUST contain
@@ -37,6 +37,8 @@ class RecordsFormatFile:
             # configuration.
             raise TypeError(f"Detailed format information must be provided in {format_loc.url} "
                             f"for type delimited")
+        if not isinstance(data, dict):
+            raise TypeError(f"{format_loc.url} does not contain a JSON object as expected")
         if 'variant' not in data:
             raise TypeError(f"variant not specified in {format_loc.url}")
         potential_variant = data['variant']

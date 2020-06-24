@@ -100,7 +100,11 @@ class MypyCoverageRatchetCommand(CoverageRatchetCommand):
 
 
 google_api_client_dependencies = [
-    'google-api-python-client>=1.5.0,<1.6.0',
+    # 1.8 seems to be required to use application default creds with
+    # 'googleapiclient.discovery.build':
+    #
+    # https://github.com/googleapis/google-auth-library-python/issues/190
+    'google-api-python-client>=1.8.0,<1.9.0',
 ]
 
 itest_dependencies = (
@@ -117,13 +121,11 @@ airflow_dependencies = [
 ]
 
 db_dependencies = [
-    # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
-    #
     # sqlalchemy 1.3.16 seems to have (accidentally?) introduced
     # a breaking change that affects sqlalchemy-redshift:
     #
     # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
-    'sqlalchemy!=1.3.16',
+    'sqlalchemy!=1.3.16,!=1.3.17',
 ]
 
 bigquery_dependencies = [
@@ -138,16 +140,19 @@ bigquery_dependencies = [
     'pybigquery',
 ] + db_dependencies
 
+smart_open_dependencies = [
+    # we rely on exception types from smart_open,
+    # which seem to change in feature releases
+    # without a major version bump
+    'smart_open>=2,<2.1',
+]
+
 aws_dependencies = [
     'awscli>=1,<2',
     'boto>=2,<3',
     'boto3',
-    # we rely on exception types from smart_open,
-    # which seem to change in feature releases
-    # without a major version bump
-    'smart_open>=1.8.4,<1.9.0',
     's3-concat>=0.1.7,<0.2'
-]
+] + smart_open_dependencies
 
 gsheet_dependencies = [
     'google',
@@ -195,7 +200,6 @@ postgres_dependencies_source = [
 cli_dependencies_base = [
     'odictliteral',
     'jsonschema',
-    'typing_inspect',
     'docstring_parser',
 ]
 
@@ -214,13 +218,18 @@ literally_every_single_database_binary_dependencies = (
     mysql_dependencies
 )
 
+gcs_dependencies = [
+    'google-cloud-storage'
+] + smart_open_dependencies
+
 unittest_dependencies = (
     cli_dependencies_base +
     airflow_dependencies +
     gsheet_dependencies +
     literally_every_single_database_binary_dependencies +
     aws_dependencies +
-    pandas_dependencies
+    pandas_dependencies +
+    gcs_dependencies
 )
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
@@ -255,9 +264,13 @@ setup(name='records-mover',
           'PyYAML<5.3',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
-          'db-facts>=3,<4',
+          'db-facts>=4,<5',
           'chardet',
-          'tenacity>=6<7'
+          'tenacity>=6<7',
+          # v5.0.1 resolves https://github.com/exhuma/config_resolver/issues/69
+          'config-resolver>=5.0.1,<6',
+          'typing_inspect',
+          'typing-extensions',
       ],
       extras_require={
           'airflow': airflow_dependencies,
@@ -278,6 +291,8 @@ setup(name='records-mover',
           literally_every_single_database_binary_dependencies,
           'itest': itest_dependencies,
           'unittest': unittest_dependencies,
+          'gcs': gcs_dependencies,
+          'parquet': parquet_dependencies,
       },
       entry_points={
           'console_scripts': 'mvrec = records_mover.records.cli:main',

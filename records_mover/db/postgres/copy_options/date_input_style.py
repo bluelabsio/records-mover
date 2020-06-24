@@ -1,12 +1,11 @@
 from records_mover.utils import quiet_remove
-from records_mover.records.hints import cant_handle_hint
-from records_mover.records.types import RecordsHints
+from records_mover.records.delimited import cant_handle_hint, ValidatedRecordsHints
 from typing import Optional, Set
 from .types import DateOrderStyle
 
 
 def determine_input_date_order_style(unhandled_hints: Set[str],
-                                     hints: RecordsHints,
+                                     hints: ValidatedRecordsHints,
                                      fail_if_cant_handle_hint: bool) ->\
         Optional[DateOrderStyle]:
     date_order_style: Optional[DateOrderStyle] = None
@@ -40,7 +39,7 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
     #
     # postgres=#
 
-    datetimeformattz = hints['datetimeformattz']
+    datetimeformattz = hints.datetimeformattz
 
     # datetimeformattz: Valid values: "YYYY-MM-DD HH:MI:SSOF",
     # "YYYY-MM-DD HH:MI:SS", "YYYY-MM-DD HH24:MI:SSOF", "YYYY-MM-DD
@@ -95,7 +94,7 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
     # "YYYY-MM-DD HH12:MI AM", "MM/DD/YY HH24:MI". See Redshift docs
     # for more information.
 
-    datetimeformat = hints['datetimeformat']
+    datetimeformat = hints.datetimeformat
 
     if datetimeformat in ("YYYY-MM-DD HH24:MI:SS",
                           "YYYY-MM-DD HH:MI:SS"):
@@ -136,7 +135,7 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
 
-    timeonlyformat = hints['timeonlyformat']
+    timeonlyformat = hints.timeonlyformat
 
     # timeonlyformat: Valid values: "HH12:MI AM" (e.g., "1:00 PM"),
     # "HH24:MI:SS" (e.g., "13:00:00")
@@ -172,7 +171,7 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
 
     # dateformat: Valid values: null, "YYYY-MM-DD", "MM-DD-YYYY", "DD-MM-YYYY", "MM/DD/YY".
-    dateformat = hints['dateformat']
+    dateformat = hints.dateformat
 
     if dateformat == "YYYY-MM-DD":
         #  postgres=# select date '1999-01-02';

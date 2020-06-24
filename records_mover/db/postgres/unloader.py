@@ -5,7 +5,7 @@ from ...records.unload_plan import RecordsUnloadPlan
 from ...records.records_format import BaseRecordsFormat
 from ...records.records_directory import RecordsDirectory
 from ...records.records_format import DelimitedRecordsFormat
-from ...records.hints import complain_on_unhandled_hints
+from ...records.delimited import complain_on_unhandled_hints
 from typing import List
 from ..unloader import Unloader
 from .copy_options import postgres_copy_to_options
