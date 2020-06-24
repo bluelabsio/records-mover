@@ -298,6 +298,8 @@ jobs:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: '<1'
+          # requirements.txt includes twine and other release packages
+          include_dev_dependencies: true
       - run:
           name: verify git tag vs. version
           command: |
