@@ -109,7 +109,9 @@ jobs:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
-          # includes nose, mypy and friends
+          # includes numpy-stubs - should be obsolete and unneeded
+          # starting with numpy 1.20
+          include_dev_dependencies: true
       - run:
           name: Run tests
           command: |

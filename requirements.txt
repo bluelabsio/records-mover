@@ -11,7 +11,7 @@ pylint
 # compatibility.  Feel free to try to update!
 #
 
-# Note: it looks like numpy 1.12 is likely to roll these in natively
+# Note: it looks like numpy 1.20 is likely to roll these in natively
 # without a need for a separate stub package:
 #
 #  https://github.com/numpy/numpy/blob/master/doc/release/upcoming_changes/16558.new_feature.rst
