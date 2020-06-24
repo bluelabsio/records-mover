@@ -13,6 +13,9 @@ commands:
         type: string
         default: ''
         description: "Which pip extras to install.  If provided, must be surrounded by [] and comma separated."
+      include_dev_dependencies:
+        type: boolean
+        default: true
       python_version:
         type: string
         description: "Version of python to test against"
@@ -34,7 +37,10 @@ commands:
             else
               python -m venv venv
               . venv/bin/activate
-              pip install --progress-bar=off -r requirements.txt -e '.<<parameters.extras>>'
+              if [ '<<parameters.include_dev_dependencies>>' == 'true' ]
+              then
+                pip install --progress-bar=off -r requirements.txt -e '.<<parameters.extras>>'
+              fi
               if [ '<<parameters.pandas_version>>' != '' ]
               then
                 pip install --upgrade --progress-bar=off 'pandas<<parameters.pandas_version>>'
@@ -324,6 +330,9 @@ jobs:
           extras: '[cli]'
           python_version: '3.6'
           pandas_version: ''
+          # we want this just like a user would install it, not with
+          # dev tools installed
+          include_dev_dependencies: false
       - run:
           name: Run tests
           command: |
