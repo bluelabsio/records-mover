@@ -24,7 +24,7 @@ commands:
         description: "Version of pandas to test against"
     steps:
       - restore_cache:
-          key: deps-v2-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v3-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           command: |
@@ -39,8 +39,9 @@ commands:
               . venv/bin/activate
               if [ '<<parameters.include_dev_dependencies>>' == 'true' ]
               then
-                pip install --progress-bar=off -r requirements.txt -e '.<<parameters.extras>>'
+                pip install --progress-bar=off -r requirements.txt
               fi
+              pip install -e '.<<parameters.extras>>'
               if [ '<<parameters.pandas_version>>' != '' ]
               then
                 pip install --upgrade --progress-bar=off 'pandas<<parameters.pandas_version>>'
@@ -49,7 +50,7 @@ commands:
               fi
             fi
       - save_cache:
-          key: deps-v2-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v3-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
   wait_for_db:
