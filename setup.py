@@ -233,7 +233,6 @@ typecheck_dependencies = [
     # this is pre-release, but seems to work!  Let's keep it pinned to a
     # commit until they make a release, just in case they break
     # compatibility.  Feel free to try to update!
-    'git+https://github.com/numpy/numpy-stubs.git@be9a479#egg=numpy-stubs',
     'sqlalchemy-stubs>=0.3',
 ]
 
