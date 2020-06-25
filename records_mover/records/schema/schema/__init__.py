@@ -109,7 +109,7 @@ class RecordsSchema:
         from records_mover.pandas import purge_unnamed_unused_columns
 
         if len(fileobjs) != 1:
-            # https://app.asana.com/0/53283930106309/1131698268455054
+            # https://github.com/bluelabsio/records-mover/issues/84
             raise NotImplementedError('Cannot currently sniff schema from mulitple '
                                       'files--please provide explicit schema JSON')
         fileobj = fileobjs[0]
@@ -171,7 +171,7 @@ class RecordsSchema:
             index_name = field_names[0]
             # RecordsMover supports only single indexes for the moment.
             #
-            # https://app.asana.com/0/1128138765527694/1161071033650873
+            # https://github.com/bluelabsio/records-mover/issues/92
             index_mapping = {0: index_name}
 
             # remove first name, which applies to index

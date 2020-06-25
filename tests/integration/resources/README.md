@@ -46,7 +46,7 @@ timezones in timestamps are expressed.
   times, just datetimes, so dates and times come out in
   default Pandas __str__() format.
 
-  See details on [Pandas limitations](https://app.asana.com/0/53283930106309/1133167860965681)
+  See details on [Pandas limitations](https://github.com/bluelabsio/records-mover/issues/83)
 
 ### utc
 

@@ -38,7 +38,7 @@ python_encoding_from_hint: Dict[Optional[HintEncoding], str] = {
 # This is a Union because the date formats currently don't really
 # account for MM/DD time.
 #
-# https://app.asana.com/0/1128138765527694/1173779659264666
+# https://github.com/bluelabsio/records-mover/issues/75
 #
 python_date_format_from_hints: Dict[Union[HintDateFormat, Literal['DD/MM/YY']], str] = {
     'YYYY-MM-DD': '%Y-%m-%d',
