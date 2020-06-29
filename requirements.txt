@@ -17,3 +17,7 @@ sqlalchemy-stubs>=0.3
 # commit until they make a release, just in case they break
 # compatibility.  Feel free to try to update!
 git+https://github.com/numpy/numpy-stubs.git@be9a479#egg=numpy-stubs
+sphinx>=3 # used to generate and upload docs - sphinx-autodoc-typehints requires 3 or better per https://github.com/agronholm/sphinx-autodoc-typehints/pull/138
+sphinx-autodoc-typehints # used to handle type hints
+sphinx-rtd-theme # used to style docs for readthedocs.io
+recommonmark # used to be able to use sphinx with markdown
