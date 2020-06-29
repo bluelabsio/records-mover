@@ -10,6 +10,7 @@ Welcome to records-mover's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   records_mover
 
 
 Indices and tables
