@@ -14,9 +14,17 @@ if TYPE_CHECKING:
 
 
 class RecordsHook(BaseHook):
+    "Airflow Hook which provides Records object"
+
     def __init__(self,
-                 s3_temp_base_url: Optional[str]=None,
-                 aws_conn_id: str='aws_default'):
+                 s3_temp_base_url: Optional[str] = None,
+                 aws_conn_id: str = 'aws_default'):
+        """
+        Create a new RecordsHook
+
+        :param s3_temp_base_url: If provided, use this URL for any temporary storage which requires use of S3.  If not provided, any operations (e.g., Redshift load/unloads) which are not directly provided an S3 bucket will raise.
+        :param aws_conn_id: Airflow connection ID to use for AWS credentials.
+        """
         self.aws_conn_id = aws_conn_id
         self.__s3_temp_base_url = s3_temp_base_url
         self._boto3_session: Optional[boto3.session.Session] = None
@@ -46,7 +54,8 @@ class RecordsHook(BaseHook):
                              f"URL should end with '/': {self.__s3_temp_base_url}")
         return self.__s3_temp_base_url
 
-    def validate_and_prepare_target_directory(self, target_url: str,
+    def validate_and_prepare_target_directory(self,
+                                              target_url: str,
                                               allow_overwrite: bool=False) -> None:
         parsed_target = urlparse(target_url)
         if parsed_target.scheme != 's3':
@@ -72,6 +81,9 @@ class RecordsHook(BaseHook):
                 raise AirflowException('Target URL %s is non-empty', target_url)
 
     def get_conn(self) -> Records:
+        """
+        :return: Records object which can be used for moving records data
+        """
         return Records(
             db_driver=self._db_driver,
             url_resolver=self._url_resolver,
