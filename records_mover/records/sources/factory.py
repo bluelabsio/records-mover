@@ -57,8 +57,7 @@ class RecordsSources(object):
         :param df: Pandas dataframe to move data from.
         :param processing_instructions: Instructions used during creation of the schema SQL.
         :param records_schema: Description of the column names and types of the records.
-        :param include_index: If true, the Pandas dataframe index column will be included in
-        the move.
+        :param include_index: If true, the Pandas dataframe index column will be included in the move.
         """
 
         from .dataframes import DataframesRecordsSource  # noqa
