@@ -107,10 +107,14 @@ google_api_client_dependencies = [
     'google-api-python-client>=1.8.0,<1.9.0',
 ]
 
-itest_dependencies = (
-    [
-        'jsonschema',  # needed for directory_validator.py
-    ] +
+nose_dependencies = [
+    'nose'
+]
+
+itest_dependencies = [
+    'jsonschema',  # needed for directory_validator.py
+] + (
+    nose_dependencies +
     # needed for records_database_fixture retrying drop/creates on
     # BigQuery
     google_api_client_dependencies
@@ -222,7 +226,18 @@ gcs_dependencies = [
     'google-cloud-storage'
 ] + smart_open_dependencies
 
-unittest_dependencies = (
+
+typecheck_dependencies = [
+    'mypy==0.770',
+    'lxml',  # needed by mypy HTML coverage reporting
+    'sqlalchemy-stubs>=0.3',
+]
+
+unittest_dependencies = [
+    'coverage',
+    'mock',
+] + (
+    nose_dependencies +
     cli_dependencies_base +
     airflow_dependencies +
     gsheet_dependencies +
@@ -291,6 +306,7 @@ setup(name='records-mover',
           literally_every_single_database_binary_dependencies,
           'itest': itest_dependencies,
           'unittest': unittest_dependencies,
+          'typecheck': typecheck_dependencies,
           'gcs': gcs_dependencies,
           'parquet': parquet_dependencies,
       },

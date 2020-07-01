@@ -1,5 +1,5 @@
 import logging
-import numpy as np
+
 from typing import Optional, cast, TYPE_CHECKING
 from records_mover.utils.limits import (FLOAT16_SIGNIFICAND_BITS,
                                         FLOAT32_SIGNIFICAND_BITS,
@@ -7,6 +7,7 @@ from records_mover.utils.limits import (FLOAT16_SIGNIFICAND_BITS,
                                         FLOAT80_SIGNIFICAND_BITS)
 if TYPE_CHECKING:
     import sqlalchemy
+    import numpy as np
     from records_mover.db import DBDriver  # noqa
     from mypy_extensions import TypedDict
 
@@ -115,7 +116,7 @@ class RecordsSchemaFieldConstraints:
         return RecordsSchemaFieldConstraints(required=required, unique=unique)
 
     @staticmethod
-    def from_numpy_dtype(dtype: np.dtype,
+    def from_numpy_dtype(dtype: 'np.dtype',
                          unique: bool) -> 'RecordsSchemaFieldConstraints':
         from .string import RecordsSchemaFieldStringConstraints
         from .integer import RecordsSchemaFieldIntegerConstraints

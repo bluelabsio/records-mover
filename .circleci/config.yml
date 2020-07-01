@@ -13,15 +13,18 @@ commands:
         type: string
         default: ''
         description: "Which pip extras to install.  If provided, must be surrounded by [] and comma separated."
+      include_dev_dependencies:
+        type: boolean
+        default: false
       python_version:
         type: string
         description: "Version of python to test against"
       pandas_version:
         type: string
-        description: "Version of pandas to test against"
+        description: "Version of pandas to test against, or empty string for none"
     steps:
       - restore_cache:
-          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           command: |
@@ -34,7 +37,11 @@ commands:
             else
               python -m venv venv
               . venv/bin/activate
-              pip install --progress-bar=off -r requirements.txt -e '.<<parameters.extras>>'
+              if [ '<<parameters.include_dev_dependencies>>' == 'true' ]
+              then
+                pip install --progress-bar=off -r requirements.txt
+              fi
+              pip install -e '.<<parameters.extras>>'
               if [ '<<parameters.pandas_version>>' != '' ]
               then
                 pip install --upgrade --progress-bar=off 'pandas<<parameters.pandas_version>>'
@@ -43,7 +50,7 @@ commands:
               fi
             fi
       - save_cache:
-          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
   wait_for_db:
@@ -102,6 +109,9 @@ jobs:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
+          # includes numpy-stubs - should be obsolete and unneeded
+          # starting with numpy 1.20
+          include_dev_dependencies: true
       - run:
           name: Run tests
           command: |
@@ -288,6 +298,8 @@ jobs:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: '<1'
+          # requirements.txt includes twine and other release packages
+          include_dev_dependencies: true
       - run:
           name: verify git tag vs. version
           command: |
@@ -315,6 +327,24 @@ jobs:
           command: |
             . venv/bin/activate
             twine upload -r pypi dist/*
+  cli-extra-test:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - installvenv:
+          extras: '[cli]'
+          python_version: '3.6'
+          pandas_version: ''
+          # we want this just like a user would install it, not with
+          # dev tools installed
+          include_dev_dependencies: false
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            mvrec --help
+            mvrec
 
 workflows:
   version: 2
@@ -336,7 +366,7 @@ workflows:
       # https://app.asana.com/0/1128138765527694/1161072974798065
       - test:
           name: test-3.6
-          extras: '[unittest]'
+          extras: '[unittest,typecheck]'
           python_version: "3.6"
           pandas_version: "<1"
           requires:
@@ -346,7 +376,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - test:
           name: test-3.7
-          extras: '[unittest]'
+          extras: '[unittest,typecheck]'
           python_version: "3.7"
           pandas_version: ">=1"
           requires:
@@ -356,7 +386,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - test:
           name: test-3.8
-          extras: '[unittest]'
+          extras: '[unittest,typecheck]'
           python_version: "3.8"
           pandas_version: ">=1"
           coverage: true
@@ -542,12 +572,17 @@ workflows:
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - cli-extra-test:
+          name: cli-extra-test
+          requires:
+            - redshift-itest
       - deploy:
           context: PyPI
           requires:
             - test-3.6
             - test-3.7
             - test-3.8
+            - cli-extra-test
             - tbl2tbl-itest
             - bigquery-itest
             - redshift-itest
