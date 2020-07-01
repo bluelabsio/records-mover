@@ -11,7 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class ParquetRecordsFormat(BaseRecordsFormat):
+    "Describes records files in `Parquet <https://parquet.apache.org/>`_ format"
+
     def __init__(self) -> None:
+        "Create a new instance of ParquetRecordsFormat"
         self.format_type = 'parquet'
 
     def __str__(self) -> str:
@@ -25,6 +28,8 @@ class ParquetRecordsFormat(BaseRecordsFormat):
 
 
 class DelimitedRecordsFormat(BaseRecordsFormat):
+    "Describes records data files in delimited (CSV) format."
+
     variant: str
     # The strong type for 'hints' in the constructor is for IDE
     # support--we don't actually trust input to this class to be well-typed,
@@ -38,17 +43,11 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
                  variant: str='bluelabs',
                  hints: PartialRecordsHints={},
                  processing_instructions: ProcessingInstructions=ProcessingInstructions()) -> None:
-        """See the `records format documentation
-        <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#hints>`_
-        for full details on parameters.
+        """See the `records format documentation <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#hints>`_ for full details on parameters.
 
-        :param variant: For a given type (especially delimited),
-        describe the subtype of the format.  For 'delimited', valid
-        values include 'dumb', 'csv', 'bluelabs', and 'vertica'.
-
-        :param processing_instructions: Directives on how to handle
-        different situations when processing files.
-
+        :param variant: For a given type (especially delimited), describe the subtype of the format.  For 'delimited', valid values include 'dumb', 'csv', 'bluelabs', and 'vertica'.
+        :param hints: Dictionary of names of delimited hints mapping to their values.  See the `records format specification <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md>`_ for full detail.
+        :param processing_instructions: Directives on how to handle different situations when processing files.  This is of type :class:`records_mover.records.ProcessingInstructions`
         """
         self.format_type = 'delimited'
         self.variant = variant

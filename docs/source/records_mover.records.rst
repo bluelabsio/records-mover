@@ -20,26 +20,10 @@ Submodules
 records\_mover.records.base\_records\_format module
 ---------------------------------------------------
 
-.. automodule:: records_mover.records.base_records_format
+.. autoclass:: records_mover.records.base_records_format.BaseRecordsFormat
    :members:
-   :undoc-members:
    :show-inheritance:
-
-records\_mover.records.cli module
----------------------------------
-
-.. automodule:: records_mover.records.cli
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-records\_mover.records.deprecated module
-----------------------------------------
-
-.. automodule:: records_mover.records.deprecated
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :special-members: __init__
 
 records\_mover.records.errors module
 ------------------------------------
@@ -185,3 +169,19 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: DelimitedRecordsFormat, ParquetRecordsFormat, ProcessingInstructions
+
+   .. autoclass:: records_mover.records.DelimitedRecordsFormat
+      :undoc-members:
+      :show-inheritance:
+      :special-members: __init__
+
+   .. autoclass:: records_mover.records.ParquetRecordsFormat
+      :undoc-members:
+      :show-inheritance:
+      :special-members: __init__
+
+   .. autoclass:: records_mover.records.ProcessingInstructions
+      :undoc-members:
+      :show-inheritance:
+      :special-members: __init__

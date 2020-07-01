@@ -1,12 +1,14 @@
 from abc import ABCMeta, abstractmethod
 import json
-from typing import Mapping, Optional, TYPE_CHECKING
-if TYPE_CHECKING:
-    from . import RecordsFormatType  # noqa
+from typing import Mapping, Optional
+from .types import RecordsFormatType
 
 
 class BaseRecordsFormat(metaclass=ABCMeta):
-    format_type: 'RecordsFormatType'  # noqa
+    """
+    To create an instance, see :class:`~records_mover.records.ParquetRecordsFormat` or :class:`~records_mover.records.DelimitedRecordsFormat`
+    """
+    format_type: RecordsFormatType
 
     def json(self) -> str:
         contents = ''

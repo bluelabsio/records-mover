@@ -29,9 +29,12 @@ class RecordsSources(object):
     """
     These methods produce objects representing the source of a records move.
 
+    This should be pulled from the 'records' property on a Session object instead of being constructed directly.
+
     Example use:
 
     .. code-block:: python
+
        records = session.records
        db_engine = session.get_default_db_engine()
        url = 's3://some-bucket/some-directory/'
@@ -121,13 +124,9 @@ class RecordsSources(object):
                  records_schema: Optional[RecordsSchema]=None)\
             -> DataUrlRecordsSource:
         """
-        :param input_url: Location of the data file.  Must be a URL format understood by the
-        records_mover.url library.
+        :param input_url: Location of the data file.  Must be a URL format understood by the records_mover.url library.
         :param records_format: Description of the format of the data files.
-        :param initial_hints: If records_format is not provided, the format of the file
-        will be determined automatically.  If that effort fails, you can help it out by
-        providing the 'compression', 'quoting', 'header-row', 'field-delimiter', 'encoding', and
-        'escape' hints (or the appropriate subsets) in this dictionary.
+        :param initial_hints: If records_format is not provided, the format of the file will be determined automatically.  If that effort fails, you can help it out by providing the 'compression', 'quoting', 'header-row', 'field-delimiter', 'encoding', and 'escape' hints (or the appropriate subsets) in this dictionary.
         :param records_schema: Description of the column names and types of the records.
         """
         return DataUrlRecordsSource(input_url=input_url,
