@@ -27,9 +27,9 @@ if TYPE_CHECKING:
 
 class RecordsSources(object):
     """
-    These methods produce objects representing the source of a records move.
+    These methods produce objects representing the source of a records move.  The objects can be used as the 'source' argument to :meth:`records_mover.records.move`
 
-    This object should be pulled from the 'records' property on a Session object instead of being constructed directly.
+    This object should be pulled from the 'sources' property of the 'records' property on a :class:`records_mover.Session` object instead of being constructed directly.
 
     Example use:
 
@@ -58,7 +58,7 @@ class RecordsSources(object):
                   include_index: bool=False) -> 'DataframesRecordsSource':
         """
         :param df: Pandas DataFrame to move data from.
-        :param processing_instructions: Instructions used during creation of the schema SQL as a :meth:`records_mover.records.ProcessingInstructions` object.
+        :param processing_instructions: Instructions used during creation of the schema SQL as a :class:`records_mover.records.ProcessingInstructions` object.
         :param include_index: If true, the Pandas DataFrame index column will be included in the move.
         """
 
@@ -77,7 +77,7 @@ class RecordsSources(object):
         """
 
         :param dfs: Iteratable of Pandas DataFrames to move data from -- all data from these DataFrames will be added to the same table.
-        :param processing_instructions: Instructions used during creation of the schema SQL as a :meth:`records_mover.records.ProcessingInstructions` object.
+        :param processing_instructions: Instructions used during creation of the schema SQL as a :class:`records_mover.records.ProcessingInstructions` object.
         :param include_index: If true, the Pandas DataFrame index column will be included in the move.
         """
         from .dataframes import DataframesRecordsSource  # noqa
@@ -131,7 +131,7 @@ class RecordsSources(object):
               schema_name: str,
               table_name: str) -> 'TableRecordsSource':
         """
-        :param db_engine: Database engine to pull data from.
+        :param db_engine: SQLAlchemy database engine to pull data from.
         :param schema_name: Schema name of a table to get data from.
         :param table_name: Table name of a table to get data from.
         """
@@ -147,7 +147,7 @@ class RecordsSources(object):
                            fail_if_dont_understand: bool=True)\
             -> RecordsDirectoryRecordsSource:
         """
-        :param url: Location of the records directory.  Must be a URL format understood by the records_mover.url library, and must be a directory URL that ends with a '/'.
+        :param url: Location of the records directory.  Must be a URL format understood by the records_movejr.url library, and must be a directory URL that ends with a '/'.
         :param hints: Any additional hints that should override the description of the data files already in the records directory.
         :param fail_if_dont_understand: If True, and a part of the RecordsFormat is not understood while processing, then immediately fail and raise an exception.  Otherwise, ignore the misunderstood instruction (e.g., ignore the hint, assume default variant, etc etc)
         """

@@ -1,1 +1,4 @@
-from .factory import RecordsTargets  # noqa
+__all__ = [
+    'RecordsTargets'
+]
+from .factory import RecordsTargets

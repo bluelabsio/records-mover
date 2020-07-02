@@ -9,7 +9,7 @@ class MoverTestCase:
                  source_db_engine: Optional[Engine] = None,
                  file_variant: Optional[DelimitedVariant] = None) -> None:
         """
-        :param db_engine: Target database of the records move.
+        :param db_engine: Target database of the records move as a SQLAlchemy Engine object.
 
         :param source_data_db_engine: Source database of the records
         move.  None if we are loading from a file or a dataframe
