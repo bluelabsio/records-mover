@@ -29,7 +29,7 @@ class RecordsSources(object):
     """
     These methods produce objects representing the source of a records move.
 
-    This should be pulled from the 'records' property on a Session object instead of being constructed directly.
+    This object should be pulled from the 'records' property on a Session object instead of being constructed directly.
 
     Example use:
 
@@ -57,10 +57,9 @@ class RecordsSources(object):
                   records_schema: Optional[RecordsSchema]=None,
                   include_index: bool=False) -> 'DataframesRecordsSource':
         """
-        :param df: Pandas dataframe to move data from.
-        :param processing_instructions: Instructions used during creation of the schema SQL.
-        :param records_schema: Description of the column names and types of the records.
-        :param include_index: If true, the Pandas dataframe index column will be included in the move.
+        :param df: Pandas DataFrame to move data from.
+        :param processing_instructions: Instructions used during creation of the schema SQL as a :meth:`records_mover.records.ProcessingInstructions` object.
+        :param include_index: If true, the Pandas DataFrame index column will be included in the move.
         """
 
         from .dataframes import DataframesRecordsSource  # noqa
@@ -77,12 +76,9 @@ class RecordsSources(object):
                    include_index: bool=False) -> 'DataframesRecordsSource':
         """
 
-        :param dfs: Iterator of Pandas dataframes to move data from -- all data from
-                    these dataframes will be added to the same table.
-        :param processing_instructions: Instructions used during creation of the schema SQL.
-        :param records_schema: Description of the column names and types of the records.
-        :param include_index: If true, the Pandas dataframe index column will be included in
-        the move.
+        :param dfs: Iteratable of Pandas DataFrames to move data from -- all data from these DataFrames will be added to the same table.
+        :param processing_instructions: Instructions used during creation of the schema SQL as a :meth:`records_mover.records.ProcessingInstructions` object.
+        :param include_index: If true, the Pandas DataFrame index column will be included in the move.
         """
         from .dataframes import DataframesRecordsSource  # noqa
         return DataframesRecordsSource(dfs=dfs,
@@ -99,11 +95,7 @@ class RecordsSources(object):
         """
         :param target_names_to_input_fileobjs: Filenames mapping to streams of data file.
         :param records_format: Description of the format of the data files.
-        :param initial_hints: If records_format is not provided, the format of the file
-        will be determined automatically.  If that effort fails, you can help it out by
-        providing the 'compression', 'quoting', 'header-row', 'field-delimiter', 'encoding', and
-        'escape' hints (or the appropriate subsets) in this dictionary.
-        :param records_schema: Description of the column names and types of the records.
+        :param initial_hints: If records_format is not provided, the format of the file will be determined automatically.  If that effort fails, you can help it out by providing hints in this dictionary as needed.  See the `records format specification <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md>`_ for hints and valid values.
         """
         if records_schema is None or records_format is None:
             return UninferredFileobjsRecordsSource(
@@ -126,8 +118,7 @@ class RecordsSources(object):
         """
         :param input_url: Location of the data file.  Must be a URL format understood by the records_mover.url library.
         :param records_format: Description of the format of the data files.
-        :param initial_hints: If records_format is not provided, the format of the file will be determined automatically.  If that effort fails, you can help it out by providing the 'compression', 'quoting', 'header-row', 'field-delimiter', 'encoding', and 'escape' hints (or the appropriate subsets) in this dictionary.
-        :param records_schema: Description of the column names and types of the records.
+        :param initial_hints: If records_format is not provided, the format of the file will be determined automatically.  If that effort fails, you can help it out by providing hints in this dictionary as needed.  See the `records format specification <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md>`_ for hints and valid values.
         """
         return DataUrlRecordsSource(input_url=input_url,
                                     url_resolver=self.url_resolver,
@@ -156,15 +147,9 @@ class RecordsSources(object):
                            fail_if_dont_understand: bool=True)\
             -> RecordsDirectoryRecordsSource:
         """
-        :param url: Location of the records directory.  Must be a URL format understood by the
-        records_mover.url library, and must be a directory URL that ends with a '/'.
-        :param hints: Any additional hints that should override the description of the data files
-        already in the records directory.
-        :param fail_if_dont_understand: If True, and a part of the
-        RecordsFormat is not understood while processing, then
-        immediately fail and raise an exception.  Otherwise, ignore
-        the misunderstood instruction (e.g., ignore the hint, assume
-        default variant, etc etc)
+        :param url: Location of the records directory.  Must be a URL format understood by the records_mover.url library, and must be a directory URL that ends with a '/'.
+        :param hints: Any additional hints that should override the description of the data files already in the records directory.
+        :param fail_if_dont_understand: If True, and a part of the RecordsFormat is not understood while processing, then immediately fail and raise an exception.  Otherwise, ignore the misunderstood instruction (e.g., ignore the hint, assume default variant, etc etc)
         """
         directory_loc = self.url_resolver.directory_url(url)
         directory = RecordsDirectory(records_loc=directory_loc)
@@ -183,11 +168,7 @@ class RecordsSources(object):
         """
         :param filename: File path (relative or absolute) of the data file to load.
         :param records_format: Description of the format of the data files.
-        :param initial_hints: If records_format is not provided, the format of the file
-        will be determined automatically.  If that effort fails, you can help it out by
-        providing the 'compression', 'quoting', 'header-row', 'field-delimiter', 'encoding', and
-        'escape' hints (or the appropriate subsets) in this dictionary.
-        :param records_schema: Description of the column names and types of the records.
+        :param initial_hints: If records_format is not provided, the format of the file will be determined automatically.  If that effort fails, you can help it out by providing hints in this dictionary as needed.  See the `records format specification <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md>`_ for hints and valid values.
         """
         url = pathlib.Path(filename).resolve().as_uri()
         return self.data_url(input_url=url,
@@ -203,18 +184,11 @@ class RecordsSources(object):
                      out_of_band_column_headers: Optional[Iterable[str]]=None,
                      header_translator: Optional[Callable[[str], str]]=None) ->\
             'GoogleSheetsRecordsSource':
-        """:param spreadsheet_id: This is the xyz in
-        https://docs.google.com/spreadsheets/d/xyz/edit?ts=5be5b383#gid=abc
-        :param sheet_name_or_range: This is the label of the particular tab within the Google Sheets
-        spreadsheet where the data should go, or a valid Google Sheets-style range formula
-        :param google_cloud_creds: This is the dict form of the JSON containing private keys and
-                                   client IDs and whatnot for Google Cloud Platform access.
-        :param out_of_band_column_headers: If provided, we'll use these
-        column names instead of the first row of the spreadsheet.  If
-        set, the first row will be treated as data.
-        :param header_translator: If provided, header names pulled from
-        the sheet will be translated through this function.  Not used
-        if out_of_band_column_headers is set.
+        """:param spreadsheet_id: This is the xyz in https://docs.google.com/spreadsheets/d/xyz/edit?ts=5be5b383#gid=abc
+        :param sheet_name_or_range: This is the label of the particular tab within the Google Sheets spreadsheet where the data should go, or a valid Google Sheets-style range formula
+        :param google_cloud_creds: This is an object representing Google Cloud Platform access credentials.
+        :param out_of_band_column_headers: If provided, we'll use these column names instead of the first row of the spreadsheet.  If set, the first row will be treated as data.
+        :param header_translator: If provided, header names pulled from the sheet will be translated through this function.  Not used if out_of_band_column_headers is set.
         """
         from .google_sheets import GoogleSheetsRecordsSource  # noqa
         return GoogleSheetsRecordsSource(spreadsheet_id=spreadsheet_id,
