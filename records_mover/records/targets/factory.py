@@ -159,7 +159,7 @@ class RecordsTargets(object):
 
         :param spectrum_rdir_url: S3 URL where a records directory with files will be stored; otherwise, use db-facts default if exists.  If this is not specified, spectrum_base_url must be.
 
-        :param existing_table_handling: When loading into a database table, controls how any existing table found will be handled.
+        :param existing_table_handling: When loading into a database table, controls how any existing table found will be handled.  This must be a :class:`records_mover.records.ExistingTableHandling` object.
         """
         from .spectrum import SpectrumRecordsTarget  # noqa
 
