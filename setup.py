@@ -255,7 +255,9 @@ docs_dependencies = [
 ] + (
     # needed for readthedocs.io to be able to evaluate modules with
     # sqlalchemy imports
-    db_dependencies
+    db_dependencies +
+    # Same with Airflow
+    airflow_dependencies
 )
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
