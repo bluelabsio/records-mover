@@ -257,7 +257,9 @@ docs_dependencies = [
     # sqlalchemy imports
     db_dependencies +
     # Same with Airflow
-    airflow_dependencies
+    airflow_dependencies +
+    # Also boto
+    aws_dependencies
 )
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
