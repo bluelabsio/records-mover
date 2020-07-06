@@ -247,6 +247,13 @@ unittest_dependencies = [
     gcs_dependencies
 )
 
+docs_dependencies = [
+    'sphinx>=3',  # used to generate and upload docs - sphinx-autodoc-typehints requires 3 or better per https://github.com/agronholm/sphinx-autodoc-typehints/pull/138
+    'sphinx-autodoc-typehints',  # used to handle type hints  # TODO will this be used?
+    'sphinx-rtd-theme',  # used to style docs for readthedocs.io
+    'recommonmark',  # used to be able to use sphinx with markdown
+] +
+
 this_directory = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
@@ -309,6 +316,7 @@ setup(name='records-mover',
           'typecheck': typecheck_dependencies,
           'gcs': gcs_dependencies,
           'parquet': parquet_dependencies,
+          'docs': docs_dependencies,
       },
       entry_points={
           'console_scripts': 'mvrec = records_mover.records.cli:main',
