@@ -25,79 +25,36 @@ records\_mover.records.base\_records\_format module
    :show-inheritance:
    :special-members: __init__
 
-records\_mover.records.records\_format module
----------------------------------------------
-
-.. automodule:: records_mover.records.records_format
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-records\_mover.records.records\_format\_file module
----------------------------------------------------
-
-.. automodule:: records_mover.records.records_format_file
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-records\_mover.records.records\_schema\_json\_file module
----------------------------------------------------------
-
-.. automodule:: records_mover.records.records_schema_json_file
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-records\_mover.records.records\_schema\_sql\_file module
---------------------------------------------------------
-
-.. automodule:: records_mover.records.records_schema_sql_file
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-records\_mover.records.results module
--------------------------------------
-
-.. automodule:: records_mover.records.results
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-records\_mover.records.table module
------------------------------------
-
-.. automodule:: records_mover.records.table
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-records\_mover.records.types module
------------------------------------
-
-.. automodule:: records_mover.records.types
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-records\_mover.records.unload\_plan module
-------------------------------------------
-
-.. automodule:: records_mover.records.unload_plan
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 Module contents
 ---------------
+
+.. comment:
+
+   I exclude PartialRecordsHints entirely below because Sphinx doesn't
+   yet support TypedDict types that have hyphens as part of the keys.
+   Example error on 'make html':
+
+   WARNING: invalid signature for autoinstanceattribute
+   ('records_mover.records::PartialRecordsHints.header-row')
+
+   I exclude RecordsSchema as we haven't defined yet exactly what
+   public API to export.
+
+   https://github.com/bluelabsio/records-mover/issues/97
+
+   I exclude RecordsFormat as it's generally an internal factory
+   method useful when reading undifferentiated JSON files - a general
+   user ought to be able to select their records format in advance and
+   use the correct subclass.
+
+   I exclude UntypedRecordsHints as it hasn't been used in any other
+   part of the public interface.
 
 .. automodule:: records_mover.records
    :members:
    :undoc-members:
    :show-inheritance:
-   :exclude-members: DelimitedRecordsFormat, ParquetRecordsFormat, ProcessingInstructions
+   :exclude-members: DelimitedRecordsFormat, ParquetRecordsFormat, ProcessingInstructions, PartialRecordsHints, RecordsSchema, RecordsFormat, UntypedRecordsHints
 
    .. autoclass:: records_mover.records.DelimitedRecordsFormat
       :undoc-members:
@@ -110,6 +67,11 @@ Module contents
       :special-members: __init__
 
    .. autoclass:: records_mover.records.ProcessingInstructions
+      :undoc-members:
+      :show-inheritance:
+      :special-members: __init__
+
+   .. autoclass:: records_mover.records.RecordsSchema
       :undoc-members:
       :show-inheritance:
       :special-members: __init__

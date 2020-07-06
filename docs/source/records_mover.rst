@@ -16,42 +16,6 @@ Subpackages
    records_mover.url
    records_mover.utils
 
-Submodules
-----------
-
-records\_mover.logging module
------------------------------
-
-.. automodule:: records_mover.logging
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-records\_mover.mover\_types module
-----------------------------------
-
-.. automodule:: records_mover.mover_types
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-records\_mover.session module
------------------------------
-
-.. automodule:: records_mover.session
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-records\_mover.version module
------------------------------
-
-.. automodule:: records_mover.version
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 Module contents
 ---------------
 
@@ -59,3 +23,10 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: Session
+
+   .. autoclass:: records_mover.Session
+      :members: records, set_stream_logging, get_db_engine, get_default_db_engine
+      :undoc-members:
+      :show-inheritance:
+      :special-members: __init__

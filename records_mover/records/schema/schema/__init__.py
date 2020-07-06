@@ -219,7 +219,7 @@ class RecordsSchema:
         """Create a RecordsSchema object representing a Pandas dataframe.
 
         :param df: Pandas dataframe that should be analyzed to determine schema information.
-        :param processing_instructions: Instructions used during creation of the records schema, including how much data to analyze to infer this schema.
+        :param processing_instructions: Instructions used during creation of the records schema, including how much data to analyze to infer this schema.  This is of type :class:`records_mover.records.ProcessingInstructions`
         :param include_index: If true, the Pandas dataframe index column will be included in the move.
 
         :return: RecordsSchema object suitable for passing to Records Mover source/target factory methods.
