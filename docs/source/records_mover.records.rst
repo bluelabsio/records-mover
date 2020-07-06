@@ -7,10 +7,6 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   records_mover.records.delimited
-   records_mover.records.job
-   records_mover.records.pandas
-   records_mover.records.schema
    records_mover.records.sources
    records_mover.records.targets
 
@@ -67,11 +63,6 @@ Module contents
       :special-members: __init__
 
    .. autoclass:: records_mover.records.ProcessingInstructions
-      :undoc-members:
-      :show-inheritance:
-      :special-members: __init__
-
-   .. autoclass:: records_mover.records.RecordsSchema
       :undoc-members:
       :show-inheritance:
       :special-members: __init__
