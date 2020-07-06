@@ -252,7 +252,7 @@ docs_dependencies = [
     'sphinx-autodoc-typehints',  # used to handle type hints  # TODO will this be used?
     'sphinx-rtd-theme',  # used to style docs for readthedocs.io
     'recommonmark',  # used to be able to use sphinx with markdown
-] +
+]
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
