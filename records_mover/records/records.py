@@ -49,14 +49,12 @@ class Records:
 
     sources: RecordsSources
     """Object containing factory methods to create various sources from
-    which to copy records, of type
-    :class:`records_mover.records.sources.RecordsSources`
+    which to copy records, of type :class:`records_mover.records.sources.RecordsSources`
     """
 
     targets: RecordsTargets
     """Object containing factory methods to create various targets to
-which records can be copied, of type
-    :class:`records_mover.records.targets.RecordsTargets`
+which records can be copied, of type :class:`records_mover.records.targets.RecordsTargets`
     """
 
     move: Callable
