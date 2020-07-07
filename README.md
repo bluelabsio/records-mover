@@ -2,6 +2,8 @@
  src="https://raw.githubusercontent.com/bluelabsio/records-mover/master/docs/records-mover-horizontal.png"
  alt="Records Mover">
 
+[![Documentation Status](https://readthedocs.org/projects/records-mover/badge/?version=publish_docs)](https://records-mover.readthedocs.io/en/publish_docs/?badge=latest)
+
 Records mover is a command-line tool and Python library you can
 use to move relational data from one place to another.
 
