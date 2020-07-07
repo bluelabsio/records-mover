@@ -92,8 +92,9 @@ results = move(source, target)
 ```
 
 When moving data, the sources supported can be found
-[here](./records_mover/records/sources/factory.py), and the
-targets supported can be found [here](./records_mover/records/targets/factory.py).
+[here](https://records-mover.readthedocs.io/en/publish_docs/records_mover.records.sources.html),
+and the targets supported can be found
+[here](https://records-mover.readthedocs.io/en/publish_docs/records_mover.records.targets.html).
 
 ## Advanced Python library use
 
@@ -138,3 +139,15 @@ target = targets.table(schema_name='myschema',
                        db_engine=db_engine)
 results = move(source, target)
 ```
+
+## Python library API documentation
+
+You can can find more API documentation
+[here](https://records-mover.readthedocs.io/en/publish_docs/index.html).
+In particular, note:
+
+* [Session() constructor](https://records-mover.readthedocs.io/en/publish_docs/records_mover.html#records_mover.Session.__init__)
+* [sources factory methods](https://records-mover.readthedocs.io/en/publish_docs/records_mover.records.sources.html)
+* [targets factory methods](https://records-mover.readthedocs.io/en/publish_docs/records_mover.records.targets.html)
+* [move() method](https://records-mover.readthedocs.io/en/publish_docs/records_mover.records.html#records_mover.records.move)
+* [BaseRecordsFormat](https://records-mover.readthedocs.io/en/publish_docs/records_mover.records.html#records_mover.records.base_records_format.BaseRecordsFormat)
