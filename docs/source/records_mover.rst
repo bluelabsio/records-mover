@@ -8,13 +8,8 @@ Subpackages
    :maxdepth: 4
 
    records_mover.airflow
-   records_mover.cli
    records_mover.creds
-   records_mover.db
-   records_mover.pandas
    records_mover.records
-   records_mover.url
-   records_mover.utils
 
 Module contents
 ---------------
