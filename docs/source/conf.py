@@ -19,7 +19,7 @@ import records_mover  # noqa
 # -- Project information -----------------------------------------------------
 
 project = 'records-mover'
-copyright = '2020, Vince Broz'
+copyright = '2020 BlueLabs Analytics, Inc.'
 author = 'Vince Broz'
 
 # The full version, including alpha/beta/rc tags
