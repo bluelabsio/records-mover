@@ -218,7 +218,6 @@ class Session():
 
         :param db_creds_name: Credential name to look up using the configured credentials provider.
         :return: SQLALchemy Engine object
-
         """
         from .db.connect import engine_from_db_facts
 
