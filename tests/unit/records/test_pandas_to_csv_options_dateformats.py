@@ -63,7 +63,7 @@ class TestPandasToCsvOptionsDateformats(unittest.TestCase):
     #     self.assertFalse(unhandled_hints)
 
     # DD-MM format not yet fully supported - see
-    # https://app.asana.com/0/1128138765527694/1173779659264666
+    # https://github.com/bluelabsio/records-mover/issues/75
     #
     # def test_pandas_dateformat_DD_MM_YYYY_no_tz(self):
     #     expected = {

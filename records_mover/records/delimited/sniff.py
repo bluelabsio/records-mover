@@ -190,7 +190,7 @@ def sniff_compression_hint(fileobj: IO[bytes]) -> HintCompression:
 def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
                               initial_hints: PartialRecordsHints) -> PartialRecordsHints:
     if len(fileobjs) != 1:
-        # https://app.asana.com/0/53283930106309/1131698268455054
+        # https://github.com/bluelabsio/records-mover/issues/84
         raise NotImplementedError('Cannot currently sniff hints from mulitple '
                                   'files--please provide hints')
     fileobj = fileobjs[0]

@@ -84,7 +84,7 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
             # '2000-01-02 12:34:56.789012'
             # >>>
             #
-            # https://app.asana.com/0/1128138765527694/1159958019131681
+            # https://github.com/bluelabsio/records-mover/issues/95
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f'
         else:
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f%z'
