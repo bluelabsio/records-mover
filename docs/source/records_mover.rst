@@ -8,7 +8,6 @@ Subpackages
    :maxdepth: 4
 
    records_mover.airflow
-   records_mover.creds
    records_mover.records
 
 Module contents
