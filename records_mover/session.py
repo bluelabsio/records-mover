@@ -169,6 +169,7 @@ class Session():
         :param default_boto3_session: The boto3.Session object used when needed, e.g. when reading or writing to an s3:// URL.  This will be inferred unless directly specified.
         :param default_gcp_creds: The google.auth.credentials.Credentials object to used when needed, e.g. when reading or writing to an gs:// URL.  This will be inferred unless directly specified.
         :param default_gcs_client: The google.cloud.storage.Client object to be used when needed, , e.g. when reading or writing to an gs:// URL.  This will be inferred unless directly specified.
+        :param creds: Experimental interface; do not use.
         """
         if session_type is PleaseInfer.token:
             session_type = _infer_session_type()
