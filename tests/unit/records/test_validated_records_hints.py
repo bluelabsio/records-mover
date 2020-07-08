@@ -1,4 +1,3 @@
-import records_mover
 from typing_inspect import get_args
 from records_mover.records.hints import DelimitedVariant
 from records_mover.records import DelimitedRecordsFormat

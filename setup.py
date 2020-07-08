@@ -248,7 +248,9 @@ unittest_dependencies = [
 )
 
 docs_dependencies = [
-    'sphinx>=3',  # used to generate and upload docs - sphinx-autodoc-typehints requires 3 or better per https://github.com/agronholm/sphinx-autodoc-typehints/pull/138
+    'sphinx>=3',  # used to generate and upload docs -
+                  # sphinx-autodoc-typehints requires 3 or better per
+                  # https://github.com/agronholm/sphinx-autodoc-typehints/pull/138
     'sphinx-autodoc-typehints',  # used to handle type hints  # TODO will this be used?
     'sphinx-rtd-theme',  # used to style docs for readthedocs.io
     'recommonmark',  # used to be able to use sphinx with markdown

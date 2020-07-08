@@ -53,8 +53,11 @@ class RecordsTargets(object):
             'DirectoryFromUrlRecordsTarget':
         """Represents a Records Directory pointed to by a URL as a target.
 
-        :param output_url: Location to write the records directory.  Must be a URL format understood by the records_mover.url library, and must be a directory URL that ends with a '/'.
-        :param records_format: Description of the format of the data files to write out.  If not specified, an efficient format for bulk moves will be chosen.
+        :param output_url: Location to write the records directory.  Must be a URL format
+           understood by the records_mover.url library, and must be a directory URL that ends with
+           a '/'.
+        :param records_format: Description of the format of the data files to write out.  If not
+           specified, an efficient format for bulk moves will be chosen.
         """
         from .directory_from_url import DirectoryFromUrlRecordsTarget  # noqa
         return DirectoryFromUrlRecordsTarget(output_url=output_url,
@@ -79,11 +82,16 @@ class RecordsTargets(object):
 
         :param table_name: Table name of a table to write data to.
 
-        :param existing_table_handling: When loading into a database table, controls how any existing table found will be handled.  This must be a :class:`records_mover.records.ExistingTableHandling` object.
+        :param existing_table_handling: When loading into a database table, controls how any
+           existing table found will be handled.  This must be a
+           :class:`records_mover.records.ExistingTableHandling` object.
 
-        :param drop_and_recreate_on_load_error: If True, table load errors will attempt to be addressed by dropping the target table and reloading the incoming data.
+        :param drop_and_recreate_on_load_error: If True, table load errors will attempt to be
+           addressed by dropping the target table and reloading the incoming data.
 
-        :param add_user_perms_for: If specified, a table's permissions will be set for the specified users. Format should be like {'all': ['username1', 'username2'], 'select': ['username3', 'username4']}
+        :param add_user_perms_for: If specified, a table's permissions will be set for the
+           specified users. Format should be like {'all': ['username1', 'username2'], 'select':
+           ['username3', 'username4']}
 
         :param add_group_perms_for: If specified, a table's permissions will be set for the specified group. Format should be like {'all': ['group1', 'group2'], 'select': ['group3', 'group4']}
         """
@@ -106,8 +114,10 @@ class RecordsTargets(object):
         """Represents a sheet in a Google Sheets spreadsheet as a target, via
         the Google Sheets API.
 
-        :param spreadsheet_id: This is the xyz in https://docs.google.com/spreadsheets/d/xyz/edit?ts=5be5b383#gid=abc
-        :param sheet_name: This is the label of the particular tab within the Google Sheets spreadsheet where the data should go.
+        :param spreadsheet_id: This is the xyz in
+           https://docs.google.com/spreadsheets/d/xyz/edit?ts=5be5b383#gid=abc
+        :param sheet_name: This is the label of the particular tab within the Google Sheets
+           spreadsheet where the data should go.
         :param google_cloud_creds: Credentials object for Google Cloud Platform access.
 
         """
@@ -123,7 +133,8 @@ class RecordsTargets(object):
         """Represents a stream of data files bytes as a target.
 
         :param output_fileobj: Stream where the file shoud be written to.
-        :param records_format: Description of the format of the data files to write out.  If not specified, an efficient format for bulk moves will be chosen.
+        :param records_format: Description of the format of the data files to write out.  If not
+           specified, an efficient format for bulk moves will be chosen.
         """
         return FileobjTarget(fileobj=output_fileobj, records_format=records_format)
 
@@ -132,8 +143,11 @@ class RecordsTargets(object):
                  records_format: Optional[BaseRecordsFormat]=None) -> DataUrlTarget:
         """Represents a URL pointer to a data file as a target.
 
-        :param output_url: Location of the data file to write.  Must be a URL format understood by the records_mover.url library corresponding to a file, not a directory (i.e., not ending with a '/')
-        :param records_format: Description of the format of the data files to write out.  If not specified, an efficient format for bulk moves will be chosen.
+        :param output_url: Location of the data file to write.  Must be a URL format understood by
+           the records_mover.url library corresponding to a file, not a directory (i.e., not ending
+           with a '/')
+        :param records_format: Description of the format of the data files to write out.  If not
+           specified, an efficient format for bulk moves will be chosen.
         """
         output_loc = self.url_resolver.file_url(output_url)
         return DataUrlTarget(output_loc=output_loc,
@@ -146,7 +160,8 @@ class RecordsTargets(object):
         """Represents a data file on the local filesystem as a target.
 
         :param filename: File path (relative or absolute) of the data file to unload to.
-        :param records_format: Description of the format of the data files to write out.  If not specified, an efficient format for bulk moves will be chosen.
+        :param records_format: Description of the format of the data files to write out.  If not
+           specified, an efficient format for bulk moves will be chosen.
         """
         url = pathlib.Path(filename).resolve().as_uri()
         return self.data_url(output_url=url, records_format=records_format)
@@ -169,11 +184,17 @@ class RecordsTargets(object):
 
         :param db_engine: SQLAlchemy database engine to write data to.
 
-        :param spectrum_base_url: Root S3 URL under which a simple directory structure will be created for files to be stored, if spectrum_rdir_url is not specified.  Note that when using the mover CLI, db-facts may be used to provide a default.
+        :param spectrum_base_url: Root S3 URL under which a simple directory structure will be
+           created for files to be stored, if spectrum_rdir_url is not specified.  Note that when
+           using the mover CLI, db-facts may be used to provide a default.
 
-        :param spectrum_rdir_url: S3 URL where a records directory with files will be stored; otherwise, use db-facts default if exists.  If this is not specified, spectrum_base_url must be.
+        :param spectrum_rdir_url: S3 URL where a records directory with files will be stored;
+           otherwise, use db-facts default if exists.  If this is not specified, spectrum_base_url
+           must be.
 
-        :param existing_table_handling: When loading into a database table, controls how any existing table found will be handled.  This must be a :class:`records_mover.records.ExistingTableHandling` object.
+        :param existing_table_handling: When loading into a database table, controls how any
+           existing table found will be handled.  This must be a
+           :class:`records_mover.records.ExistingTableHandling` object.
         """
         from .spectrum import SpectrumRecordsTarget  # noqa
 

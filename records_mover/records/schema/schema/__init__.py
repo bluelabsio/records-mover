@@ -44,7 +44,12 @@ class RecordsSchema:
                  known_representations: Mapping[str, RecordsSchemaKnownRepresentation]) -> None:
         """
         :param fields: Ordered list of which fields are included in this schema.
-        :param known_representations: Detailed information about how each field is intended to be represented in certain systems.  The key is the name of the known representation type (e.g., "origin" or some other short nickname for the type if it is not the origin - e.g., "redshift"). The value is an object with a type field containing the type of source system (e.g., sql/redshift) and other, type-specific fields that may be useful for reconstructing the schema in the target system.
+        :param known_representations: Detailed information about how each field is intended to be
+           represented in certain systems.  The key is the name of the known representation type
+           (e.g., "origin" or some other short nickname for the type if it is not the origin - e.g.,
+           "redshift"). The value is an object with a type field containing the type of source
+           system (e.g., sql/redshift) and other, type-specific fields that may be useful for
+           reconstructing the schema in the target system.
         """
         self.fields = fields
         self.known_representations = known_representations
@@ -85,8 +90,11 @@ class RecordsSchema:
     def from_data(data: 'RecordsSchemaDict') -> 'RecordsSchema':
         """Create a RecordsSchema object from a Python dictionary serialized form.
 
-        :param data: Python dictionary containing the serialized data described in the `Records Schema spec <https://github.com/bluelabsio/records-mover/blob/master/docs/schema/SCHEMAv1.md>`_
-        :return: RecordsSchema object suitable for passing to Records Mover source/target factory methods.
+        :param data: Python dictionary containing the serialized data described in the `Records
+           Schema spec
+           <https://github.com/bluelabsio/records-mover/blob/master/docs/schema/SCHEMAv1.md>`_
+        :return: RecordsSchema object suitable for passing to Records Mover source/target factory
+           methods.
         """
         schema_ver = data["schema"]
         if schema_ver != "bltypes/v1":
@@ -219,10 +227,14 @@ class RecordsSchema:
         """Create a RecordsSchema object representing a Pandas dataframe.
 
         :param df: Pandas dataframe that should be analyzed to determine schema information.
-        :param processing_instructions: Instructions used during creation of the records schema, including how much data to analyze to infer this schema.  This is of type :class:`records_mover.records.ProcessingInstructions`
-        :param include_index: If true, the Pandas dataframe index column will be included in the move.
+        :param processing_instructions: Instructions used during creation of the records schema,
+           including how much data to analyze to infer this schema.  This is of type
+           :class:`records_mover.records.ProcessingInstructions`
+        :param include_index: If true, the Pandas dataframe index column will be included in the
+           move.
 
-        :return: RecordsSchema object suitable for passing to Records Mover source/target factory methods.
+        :return: RecordsSchema object suitable for passing to Records Mover source/target factory
+           methods.
         """
         from .pandas import schema_from_dataframe
         return schema_from_dataframe(df=df,

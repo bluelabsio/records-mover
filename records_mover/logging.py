@@ -46,11 +46,17 @@ def set_stream_logging(name: str = 'records_mover',
     You can use it for other things (e.g., dependencies of
     records-mover) by adjusting the 'name' argument.
 
-    :param name: Name of the package to set logging under.  If set to 'foo', you can set a log variable FOO_LOG_LEVEL to the log level threshold you'd like to set (INFO/WARNING/etc) - so you can by default set, say, export RECORDS_MOVER_LOG_LEVEL=WARNING to quiet down loging, or export RECORDS_MOVER_LOG_LEVEL=DEBUG to increase it.
+    :param name: Name of the package to set logging under.  If set to 'foo', you can set a log
+      variable FOO_LOG_LEVEL to the log level threshold you'd like to set (INFO/WARNING/etc) - so
+      you can by default set, say, export RECORDS_MOVER_LOG_LEVEL=WARNING to quiet down loging, or
+      export RECORDS_MOVER_LOG_LEVEL=DEBUG to increase it.
     :param level: Logging more detailed than this will not be output to the stream.
-    :param stream: Stream which logging should be sent (e.g., sys.stdout, sys.stdin, or perhaps a file you open)
-    :param fmt: Logging format to send to Python'slogging.Formatter() - determines what details will be sent.
-    :param datefmt: Date format to send to Python'slogging.Formatter() - determines how the current date/time will be recorded in the log.
+    :param stream: Stream which logging should be sent (e.g., sys.stdout, sys.stdin, or perhaps a
+      file you open)
+    :param fmt: Logging format to send to Python'slogging.Formatter() - determines what details
+      will be sent.
+    :param datefmt: Date format to send to Python'slogging.Formatter() - determines how the current
+      date/time will be recorded in the log.
     """
     adjusted_level = _adjusted_log_level(level, name)
     logger = logging.getLogger(name)

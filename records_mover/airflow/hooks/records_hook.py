@@ -22,9 +22,12 @@ class RecordsHook(BaseHook):
         """
         Create a new RecordsHook
 
-        :param s3_temp_base_url: If provided, use this URL for any temporary storage which requires use of S3.  If not provided, any operations (e.g., Redshift load/unloads) which are not directly provided an S3 bucket will raise.
+        :param s3_temp_base_url: If provided, use this URL for any temporary storage which requires
+          use of S3.  If not provided, any operations (e.g., Redshift load/unloads) which are not
+          directly provided an S3 bucket will raise.
         :param aws_conn_id: Airflow connection ID to use for AWS credentials.
         """
+        # # noqa: E501
         self.aws_conn_id = aws_conn_id
         self.__s3_temp_base_url = s3_temp_base_url
         self._boto3_session: Optional[boto3.session.Session] = None
