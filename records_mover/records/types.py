@@ -36,19 +36,6 @@ Url = str
 UrlDetails = Dict[Url, UrlDetailsEntry]
 
 
-#
-# Note: Any expansion of these types should also be done in
-# records.jobs.hints
-#
 RecordsFormatType = Literal['delimited', 'parquet']
-RecordsFormatType.__doc__ = (  # type: ignore
-    """Valid string values for the general format of records data file ("records
-    format type").""")
 
 DelimitedVariant = Literal['dumb', 'csv', 'bigquery', 'bluelabs', 'vertica']
-DelimitedVariant.__doc__ = (  # type: ignore
-    """Valid string values for the variant of a delimited records format.
-    Variants specify a default set of parsing hints for how the delimited
-    file is formatted.  See the `records format specification
-    <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md>`_
-    for semantics of each.""")

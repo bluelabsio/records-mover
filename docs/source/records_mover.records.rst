@@ -46,11 +46,14 @@ Module contents
    I exclude UntypedRecordsHints and RecordsFormatType as it hasn't
    been used in any other part of the public interface.
 
+   I exclude DelimitedVariant as there's no way to specify a
+   docstring, so I add out-of-band documentation below.
+
 .. automodule:: records_mover.records
    :members:
    :undoc-members:
    :show-inheritance:
-   :exclude-members: DelimitedRecordsFormat, ParquetRecordsFormat, ProcessingInstructions, PartialRecordsHints, RecordsSchema, RecordsFormat, UntypedRecordsHints, RecordsFormatType
+   :exclude-members: DelimitedRecordsFormat, ParquetRecordsFormat, ProcessingInstructions, PartialRecordsHints, RecordsSchema, RecordsFormat, UntypedRecordsHints, RecordsFormatType, DelimitedVariant
 
    .. autoclass:: records_mover.records.DelimitedRecordsFormat
       :undoc-members:
@@ -66,3 +69,14 @@ Module contents
       :undoc-members:
       :show-inheritance:
       :special-members: __init__
+
+   .. py:data:: DelimitedVariant
+      :module: records_mover.records
+
+      Valid string values for the variant of a delimited records format.
+      Variants specify a default set of parsing hints for how the delimited
+      file is formatted.  See the `records format specification
+      <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md>`_
+      for semantics of each.
+
+      alias of Literal[dumb, csv, bigquery, bluelabs, vertica]
