@@ -62,6 +62,7 @@ class RecordsSources(object):
         :param df: Pandas DataFrame to move data from.
         :param processing_instructions: Instructions used during creation of the schema SQL as a :class:`records_mover.records.ProcessingInstructions` object.
         :param include_index: If True, the Pandas DataFrame index column will be included in the move as a column; if False, it will be disregarded.
+        :param records_schema: Experimental interface; do not use.
         """
 
         from .dataframes import DataframesRecordsSource  # noqa
@@ -83,6 +84,7 @@ class RecordsSources(object):
         :param dfs: Iterable of Pandas DataFrames to move data from -- all data from these DataFrames will be added to the same table.
         :param processing_instructions: Instructions used during creation of the schema SQL as a :class:`records_mover.records.ProcessingInstructions` object.
         :param include_index: If True, the Pandas DataFrame index column will be included in the move as a column; if False, it will be disregarded.
+        :param records_schema: Experimental interface; do not use.
         """
         from .dataframes import DataframesRecordsSource  # noqa
         return DataframesRecordsSource(dfs=dfs,
@@ -101,6 +103,7 @@ class RecordsSources(object):
         :param target_names_to_input_fileobjs: Filenames mapping to streams of data file.
         :param records_format: Description of the format of the data files.
         :param initial_hints: If records_format is not provided, the format of the file will be determined automatically.  If that effort fails, you can help it out by providing hints in this dictionary as needed.  See the `records format specification <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md>`_ for hints and valid values.
+        :param records_schema: Experimental interface; do not use.
         """
         if records_schema is None or records_format is None:
             return UninferredFileobjsRecordsSource(
@@ -125,6 +128,7 @@ class RecordsSources(object):
         :param input_url: Location of the data file.  Must be a URL format understood by the records_mover.url library.
         :param records_format: Description of the format of the data files.
         :param initial_hints: If records_format is not provided, the format of the file will be determined automatically.  If that effort fails, you can help it out by providing hints in this dictionary as needed.  See the `records format specification <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md>`_ for hints and valid values.
+        :param records_schema: Experimental interface; do not use.
         """
         return DataUrlRecordsSource(input_url=input_url,
                                     url_resolver=self.url_resolver,
