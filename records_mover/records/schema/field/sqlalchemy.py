@@ -36,7 +36,7 @@ def field_from_sqlalchemy_column(column: Column,
     # constraints out of database tables, so set this to null,
     # which means "we don't know":
     #
-    # https://app.asana.com/0/1128138765527694/1131416227825120
+    # https://github.com/bluelabsio/records-mover/issues/90
     unique = None
 
     if isinstance(type_, sqlalchemy.sql.sqltypes.Integer):
@@ -114,7 +114,7 @@ def field_from_sqlalchemy_column(column: Column,
     # We don't currently gather statistics from databases - which
     # can bite us when exporting from BigQuery, for instance:
     #
-    # https://app.asana.com/0/53283930106309/1131698268455053
+    # https://github.com/bluelabsio/records-mover/issues/91
     statistics = None
 
     return RecordsSchemaField(name=name,

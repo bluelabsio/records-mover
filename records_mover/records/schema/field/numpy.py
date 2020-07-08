@@ -19,7 +19,7 @@ def details_from_numpy_dtype(dtype: numpy.dtype,
             if has_tz:
                 # See: 'Represent pandas datetime64 with timezone in records schema'
                 #
-                # https://app.asana.com/0/53283930106309/1132706099772565
+                # https://github.com/bluelabsio/records-mover/issues/89
                 field_type = 'datetimetz'
             else:
                 field_type = 'datetime'

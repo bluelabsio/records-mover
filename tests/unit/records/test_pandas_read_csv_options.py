@@ -57,7 +57,7 @@ class TestPandasReadCsvOptions(unittest.TestCase):
         self.assertEqual(expected, actual)
         self.assertFalse(unhandled_hints)
 
-    # MM-DD not yet fully supported - see https://app.asana.com/0/1128138765527694/1173779659264666
+    # MM-DD not yet fully supported - see https://github.com/bluelabsio/records-mover/issues/75
     #
     # def test_pandas_read_csv_options_bleulabs(self):
     #     expected = {

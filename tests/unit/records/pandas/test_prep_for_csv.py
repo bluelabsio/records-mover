@@ -39,11 +39,11 @@ class TestPrepForCsv(unittest.TestCase):
             # instance, specifying how it's turned into a CSV is not
             # currently part of the records spec:
             #
-            #   https://app.asana.com/0/1128138765527694/1169941483931186
+            #   https://github.com/bluelabsio/records-mover/issues/76
             #
             # In addition, Vertica suffers from a driver limitation:
             #
-            #   https://app.asana.com/0/search/1169941483931185/1126315736470782
+            #   https://github.com/bluelabsio/records-mover/issues/77
             #
             # 'timetz': [
             #     us_eastern.localize(pd.Timestamp(year=1970, month=1, day=1,
@@ -95,11 +95,11 @@ class TestPrepForCsv(unittest.TestCase):
             # instance, specifying how it's turned into a CSV is not
             # currently part of the records spec:
             #
-            #   https://app.asana.com/0/1128138765527694/1169941483931186
+            #   https://github.com/bluelabsio/records-mover/issues/76
             #
             # In addition, Vertica suffers from a driver limitation:
             #
-            #   https://app.asana.com/0/search/1169941483931185/1126315736470782
+            #   https://github.com/bluelabsio/records-mover/issues/77
             #
             # 'timetz': [
             #     us_eastern.localize(pd.Timestamp(year=1970, month=1, day=1,

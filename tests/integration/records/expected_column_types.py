@@ -75,7 +75,7 @@ expected_table2table_column_types = {
     # databases like Redshift.  We could collect and use
     # statistics to get a better read on this:
     #
-    # https://app.asana.com/0/1128138765527694/1152727792219521
+    # https://github.com/bluelabsio/records-mover/issues/79
     #
     #
     #
@@ -87,8 +87,8 @@ expected_table2table_column_types = {
     # types from numeric statistics it pulls from the source
     # tables.
     #
-    # https://app.asana.com/0/1128138765527694/1152727792219523
-    # https://app.asana.com/0/1128138765527694/1152727792219521
+    # https://github.com/bluelabsio/records-mover/issues/78
+    # https://github.com/bluelabsio/records-mover/issues/79
     #
     #
     #

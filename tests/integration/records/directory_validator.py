@@ -76,7 +76,7 @@ class RecordsDirectoryValidator:
                     # inference to determine if the data in question will
                     # fit into it.
                     #
-                    # https://app.asana.com/0/1128138765527694/1166526213569051
+                    # https://github.com/bluelabsio/records-mover/issues/82
                     # https://stackoverflow.com/questions/31761047/what-difference-between-the-date-time-datetime-and-timestamp-types/56138746
                     'mysql': [
                         'integer', 'string', 'string', 'string',
