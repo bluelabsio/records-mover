@@ -11,7 +11,8 @@ class MoveResult(NamedTuple):
     count the number of records being moved.
     """
     move_count: Optional[int]
-    "Number of rows moved"
+    "Number of rows moved (Optional[int])"
 
     output_urls: Optional[Mapping[str, str]]
-    "A dictionary of short string aliases mapping to URLs of the resulting data"
+    """A dictionary of short string aliases mapping to URLs of the
+    resulting data (Optional[Mapping[str, str]])"""

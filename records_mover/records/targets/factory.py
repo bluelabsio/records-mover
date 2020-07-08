@@ -18,10 +18,13 @@ if TYPE_CHECKING:
 
 
 class RecordsTargets(object):
-    """
-    These methods produce objects representing the target of a records move.  The objects can be used as the 'target' argument to :meth:`records_mover.records.move`
+    """These methods produce objects representing the target of a records
+    move.  The objects can be used as the 'target' argument to
+    :meth:`records_mover.records.move`
 
-    This object should be pulled from the 'targets' property of the 'records' property on a :class:`records_mover.Session` object instead of being constructed directly.
+    This object should be pulled from the 'targets' property of the
+    'records' property on a :class:`records_mover.Session` object
+    instead of being constructed directly.
 
     Example use:
 
@@ -35,6 +38,7 @@ class RecordsTargets(object):
                                       table_name='mytable',
                                       db_engine=db_engine)
        results = records.move(source, target)
+
     """
     def __init__(self,
                  url_resolver: UrlResolver,
@@ -47,9 +51,10 @@ class RecordsTargets(object):
                            records_format:
                            Optional[BaseRecordsFormat]=None) ->\
             'DirectoryFromUrlRecordsTarget':
-        """
+        """Represents a Records Directory pointed to by a URL as a target.
+
         :param output_url: Location to write the records directory.  Must be a URL format understood by the records_mover.url library, and must be a directory URL that ends with a '/'.
-        :param records_format: Description of the format of the data files to write out.
+        :param records_format: Description of the format of the data files to write out.  If not specified, an efficient format for bulk moves will be chosen.
         """
         from .directory_from_url import DirectoryFromUrlRecordsTarget  # noqa
         return DirectoryFromUrlRecordsTarget(output_url=output_url,
@@ -66,7 +71,8 @@ class RecordsTargets(object):
               add_user_perms_for: Optional[Dict[str, List[str]]]=None,
               add_group_perms_for: Optional[Dict[str, List[str]]]=None) -> \
             'TableRecordsTarget':
-        """
+        """Represents a SQLALchemy-accessible database table as as a target.
+
         :param db_engine: SQLAlchemy database engine to write data to.
 
         :param schema_name: Schema name of a table to write data to.
@@ -97,10 +103,13 @@ class RecordsTargets(object):
                      google_cloud_creds:
                      'google.auth.credentials.Credentials') ->\
             'GoogleSheetsRecordsTarget':
-        """
+        """Represents a sheet in a Google Sheets spreadsheet as a target, via
+        the Google Sheets API.
+
         :param spreadsheet_id: This is the xyz in https://docs.google.com/spreadsheets/d/xyz/edit?ts=5be5b383#gid=abc
         :param sheet_name: This is the label of the particular tab within the Google Sheets spreadsheet where the data should go.
-        :param google_cloud_creds: Instance of google.auth.credentials.Credentials for Google Cloud Platform access.
+        :param google_cloud_creds: Credentials object for Google Cloud Platform access.
+
         """
         # see the 'gsheets' extras_require option in setup.py - needed for this!
         from .google_sheets import GoogleSheetsRecordsTarget  # noqa
@@ -111,18 +120,20 @@ class RecordsTargets(object):
     def fileobj(self,
                 output_fileobj: IO[bytes],
                 records_format: BaseRecordsFormat) -> FileobjTarget:
-        """
+        """Represents a stream of data files bytes as a target.
+
         :param output_fileobj: Stream where the file shoud be written to.
-        :param records_format: Description of the format of the data files.
+        :param records_format: Description of the format of the data files to write out.  If not specified, an efficient format for bulk moves will be chosen.
         """
         return FileobjTarget(fileobj=output_fileobj, records_format=records_format)
 
     def data_url(self,
                  output_url: str,
                  records_format: Optional[BaseRecordsFormat]=None) -> DataUrlTarget:
-        """
-        :param output_url: Location of the data file to write.  Must be a URL format understood by the records_mover.url library corresping to a file, not a directory (i.e., not ending with a '/')
-        :param records_format: Description of the required format of the data file to write, or None for no preference (may be faster depending on the source).
+        """Represents a URL pointer to a data file as a target.
+
+        :param output_url: Location of the data file to write.  Must be a URL format understood by the records_mover.url library corresponding to a file, not a directory (i.e., not ending with a '/')
+        :param records_format: Description of the format of the data files to write out.  If not specified, an efficient format for bulk moves will be chosen.
         """
         output_loc = self.url_resolver.file_url(output_url)
         return DataUrlTarget(output_loc=output_loc,
@@ -132,9 +143,10 @@ class RecordsTargets(object):
                    filename: str,
                    records_format: Optional[BaseRecordsFormat]=None) ->\
             'DataUrlTarget':
-        """
+        """Represents a data file on the local filesystem as a target.
+
         :param filename: File path (relative or absolute) of the data file to unload to.
-        :param records_format: Description of the required format of the data file to write, or None for no preference (may be faster depending on the source).
+        :param records_format: Description of the format of the data files to write out.  If not specified, an efficient format for bulk moves will be chosen.
         """
         url = pathlib.Path(filename).resolve().as_uri()
         return self.data_url(output_url=url, records_format=records_format)
@@ -149,6 +161,8 @@ class RecordsTargets(object):
                  ExistingTableHandling.TRUNCATE_AND_OVERWRITE) ->\
             'SpectrumRecordsTarget':
         """
+        Represents a location in Amazon Redshift Spectrum as a target.
+
         :param schema_name: Schema name of a table to write data to.
 
         :param table_name: Table name of a table to write data to.

@@ -14,7 +14,10 @@ class ProcessingInstructions:
                  max_inference_rows: Optional[int]=DEFAULT_MAX_SAMPLE_SIZE,
                  max_failure_rows: Optional[int]=None) -> None:
         """Directives on how to handle different situations when processing
-        records.
+        records.  Note that not all vendor mechanisms support this
+        level of configurability; when choosing between optimizing for
+        fast transfer and ability to comply, Records Mover will favor
+        fast transfer.
 
         :param fail_if_dont_understand: If True, and a part of the RecordsFormat is not understood while processing, then immediately fail and raise an exception.  Otherwise, ignore the misunderstood instruction (e.g., ignore the hint, assume default variant, etc etc)
 
@@ -22,9 +25,10 @@ class ProcessingInstructions:
 
         :param fail_if_row_invalid: If True, and a particular row of data in the records file cannot be understood by the library, raise an exception.  Otherwise, ignore the row and continue and try to load other rows.
 
-        :param max_failure_rows: Sets a tolerance level for number of rows of data in the records file that cannot be understood by the library that should be ignored. After reaching level, raise an exception
+        :param max_failure_rows: Sets a tolerance level for number of rows of data in the records file that cannot be understood by the library that should be ignored. After reaching level, raise an exception.
 
         :param max_inference_rows: If the schema is not provided and we need it (e.g., we're to load the records into a database and there's no existing table), we'll figure it out through 'type inference' - looking at a bunch of examples of data and building a specific schema that can load those rows.  This can take some time, so this parameter controls the maximum number of rows we'll look at.  Higher values will be more likely to result in a schema that can be loaded into, but will take longer to load.  If set to None, the entire file will be processed.
+
         """
 
         self.fail_if_dont_understand = fail_if_dont_understand

@@ -201,7 +201,6 @@ class Session():
     def get_default_db_engine(self) -> 'Engine':
         """Provide the database object corresponding to the default database credentials.  The details of how that credential is looked up depends on the session_type determined in the constructor, but can be overridden using the default_db_creds_name parameter.
 
-        :param db_creds_name: Credential name to look up using the configured credentials provider.
         :return: SQLALchemy Engine object
         """
         from .db.connect import engine_from_db_facts

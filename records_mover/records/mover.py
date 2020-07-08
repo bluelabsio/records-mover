@@ -38,8 +38,11 @@ def move(records_source: RecordsSource,
        results = records.move(source, target)
 
     :param records_source: object returned by a factory method in :class:`records_mover.records.sources.RecordsSources` which represents the place we're copying records from.
-    :param records_source: object returned by a factory method in :class:`records_mover.records.targets.RecordsTargets` which represents the place we're copying records to.
-    :param processing_instructions: Directives on how to handle different situations when processing files.  This is of type :class:`records_mover.records.ProcessingInstructions`
+    :param records_target: object returned by a factory method in :class:`records_mover.records.targets.RecordsTargets` which represents the place we're copying records to.
+    :param processing_instructions: Directives on how to handle different situations when processing files.
+    :type processing_instructions: records_mover.records.ProcessingInstructions
+
+    :rtype: records_mover.records.MoveResult
     """
     records_source.validate()
     records_target.validate()

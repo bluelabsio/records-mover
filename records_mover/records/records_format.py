@@ -47,7 +47,8 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
 
         :param variant: For a given type (especially delimited), describe the subtype of the format.  For 'delimited', valid values include 'dumb', 'csv', 'bluelabs', 'bigquery' and 'vertica'.
         :param hints: Dictionary of names of delimited hints mapping to their values.  See the `records format specification <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md>`_ for hints and valid values.
-        :param processing_instructions: Directives on how to handle different situations when processing files.  This is of type :class:`records_mover.records.ProcessingInstructions`
+        :param processing_instructions: Directives on how to handle different situations when processing files.
+        :type processing_instructions: records_mover.records.ProcessingInstructions
         """
         self.format_type = 'delimited'
         self.variant = variant

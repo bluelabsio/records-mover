@@ -83,6 +83,7 @@ class RecordsHook(BaseHook):
     def get_conn(self) -> Records:
         """
         :return: Records object which can be used for moving records data
+        :rtype: records_mover.records.Records
         """
         return Records(
             db_driver=self._db_driver,
