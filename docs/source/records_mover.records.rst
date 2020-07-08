@@ -43,14 +43,14 @@ Module contents
    user ought to be able to select their records format in advance and
    use the correct subclass.
 
-   I exclude UntypedRecordsHints as it hasn't been used in any other
-   part of the public interface.
+   I exclude UntypedRecordsHints and RecordsFormatType as it hasn't
+   been used in any other part of the public interface.
 
 .. automodule:: records_mover.records
    :members:
    :undoc-members:
    :show-inheritance:
-   :exclude-members: DelimitedRecordsFormat, ParquetRecordsFormat, ProcessingInstructions, PartialRecordsHints, RecordsSchema, RecordsFormat, UntypedRecordsHints
+   :exclude-members: DelimitedRecordsFormat, ParquetRecordsFormat, ProcessingInstructions, PartialRecordsHints, RecordsSchema, RecordsFormat, UntypedRecordsHints, RecordsFormatType
 
    .. autoclass:: records_mover.records.DelimitedRecordsFormat
       :undoc-members:
