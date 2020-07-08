@@ -43,6 +43,16 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+#
+# This value selects if automatically documented members are sorted
+# alphabetical (value 'alphabetical'), by member type (value
+# 'groupwise') or by source order (value 'bysource'). The default is
+# alphabetical.
+#
+# records mover picks 'groupwise' so that enums appear in the order
+# listed in the source code, which can reflect a natural order.
+#
+autodoc_member_order = 'bysource'
 
 # -- Options for HTML output -------------------------------------------------
 
