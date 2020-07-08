@@ -2,10 +2,9 @@ import logging
 from ..url.resolver import UrlResolver
 from .sources import RecordsSources
 from .targets import RecordsTargets
-from .results import MoveResult
 from .mover import move
 from enum import Enum
-from typing import Callable, Union, Any, TYPE_CHECKING
+from typing import Callable, Union, TYPE_CHECKING
 if TYPE_CHECKING:
     from sqlalchemy.engine import Engine, Connection # noqa
     from ..db import DBDriver # noqa

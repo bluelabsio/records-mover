@@ -93,7 +93,9 @@ class RecordsTargets(object):
            specified users. Format should be like {'all': ['username1', 'username2'], 'select':
            ['username3', 'username4']}
 
-        :param add_group_perms_for: If specified, a table's permissions will be set for the specified group. Format should be like {'all': ['group1', 'group2'], 'select': ['group3', 'group4']}
+        :param add_group_perms_for: If specified, a table's permissions will be set for the
+           specified group. Format should be like {'all': ['group1', 'group2'], 'select': ['group3',
+           'group4']}
         """
         from .table import TableRecordsTarget  # noqa
         return TableRecordsTarget(schema_name=schema_name,
