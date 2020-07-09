@@ -57,6 +57,9 @@ class RecordsHook(BaseHook):
                              f"URL should end with '/': {self.__s3_temp_base_url}")
         return self.__s3_temp_base_url
 
+    # Docstring has been left out below - this is not part of the
+    # public API and should be evaluated for use in the records-mover
+    # non-Airflow-specific API.
     def validate_and_prepare_target_directory(self,
                                               target_url: str,
                                               allow_overwrite: bool=False) -> None:
