@@ -49,7 +49,7 @@ exclude_patterns = []
 # 'groupwise') or by source order (value 'bysource'). The default is
 # alphabetical.
 #
-# records mover picks 'groupwise' so that enums appear in the order
+# records mover picks 'bysource' so that enums appear in the order
 # listed in the source code, which can reflect a natural order.
 #
 autodoc_member_order = 'bysource'
