@@ -2,7 +2,7 @@
  src="https://raw.githubusercontent.com/bluelabsio/records-mover/master/docs/records-mover-horizontal.png"
  alt="Records Mover">
 
-<img src="https://i.imgur.com/iHBtS1T.gifv">
+<img src="https://i.imgur.com/iHBtS1T.gif">
 
 [![Documentation Status](https://readthedocs.org/projects/records-mover/badge/?version=latest)](https://records-mover.readthedocs.io/en/latest/?badge=latest)
 
