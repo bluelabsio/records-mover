@@ -2,8 +2,6 @@
  src="https://raw.githubusercontent.com/bluelabsio/records-mover/master/docs/records-mover-horizontal.png"
  alt="Records Mover">
 
-<img src="https://i.imgur.com/PvmMhft.gif">
-
 [![Documentation Status](https://readthedocs.org/projects/records-mover/badge/?version=latest)](https://records-mover.readthedocs.io/en/latest/?badge=latest)
 
 Records mover is a command-line tool and Python library you can
@@ -62,6 +60,10 @@ configured using
 
 For more installation notes, see [INSTALL.md](./docs/INSTALL.md).  To
 understand the security model here, see [SECURITY.md](./docs/SECURITY.md).
+
+## Example CLI use (table creation and loading demo)
+
+<img src="https://i.imgur.com/PvmMhft.gif">
 
 ## Example Python library use
 
