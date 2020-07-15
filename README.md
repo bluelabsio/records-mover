@@ -30,7 +30,7 @@ their [SQLAlchemy](https://www.sqlalchemy.org/) drivers.  Records
 mover is able to auto-negotiate the most efficient way of moving data
 from one to the other.
 
-## Example CLI use
+## CLI use example
 
 Installing:
 
@@ -61,11 +61,11 @@ configured using
 For more installation notes, see [INSTALL.md](./docs/INSTALL.md).  To
 understand the security model here, see [SECURITY.md](./docs/SECURITY.md).
 
-## Example CLI use (table creation and loading demo)
+## CLI use demo (table creation and loading)
 
 <img src="https://i.imgur.com/PvmMhft.gif">
 
-## Example Python library use
+## Python library use example
 
 First, install records_mover.  We'll also use Pandas, so we'll install
 that, too, as well as a driver for Postgres.
@@ -102,7 +102,7 @@ When moving data, the sources supported can be found
 and the targets supported can be found
 [here](https://records-mover.readthedocs.io/en/latest/records_mover.records.targets.html).
 
-## Advanced Python library use
+## Advanced Python library use example
 
 Here's another example, using some additional features:
 
