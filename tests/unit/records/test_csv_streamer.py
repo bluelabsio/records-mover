@@ -24,7 +24,6 @@ class TestCsvStreamer(unittest.TestCase):
                                              engine='python',
                                              escapechar=None,
                                              header='infer',
-                                             prefix='untitled_',
                                              quoting=0,
                                              iterator=True,
                                              sep=mock_field_delimiter)
@@ -49,7 +48,6 @@ class TestCsvStreamer(unittest.TestCase):
                                              engine='python',
                                              escapechar=None,
                                              header='infer',
-                                             prefix='untitled_',
                                              iterator=True,
                                              sep=mock_field_delimiter)
             mock_io.TextIOWrapper.assert_not_called()
@@ -72,7 +70,6 @@ class TestCsvStreamer(unittest.TestCase):
                                              engine='python',
                                              escapechar=None,
                                              header='infer',
-                                             prefix='untitled_',
                                              iterator=True,
                                              sep=mock_field_delimiter)
             mock_io.TextIOWrapper.assert_not_called()
