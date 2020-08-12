@@ -161,7 +161,13 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # Leaving this in case a future version of Pandas behaves
     # better.
     #
-    pandas_options['prefix'] = 'untitled_'
+    if pandas_options['header'] is None:
+        # Pandas only accepts the prefix argument when the
+        # header is marked as missing.
+        #
+        # https://github.com/pandas-dev/pandas/issues/27394
+        # https://github.com/pandas-dev/pandas/pull/31383
+        pandas_options['prefix'] = 'untitled_'
 
     #
     # mangle_dupe_cols : bool, default True
