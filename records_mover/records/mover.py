@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def move(records_source: RecordsSource,
          records_target: RecordsTarget,
-         processing_instructions: ProcessingInstructions=ProcessingInstructions()) -> MoveResult:
+         processing_instructions: ProcessingInstructions = ProcessingInstructions()) -> MoveResult:
     """Copy records from one location to another.  Applies a sequence of
     possible techniques to do this in an efficient way and respects
     the preferences set in records_source, records_target and

@@ -118,7 +118,6 @@ class TestPandasReadCsvOptions(unittest.TestCase):
             'engine': 'python',
             'error_bad_lines': True,
             'header': 0,
-            'prefix': 'untitled_',
             'quotechar': '"',
             'quoting': 0,
             'warn_bad_lines': True,
