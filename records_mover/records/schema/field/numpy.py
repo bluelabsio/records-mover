@@ -9,6 +9,8 @@ def details_from_numpy_dtype(dtype: numpy.dtype,
                              unique: bool) -> Tuple['FieldType',
                                                     RecordsSchemaFieldConstraints]:
     from ..field import RecordsSchemaField
+    print(f"VMB: dtype is {dtype}")
+    print(f"VMB: dtype.base is {dtype.base}")
     basename = dtype.base.name
     field_type: Optional['FieldType']
     if basename.startswith('datetime64'):

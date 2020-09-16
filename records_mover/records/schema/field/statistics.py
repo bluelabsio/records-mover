@@ -39,6 +39,7 @@ class RecordsSchemaFieldStatistics:
         total_rows = data['total_rows']
         if field_type == 'string':
             data = cast('StringFieldStatisticsDict', data)
+            print(f"VMB: Generating statistics from data")
             return RecordsSchemaFieldStringStatistics(
                 rows_sampled=rows_sampled,
                 total_rows=total_rows,

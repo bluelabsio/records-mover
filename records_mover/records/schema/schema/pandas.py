@@ -43,6 +43,7 @@ def refine_schema_from_dataframe(records_schema: 'RecordsSchema',
     else:
         sampled_df = df
     rows_sampled = len(sampled_df.index)
+    print(f"VMB: records_schema before refining: {records_schema.to_data()}")
 
     for field in records_schema.fields:
         series = sampled_df[field.name]

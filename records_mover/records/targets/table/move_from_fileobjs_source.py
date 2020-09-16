@@ -6,13 +6,16 @@ from records_mover.records.prep_and_load import prep_and_load
 from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.records.sources.fileobjs import FileobjsSource
 from records_mover.records.targets.table.base import BaseTableMoveAlgorithm
-from typing import Optional
+from records_mover.utils.concat_files import ConcatFiles
+from typing import Optional, IO
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 class DoMoveFromFileobjsSource(BaseTableMoveAlgorithm):
+    fileobj: IO[bytes]
+
     def __init__(self,
                  prep: TablePrep,
                  target_table_details: TargetTableDetails,
@@ -21,9 +24,9 @@ class DoMoveFromFileobjsSource(BaseTableMoveAlgorithm):
         self.fileobjs_source = fileobjs_source
         all_fileobjs = list(self.fileobjs_source.target_names_to_input_fileobjs.values())
         if len(all_fileobjs) != 1:
-            raise NotImplementedError("Teach me how to append and load more than one "
-                                      "file into same table")
-        self.fileobj = all_fileobjs[0]
+            self.fileobj = ConcatFiles(all_fileobjs)  # type: ignore
+        else:
+            self.fileobj = all_fileobjs[0]
         self.records_format = self.fileobjs_source.records_format
         self.plan = RecordsLoadPlan(records_format=self.records_format,
                                     processing_instructions=processing_instructions)

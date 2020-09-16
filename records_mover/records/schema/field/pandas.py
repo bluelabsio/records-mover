@@ -46,22 +46,34 @@ def refine_field_from_series(field: 'RecordsSchemaField',
                              total_rows: int,
                              rows_sampled: int) -> None:
     from ..field import RecordsSchemaField  # noqa
+    print(f"VMB: Refining {field.name}, which started as {series.dtype} and field type {field.field_type}: {field.to_data()}")
     #
     # if the series is full of object types that aren't numpy
     # types that show up directly as `.dtype` already, we can find
     # that out.
     #
     unique_python_types = series.map(type).unique()
+    print(f"VMB: unique_python_types: {unique_python_types}")
     if unique_python_types.size == 1:
         unique_python_type: Type[Any] = unique_python_types[0]
         field_type = field.python_type_to_field_type(unique_python_type)
         if field_type is not None:
             if RecordsSchemaField.is_more_specific_type(field_type, field.field_type):
+                # TODO: Need to chuck statistics and constraints if I'm doing this
                 field.field_type = field_type
+                # field.statistics = None
+                # field.constraints = None
+            else:
+                print(f"VMB: not more specific")
+        else:
+            print(f"VMB: field type is none")
+    else:
+        print(f"VMB: unique_python_types.size != 1")
 
     if field.field_type == 'string':
         max_column_length = series.astype('str').map(len).max()
         if not np.isnan(max_column_length):
+            print(f"VMB: Adding statistics for {field.name}")
             statistics =\
                 RecordsSchemaFieldStringStatistics(rows_sampled=rows_sampled,
                                                    total_rows=total_rows,
@@ -74,3 +86,4 @@ def refine_field_from_series(field: 'RecordsSchemaField',
                                   f"for string type: {field.statistics}")
             else:
                 field.statistics.merge(statistics)
+    print(f"Ended up with {series.dtype} and {field.field_type}")
