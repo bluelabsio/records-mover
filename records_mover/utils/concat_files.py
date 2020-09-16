@@ -7,6 +7,8 @@ class ConcatFiles(io.RawIOBase):
 
     def __init__(self, files: List[IO[bytes]]) -> None:
         self._files = files
+        self._tell = 0
+        self._read_started = False
 
     def close(self) -> None:
         for f in self._files:
@@ -18,12 +20,15 @@ class ConcatFiles(io.RawIOBase):
         return True
 
     def readall(self) -> bytes:
-        return b''.join(f.read(-1) for f in self._files)
+        out = b''
+        while self._files:
+            out = out + self.read()
+        return out
+
+    def tell(self):
+        return self._tell
 
     def read(self, size: int = -1) -> bytes:
-        if size < 0:
-            return self.readall()
-
         while len(self._files) > 0:
             chunk = self._files[0].read(size)
             # If we aren't getting any bytes from this stream, lets move on to the next stream
@@ -31,6 +36,7 @@ class ConcatFiles(io.RawIOBase):
                 f = self._files.pop(0)
                 f.close()
             else:
+                self._tell += len(chunk)
                 return chunk
 
         return b''
