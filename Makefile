@@ -26,14 +26,29 @@ citypecoverage: typecoverage
 
 unit:
 	ENV=test nosetests --cover-package=records_mover --cover-erase --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive tests/unit
+	mv .coverage .coverage-unit
 
 component:
 	ENV=test nosetests --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive tests/component
+	mv .coverage .coverage-component
 
 test: unit component
+	coverage combine .coverage-unit .coverage-component # https://stackoverflow.com/questions/7352319/nosetests-combined-coverage
+	coverage html --directory=cover
+	coverage xml
 
-citest: test-reports
-	ENV=test nosetests --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml tests/unit
+ciunit:
+	ENV=test nosetests --cover-package=records_mover --cover-erase --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml tests/unit
+	mv .coverage .coverage-unit
+
+cicomponent:
+	ENV=test nosetests --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml tests/component
+	mv .coverage .coverage-component
+
+citest: test-reports ciunit cicomponent
+	coverage combine .coverage-unit .coverage-component # https://stackoverflow.com/questions/7352319/nosetests-combined-coverage
+	coverage html --directory=cover
+	coverage xml
 
 coverage:
 	python setup.py coverage_ratchet
