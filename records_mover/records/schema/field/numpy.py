@@ -2,7 +2,7 @@ import numpy
 from typing import Optional, Tuple, TYPE_CHECKING
 from .constraints import RecordsSchemaFieldConstraints
 if TYPE_CHECKING:
-    from .types import FieldType  # noqa
+    from .field_types import FieldType  # noqa
 
 
 def details_from_numpy_dtype(dtype: numpy.dtype,

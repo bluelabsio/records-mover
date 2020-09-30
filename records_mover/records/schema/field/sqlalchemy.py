@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from ....db import DBDriver  # noqa
     from ..field import RecordsSchemaField  # noqa
     from ..schema import RecordsSchema  # noqa
-    from .types import FieldType  # noqa
+    from .field_types import FieldType  # noqa
 
 
 logger = logging.getLogger(__name__)
@@ -127,6 +127,10 @@ def field_from_sqlalchemy_column(column: Column,
 def field_to_sqlalchemy_type(field: 'RecordsSchemaField',
                              driver: 'DBDriver') -> sqlalchemy.types.TypeEngine:
     if field.field_type == 'integer':
+        if field.constraints and\
+           not isinstance(field.constraints, RecordsSchemaFieldIntegerConstraints):
+            raise ValueError(f"Incorrect constraint type in {field.name}: {field.constraints}")
+
         int_constraints =\
             cast(Optional[RecordsSchemaFieldIntegerConstraints], field.constraints)
         min_: Optional[int] = None
@@ -162,11 +166,11 @@ def field_to_sqlalchemy_type(field: 'RecordsSchemaField',
     elif field.field_type == 'string':
         if field.constraints and\
            not isinstance(field.constraints, RecordsSchemaFieldStringConstraints):
-            raise SyntaxError(f"Incorrect constraint type: {field.constraints}")
+            raise ValueError(f"Incorrect constraint type in {field.name}: {field.constraints}")
 
         if field.statistics and\
            not isinstance(field.statistics, RecordsSchemaFieldStringStatistics):
-            raise SyntaxError(f"Incorrect statistics type: {field.statistics}")
+            raise ValueError(f"Incorrect statistics type in {field.name}: {field.statistics}")
 
         string_constraints =\
             cast(Optional[RecordsSchemaFieldStringConstraints], field.constraints)

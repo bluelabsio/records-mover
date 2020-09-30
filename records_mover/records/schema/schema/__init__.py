@@ -162,14 +162,14 @@ class RecordsSchema:
             schema = RecordsSchema.from_dataframe(df, processing_instructions,
                                                   include_index=False)
 
-            schema.refine_from_dataframe(df,
-                                         processing_instructions=processing_instructions)
+            schema = schema.refine_from_dataframe(df,
+                                                  processing_instructions=processing_instructions)
             return schema
 
     def refine_from_dataframe(self,
                               df: 'DataFrame',
                               processing_instructions:
-                              ProcessingInstructions = ProcessingInstructions()) -> None:
+                              ProcessingInstructions = ProcessingInstructions()) -> 'RecordsSchema':
         """
         Adjust records schema based on facts found from a dataframe.
         """
