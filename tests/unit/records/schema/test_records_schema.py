@@ -99,7 +99,9 @@ class TestRecordsSchema(unittest.TestCase):
             {'Country': 'Brazil', 'Capital': 'Brasília', 'Population': 207847528},
         ]
         self.assertEqual(actual_cleaned_up_df_data, expected_cleaned_up_df_data)
-        self.assertEqual(out, mock_RecordsSchema.from_dataframe.return_value)
+        self.assertEqual(out,
+                         mock_RecordsSchema.from_dataframe.return_value.
+                         refine_from_dataframe.return_value)
 
     @patch('records_mover.records.schema.schema.RecordsSchema')
     @patch('records_mover.records.delimited.stream_csv')
@@ -138,7 +140,9 @@ class TestRecordsSchema(unittest.TestCase):
             {'Country': 'Brazil', 'Capital': 'Brasília', 'Population': 207847528},
         ]
         self.assertEqual(actual_cleaned_up_df_data, expected_cleaned_up_df_data)
-        self.assertEqual(out, mock_RecordsSchema.from_dataframe.return_value)
+        self.assertEqual(out,
+                         mock_RecordsSchema.from_dataframe.return_value.
+                         refine_from_dataframe.return_value)
 
     @patch('records_mover.records.schema.schema.pandas.refine_schema_from_dataframe')
     def test_refine_from_dataframe(self,

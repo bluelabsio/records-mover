@@ -113,7 +113,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
             # Otherwise, gather information to create an efficient
             # schema on the target of the move.
             #
-            records_schema.refine_from_dataframe(df, processing_instructions)
+            records_schema = records_schema.refine_from_dataframe(df, processing_instructions)
 
         return records_schema
 

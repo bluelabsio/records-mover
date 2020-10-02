@@ -49,7 +49,8 @@ class TestDataframesRecordsSource(unittest.TestCase):
             return f"{prefix}.csv"
 
         mock_target_records_format.generate_filename = generate_filename
-        mock_target_records_schema = mock_RecordsSchema.from_dataframe.return_value
+        mock_target_records_schema = mock_RecordsSchema.from_dataframe.return_value.\
+            refine_from_dataframe.return_value
         mock_purge_unnamed_unused_columns.side_effect = lambda a: a
         with dataframe_records_source.\
             to_fileobjs_source(records_format_if_possible=mock_target_records_format,
@@ -124,7 +125,8 @@ class TestDataframesRecordsSource(unittest.TestCase):
 
         mock_target_records_format.generate_filename = generate_filename
 
-        mock_target_records_schema = mock_RecordsSchema.from_dataframe.return_value
+        mock_target_records_schema = mock_RecordsSchema.from_dataframe.return_value.\
+            refine_from_dataframe.return_value
         mock_output_file = mock_NamedTemporaryFile.return_value.__enter__.return_value
         mock_output_filename = mock_output_file.name
 

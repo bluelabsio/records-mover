@@ -3,7 +3,7 @@ from typing import Optional, Union, cast, TYPE_CHECKING
 if TYPE_CHECKING:
     from mypy_extensions import TypedDict
 
-    from .types import FieldType  # noqa
+    from .field_types import FieldType  # noqa
 
     class FieldStatisticsDict(TypedDict):
         rows_sampled: int
@@ -48,6 +48,10 @@ class RecordsSchemaFieldStatistics:
             return RecordsSchemaFieldStatistics(rows_sampled=rows_sampled,
                                                 total_rows=total_rows)
 
+    def cast(self, field_type: 'FieldType') -> Optional['RecordsSchemaFieldStatistics']:
+        # only string provides statistics at this point
+        return None
+
     def __str__(self) -> str:
         return f"{type(self)}({self.to_data()})"
 
@@ -74,3 +78,9 @@ class RecordsSchemaFieldStringStatistics(RecordsSchemaFieldStatistics):
 
     def merge(self, other: 'RecordsSchemaFieldStringStatistics') -> None:
         raise NotImplementedError
+
+    def cast(self, field_type: 'FieldType') -> Optional['RecordsSchemaFieldStatistics']:
+        if field_type == 'string':
+            return self
+        else:
+            return super().cast(field_type)
