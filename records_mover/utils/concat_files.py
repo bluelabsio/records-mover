@@ -7,6 +7,7 @@ class ConcatFiles(io.RawIOBase):
 
     def __init__(self, files: List[IO[bytes]]) -> None:
         self._files = files
+        self._tell = 0
 
     def close(self) -> None:
         for f in self._files:
@@ -18,9 +19,27 @@ class ConcatFiles(io.RawIOBase):
         return True
 
     def readall(self) -> bytes:
-        return b''.join(f.read(-1) for f in self._files)
+        # Not sure if Records Mover has any uses of this which may be
+        # done on large files, but bytearray() concatentation is
+        # suggested by:
+        #
+        # https://www.guyrutenberg.com/2020/04/04/fast-bytes-concatenation-in-python/
+        out = bytearray()
+        while self._files:
+            f = self._files.pop(0)
+            chunk = f.read()
+            self._tell += len(chunk)
+            out = out + chunk
+        return out
+
+    def tell(self) -> int:
+        return self._tell
 
     def read(self, size: int = -1) -> bytes:
+        #  "When size is omitted or negative, the entire contents of
+        #  the file will be read and returned"
+        #
+        # https://docs.python.org/3/tutorial/inputoutput.html
         if size < 0:
             return self.readall()
 
@@ -31,6 +50,7 @@ class ConcatFiles(io.RawIOBase):
                 f = self._files.pop(0)
                 f.close()
             else:
+                self._tell += len(chunk)
                 return chunk
 
         return b''
