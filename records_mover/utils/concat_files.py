@@ -36,7 +36,7 @@ class ConcatFiles(io.RawIOBase):
         #  the file will be read and returned"
         #
         # https://docs.python.org/3/tutorial/inputoutput.html
-        if size == -1:
+        if size < 0:
             return self.readall()
 
         while len(self._files) > 0:
