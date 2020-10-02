@@ -2,19 +2,26 @@ import unittest
 from mock import Mock, patch
 import sqlalchemy
 from records_mover.records.schema.field.sqlalchemy import field_to_sqlalchemy_type
-from records_mover.records.schema.field.constraints import RecordsSchemaFieldStringConstraints
+from records_mover.records.schema.field.constraints import (RecordsSchemaFieldStringConstraints,
+                                                            RecordsSchemaFieldIntegerConstraints)
 from records_mover.records.schema.field.statistics import RecordsSchemaFieldStringStatistics
 
 
 class TestSqlAlchemyFieldToSqlalchemyType(unittest.TestCase):
     def test_integer(self):
         mock_field = Mock(name='field')
+
         mock_driver = Mock(name='driver')
 
         mock_field.field_type = 'integer'
-        mock_int_constraints = mock_field.constraints
-        mock_min_ = mock_int_constraints.min_
-        mock_max_ = mock_int_constraints.max_
+        mock_int_constraints = Mock(name='int_constraints',
+                                    spec=RecordsSchemaFieldIntegerConstraints)
+
+        mock_field.constraints = mock_int_constraints
+        mock_min_ = Mock(name='min_')
+        mock_int_constraints.min_ = mock_min_
+        mock_max_ = Mock(name='max_')
+        mock_int_constraints.max_ = mock_max_
 
         out = field_to_sqlalchemy_type(field=mock_field,
                                        driver=mock_driver)

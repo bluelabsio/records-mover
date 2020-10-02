@@ -35,7 +35,10 @@ def schema_from_dataframe(df: DataFrame,
 def refine_schema_from_dataframe(records_schema: 'RecordsSchema',
                                  df: DataFrame,
                                  processing_instructions:
-                                 ProcessingInstructions = ProcessingInstructions()) -> None:
+                                 ProcessingInstructions = ProcessingInstructions()) ->\
+        'RecordsSchema':
+    from records_mover.records.schema import RecordsSchema
+
     max_sample_size = processing_instructions.max_inference_rows
     total_rows = len(df.index)
     if max_sample_size is not None and max_sample_size < total_rows:
@@ -44,8 +47,11 @@ def refine_schema_from_dataframe(records_schema: 'RecordsSchema',
         sampled_df = df
     rows_sampled = len(sampled_df.index)
 
-    for field in records_schema.fields:
-        series = sampled_df[field.name]
-        field.refine_from_series(series,
+    fields = [
+        field.refine_from_series(sampled_df[field.name],
                                  total_rows=total_rows,
                                  rows_sampled=rows_sampled)
+        for field in records_schema.fields
+    ]
+    return RecordsSchema(fields=fields,
+                         known_representations=records_schema.known_representations)

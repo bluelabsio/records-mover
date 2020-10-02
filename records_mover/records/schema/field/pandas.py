@@ -44,7 +44,7 @@ def field_from_series(series: Series,
 def refine_field_from_series(field: 'RecordsSchemaField',
                              series: Series,
                              total_rows: int,
-                             rows_sampled: int) -> None:
+                             rows_sampled: int) -> 'RecordsSchemaField':
     from ..field import RecordsSchemaField  # noqa
     #
     # if the series is full of object types that aren't numpy
@@ -57,7 +57,7 @@ def refine_field_from_series(field: 'RecordsSchemaField',
         field_type = field.python_type_to_field_type(unique_python_type)
         if field_type is not None:
             if RecordsSchemaField.is_more_specific_type(field_type, field.field_type):
-                field.field_type = field_type
+                field = field.cast(field_type)
 
     if field.field_type == 'string':
         max_column_length = series.astype('str').map(len).max()
@@ -70,7 +70,8 @@ def refine_field_from_series(field: 'RecordsSchemaField',
             if field.statistics is None:
                 field.statistics = statistics
             elif not isinstance(field.statistics, RecordsSchemaFieldStringStatistics):
-                raise SyntaxError("Did not expect to see existing statistics "
-                                  f"for string type: {field.statistics}")
+                raise ValueError("Did not expect to see existing statistics "
+                                 f"for string type: {field.statistics}")
             else:
                 field.statistics.merge(statistics)
+    return field

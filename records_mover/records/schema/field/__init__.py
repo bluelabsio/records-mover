@@ -19,13 +19,13 @@ from .constraints import (RecordsSchemaFieldConstraints,
                           RecordsSchemaFieldIntegerConstraints,
                           RecordsSchemaFieldDecimalConstraints)
 from .statistics import RecordsSchemaFieldStatistics
-from .types import RECORDS_FIELD_TYPES
+from .field_types import RECORDS_FIELD_TYPES
 if TYPE_CHECKING:
     from pandas import Series, Index
     from sqlalchemy import Column
     from sqlalchemy.types import TypeEngine
     from records_mover.db import DBDriver  # noqa
-    from .types import FieldType
+    from .field_types import FieldType
 
     from mypy_extensions import TypedDict
 
@@ -64,9 +64,9 @@ class RecordsSchemaField:
     def refine_from_series(self,
                            series: 'Series',
                            total_rows: int,
-                           rows_sampled: int) -> None:
+                           rows_sampled: int) -> 'RecordsSchemaField':
         from .pandas import refine_field_from_series
-        refine_field_from_series(self, series, total_rows, rows_sampled)
+        return refine_field_from_series(self, series, total_rows, rows_sampled)
 
     @staticmethod
     def is_more_specific_type(a: 'FieldType', b: 'FieldType') -> bool:
@@ -77,6 +77,7 @@ class RecordsSchemaField:
     @staticmethod
     def python_type_to_field_type(specific_type: Type[Any]) -> Optional['FieldType']:
         import numpy as np
+        import pandas as pd
 
         # Note: records spec doesn't cover complex number types, so
         # np.complex_, complex64 and complex128 are not supported
@@ -114,6 +115,10 @@ class RecordsSchemaField:
             datetime.date: 'date',
 
             datetime.time: 'time',
+
+            datetime.datetime: 'datetime',
+
+            pd.Timestamp: 'datetime',
         }
         if specific_type not in type_mapping:
             logger.warning(f"Please teach me how to map {specific_type} into records "
@@ -318,3 +323,19 @@ class RecordsSchemaField:
                                   constraints=self.constraints,
                                   statistics=self.statistics,
                                   representations=self.representations)
+
+    def cast(self, field_type: 'FieldType') -> 'RecordsSchemaField':
+        if self.constraints is None:
+            constraints = None
+        else:
+            constraints = self.constraints.cast(field_type)
+        if self.statistics is None:
+            statistics = None
+        else:
+            statistics = self.statistics.cast(field_type)
+        field = RecordsSchemaField(name=self.name,
+                                   field_type=field_type,
+                                   constraints=constraints,
+                                   statistics=statistics,
+                                   representations=self.representations)
+        return field
