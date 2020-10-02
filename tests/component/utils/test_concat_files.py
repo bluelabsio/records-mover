@@ -14,3 +14,12 @@ class TestConcatFiles(unittest.TestCase):
     def test_read_minus_one(self):
         stream = ConcatFiles([io.BytesIO(b'abc'), io.BytesIO(b'abcdef'), io.BytesIO(b'123')])
         self.assertEqual(stream.read(-1), b'abcabcdef123')
+
+    def test_is_readable(self):
+        stream = ConcatFiles([io.BytesIO(b'abc'), io.BytesIO(b'abcdef'), io.BytesIO(b'123')])
+        self.assertEqual(stream.readable(), True)
+
+    def test_simple_tell(self):
+        stream = ConcatFiles([io.BytesIO(b'abc'), io.BytesIO(b'abcdef'), io.BytesIO(b'123')])
+        stream.read(3)
+        self.assertEqual(3, stream.tell())
