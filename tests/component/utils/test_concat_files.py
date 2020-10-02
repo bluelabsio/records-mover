@@ -23,3 +23,8 @@ class TestConcatFiles(unittest.TestCase):
         stream = ConcatFiles([io.BytesIO(b'abc'), io.BytesIO(b'abcdef'), io.BytesIO(b'123')])
         stream.read(3)
         self.assertEqual(3, stream.tell())
+
+    def test_readall_tell(self):
+        stream = ConcatFiles([io.BytesIO(b'abc'), io.BytesIO(b'abcdef'), io.BytesIO(b'123')])
+        stream.readall()
+        self.assertEqual(12, stream.tell())

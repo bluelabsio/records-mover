@@ -23,9 +23,9 @@ class ConcatFiles(io.RawIOBase):
         out = b''
         while self._files:
             f = self._files.pop(0)
-            out = out + f.read()
-        # TODO write a test that forces me to write this code
-        # self._tell += len(chunk)
+            chunk = f.read()
+            self._tell += len(chunk)
+            out = out + chunk
         return out
 
     def tell(self) -> int:
