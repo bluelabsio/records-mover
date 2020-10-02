@@ -22,13 +22,23 @@ class ConcatFiles(io.RawIOBase):
     def readall(self) -> bytes:
         out = b''
         while self._files:
-            out = out + self.read()
+            f = self._files.pop(0)
+            out = out + f.read()
+        # TODO write a test that forces me to write this code
+        # self._tell += len(chunk)
         return out
 
-    def tell(self):
+    def tell(self) -> int:
         return self._tell
 
     def read(self, size: int = -1) -> bytes:
+        #  "When size is omitted or negative, the entire contents of
+        #  the file will be read and returned"
+        #
+        # https://docs.python.org/3/tutorial/inputoutput.html
+        if size == -1:
+            return self.readall()
+
         while len(self._files) > 0:
             chunk = self._files[0].read(size)
             # If we aren't getting any bytes from this stream, lets move on to the next stream
