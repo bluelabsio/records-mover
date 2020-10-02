@@ -20,7 +20,12 @@ class ConcatFiles(io.RawIOBase):
         return True
 
     def readall(self) -> bytes:
-        out = b''
+        # Not sure if Records Mover has any uses of this which may be
+        # done on large files, but bytearray() concatentation is
+        # suggested by:
+        #
+        # https://www.guyrutenberg.com/2020/04/04/fast-bytes-concatenation-in-python/
+        out = bytearray()
         while self._files:
             f = self._files.pop(0)
             chunk = f.read()
