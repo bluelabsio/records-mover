@@ -82,6 +82,8 @@ Now we can run this code:
 # Pull in the records-mover library - be sure to run the pip install above first!
 from records_mover import sources, targets, move
 from pandas import DataFrame
+import sqlalchemy
+import os
 
 sqlalchemy_url = f"postgresql+psycopg2://username:{os.environ['DB_PASSWORD']}@hostname/database_name"
 db_engine = sqlalchemy.create_engine(sqlalchemy_url)
