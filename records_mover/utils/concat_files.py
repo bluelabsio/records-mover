@@ -8,7 +8,6 @@ class ConcatFiles(io.RawIOBase):
     def __init__(self, files: List[IO[bytes]]) -> None:
         self._files = files
         self._tell = 0
-        self._read_started = False
 
     def close(self) -> None:
         for f in self._files:
