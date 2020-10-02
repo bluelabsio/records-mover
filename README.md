@@ -88,7 +88,7 @@ import os
 sqlalchemy_url = f"postgresql+psycopg2://username:{os.environ['DB_PASSWORD']}@hostname/database_name"
 db_engine = sqlalchemy.create_engine(sqlalchemy_url)
 
-df = DataFrame.from_dict([{'a': 1}]) # or make your own!
+df = DataFrame.from_dict([{'a': 1}])  # or make your own!
 
 source = sources.dataframe(df=df)
 target = targets.table(schema_name='myschema',
