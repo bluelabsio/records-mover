@@ -124,6 +124,7 @@ from records_mover import Session
 from pandas import DataFrame
 
 session = Session()
+session.set_stream_logging()
 records = session.records
 
 db_engine = session.get_default_db_engine()
