@@ -105,6 +105,19 @@ google_api_client_dependencies = [
     #
     # https://github.com/googleapis/google-auth-library-python/issues/190
     'google-api-python-client>=1.8.0,<1.9.0',
+    #
+    # For some reason this issue started happening consistently around 2020-10:
+    #
+    #  https://app.circleci.com/pipelines/github/bluelabsio/records-mover/1134/workflows/267ca651-def1-4f60-bdfb-0f857a9e0c60/jobs/9770
+    #
+    # This seems to be a clue:
+    #
+    #  https://github.com/pypa/pip/issues/8407
+    #
+    # However, downgrading pip does not seem to resolve it, so it
+    # doesn't seem to have been caused by a pip upgrade.  For now
+    # we'll explicitly state the dependency for force the install:
+    'grpcio<2.0dev,>=1.29.0',
 ]
 
 nose_dependencies = [
