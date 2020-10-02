@@ -129,7 +129,7 @@ records = session.records
 
 db_engine = session.get_default_db_engine()
 
-df = DataFrame.from_dict([{'a': 1}]) # or make your own!
+df = DataFrame.from_dict([{'a': 1}])  # or make your own!
 
 source = records.sources.dataframe(df=df)
 target = records.targets.table(schema_name='myschema',
