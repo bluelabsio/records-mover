@@ -88,7 +88,7 @@ import os
 sqlalchemy_url = f"postgresql+psycopg2://username:{os.environ['DB_PASSWORD']}@hostname/database_name"
 db_engine = sqlalchemy.create_engine(sqlalchemy_url)
 
-df = DataFrame.from_dict([{'a': 1}]) # or make your own!
+df = DataFrame.from_dict([{'a': 1}])  # or make your own!
 
 source = sources.dataframe(df=df)
 target = targets.table(schema_name='myschema',
@@ -122,28 +122,20 @@ you can use this:
 # Pull in the records-mover library - be sure to run the pip install above first!
 from records_mover import Session
 from pandas import DataFrame
-import sqlalchemy
 
 session = Session()
+session.set_stream_logging()
 records = session.records
 
 db_engine = session.get_default_db_engine()
 
-df = DataFrame.from_dict([{'a': 1}]) # or make your own!
+df = DataFrame.from_dict([{'a': 1}])  # or make your own!
 
 source = records.sources.dataframe(df=df)
 target = records.targets.table(schema_name='myschema',
                                table_name='mytable',
                                db_engine=db_engine)
 results = records.move(source, target)
-
-df = DataFrame.from_dict([{'a': 1}]) # or make your own!
-
-source = sources.dataframe(df=df)
-target = targets.table(schema_name='myschema',
-                       table_name='mytable',
-                       db_engine=db_engine)
-results = move(source, target)
 ```
 
 ## Python library API documentation
