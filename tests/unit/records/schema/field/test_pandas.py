@@ -1,9 +1,7 @@
 import unittest
 from mock import Mock, patch
-from pandas import Series
 from records_mover.records.schema.field.pandas import (field_from_index,
-                                                       field_from_series,
-                                                       refine_field_from_series)
+                                                       field_from_series)
 
 
 class TestPandas(unittest.TestCase):
@@ -56,61 +54,3 @@ class TestPandas(unittest.TestCase):
                                                    representations=mock_representations,
                                                    statistics=None)
         self.assertEqual(out, mock_RecordsSchemaField.return_value)
-
-    @patch('records_mover.records.schema.field.RecordsSchemaField')
-    @patch('records_mover.records.schema.field.pandas.RecordsSchemaFieldStringStatistics')
-    def test_refine_field_from_series_all_string(self,
-                                                 mock_RecordsSchemaFieldStringStatistics,
-                                                 mock_RecordsSchemaField):
-        mock_field = Mock(name='field')
-        mock_field.statistics = None
-        mock_field.field_type = 'string'
-        series = Series(["mumble", "foo", "b"])
-        mock_total_rows = Mock(name='total_rows')
-        mock_rows_sampled = Mock(name='rows_sampled')
-
-        mock_field.python_type_to_field_type.return_value = 'string'
-
-        mock_RecordsSchemaField.is_more_specific_type.return_value = True
-
-        mock_statistics = mock_RecordsSchemaFieldStringStatistics.return_value
-
-        refine_field_from_series(mock_field,
-                                 series=series,
-                                 total_rows=mock_total_rows,
-                                 rows_sampled=mock_rows_sampled)
-        mock_RecordsSchemaFieldStringStatistics.\
-            assert_called_with(max_length_bytes=None,
-                               max_length_chars=6,
-                               rows_sampled=mock_rows_sampled,
-                               total_rows=mock_total_rows)
-        self.assertEqual(mock_field.statistics, mock_statistics)
-        self.assertEqual(mock_field.field_type, 'string')
-
-    @patch('records_mover.records.schema.field.RecordsSchemaField')
-    @patch('records_mover.records.schema.field.pandas.RecordsSchemaFieldStringStatistics')
-    def test_refine_field_from_series_diverse(self,
-                                              mock_RecordsSchemaFieldStringStatistics,
-                                              mock_RecordsSchemaField):
-        mock_field = Mock(name='field')
-        mock_field.statistics = None
-        mock_field.field_type = 'string'
-        series = Series(["mumble", "foo", 1])
-        mock_total_rows = Mock(name='total_rows')
-        mock_rows_sampled = Mock(name='rows_sampled')
-
-        mock_RecordsSchemaField.is_more_specific_type.return_value = True
-
-        mock_statistics = mock_RecordsSchemaFieldStringStatistics.return_value
-
-        refine_field_from_series(mock_field,
-                                 series=series,
-                                 total_rows=mock_total_rows,
-                                 rows_sampled=mock_rows_sampled)
-        mock_RecordsSchemaFieldStringStatistics.\
-            assert_called_with(max_length_bytes=None,
-                               max_length_chars=6,
-                               rows_sampled=mock_rows_sampled,
-                               total_rows=mock_total_rows,)
-        self.assertEqual(mock_field.statistics, mock_statistics)
-        self.assertEqual(mock_field.field_type, 'string')

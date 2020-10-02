@@ -1,13 +1,11 @@
 import unittest
-from mock import Mock, patch
+from mock import Mock
 from records_mover.records.schema.field.numpy import details_from_numpy_dtype
 import numpy as np
 
 
 class TestNumpy(unittest.TestCase):
-    @patch('records_mover.records.schema.field.numpy.RecordsSchemaFieldConstraints')
-    def test_details_from_numpy_dtype(self,
-                                      mock_RecordsSchemaFieldConstraints):
+    def test_details_from_numpy_dtype(self):
         tests = {
             np.dtype(str): 'string',
             np.dtype(int): 'integer',
