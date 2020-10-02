@@ -8,7 +8,6 @@ class ConcatFiles(io.RawIOBase):
     def __init__(self, files: List[IO[bytes]]) -> None:
         self._files = files
         self._tell = 0
-        self._read_started = False
 
     def close(self) -> None:
         for f in self._files:
@@ -41,7 +40,7 @@ class ConcatFiles(io.RawIOBase):
         #  the file will be read and returned"
         #
         # https://docs.python.org/3/tutorial/inputoutput.html
-        if size == -1:
+        if size < 0:
             return self.readall()
 
         while len(self._files) > 0:
