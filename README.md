@@ -122,7 +122,6 @@ you can use this:
 # Pull in the records-mover library - be sure to run the pip install above first!
 from records_mover import Session
 from pandas import DataFrame
-import sqlalchemy
 
 session = Session()
 records = session.records
