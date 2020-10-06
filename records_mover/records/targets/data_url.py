@@ -22,14 +22,18 @@ class DataUrlTarget(SupportsMoveFromDataframes,
                  output_loc: BaseFileUrl,
                  records_format: Optional[BaseRecordsFormat]) -> None:
         if records_format is None:
-            # if we have been given free rein on format, don't
-            # surprise the user by writing a compression they're not
-            # expecting.
+            records_format = DelimitedRecordsFormat()
+
+        if (isinstance(records_format, DelimitedRecordsFormat) and
+           'compression' not in records_format.custom_hints):
+            # if user hasn't very specifically specified compression
+            # type, don't surprise the user by writing a compression
+            # they're not expecting.
             compression = sniff_compression_from_url(output_loc.url)
             inferred_hints = {
                 'compression': compression
             }
-            records_format = DelimitedRecordsFormat().alter_hints(inferred_hints)
+            records_format = records_format.alter_hints(inferred_hints)
 
         self.records_format = records_format
         self.output_loc = output_loc

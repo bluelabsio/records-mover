@@ -66,6 +66,7 @@ class TestDelimitedRecordsFormat(unittest.TestCase):
             'header-row': True,
         }
         self.assertEqual(expected_hints, records_format.hints)
+        self.assertEqual({'quotechar': 'A'}, records_format.custom_hints)
 
     def test_eq(self):
         records_format_1 = DelimitedRecordsFormat()

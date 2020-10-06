@@ -60,7 +60,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
         """
         self.format_type = 'delimited'
         self.variant = variant
-        self._custom_hints = hints
+        self.custom_hints = hints
         self.add_hints_from_variant(provided_hints=hints,
                                     processing_instructions=processing_instructions)
 
@@ -73,14 +73,14 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
 
     def alter_hints(self, new_hints: UntypedRecordsHints) ->\
             'DelimitedRecordsFormat':
-        input_hints = dict(self.hints)  # make copy
+        input_hints = dict(self.custom_hints)  # make copy
         input_hints.update(new_hints)
         return DelimitedRecordsFormat(variant=self.variant,
                                       hints=input_hints)  # type: ignore
 
     def alter_variant(self, variant: str) -> 'DelimitedRecordsFormat':
         return DelimitedRecordsFormat(variant=variant,
-                                      hints=self.hints)  # type: ignore
+                                      hints=self.custom_hints)
 
     def base_hints_from_variant(self,
                                 fail_if_dont_understand: bool = True) -> PartialRecordsHints:
