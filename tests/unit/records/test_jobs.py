@@ -6,7 +6,6 @@ from records_mover.records.records_format import (
     BaseRecordsFormat, DelimitedRecordsFormat
 )
 from records_mover.records.job.schema import method_to_json_schema
-from contextlib import contextmanager
 
 
 class TestJobs(unittest.TestCase):
@@ -102,7 +101,6 @@ class TestJobs(unittest.TestCase):
                                     config=config)
         mock_records.move.assert_called()
         self.assertEqual(out, mock_records.move.return_value)
-
 
     @patch('records_mover.records.job.schema.method_signature_to_json_schema')
     def test_method_to_json_schema(self, mock_method_signature_to_json_schema):
