@@ -3,7 +3,6 @@ from records_mover.url.base import BaseFileUrl
 from records_mover.records.targets.data_url import DataUrlTarget
 from records_mover.records.records_directory import RecordsDirectory
 from records_mover.records.base_records_format import BaseRecordsFormat
-from records_mover.records.records_format import DelimitedRecordsFormat
 from records_mover.records.processing_instructions import ProcessingInstructions
 from mock import patch, Mock, MagicMock
 
