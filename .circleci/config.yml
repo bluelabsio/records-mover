@@ -397,16 +397,6 @@ workflows:
       - test:
           name: test-3.9
           extras: '[unittest,typecheck]'
-          python_version: "3.7"
-          pandas_version: ">=1"
-          requires:
-            - redshift-itest
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - test:
-          name: test-3.9
-          extras: '[unittest,typecheck]'
           python_version: "3.9"
           pandas_version: ">=1"
           coverage: true
