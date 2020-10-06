@@ -389,6 +389,26 @@ workflows:
           extras: '[unittest,typecheck]'
           python_version: "3.8"
           pandas_version: ">=1"
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.9
+          extras: '[unittest,typecheck]'
+          python_version: "3.7"
+          pandas_version: ">=1"
+          requires:
+            - redshift-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.9
+          extras: '[unittest,typecheck]'
+          python_version: "3.9"
+          pandas_version: ">=1"
           coverage: true
           filters:
             tags:
@@ -519,7 +539,7 @@ workflows:
           python_version: "3.6"
           db_name: demo-itest
           requires:
-            - test-3.8
+            - test-3.9
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -582,6 +602,7 @@ workflows:
             - test-3.6
             - test-3.7
             - test-3.8
+            - test-3.9
             - cli-extra-test
             - tbl2tbl-itest
             - bigquery-itest
