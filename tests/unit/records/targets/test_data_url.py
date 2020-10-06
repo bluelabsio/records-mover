@@ -3,16 +3,19 @@ from records_mover.url.base import BaseFileUrl
 from records_mover.records.targets.data_url import DataUrlTarget
 from records_mover.records.records_directory import RecordsDirectory
 from records_mover.records.base_records_format import BaseRecordsFormat
+from records_mover.records.records_format import DelimitedRecordsFormat
 from records_mover.records.processing_instructions import ProcessingInstructions
 from mock import patch, Mock, MagicMock
 
 
 class TestDataUrlTarget(unittest.TestCase):
+    @patch('records_mover.records.targets.data_url.isinstance')
     @patch('records_mover.records.targets.data_url.DelimitedRecordsFormat')
     @patch('records_mover.records.targets.data_url.FileobjTarget')
     def test_move_from_dataframe_csv_extension(self,
                                                mock_FileobjTarget,
-                                               mock_DelimitedRecordsFormat):
+                                               mock_DelimitedRecordsFormat,
+                                               mock_isinstance):
         mock_output_url = 'whatever://foo/foo.csv'
         mock_output_loc = MagicMock(name='output_loc', spec=BaseFileUrl)
         mock_output_loc.url = mock_output_url
@@ -39,11 +42,13 @@ class TestDataUrlTarget(unittest.TestCase):
                                processing_instructions=mock_processing_instructions)
         self.assertEqual(mock_fileobj_target.move_from_dataframes_source.return_value, out)
 
+    @patch('records_mover.records.targets.data_url.isinstance')
     @patch('records_mover.records.targets.data_url.DelimitedRecordsFormat')
     @patch('records_mover.records.targets.data_url.FileobjTarget')
     def test_move_from_dataframe_gz_extension(self,
                                               mock_FileobjTarget,
-                                              mock_DelimitedRecordsFormat):
+                                              mock_DelimitedRecordsFormat,
+                                              mock_isinstance):
         mock_output_url = 'whatever://foo/foo.csv.gz'
         mock_output_loc = MagicMock(name='output_loc', spec=BaseFileUrl)
         mock_output_loc.url = mock_output_url
@@ -110,11 +115,13 @@ class TestDataUrlTarget(unittest.TestCase):
         mock_records_format.generate_filename.assert_called_with('data')
         self.assertEqual(out, mock_MoveResult.return_value)
 
+    @patch('records_mover.records.targets.data_url.isinstance')
     @patch('records_mover.records.targets.data_url.RecordsDirectory')
     @patch('records_mover.records.targets.data_url.DelimitedRecordsFormat')
     def test_move_from_temp_loc_after_filling_it(self,
                                                  mock_DelimitedRecordsFormat,
-                                                 mock_RecordsDirectory):
+                                                 mock_RecordsDirectory,
+                                                 mock_isinstance):
         mock_output_url = 'whatever://foo/foo.csv'
         mock_output_loc = MagicMock(name='output_loc', spec=BaseFileUrl)
         mock_output_loc.url = mock_output_url
