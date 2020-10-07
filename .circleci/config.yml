@@ -28,13 +28,6 @@ commands:
       - run:
           name: Install python deps in venv
           command: |
-            # wheel is in requirements.txt, but without doing this first, the
-            # below pip3 install is very slow, with lots of warnings like:
-            #
-            #   Using legacy 'setup.py install' for Flask-JWT-Extended, since package 'wheel' is not installed.
-            #
-            # afterwards, it is merely pretty slow!
-            pip install --upgrade wheel
             if [ -f venv/bin/activate ]
             then
               . venv/bin/activate
@@ -44,6 +37,13 @@ commands:
             else
               python -m venv venv
               . venv/bin/activate
+              # wheel is in requirements.txt, but without doing this first, the
+              # below pip3 install is very slow, with lots of warnings like:
+              #
+              #   Using legacy 'setup.py install' for Flask-JWT-Extended, since package 'wheel' is not installed.
+              #
+              # afterwards, it is merely pretty slow!
+              pip install --upgrade wheel
               if [ '<<parameters.include_dev_dependencies>>' == 'true' ]
               then
                 pip install --progress-bar=off -r requirements.txt
