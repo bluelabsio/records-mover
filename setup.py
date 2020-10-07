@@ -241,7 +241,7 @@ gcs_dependencies = [
 
 
 typecheck_dependencies = [
-    'mypy==0.770',
+    'mypy==0.780',
     'lxml',  # needed by mypy HTML coverage reporting
     'sqlalchemy-stubs>=0.3',
 ]
