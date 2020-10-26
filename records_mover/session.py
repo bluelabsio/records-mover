@@ -72,7 +72,10 @@ def _infer_creds(session_type: str,
                                            None],
                  scratch_s3_url: Union[PleaseInfer,
                                        str,
-                                       None]) -> BaseCreds:
+                                       None],
+                 scratch_gcs_url: Union[PleaseInfer,
+                                        str,
+                                        None]) -> BaseCreds:
     if session_type == 'airflow':
         return CredsViaAirflow(default_db_creds_name=default_db_creds_name,
                                default_aws_creds_name=default_aws_creds_name,
@@ -81,7 +84,8 @@ def _infer_creds(session_type: str,
                                default_boto3_session=default_boto3_session,
                                default_gcp_creds=default_gcp_creds,
                                default_gcs_client=default_gcs_client,
-                               scratch_s3_url=scratch_s3_url)
+                               scratch_s3_url=scratch_s3_url,
+                               scratch_gcs_url=scratch_gcs_url)
     elif session_type == 'cli':
         return CredsViaEnv(default_db_creds_name=default_db_creds_name,
                            default_aws_creds_name=default_aws_creds_name,
@@ -98,7 +102,8 @@ def _infer_creds(session_type: str,
                                 default_boto3_session=default_boto3_session,
                                 default_gcp_creds=default_gcp_creds,
                                 default_gcs_client=default_gcs_client,
-                                scratch_s3_url=scratch_s3_url)
+                                scratch_s3_url=scratch_s3_url,
+                                scratch_gcs_url=scratch_gcs_url)
     elif session_type == 'itest':
         return CredsViaEnv(default_db_creds_name=default_db_creds_name,
                            default_aws_creds_name=default_aws_creds_name,
@@ -107,7 +112,8 @@ def _infer_creds(session_type: str,
                            default_boto3_session=default_boto3_session,
                            default_gcp_creds=default_gcp_creds,
                            default_gcs_client=default_gcs_client,
-                           scratch_s3_url=scratch_s3_url)
+                           scratch_s3_url=scratch_s3_url,
+                           scratch_gcs_url=scratch_gcs_url)
     elif session_type == 'env':
         return CredsViaEnv(default_db_creds_name=default_db_creds_name,
                            default_aws_creds_name=default_aws_creds_name,
@@ -116,7 +122,8 @@ def _infer_creds(session_type: str,
                            default_boto3_session=default_boto3_session,
                            default_gcp_creds=default_gcp_creds,
                            default_gcs_client=default_gcs_client,
-                           scratch_s3_url=scratch_s3_url)
+                           scratch_s3_url=scratch_s3_url,
+                           scratch_gcs_url=scratch_gcs_url)
     elif session_type is not None:
         raise ValueError("Valid session types: cli, lpass, airflow, itest, env - "
                          "consider upgrading records-mover if you're looking for "
@@ -140,7 +147,8 @@ class Session():
                                           None] = PleaseInfer.token,
                  default_gcs_client: Union[PleaseInfer,
                                            'google.cloud.storage.Client',
-                                           None] = PleaseInfer.token) -> None:
+                                           None] = PleaseInfer.token,
+                 scratch_gcs_url: Union[None, str, PleaseInfer] = PleaseInfer.token) -> None:
         """This is an object which ties together configuration on how to do
         key things in order to move records.
 
@@ -189,6 +197,9 @@ class Session():
            e.g. when reading or writing to an gs:// URL.  This will be inferred unless directly
            specified.
         :param creds: Experimental interface; do not use.
+        :param scratch_gcs_url: A gs:// URL used as a base directory where temporary
+           files/directories can be created.  This can be helpful for large imports into
+           Google BigQuery.
         """
         if session_type is PleaseInfer.token:
             session_type = _infer_session_type()
@@ -208,7 +219,8 @@ class Session():
                                  default_boto3_session=default_boto3_session,
                                  default_gcp_creds=default_gcp_creds,
                                  default_gcs_client=default_gcs_client,
-                                 scratch_s3_url=scratch_s3_url)
+                                 scratch_s3_url=scratch_s3_url,
+                                 scratch_gcs_url=scratch_gcs_url)
 
         self.creds = creds
 
@@ -261,6 +273,15 @@ class Session():
             except NotImplementedError:
                 logger.debug('boto3 not installed', exc_info=True)
 
+        scratch_gcs_url = self.creds.default_scratch_gcs_url()
+        if scratch_gcs_url is not None:
+            gcs_temp_base_loc = self.directory_url(scratch_gcs_url)
+            kwargs['gcs_temp_base_loc'] = gcs_temp_base_loc
+            # TODO: will this blow up with NotImplementedError if
+            # libaries not installed?  Do I need a workaround like the
+            # above for boto3?
+
+        # TODO: needs change here for GCS
         return db_driver(db=db,
                          url_resolver=self.url_resolver,
                          **kwargs)

@@ -45,7 +45,10 @@ class BaseCreds():
                                            None] = PleaseInfer.token,
                  scratch_s3_url: Union[PleaseInfer,
                                        str,
-                                       None] = PleaseInfer.token) -> None:
+                                       None] = PleaseInfer.token,
+                 scratch_gcs_url: Union[PleaseInfer,
+                                        str,
+                                        None] = PleaseInfer.token) -> None:
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
         self._default_gcp_creds_name = default_gcp_creds_name
@@ -56,6 +59,7 @@ class BaseCreds():
         self.__default_boto3_session = default_boto3_session
 
         self._scratch_s3_url = scratch_s3_url
+        self._scratch_gcs_url = scratch_gcs_url
 
     def google_sheets(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
         scopes = ('https://www.googleapis.com/auth/spreadsheets',)
@@ -206,3 +210,15 @@ class BaseCreds():
         if self._scratch_s3_url is PleaseInfer.token:
             self._scratch_s3_url = self._infer_scratch_s3_url(self.default_boto3_session())
         return self._scratch_s3_url
+
+    def _infer_scratch_gcs_url(self) -> Optional[str]:
+        if "SCRATCH_GCS_URL" in os.environ:
+            return os.environ["SCRATCH_GCS_URL"]
+
+        logger.debug('No SCRATCH_GCS_URL found')
+        return None
+
+    def default_scratch_gcs_url(self) -> Optional[str]:
+        if self._scratch_gcs_url is PleaseInfer.token:
+            self._scratch_gcs_url = self._infer_scratch_gcs_url()
+        return self._scratch_gcs_url
