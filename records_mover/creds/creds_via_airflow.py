@@ -47,7 +47,9 @@ class CredsViaAirflow(BaseCreds):
 
     def _gcp_creds(self, gcp_creds_name: str,
                    scopes: Iterable[str]) -> 'google.auth.credentials.Credentials':
-        from records_mover.airflow.google_cloud_credentials_hook import GoogleCloudCredentialsHook
+        from records_mover.airflow.hooks.google_cloud_credentials_hook import (
+            GoogleCloudCredentialsHook
+        )
         gcp_hook = GoogleCloudCredentialsHook(gcp_conn_id=gcp_creds_name)
         for intended_scope in scopes:
             if intended_scope not in gcp_hook.scopes():

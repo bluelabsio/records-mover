@@ -105,12 +105,29 @@ google_api_client_dependencies = [
     #
     # https://github.com/googleapis/google-auth-library-python/issues/190
     'google-api-python-client>=1.8.0,<1.9.0',
+    #
+    # For some reason this issue started happening consistently around 2020-10:
+    #
+    #  https://app.circleci.com/pipelines/github/bluelabsio/records-mover/1134/workflows/267ca651-def1-4f60-bdfb-0f857a9e0c60/jobs/9770
+    #
+    # This seems to be a clue:
+    #
+    #  https://github.com/pypa/pip/issues/8407
+    #
+    # However, downgrading pip does not seem to resolve it, so it
+    # doesn't seem to have been caused by a pip upgrade.  For now
+    # we'll explicitly state the dependency for force the install:
+    'grpcio<2.0dev,>=1.29.0',
 ]
 
-itest_dependencies = (
-    [
-        'jsonschema',  # needed for directory_validator.py
-    ] +
+nose_dependencies = [
+    'nose'
+]
+
+itest_dependencies = [
+    'jsonschema',  # needed for directory_validator.py
+] + (
+    nose_dependencies +
     # needed for records_database_fixture retrying drop/creates on
     # BigQuery
     google_api_client_dependencies
@@ -222,7 +239,18 @@ gcs_dependencies = [
     'google-cloud-storage'
 ] + smart_open_dependencies
 
-unittest_dependencies = (
+
+typecheck_dependencies = [
+    'mypy==0.770',
+    'lxml',  # needed by mypy HTML coverage reporting
+    'sqlalchemy-stubs>=0.3',
+]
+
+unittest_dependencies = [
+    'coverage',
+    'mock',
+] + (
+    nose_dependencies +
     cli_dependencies_base +
     airflow_dependencies +
     gsheet_dependencies +
@@ -230,6 +258,22 @@ unittest_dependencies = (
     aws_dependencies +
     pandas_dependencies +
     gcs_dependencies
+)
+
+docs_dependencies = [
+    'sphinx>=3',  # used to generate and upload docs -
+                  # sphinx-autodoc-typehints requires 3 or better per
+                  # https://github.com/agronholm/sphinx-autodoc-typehints/pull/138
+    'sphinx-rtd-theme',  # used to style docs for readthedocs.io
+    'recommonmark',  # used to be able to use sphinx with markdown
+] + (
+    # needed for readthedocs.io to be able to evaluate modules with
+    # sqlalchemy imports
+    db_dependencies +
+    # Same with Airflow
+    airflow_dependencies +
+    # Also boto
+    aws_dependencies
 )
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
@@ -251,23 +295,20 @@ setup(name='records-mover',
       },
       install_requires=[
           'timeout_decorator',
-          # awscli pins PyYAML below 5.3 so they can maintain support
-          # for old versions of Python.  This can cause issues at
-          # run-time if we don't constrain things here as well, as a
-          # newer version seems to sneak in:
-          #
-          # pkg_resources.ContextualVersionConflict:
-          #   (PyYAML 5.3 (.../lib/python3.7/site-packages),
-          #     Requirement.parse('PyYAML<5.3,>=3.10'), {'awscli'})
+          # awscli pins PyYAML. We have seen issues at
+          # run-time if we don't constrain things here as well. So
+          # this tracks the awscli req for python >= 3.6 which is
+          # what we support
           #
           # https://github.com/aws/aws-cli/blob/develop/setup.py
-          'PyYAML<5.3',
+          'PyYAML>=3.10,<5.4',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
           'db-facts>=4,<5',
           'chardet',
           'tenacity>=6<7',
-          'config-resolver>=5,<6',
+          # v5.0.1 resolves https://github.com/exhuma/config_resolver/issues/69
+          'config-resolver>=5.0.1,<6',
           'typing_inspect',
           'typing-extensions',
       ],
@@ -290,7 +331,10 @@ setup(name='records-mover',
           literally_every_single_database_binary_dependencies,
           'itest': itest_dependencies,
           'unittest': unittest_dependencies,
+          'typecheck': typecheck_dependencies,
           'gcs': gcs_dependencies,
+          'parquet': parquet_dependencies,
+          'docs': docs_dependencies,
       },
       entry_points={
           'console_scripts': 'mvrec = records_mover.records.cli:main',

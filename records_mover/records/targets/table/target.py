@@ -57,7 +57,7 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         # advertise what format we prefer to be given for mover paths
         # that don't yet support full records negotiation.
         #
-        # https://app.asana.com/0/1128138765527694/1130105834872106
+        # https://github.com/bluelabsio/records-mover/issues/88
         self.records_format = next(iter(self.known_supported_records_formats()), None)
 
     def move_from_records_directory(self,

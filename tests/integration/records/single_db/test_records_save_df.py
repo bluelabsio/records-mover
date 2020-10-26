@@ -42,7 +42,7 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
         records_schema = RecordsSchema.from_dataframe(df,
                                                       processing_instructions,
                                                       include_index=False)
-        records_schema.refine_from_dataframe(df, processing_instructions)
+        records_schema = records_schema.refine_from_dataframe(df, processing_instructions)
 
         with tempfile.TemporaryDirectory(prefix='test_records_save_df') as tempdir:
             output_url = pathlib.Path(tempdir).resolve().as_uri() + '/'

@@ -36,11 +36,6 @@ Url = str
 UrlDetails = Dict[Url, UrlDetailsEntry]
 
 
-#
-# Note: Any expansion of these types should also be done in
-# records.jobs.hints
-#
 RecordsFormatType = Literal['delimited', 'parquet']
 
-VALID_VARIANTS = ['dumb', 'csv', 'bigquery', 'bluelabs', 'vertica']
 DelimitedVariant = Literal['dumb', 'csv', 'bigquery', 'bluelabs', 'vertica']

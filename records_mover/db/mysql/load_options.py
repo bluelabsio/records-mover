@@ -248,7 +248,7 @@ def mysql_load_options(unhandled_hints: Set[str],
     # to a compatible locale.  This is true for a number of the
     # database drivers; the backlog item to address is here:
     #
-    # https://app.asana.com/0/1128138765527694/1173779659264666
+    # https://github.com/bluelabsio/records-mover/issues/75
     #
     # To address, we'll want to look into "set trade_date" per
     # https://stackoverflow.com/questions/44171283/load-data-local-infile-with-sqlalchemy-and-pymysql

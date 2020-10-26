@@ -1,4 +1,8 @@
-# Records Mover - mvrec
+<img
+ src="https://raw.githubusercontent.com/bluelabsio/records-mover/master/docs/records-mover-horizontal.png"
+ alt="Records Mover">
+
+[![Documentation Status](https://readthedocs.org/projects/records-mover/badge/?version=latest)](https://records-mover.readthedocs.io/en/latest/?badge=latest)
 
 Records mover is a command-line tool and Python library you can
 use to move relational data from one place to another.
@@ -26,12 +30,12 @@ their [SQLAlchemy](https://www.sqlalchemy.org/) drivers.  Records
 mover is able to auto-negotiate the most efficient way of moving data
 from one to the other.
 
-## Example CLI use
+## CLI use example
 
 Installing:
 
 ```sh
-pip3 install 'records_mover[cli,postgres,redshift]'
+pip3 install 'records_mover[cli,postgres-binary,redshift-binary]'
 ```
 
 Loading a CSV into a database:
@@ -57,13 +61,17 @@ configured using
 For more installation notes, see [INSTALL.md](./docs/INSTALL.md).  To
 understand the security model here, see [SECURITY.md](./docs/SECURITY.md).
 
-## Example Python library use
+## CLI use demo (table creation and loading)
+
+<img src="https://i.imgur.com/PvmMhft.gif">
+
+## Python library use example
 
 First, install records_mover.  We'll also use Pandas, so we'll install
 that, too, as well as a driver for Postgres.
 
 ```sh
-pip3 install records_mover[pandas,postgres]
+pip3 install records_mover[pandas,postgres-source]
 ```
 
 Now we can run this code:
@@ -80,7 +88,7 @@ import os
 sqlalchemy_url = f"postgresql+psycopg2://username:{os.environ['DB_PASSWORD']}@hostname/database_name"
 db_engine = sqlalchemy.create_engine(sqlalchemy_url)
 
-df = DataFrame.from_dict([{'a': 1}]) # or make your own!
+df = DataFrame.from_dict([{'a': 1}])  # or make your own!
 
 source = sources.dataframe(df=df)
 target = targets.table(schema_name='myschema',
@@ -90,10 +98,11 @@ results = move(source, target)
 ```
 
 When moving data, the sources supported can be found
-[here](./records_mover/records/sources/factory.py), and the
-targets supported can be found [here](./records_mover/records/targets/factory.py).
+[here](https://records-mover.readthedocs.io/en/latest/records_mover.records.sources.html),
+and the targets supported can be found
+[here](https://records-mover.readthedocs.io/en/latest/records_mover.records.targets.html).
 
-## Advanced Python library use
+## Advanced Python library use example
 
 Here's another example, using some additional features:
 
@@ -113,26 +122,30 @@ you can use this:
 # Pull in the records-mover library - be sure to run the pip install above first!
 from records_mover import Session
 from pandas import DataFrame
-import sqlalchemy
 
 session = Session()
+session.set_stream_logging()
 records = session.records
 
 db_engine = session.get_default_db_engine()
 
-df = DataFrame.from_dict([{'a': 1}]) # or make your own!
+df = DataFrame.from_dict([{'a': 1}])  # or make your own!
 
 source = records.sources.dataframe(df=df)
 target = records.targets.table(schema_name='myschema',
                                table_name='mytable',
                                db_engine=db_engine)
 results = records.move(source, target)
-
-df = DataFrame.from_dict([{'a': 1}]) # or make your own!
-
-source = sources.dataframe(df=df)
-target = targets.table(schema_name='myschema',
-                       table_name='mytable',
-                       db_engine=db_engine)
-results = move(source, target)
 ```
+
+## Python library API documentation
+
+You can can find more API documentation
+[here](https://records-mover.readthedocs.io/en/latest/index.html).
+In particular, note:
+
+* [Session() constructor](https://records-mover.readthedocs.io/en/latest/records_mover.html#records_mover.Session.__init__)
+* [sources factory methods](https://records-mover.readthedocs.io/en/latest/records_mover.records.sources.html)
+* [targets factory methods](https://records-mover.readthedocs.io/en/latest/records_mover.records.targets.html)
+* [move() method](https://records-mover.readthedocs.io/en/latest/records_mover.records.html#records_mover.records.move)
+* [BaseRecordsFormat](https://records-mover.readthedocs.io/en/latest/records_mover.records.html#records_mover.records.base_records_format.BaseRecordsFormat)

@@ -2,7 +2,7 @@ import numpy
 from typing import Optional, Tuple, TYPE_CHECKING
 from .constraints import RecordsSchemaFieldConstraints
 if TYPE_CHECKING:
-    from .types import FieldType  # noqa
+    from .field_types import FieldType  # noqa
 
 
 def details_from_numpy_dtype(dtype: numpy.dtype,
@@ -19,14 +19,14 @@ def details_from_numpy_dtype(dtype: numpy.dtype,
             if has_tz:
                 # See: 'Represent pandas datetime64 with timezone in records schema'
                 #
-                # https://app.asana.com/0/53283930106309/1132706099772565
+                # https://github.com/bluelabsio/records-mover/issues/89
                 field_type = 'datetimetz'
             else:
                 field_type = 'datetime'
     else:
         field_type = RecordsSchemaField.python_type_to_field_type(dtype.type)
         if field_type is None:
-            raise NotImplementedError(f"Teach me how to handle Pandas/numpy dtype {dtype}"
+            raise NotImplementedError(f"Teach me how to handle Pandas/numpy dtype {dtype} "
                                       f"which is dtype.type {dtype.type}")
 
     constraints = RecordsSchemaFieldConstraints.from_numpy_dtype(dtype, unique=unique)

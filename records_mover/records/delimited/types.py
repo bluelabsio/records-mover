@@ -1,11 +1,11 @@
-from typing import Optional, Union, Mapping, Dict
-from typing_extensions import Literal, TypedDict
-from records_mover.mover_types import JsonValue
-
-
-RecordsValue = Optional[Union[bool, str]]
-RecordsHints = Mapping[str, JsonValue]
-MutableRecordsHints = Dict[str, JsonValue]
+from typing_inspect import get_args
+from typing import Mapping, List
+from typing_extensions import Literal
+# TypedDict isn't mypy specific, but typing_inspect currently doesn't
+# support typing_extensions.TypedDict.
+#
+# https://github.com/ilevkivskyi/typing_inspect/issues/50
+from mypy_extensions import TypedDict
 
 HintEncoding = Literal["UTF8", "UTF16", "UTF16LE", "UTF16BE",
                        "UTF16BOM", "UTF8BOM", "LATIN1", "CP1252"]
@@ -37,26 +37,11 @@ HintDateTimeFormat = Literal["YYYY-MM-DD HH24:MI:SS",
                              "YYYY-MM-DD HH12:MI AM",
                              "MM/DD/YY HH24:MI"]
 
-
 HintFieldDelimiter = str
 
 HintRecordTerminator = str
 
 HintQuoteChar = str
-
-
-BootstrappingRecordsHints = TypedDict('BootstrappingRecordsHints',
-                                      {
-                                          'quoting': HintQuoting,
-                                          'header-row': HintHeaderRow,
-                                          'field-delimiter': HintFieldDelimiter,
-                                          'encoding': HintEncoding,
-                                          'escape': HintEscape,
-                                          'compression': HintCompression,
-                                          'record-terminator': HintRecordTerminator,
-                                      },
-                                      total=False)
-
 
 HintName = Literal["header-row",
                    "field-delimiter",
@@ -71,3 +56,24 @@ HintName = Literal["header-row",
                    "timeonlyformat",
                    "datetimeformattz",
                    "datetimeformat"]
+
+HINT_NAMES: List[HintName] = list(get_args(HintName))  # type: ignore
+
+PartialRecordsHints = TypedDict('PartialRecordsHints',
+                                {
+                                    'quoting': HintQuoting,
+                                    'header-row': HintHeaderRow,
+                                    'field-delimiter': HintFieldDelimiter,
+                                    'encoding': HintEncoding,
+                                    'escape': HintEscape,
+                                    'compression': HintCompression,
+                                    'record-terminator': HintRecordTerminator,
+                                    'quotechar': HintQuoteChar,
+                                    'doublequote': HintDoublequote,
+                                    'dateformat': HintDateFormat,
+                                    'timeonlyformat': HintTimeOnlyFormat,
+                                    'datetimeformattz': HintDateTimeFormatTz,
+                                    'datetimeformat': HintDateTimeFormat,
+                                },
+                                total=False)
+UntypedRecordsHints = Mapping[str, object]

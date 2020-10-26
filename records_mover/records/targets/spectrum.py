@@ -106,11 +106,11 @@ class SpectrumRecordsTarget(SupportsRecordsDirectory):
         columns = [f.to_sqlalchemy_column(self.driver) for f in records_schema.fields]
         for column in columns:
             if isinstance(column.type, sqlalchemy.sql.sqltypes.Numeric) and column.type.asdecimal:
-                # https://app.asana.com/0/1128138765527694/1139365728890234
+                # https://github.com/bluelabsio/records-mover/issues/85
                 raise NotImplementedError("Teach me how to write a NUMERIC to Redshift Spectrum "
                                           f"(column name: {column})")
             if isinstance(column.type, sqlalchemy.sql.sqltypes.DateTime) and column.type.timezone:
-                # https://app.asana.com/0/53283930106309/1136051640283464
+                # https://github.com/bluelabsio/records-mover/issues/86
                 raise NotImplementedError("Teach me how to write a datetimetz to Redshift Spectrum "
                                           f"({column})")
 
@@ -129,7 +129,7 @@ class SpectrumRecordsTarget(SupportsRecordsDirectory):
             #
             # https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_TABLE_external-table.html
             #
-            # https://app.asana.com/0/53283930106309/1140172717234001
+            # https://github.com/bluelabsio/records-mover/issues/87
             pass
         storage_clause = "STORED AS PARQUET\n"
         location_clause = f"LOCATION '{self.output_loc.url}_manifest'\n"

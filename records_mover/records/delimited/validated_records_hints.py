@@ -1,5 +1,5 @@
 from typing import NamedTuple, TypeVar
-from .types import (RecordsHints, HintHeaderRow, HintFieldDelimiter,
+from .types import (UntypedRecordsHints, HintHeaderRow, HintFieldDelimiter,
                     HintCompression, HintRecordTerminator,
                     HintQuoting, HintQuoteChar, HintDoublequote,
                     HintEscape, HintEncoding, HintDateFormat,
@@ -25,7 +25,7 @@ class ValidatedRecordsHints(NamedTuple):
     datetimeformat: HintDateTimeFormat
 
     @staticmethod
-    def validate(hints: RecordsHints,
+    def validate(hints: UntypedRecordsHints,
                  fail_if_cant_handle_hint: bool) -> 'ValidatedRecordsHints':
         T = TypeVar('T')
 
@@ -33,17 +33,17 @@ class ValidatedRecordsHints(NamedTuple):
             return hint.validate(hints, fail_if_cant_handle_hint)
 
         return ValidatedRecordsHints(
-            header_row=v(Hints.header_row),
-            field_delimiter=v(Hints.field_delimiter),
-            compression=v(Hints.compression),
-            record_terminator=v(Hints.record_terminator),
-            quoting=v(Hints.quoting),
-            quotechar=v(Hints.quotechar),
-            doublequote=v(Hints.doublequote),
-            escape=v(Hints.escape),
-            encoding=v(Hints.encoding),
-            dateformat=v(Hints.dateformat),
-            timeonlyformat=v(Hints.timeonlyformat),
-            datetimeformattz=v(Hints.datetimeformattz),
-            datetimeformat=v(Hints.datetimeformat),
+            header_row=v(Hints.header_row.value),
+            field_delimiter=v(Hints.field_delimiter.value),
+            compression=v(Hints.compression.value),
+            record_terminator=v(Hints.record_terminator.value),
+            quoting=v(Hints.quoting.value),
+            quotechar=v(Hints.quotechar.value),
+            doublequote=v(Hints.doublequote.value),
+            escape=v(Hints.escape.value),
+            encoding=v(Hints.encoding.value),
+            dateformat=v(Hints.dateformat.value),
+            timeonlyformat=v(Hints.timeonlyformat.value),
+            datetimeformattz=v(Hints.datetimeformattz.value),
+            datetimeformat=v(Hints.datetimeformat.value),
         )

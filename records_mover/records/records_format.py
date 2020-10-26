@@ -1,9 +1,9 @@
 import logging
 from .processing_instructions import ProcessingInstructions
-from . import RecordsHints
+from . import PartialRecordsHints, UntypedRecordsHints
 from .base_records_format import BaseRecordsFormat
 from typing import Mapping, Optional, TYPE_CHECKING
-from .delimited import MutableRecordsHints, ValidatedRecordsHints
+from .delimited import ValidatedRecordsHints
 if TYPE_CHECKING:
     from . import RecordsFormatType  # noqa
 
@@ -11,11 +11,14 @@ logger = logging.getLogger(__name__)
 
 
 class ParquetRecordsFormat(BaseRecordsFormat):
+    "Describes records files in `Parquet <https://parquet.apache.org/>`_ format"
+
     def __init__(self) -> None:
+        "Create a new instance of ParquetRecordsFormat"
         self.format_type = 'parquet'
 
     def __str__(self) -> str:
-        return f"ParquetRecordsFormat"
+        return "ParquetRecordsFormat"
 
     def __repr__(self) -> str:
         return str(self)
@@ -25,31 +28,39 @@ class ParquetRecordsFormat(BaseRecordsFormat):
 
 
 class DelimitedRecordsFormat(BaseRecordsFormat):
+    "Describes records data files in delimited (CSV) format."
+
     variant: str
-    hints: RecordsHints
+    # The strong type for 'hints' in the constructor is for IDE
+    # support--we don't actually trust input to this class to be well-typed,
+    # as it may come from public interface consumers.
+    hints: UntypedRecordsHints
     """Stores the full set of hints describing the format, combining both
     the default hints for the variant and any hint overrides provided
     in the constructor"""
 
     def __init__(self,
                  variant: str='bluelabs',
-                 hints: RecordsHints={},
+                 hints: PartialRecordsHints={},
                  processing_instructions: ProcessingInstructions=ProcessingInstructions()) -> None:
         """See the `records format documentation
         <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#hints>`_
         for full details on parameters.
 
-        :param variant: For a given type (especially delimited),
-        describe the subtype of the format.  For 'delimited', valid
-        values include 'dumb', 'csv', 'bluelabs', and 'vertica'.
-
-        :param processing_instructions: Directives on how to handle
-        different situations when processing files.
-
+        :param variant: For a given type (especially delimited), describe the subtype of the
+           format.  For 'delimited', valid values include 'dumb', 'csv', 'bluelabs', 'bigquery'
+           and 'vertica'.
+        :param hints: Dictionary of names of delimited hints mapping to their values.  See the
+           `records format specification
+           <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md>`_
+           for hints and valid values.
+        :param processing_instructions: Directives on how to handle different situations when
+           processing files.
+        :type processing_instructions: records_mover.records.ProcessingInstructions
         """
         self.format_type = 'delimited'
         self.variant = variant
-        self._custom_hints = hints
+        self.custom_hints = hints
         self.add_hints_from_variant(provided_hints=hints,
                                     processing_instructions=processing_instructions)
 
@@ -60,20 +71,20 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
                     self.hints == other.hints)
         return False
 
-    def alter_hints(self, new_hints: RecordsHints) ->\
+    def alter_hints(self, new_hints: UntypedRecordsHints) ->\
             'DelimitedRecordsFormat':
-        input_hints = dict(self.hints)  # make copy
+        input_hints = dict(self.custom_hints)  # make copy
         input_hints.update(new_hints)
         return DelimitedRecordsFormat(variant=self.variant,
-                                      hints=input_hints)
+                                      hints=input_hints)  # type: ignore
 
     def alter_variant(self, variant: str) -> 'DelimitedRecordsFormat':
         return DelimitedRecordsFormat(variant=variant,
-                                      hints=self.hints)
+                                      hints=self.custom_hints)
 
     def base_hints_from_variant(self,
-                                fail_if_dont_understand: bool = True) -> MutableRecordsHints:
-        hint_defaults: RecordsHints = {
+                                fail_if_dont_understand: bool = True) -> PartialRecordsHints:
+        hint_defaults: PartialRecordsHints = {
             'header-row': False,
             'field-delimiter': ',',
             'record-terminator': "\n",
@@ -88,8 +99,8 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
             'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
             'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
         }
-        combined_hints = dict(hint_defaults)
-        format_driven_hints: MutableRecordsHints = {}  # noqa
+        combined_hints: PartialRecordsHints = dict(hint_defaults)  # type: ignore
+        format_driven_hints: PartialRecordsHints = {}  # noqa
         if self.variant == 'dumb':
             format_driven_hints['field-delimiter'] = ','
             format_driven_hints['record-terminator'] = "\n"
@@ -140,7 +151,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
         return combined_hints
 
     def add_hints_from_variant(self,
-                               provided_hints: RecordsHints,
+                               provided_hints: PartialRecordsHints,
                                processing_instructions: ProcessingInstructions) -> None:
         combined_hints =\
             self.base_hints_from_variant(processing_instructions.fail_if_dont_understand)
@@ -161,7 +172,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
         hints_from_variant = self.base_hints_from_variant()
         hint_overrides = {
             hint: v for hint, v in self.hints.items()
-            if hint not in hints_from_variant or v != hints_from_variant[hint]
+            if hint not in hints_from_variant or v != hints_from_variant[hint]  # type: ignore
         }
         if hint_overrides != {}:
             return f"DelimitedRecordsFormat({self.variant} - {hint_overrides})"
@@ -191,7 +202,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
 
 def RecordsFormat(format_type: 'RecordsFormatType' = 'delimited',
                   variant: str='bluelabs',
-                  hints: RecordsHints={},
+                  hints: PartialRecordsHints={},
                   processing_instructions:
                   ProcessingInstructions=ProcessingInstructions()) ->\
             'BaseRecordsFormat':

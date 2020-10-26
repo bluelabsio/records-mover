@@ -1,7 +1,7 @@
 from .records_format import BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
 from ..url.base import BaseDirectoryUrl, BaseFileUrl
 from .processing_instructions import ProcessingInstructions
-from .delimited import RecordsHints
+from .delimited import PartialRecordsHints
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ class RecordsFormatFile:
                               fail_if_dont_understand: bool) -> BaseRecordsFormat:
         data = format_loc.json_contents()
         variant = None
-        hints: RecordsHints = {}
+        hints: PartialRecordsHints = {}
         # For simple form (such as with avro or parquet), this file MUST be empty.
         if data is None:
             # For detailed form (such as delimited), it MUST contain

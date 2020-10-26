@@ -1,5 +1,5 @@
 import logging
-import numpy as np
+from records_mover.mover_types import _assert_never
 from typing import Optional, cast, TYPE_CHECKING
 from records_mover.utils.limits import (FLOAT16_SIGNIFICAND_BITS,
                                         FLOAT32_SIGNIFICAND_BITS,
@@ -7,6 +7,7 @@ from records_mover.utils.limits import (FLOAT16_SIGNIFICAND_BITS,
                                         FLOAT80_SIGNIFICAND_BITS)
 if TYPE_CHECKING:
     import sqlalchemy
+    import numpy as np
     from records_mover.db import DBDriver  # noqa
     from mypy_extensions import TypedDict
 
@@ -30,14 +31,14 @@ if TYPE_CHECKING:
         min: str
         max: str
 
-    from ..types import FieldType  # noqa
+    from ..field_types import FieldType  # noqa
 
 
 logger = logging.getLogger(__name__)
 
 
 class RecordsSchemaFieldConstraints:
-    def __init__(self, required: bool, unique: Optional[bool]=None):
+    def __init__(self, required: bool, unique: Optional[bool] = None):
         """
         :param required: If True, data must always be provided for this
         column in the origin representation; if False, a 'null' or
@@ -107,6 +108,45 @@ class RecordsSchemaFieldConstraints:
         else:
             return RecordsSchemaFieldConstraints(required=required, unique=unique)
 
+    def cast(self, field_type: 'FieldType') -> 'RecordsSchemaFieldConstraints':
+        from .integer import RecordsSchemaFieldIntegerConstraints
+        from .decimal import RecordsSchemaFieldDecimalConstraints
+        from .string import RecordsSchemaFieldStringConstraints
+        required = self.required
+        unique = self.unique
+        constraints: RecordsSchemaFieldConstraints
+        if field_type == 'integer':
+            constraints =\
+                RecordsSchemaFieldIntegerConstraints(required=required,
+                                                     unique=unique,
+                                                     min_=None,
+                                                     max_=None)
+        elif field_type == 'string':
+            constraints =\
+                RecordsSchemaFieldStringConstraints(required=required,
+                                                    unique=unique,
+                                                    max_length_bytes=None,
+                                                    max_length_chars=None)
+        elif field_type == 'decimal':
+            constraints =\
+                RecordsSchemaFieldDecimalConstraints(required=required,
+                                                     unique=unique)
+        elif (field_type == 'boolean' or
+              field_type == 'date' or
+              field_type == 'time' or
+              field_type == 'timetz' or
+              field_type == 'datetime' or
+              field_type == 'datetimetz'):
+            constraints =\
+                RecordsSchemaFieldConstraints(required=required,
+                                              unique=unique)
+        else:
+            _assert_never(field_type,
+                          'Teach me how to downcast constraints '
+                          f'for {field_type}')
+
+        return constraints
+
     @staticmethod
     def from_sqlalchemy_type(required: bool,
                              unique: Optional[bool],
@@ -115,7 +155,7 @@ class RecordsSchemaFieldConstraints:
         return RecordsSchemaFieldConstraints(required=required, unique=unique)
 
     @staticmethod
-    def from_numpy_dtype(dtype: np.dtype,
+    def from_numpy_dtype(dtype: 'np.dtype',
                          unique: bool) -> 'RecordsSchemaFieldConstraints':
         from .string import RecordsSchemaFieldStringConstraints
         from .integer import RecordsSchemaFieldIntegerConstraints

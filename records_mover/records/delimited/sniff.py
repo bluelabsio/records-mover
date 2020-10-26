@@ -1,6 +1,6 @@
 import chardet
 from contextlib import contextmanager
-from . import RecordsHints, BootstrappingRecordsHints
+from . import PartialRecordsHints
 from .csv_streamer import stream_csv, python_encoding_from_hint
 import io
 import csv
@@ -8,21 +8,15 @@ import gzip
 import bz2
 from .types import HintEncoding, HintRecordTerminator, HintQuoting, HintCompression
 from .conversions import hint_encoding_from_chardet
-from typing import List, IO, Optional, Iterator, NoReturn, Dict
+from typing import List, IO, Optional, Iterator, Dict
 from records_mover.utils.rewound_fileobj import rewound_fileobj
+from records_mover.mover_types import _assert_never
 import logging
 
 
 logger = logging.getLogger(__name__)
 
 HINT_INFERENCE_SAMPLING_SIZE_BYTES = 1024
-
-
-# mypy way of validating we're covering all cases of an enum
-#
-# https://github.com/python/mypy/issues/6366#issuecomment-560369716
-def _assert_never(x: NoReturn) -> NoReturn:
-    assert False, "Unhandled type: {}".format(type(x).__name__)
 
 
 @contextmanager
@@ -91,7 +85,7 @@ def sniff_encoding_hint(fileobj: IO[bytes]) -> Optional[HintEncoding]:
 def csv_hints_from_python(fileobj: IO[bytes],
                           record_terminator_hint: Optional[HintRecordTerminator],
                           encoding_hint: HintEncoding,
-                          compression: HintCompression) -> RecordsHints:
+                          compression: HintCompression) -> PartialRecordsHints:
     # https://docs.python.org/3/library/csv.html#csv.Sniffer
     with rewound_decompressed_fileobj(fileobj,
                                       compression) as fileobj:
@@ -127,12 +121,13 @@ def csv_hints_from_python(fileobj: IO[bytes],
                 sample_with_unix_newlines = sample
             dialect = sniffer.sniff(sample_with_unix_newlines)
             header_row = sniffer.has_header(sample_with_unix_newlines)
-            out: RecordsHints = {
-                'doublequote': dialect.doublequote,
+            out: PartialRecordsHints = {
+                'doublequote': True if dialect.doublequote else False,
                 'field-delimiter': dialect.delimiter,
-                'quotechar': dialect.quotechar,
-                'header-row': header_row,
+                'header-row': True if header_row else False,
             }
+            if dialect.quotechar is not None:
+                out['quotechar'] = dialect.quotechar
             logger.info(f"Python csv.Dialect sniffed: {out}")
             return out
         except csv.Error as e:
@@ -147,10 +142,10 @@ def csv_hints_from_python(fileobj: IO[bytes],
 
 
 def csv_hints_from_pandas(fileobj: IO[bytes],
-                          streaming_hints: BootstrappingRecordsHints) -> RecordsHints:
+                          streaming_hints: PartialRecordsHints) -> PartialRecordsHints:
     import pandas
 
-    def attempt_parse(quoting: HintQuoting) -> RecordsHints:
+    def attempt_parse(quoting: HintQuoting) -> PartialRecordsHints:
         with rewound_fileobj(fileobj) as fresh_fileobj:
             current_hints = streaming_hints.copy()
             current_hints['quoting'] = quoting
@@ -193,9 +188,9 @@ def sniff_compression_hint(fileobj: IO[bytes]) -> HintCompression:
 
 
 def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
-                              initial_hints: BootstrappingRecordsHints) -> RecordsHints:
+                              initial_hints: PartialRecordsHints) -> PartialRecordsHints:
     if len(fileobjs) != 1:
-        # https://app.asana.com/0/53283930106309/1131698268455054
+        # https://github.com/bluelabsio/records-mover/issues/84
         raise NotImplementedError('Cannot currently sniff hints from mulitple '
                                   'files--please provide hints')
     fileobj = fileobjs[0]
@@ -204,7 +199,7 @@ def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
 
 
 def sniff_hints(fileobj: IO[bytes],
-                initial_hints: BootstrappingRecordsHints) -> RecordsHints:
+                initial_hints: PartialRecordsHints) -> PartialRecordsHints:
     # Major limitations:
     #
     #  * If fileobj isn't rewindable, we can't sniff or we'd keep you
@@ -264,20 +259,20 @@ def sniff_hints(fileobj: IO[bytes],
         streaming_hints['compression'] = compression_hint
         if encoding_hint is not None:
             streaming_hints['encoding'] = encoding_hint
-        streaming_hints.update(python_inferred_hints)  # type: ignore
+        streaming_hints.update(python_inferred_hints)
         pandas_inferred_hints = csv_hints_from_pandas(fileobj, streaming_hints)
 
         #
         # Let's combine these together and present back a refined
         # version of the initial hints:
         #
-        out = {
+        out: PartialRecordsHints = {
             'compression': compression_hint,
             **pandas_inferred_hints,  # type: ignore
-            **python_inferred_hints,  # type: ignore
+            **python_inferred_hints,
             'encoding': final_encoding_hint,
-            **other_inferred_csv_hints,  # type: ignore
-            **initial_hints  # type: ignore
+            **other_inferred_csv_hints,
+            **initial_hints
         }
         logger.info(f"Inferred hints from combined sources: {out}")
         return out

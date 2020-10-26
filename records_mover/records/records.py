@@ -22,6 +22,43 @@ class PleaseInfer(Enum):
 
 
 class Records:
+    """To move records from one place to another, you can use the methods on this object.
+
+    This object should be pulled from the 'records' property on a
+    :class:`records_mover.Session` object instead of being constructed
+    directly.
+
+    To move data, you can call the :meth:`records_mover.records.move`
+    method, which is aliased for your convenience on this object.
+
+    Example:
+
+    .. code-block:: python
+
+       records = session.records
+       db_engine = session.get_default_db_engine()
+       url = 's3://some-bucket/some-directory/'
+       source = records.sources.directory_from_url(url=url)
+       target = records.targets.table(schema_name='myschema',
+                                      table_name='mytable',
+                                      db_engine=db_engine)
+       results = records.move(source, target)
+
+    """
+
+    sources: RecordsSources
+    """Object containing factory methods to create various sources from
+    which to copy records, of type :class:`records_mover.records.sources.RecordsSources`
+    """
+
+    targets: RecordsTargets
+    """Object containing factory methods to create various targets to
+which records can be copied, of type :class:`records_mover.records.targets.RecordsTargets`
+    """
+
+    move: Callable
+    "Alias of :meth:`records_mover.records.move`"
+
     def __init__(self,
                  db_driver: Union[Callable[[Union['Engine', 'Connection']], 'DBDriver'],
                                   PleaseInfer] = PleaseInfer.token,
@@ -36,24 +73,8 @@ class Records:
                 db_driver = session.db_driver
             if url_resolver is PleaseInfer.token:
                 url_resolver = session.url_resolver
-        self.move = move
+        self.move = move  # type: ignore
         self.sources = RecordsSources(db_driver=db_driver,
                                       url_resolver=url_resolver)
         self.targets = RecordsTargets(url_resolver=url_resolver,
                                       db_driver=db_driver)
-        """
-        To move records from one place to another, you can use the methods on this object.
-
-        Example:
-
-        .. code-block:: python
-
-           records = session.records
-           db_engine = session.get_default_db_engine()
-           url = 's3://some-bucket/some-directory/'
-           source = records.sources.directory_from_url(url=url)
-           target = records.targets.table(schema_name='myschema',
-                                          table_name='mytable',
-                                          db_engine=db_engine)
-           results = records.move(source, target)
-        """

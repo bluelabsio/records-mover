@@ -1,5 +1,5 @@
 from records_mover.utils import quiet_remove
-from records_mover.records.delimited import cant_handle_hint, RecordsHints
+from records_mover.records.delimited import cant_handle_hint, ValidatedRecordsHints
 from typing import Set
 from .mode import CopyOptionsMode
 from .types import PostgresCopyOptions, CopyOptionsModeType, _assert_never
@@ -7,7 +7,7 @@ from .common import postgres_copy_options_common
 
 
 def postgres_copy_options_text(unhandled_hints: Set[str],
-                               hints: RecordsHints,
+                               hints: ValidatedRecordsHints,
                                fail_if_cant_handle_hint: bool,
                                mode: CopyOptionsModeType) ->\
         PostgresCopyOptions:
@@ -26,7 +26,7 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     # preceded by a backslash if they appear as part of a column
     # value: backslash itself, newline, carriage return, and the
     # current delimiter character.
-    if hints['escape'] is None:
+    if hints.escape is None:
         cant_handle_hint(fail_if_cant_handle_hint, 'escape', hints)
     else:
         quiet_remove(unhandled_hints, 'escape')
@@ -64,7 +64,7 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     #  character. This option is allowed only when using CSV format.
     #
 
-    if hints['doublequote']:
+    if hints.doublequote:
         cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
     else:
         quiet_remove(unhandled_hints, 'doublequote')
@@ -78,7 +78,7 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     #  format.
     #
 
-    if hints['quoting'] is not None:
+    if hints.quoting is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
     else:
         quiet_remove(unhandled_hints, 'quoting')
@@ -105,21 +105,21 @@ def postgres_copy_options_text(unhandled_hints: Set[str],
     # are not all alike.
 
     if mode is CopyOptionsMode.LOADING:
-        if hints['record-terminator'] in ["\n", "\r", "\r\n"]:
+        if hints.record_terminator in ["\n", "\r", "\r\n"]:
             quiet_remove(unhandled_hints, 'record-terminator')
         else:
             cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
     elif mode is CopyOptionsMode.UNLOADING:
         # No control for this is given - exports appear with unix
         # newlines.
-        if hints['record-terminator'] == "\n":
+        if hints.record_terminator == "\n":
             quiet_remove(unhandled_hints, 'record-terminator')
         else:
             cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
     else:
         _assert_never(mode)
 
-    if hints['compression'] is not None:
+    if hints.compression is not None:
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', hints)
     else:
         quiet_remove(unhandled_hints, 'compression')

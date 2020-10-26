@@ -17,22 +17,49 @@ logger = logging.getLogger(__name__)
 
 def move(records_source: RecordsSource,
          records_target: RecordsTarget,
-         processing_instructions: ProcessingInstructions=ProcessingInstructions()) -> MoveResult:
+         processing_instructions: ProcessingInstructions = ProcessingInstructions()) -> MoveResult:
     """Copy records from one location to another.  Applies a sequence of
-    possible techniques to do this in an efficient way by looking for
-    whether copy-related methods are implementeds on the source and
-    target.
+    possible techniques to do this in an efficient way and respects
+    the preferences set in records_source, records_target and
+    processing_instructions.
 
-    To figure out how to get your new source or target to work well
-    with move, follow this function down from the top and implement
-    the first method which makes sense for your new source/target.
-    See documentation for RecordsSource in sources.py and
-    RecordsTarget in targets.py for the semantics of the methods being
-    called.
+
+    Example use:
+
+    .. code-block:: python
+
+       records = session.records
+       db_engine = session.get_default_db_engine()
+       url = 's3://some-bucket/some-directory/'
+       source = records.sources.directory_from_url(url=url)
+       target = records.targets.table(schema_name='myschema',
+                                      table_name='mytable',
+                                      db_engine=db_engine)
+       results = records.move(source, target)
+
+    :param records_source: object returned by a factory method in
+       :class:`records_mover.records.sources.RecordsSources` which represents the place we're
+       copying records from.
+    :param records_target: object returned by a factory method in
+       :class:`records_mover.records.targets.RecordsTargets` which represents the place we're
+       copying records to.
+    :param processing_instructions: Directives on how to handle different situations when
+       processing files.
+    :type processing_instructions: records_mover.records.ProcessingInstructions
+
+    :rtype: records_mover.records.MoveResult
     """
     records_source.validate()
     records_target.validate()
+    # This method works by looking for whether copy-related methods
+    # are implemented on the source and target.
 
+    # To figure out how to get your new source or target to work well
+    # with move, follow this function down from the top and implement
+    # the first method which makes sense for your new source/target.
+    # See documentation for RecordsSource in sources.py and
+    # RecordsTarget in targets.py for the semantics of the methods
+    # being called.
     if (isinstance(records_source, sources_base.SupportsRecordsDirectory) and
         isinstance(records_target, SupportsMoveFromRecordsDirectory) and
        records_target.can_load_direct(records_source.records_directory().loc.scheme) and

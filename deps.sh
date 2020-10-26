@@ -7,7 +7,7 @@ export SLUGIFY_USES_TEXT_UNIDECODE=yes
 brew update && ( brew upgrade pyenv || true )
 pyenv rehash  # needed if pyenv is updated
 
-python_version=3.8.2
+python_version=3.8.5
 # zipimport.ZipImportError: can't decompress data; zlib not available:
 #    You may need `xcode-select --install` on OS X
 #    https://github.com/pyenv/pyenv/issues/451#issuecomment-151336786
@@ -20,4 +20,4 @@ pip3 install --upgrade pip
 # It's nice to unit test, integration test, and run the CLI in
 # a development pyenv.
 #
-pip3 install -r requirements.txt -e '.[unittest,itest,cli]'
+pip3 install -r requirements.txt -e '.[unittest,itest,cli,typecheck,docs]'

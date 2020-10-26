@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
     def load_and_verify(self, format_type, variant, hints={}, broken=False, sourcefn=None):
         if self.engine.name == 'bigquery' and variant == 'csv':
-            # https://app.asana.com/0/53283930106309/1130065227225218
-            # https://app.asana.com/0/53283930106309/1130065227225219
+            # https://github.com/bluelabsio/records-mover/issues/80
+            # https://github.com/bluelabsio/records-mover/issues/81
             logger.warning("This test won't pass until we can use hints to "
                            "infer date/time/etc columns, or we use records schema "
                            "from target to set types on the source, so skipping.")
@@ -95,7 +95,7 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
 
     @contextmanager
     def s3_url_source(self, filename, records_format, records_schema):
-        base_dir = self.session.directory_url(self.session._scratch_s3_url)
+        base_dir = self.session.directory_url(self.session.creds.default_scratch_s3_url())
 
         with base_dir.temporary_directory() as temp_dir_loc:
             file_loc = temp_dir_loc.file_in_this_directory('foo.gz')
@@ -118,7 +118,7 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
         # CSV type inference is not smart enough to identify the
         # date/time columns as anything but strings yet.
         #
-        # https://app.asana.com/0/1128138765527694/1130065227225218
+        # https://github.com/bluelabsio/records-mover/issues/80
         #
         # Once that's fixed, we can stop passing in a records schema
         # here when we have a header row for the names and let the

@@ -1,6 +1,6 @@
 import io
 from contextlib import contextmanager
-from records_mover.records.delimited import BootstrappingRecordsHints
+from records_mover.records.delimited import PartialRecordsHints
 from typing import Union, IO, Iterator, TYPE_CHECKING
 from .conversions import (
     python_encoding_from_hint,
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 @contextmanager
 def stream_csv(filepath_or_buffer: Union[str, IO[bytes]],
-               hints: BootstrappingRecordsHints)\
+               hints: PartialRecordsHints)\
                -> Iterator['TextFileReader']:
     """Returns a context manager that can be used to generate a full or
     partial dataframe from a CSV.  If partial, it will not read the
@@ -41,10 +41,21 @@ def stream_csv(filepath_or_buffer: Union[str, IO[bytes]],
         'header': header,
         'compression': pandas_compression_from_hint[compression_hint],
         'escapechar': hints.get('escape'),
-        'prefix': 'untitled_',
         'iterator': True,
         'engine': 'python'
     }
+    if header is None:
+        # Pandas only accepts the prefix argument (which makes for
+        # tidier column names when otherwise not provided) when the
+        # header is explicitly marked as missing, not when it's
+        # available or even when we ask Pandas to infer it.  Bummer,
+        # as this means that when Pandas infers that there's no
+        # header, the column names will end up different than folks
+        # explicitly tell records mover that there is no header.
+        #
+        # https://github.com/pandas-dev/pandas/issues/27394
+        # https://github.com/pandas-dev/pandas/pull/31383
+        kwargs['prefix'] = 'untitled_'
     if 'quoting' in hints:
         quoting = hints['quoting']
         kwargs['quoting'] = pandas_quoting_from_hint[quoting]

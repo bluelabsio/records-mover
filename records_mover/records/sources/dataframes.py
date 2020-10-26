@@ -86,7 +86,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
                     # initial_records_schema was based on only the
                     # first chunk.
                     #
-                    # https://app.asana.com/0/1128138765527694/1161074649542801
+                    # https://github.com/bluelabsio/records-mover/issues/93
                     logger.warning("Only checking first chunk for type inference")
                 i = i + 1
 
@@ -113,7 +113,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
             # Otherwise, gather information to create an efficient
             # schema on the target of the move.
             #
-            records_schema.refine_from_dataframe(df, processing_instructions)
+            records_schema = records_schema.refine_from_dataframe(df, processing_instructions)
 
         return records_schema
 
@@ -156,7 +156,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
             def save_df(df: 'DataFrame', output_filename: str) -> None:
                 logger.info(f"Writing Parquet file to {output_filename}")
                 # Note that this doesn't specify partitioning as of yet -
-                # https://app.asana.com/0/1128138765527694/1126615025514407
+                # https://github.com/bluelabsio/records-mover/issues/94
                 df.to_parquet(fname=output_filename,
                               engine='pyarrow',
                               index=self.include_index,

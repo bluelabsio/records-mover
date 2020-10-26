@@ -1,6 +1,6 @@
 __all__ = [
-    'RecordsHints',
-    'BootstrappingRecordsHints',
+    'PartialRecordsHints',
+    'UntypedRecordsHints',
     'RecordsFormatType',
     'RecordsSchema',
     'RecordsFormat',
@@ -9,11 +9,14 @@ __all__ = [
     'ParquetRecordsFormat',
     'ProcessingInstructions',
     'ExistingTableHandling',
+    'RecordsFolderNonEmptyException',
+    'RecordsException',
     'Records',
-    'move'
+    'move',
+    'MoveResult'
 ]
 
-from .delimited import BootstrappingRecordsHints, RecordsHints
+from .delimited import UntypedRecordsHints, PartialRecordsHints
 from .types import RecordsFormatType, DelimitedVariant
 from .schema import RecordsSchema
 from .mover import move
@@ -21,3 +24,5 @@ from .records_format import RecordsFormat, DelimitedRecordsFormat, ParquetRecord
 from .processing_instructions import ProcessingInstructions
 from .existing_table_handling import ExistingTableHandling
 from .records import Records
+from .errors import RecordsException, RecordsFolderNonEmptyException
+from .results import MoveResult
