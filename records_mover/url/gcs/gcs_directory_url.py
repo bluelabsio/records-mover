@@ -38,7 +38,9 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
             dir_loc.purge_directory()
         for file_loc in self.files_in_directory():
             file_loc.delete()
-        self.bucket_obj.blob(self.blob).delete()
+        # Like S3, directories are just a convenient fiction in GCS;
+        # once all contents are gone, they disappear from the file
+        # listing, since theye never really existed.
 
     def files_in_directory(self) -> List[BaseFileUrl]:
         prefix = self.blob
