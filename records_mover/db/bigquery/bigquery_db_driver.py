@@ -33,7 +33,7 @@ class BigQueryDBDriver(DBDriver):
     @contextmanager
     def temporary_gcs_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         if self.gcs_temp_base_loc is None:
-            raise NoTemporaryBucketConfiguration('Please provide a scratch GCS URL in your config')
+            raise NoTemporaryBucketConfiguration('Please provide a scratch GCS URL in your config (e.g., set SCRATCH_GCS_URL to a gs:// URL)')
         else:
             with self.gcs_temp_base_loc.temporary_directory() as temp_loc:
                 yield temp_loc

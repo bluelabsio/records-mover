@@ -30,7 +30,7 @@ class VerticaUnloader(Unloader):
     @contextmanager
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         if self.s3_temp_base_loc is None:
-            raise NoTemporaryBucketConfiguration('Please provide a scratch S3 URL in your config')
+            raise NoTemporaryBucketConfiguration('Please provide a scratch S3 URL in your config (e.g., set SCRATCH_S3_URL to an s3:// URL)')
         else:
             with self.s3_temp_base_loc.temporary_directory() as temp_loc:
                 yield temp_loc

@@ -111,15 +111,15 @@ class BaseCreds():
             else:
                 creds = self.gcs(self._default_gcp_creds_name)
                 self.__default_gcs_creds = creds
-        except (OSError, google.auth.exceptions.DefaultCredentialsError):
+        except (OSError, google.auth.exceptions.DefaultCredentialsError) as e:
             # Examples:
             #   OSError: Project was not passed and could not be determined from the environment.
             #   google.auth.exceptions.DefaultCredentialsError: Could not automatically determine
             #     credentials. Please set GOOGLE_APPLICATION_CREDENTIALS or explicitly create
             #     credentials and re-run the application. For more information, please see
             #     https://cloud.google.com/docs/authentication/getting-started
-            logger.debug("google.cloud.storage not configured",
-                         exc_info=True)
+            logger.warning(f"google.cloud.storage not configured: {e}")
+            logger.debug("Details:", exc_info=True)
             self.__default_gcs_creds = None
         return self.__default_gcs_creds
 
@@ -133,20 +133,20 @@ class BaseCreds():
             return self.__default_gcs_client
         try:
             import google.cloud.storage  # noqa
-        except ModuleNotFoundError:
-            logger.debug("google.cloud.storage not installed",
-                         exc_info=True)
+        except ModuleNotFoundError as e:
+            logger.warning(f"google.cloud.storage not installed: {e}")
+            logger.debug("Details:", exc_info=True)
             self.__default_gcs_client = None
             return self.__default_gcs_client
 
         try:
             self.__default_gcs_client = google.cloud.storage.Client(credentials=gcs_creds)
             return self.__default_gcs_client
-        except OSError:
+        except OSError as e:
             # Example:
             #   OSError: Project was not passed and could not be determined from the environment.
-            logger.debug("google.cloud.storage not configured",
-                         exc_info=True)
+            logger.warning(f"google.cloud.storage not configured: {e}")
+            logger.debug("Details:", exc_info=True)
             self.__default_gcs_client = None
             return self.__default_gcs_client
 
