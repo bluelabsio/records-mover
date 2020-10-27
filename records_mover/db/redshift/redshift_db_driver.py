@@ -18,7 +18,7 @@ from .unloader import RedshiftUnloader
 from ..unloader import Unloader
 from .loader import RedshiftLoader
 from ..loader import LoaderFromRecordsDirectory
-from ..errors import NoTemporaryBucketConfiguration
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,12 +33,11 @@ class RedshiftDBDriver(DBDriver):
         self._redshift_loader =\
             RedshiftLoader(db=db,
                            meta=self.meta,
-                           s3_temp_base_loc=s3_temp_base_loc,
-                           temporary_s3_directory_loc=self.temporary_s3_directory_loc)
+                           s3_temp_base_loc=s3_temp_base_loc)
         self._redshift_unloader =\
             RedshiftUnloader(db=db,
                              table=self.table,
-                             temporary_s3_directory_loc=self.temporary_s3_directory_loc)
+                             s3_temp_base_loc=s3_temp_base_loc)
 
     def schema_sql(self, schema: str, table: str) -> str:
         out = schema_sql_from_admin_views(schema, table, self.db)
@@ -46,14 +45,6 @@ class RedshiftDBDriver(DBDriver):
             return super().schema_sql(schema=schema, table=table)
         else:
             return out
-
-    @contextmanager
-    def temporary_s3_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
-        if self.s3_temp_base_loc is None:
-            raise NoTemporaryBucketConfiguration('Please provide a scratch S3 URL in your config')
-        else:
-            with self.s3_temp_base_loc.temporary_directory() as temp_loc:
-                yield temp_loc
 
     # if this timeout goes off (at least for Redshift), it's probably
     # because memory is filling because sqlalchemy's cache of all

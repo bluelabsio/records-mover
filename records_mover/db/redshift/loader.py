@@ -10,8 +10,8 @@ from sqlalchemy.schema import Table
 import logging
 from .records_copy import redshift_copy_options
 from ...records.load_plan import RecordsLoadPlan
-from ..errors import CredsDoNotSupportS3Import
-from typing import Optional, Union, Callable, ContextManager, List, Iterator
+from ..errors import CredsDoNotSupportS3Import, NoTemporaryBucketConfiguration
+from typing import Optional, Union, List, Iterator
 from ...url import BaseDirectoryUrl
 from botocore.credentials import Credentials
 from ...records.delimited import complain_on_unhandled_hints
@@ -23,14 +23,20 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
                  meta: sqlalchemy.MetaData,
-                 s3_temp_base_loc: Optional[BaseDirectoryUrl],
-                 # TODO: Is this silly or?
-                 temporary_s3_directory_loc: Callable[[], ContextManager[BaseDirectoryUrl]])\
+                 s3_temp_base_loc: Optional[BaseDirectoryUrl])\
             -> None:
         self.db = db
         self.meta = meta
         self.s3_temp_base_loc = s3_temp_base_loc
-        self.temporary_s3_directory_loc = temporary_s3_directory_loc
+
+    # TODO: Do I want to combine with one below?
+    @contextmanager
+    def temporary_s3_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        if self.s3_temp_base_loc is None:
+            raise NoTemporaryBucketConfiguration('Please provide a scratch S3 URL in your config')
+        else:
+            with self.s3_temp_base_loc.temporary_directory() as temp_loc:
+                yield temp_loc
 
     def load(self,
              schema: str,
