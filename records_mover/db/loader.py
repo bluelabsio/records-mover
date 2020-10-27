@@ -48,6 +48,9 @@ class LoaderFromRecordsDirectory(metaclass=ABCMeta):
             yield FilesystemDirectoryUrl(dirname)
 
     def has_temporary_loadable_directory_loc(self) -> bool:
+        # The default implementation uses the local filesystem where
+        # Records Mover runs, and we assume we can make temporary
+        # files.
         return True
 
     @abstractmethod
