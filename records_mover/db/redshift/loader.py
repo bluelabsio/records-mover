@@ -29,7 +29,6 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
         self.meta = meta
         self.s3_temp_base_loc = s3_temp_base_loc
 
-    # TODO: Do I want to combine with one below?
     @contextmanager
     def temporary_s3_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         if self.s3_temp_base_loc is None:

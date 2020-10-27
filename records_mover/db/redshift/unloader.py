@@ -12,7 +12,7 @@ from ...records.unload_plan import RecordsUnloadPlan
 from ...records.records_format import (
     BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
 )
-from typing import Union, Callable, Optional, ContextManager, List, Iterator
+from typing import Union, Callable, Optional, List, Iterator
 from ...url.base import BaseDirectoryUrl
 from botocore.credentials import Credentials
 from ..errors import CredsDoNotSupportS3Export, NoTemporaryBucketConfiguration
@@ -33,7 +33,6 @@ class RedshiftUnloader(Unloader):
         self.table = table
         self.s3_temp_base_loc = s3_temp_base_loc
 
-    # TODO: Do I want to combine with one below?
     @contextmanager
     def temporary_s3_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         if self.s3_temp_base_loc is None:
