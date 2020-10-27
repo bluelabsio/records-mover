@@ -30,6 +30,7 @@ class DoMoveFromDataframesSource(BaseTableMoveAlgorithm):
         super().__init__(prep, target_table_details, processing_instructions)
 
     def move(self) -> MoveResult:
+        # TODO: Clean up redundant clause
         if (len(self.table_target.known_supported_records_formats()) != 0 and
            self.table_target.can_move_from_fileobjs_source()):
             return self.move_from_dataframes_source_via_fileobjs()
