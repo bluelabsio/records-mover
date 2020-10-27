@@ -113,38 +113,3 @@ class TestDataUrlTarget(unittest.TestCase):
                                            })
         mock_records_format.generate_filename.assert_called_with('data')
         self.assertEqual(out, mock_MoveResult.return_value)
-
-    @patch('records_mover.records.targets.data_url.isinstance')
-    @patch('records_mover.records.targets.data_url.RecordsDirectory')
-    @patch('records_mover.records.targets.data_url.DelimitedRecordsFormat')
-    def test_move_from_temp_loc_after_filling_it(self,
-                                                 mock_DelimitedRecordsFormat,
-                                                 mock_RecordsDirectory,
-                                                 mock_isinstance):
-        mock_output_url = 'whatever://foo/foo.csv'
-        mock_output_loc = MagicMock(name='output_loc', spec=BaseFileUrl)
-        mock_output_loc.url = mock_output_url
-        mock_default_records_format = mock_DelimitedRecordsFormat.return_value
-        mock_records_format = mock_default_records_format.alter_hints.return_value
-        data_url_target = DataUrlTarget(output_loc=mock_output_loc,
-                                        records_format=None)
-
-        mock_records_source = Mock(name='records_source')
-        mock_records_format = mock_records_source.compatible_format.return_value
-        mock_processing_instructions = Mock(name='processing_instructions')
-        mock_pis = mock_processing_instructions
-        mock_temp_loc = mock_output_loc.temporary_directory.return_value.__enter__.return_value
-        mock_directory = mock_RecordsDirectory.return_value
-        mock_directory.load_format.return_value = mock_records_format
-
-        out = data_url_target.move_from_temp_loc_after_filling_it(mock_records_source,
-                                                                  mock_processing_instructions)
-        mock_RecordsDirectory.assert_called_with(records_loc=mock_temp_loc)
-        mock_records_source.move_to_records_directory.\
-            assert_called_with(mock_directory,
-                               records_format=mock_records_format,
-                               processing_instructions=mock_pis)
-
-        mock_filename = mock_records_format.generate_filename.return_value
-        self.assertEqual(out.move_count, None)
-        self.assertEqual(out.output_urls, {mock_filename: mock_output_loc.url})

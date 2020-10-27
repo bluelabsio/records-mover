@@ -1,8 +1,6 @@
 from ..results import MoveResult
 from ..records_directory import RecordsDirectory
 from .base import (SupportsMoveFromDataframes,
-                   MightSupportMoveFromTempLocAfterFillingIt,
-                   SupportsMoveToRecordsDirectory,
                    SupportsMoveFromRecordsDirectory)
 from ..processing_instructions import ProcessingInstructions
 from ...url.base import BaseFileUrl
@@ -16,7 +14,6 @@ if TYPE_CHECKING:
 
 
 class DataUrlTarget(SupportsMoveFromDataframes,
-                    MightSupportMoveFromTempLocAfterFillingIt,
                     SupportsMoveFromRecordsDirectory):
     def __init__(self,
                  output_loc: BaseFileUrl,
@@ -62,32 +59,6 @@ class DataUrlTarget(SupportsMoveFromDataframes,
                           output_urls={
                               records_format.generate_filename('data'): self.output_loc.url
                           })
-
-    def can_move_from_temp_loc_after_filling_it(self) -> bool:
-        # we can always create a temporary directory
-        return True
-
-    # TODO: Why even does this implement this protocol?  Can I go
-    # ahead and yank it and still have the tests pass?  Try a PR and
-    # see.
-    def move_from_temp_loc_after_filling_it(self,
-                                            records_source:
-                                            SupportsMoveToRecordsDirectory,
-                                            processing_instructions:
-                                            ProcessingInstructions) -> MoveResult:
-        pis = processing_instructions
-        records_format = records_source.compatible_format(self)
-        if records_format is None:
-            raise NotImplementedError("No compatible records format between "
-                                      f"{records_source} and {self}")
-        with self.output_loc.temporary_directory() as temp_loc:
-            directory = RecordsDirectory(records_loc=temp_loc)
-            records_source.\
-                move_to_records_directory(directory,
-                                          records_format=records_format,
-                                          processing_instructions=pis)
-            return self.move_from_records_directory(directory,
-                                                    processing_instructions)
 
     def can_move_from_this_format(self,
                                   source_records_format: BaseRecordsFormat) -> bool:
