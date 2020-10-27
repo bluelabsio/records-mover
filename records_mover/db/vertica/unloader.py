@@ -36,7 +36,7 @@ class VerticaUnloader(Unloader):
                 yield temp_loc
 
     def has_temporary_loadable_directory_loc(self) -> bool:
-        raise NotImplementedError  # TODO
+        return self.s3_temp_base_loc is not None
 
     def aws_creds_sql(self, aws_id: str, aws_secret: str) -> str:
         return """
@@ -68,9 +68,6 @@ class VerticaUnloader(Unloader):
             raise NotImplementedError('S3 currently required for Vertica bulk unload')
 
     def s3_available(self) -> bool:
-        if self.s3_temp_base_loc is None:
-            logger.info("Not attempting S3 export - SCRATCH_S3_URL not set")
-            return False
         out = self.db.execute("SELECT lib_name from user_libraries where lib_name = 'awslib'")
         available = len(list(out.fetchall())) == 1
         if not available:
