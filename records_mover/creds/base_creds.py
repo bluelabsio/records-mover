@@ -140,7 +140,11 @@ class BaseCreds():
             return self.__default_gcs_client
 
         try:
-            self.__default_gcs_client = google.cloud.storage.Client(credentials=gcs_creds)
+            other_args = {}
+            if 'GCP_PROJECT' in os.environ:
+                other_args['project'] = os.environ['GCP_PROJECT']  # TODO: Mention in CONFIG.md
+            self.__default_gcs_client = google.cloud.storage.Client(credentials=gcs_creds,
+                                                                    **other_args)
             return self.__default_gcs_client
         except OSError as e:
             # Example:
