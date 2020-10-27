@@ -1,7 +1,7 @@
 from ..results import MoveResult
 from ..records_directory import RecordsDirectory
 from .base import (SupportsMoveFromDataframes,
-                   SupportsMoveFromTempLocAfterFillingIt,
+                   MightSupportMoveFromTempLocAfterFillingIt,
                    SupportsMoveToRecordsDirectory,
                    SupportsMoveFromRecordsDirectory)
 from ..processing_instructions import ProcessingInstructions
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class DataUrlTarget(SupportsMoveFromDataframes,
-                    SupportsMoveFromTempLocAfterFillingIt,
+                    MightSupportMoveFromTempLocAfterFillingIt,
                     SupportsMoveFromRecordsDirectory):
     def __init__(self,
                  output_loc: BaseFileUrl,
@@ -63,6 +63,13 @@ class DataUrlTarget(SupportsMoveFromDataframes,
                               records_format.generate_filename('data'): self.output_loc.url
                           })
 
+    def can_move_from_temp_loc_after_filling_it(self) -> bool:
+        # we can always create a temporary directory
+        return True
+
+    # TODO: Why even does this implement this protocol?  Can I go
+    # ahead and yank it and still have the tests pass?  Try a PR and
+    # see.
     def move_from_temp_loc_after_filling_it(self,
                                             records_source:
                                             SupportsMoveToRecordsDirectory,

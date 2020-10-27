@@ -35,6 +35,9 @@ class VerticaUnloader(Unloader):
             with self.s3_temp_base_loc.temporary_directory() as temp_loc:
                 yield temp_loc
 
+    def has_temporary_loadable_directory_loc(self) -> bool:
+        raise NotImplementedError  # TODO
+
     def aws_creds_sql(self, aws_id: str, aws_secret: str) -> str:
         return """
             ALTER SESSION SET UDPARAMETER FOR awslib aws_id={aws_id};

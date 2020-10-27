@@ -23,10 +23,13 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
                  meta: sqlalchemy.MetaData,
+                 s3_temp_base_loc: Optional[BaseDirectoryUrl],
+                 # TODO: Is this silly or?
                  temporary_s3_directory_loc: Callable[[], ContextManager[BaseDirectoryUrl]])\
             -> None:
         self.db = db
         self.meta = meta
+        self.s3_temp_base_loc = s3_temp_base_loc
         self.temporary_s3_directory_loc = temporary_s3_directory_loc
 
     def load(self,
@@ -158,3 +161,6 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         with self.temporary_s3_directory_loc() as temp_loc:
             yield temp_loc
+
+    def has_temporary_loadable_directory_loc(self) -> bool:
+        return self.s3_temp_base_loc is not None

@@ -2,7 +2,7 @@ from .sources import (RecordsSource, SupportsMoveToRecordsDirectory,
                       SupportsToFileobjsSource,
                       FileobjsSource, SupportsToDataframesSource)
 from .targets.base import (RecordsTarget, SupportsMoveFromRecordsDirectory,
-                           SupportsMoveFromTempLocAfterFillingIt,
+                           MightSupportMoveFromTempLocAfterFillingIt,
                            MightSupportMoveFromFileobjsSource,
                            SupportsMoveFromDataframes)
 from .sources import base as sources_base
@@ -123,8 +123,9 @@ def move(records_source: RecordsSource,
                 as fileobjs_source:
             return move(fileobjs_source, records_target, processing_instructions)
     elif (isinstance(records_source, SupportsMoveToRecordsDirectory) and
-          isinstance(records_target, SupportsMoveFromTempLocAfterFillingIt) and
-          records_source.has_compatible_format(records_target)):
+          isinstance(records_target, MightSupportMoveFromTempLocAfterFillingIt) and
+          records_source.has_compatible_format(records_target) and
+          records_target.can_move_from_temp_loc_after_filling_it()):
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     f"by filling in a temporary location...")
         return records_target.move_from_temp_loc_after_filling_it(records_source,

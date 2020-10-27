@@ -33,6 +33,7 @@ class RedshiftDBDriver(DBDriver):
         self._redshift_loader =\
             RedshiftLoader(db=db,
                            meta=self.meta,
+                           s3_temp_base_loc=s3_temp_base_loc,
                            temporary_s3_directory_loc=self.temporary_s3_directory_loc)
         self._redshift_unloader =\
             RedshiftUnloader(db=db,

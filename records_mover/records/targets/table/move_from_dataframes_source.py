@@ -30,25 +30,28 @@ class DoMoveFromDataframesSource(BaseTableMoveAlgorithm):
         super().__init__(prep, target_table_details, processing_instructions)
 
     def move(self) -> MoveResult:
-        if len(self.table_target.known_supported_records_formats()) != 0:
-            if self.table_target.can_move_from_fileobjs_source():
-                return self.move_from_dataframes_source_via_fileobjs()
-            else:
-                # Some databases, like Redshift, can't load from a
-                # stream, but can load from files on an object store
-                # they're pointed to.
-                return self.move_from_dataframes_source_via_records_directory()
+        if (len(self.table_target.known_supported_records_formats()) != 0 and
+           self.table_target.can_move_from_fileobjs_source()):
+            return self.move_from_dataframes_source_via_fileobjs()
+        elif (len(self.table_target.known_supported_records_formats()) != 0 and
+              self.table_target.can_move_from_fileobjs_source() and
+              self.table_target.can_move_from_temp_loc_after_filling_it()):
+            # Some databases, like Redshift, can't load from a
+            # stream, but can load from files on an object store
+            # they're pointed to.
+            return self.move_from_dataframes_source_via_temporary_records_directory()
         else:
             logger.info("Known formats for target database: "
                         f"{self.table_target.known_supported_records_formats()}")
             logger.info("Table target can move from fileobjs source? "
                         f"{self.table_target.can_move_from_fileobjs_source()}")
             logger.warning("Loading via INSERT statement as this DB "
-                           "driver does not yet support more direct LOAD methods.  "
+                           "driver does not yet support or is not configured for "
+                           "more direct load methods.  "
                            "This may be very slow.")
             return self.move_from_dataframes_source_via_insert()
 
-    def move_from_dataframes_source_via_records_directory(self) -> MoveResult:
+    def move_from_dataframes_source_via_temporary_records_directory(self) -> MoveResult:
         records_format = next(iter(self.table_target.known_supported_records_formats()), None)
         with self.dfs_source.to_fileobjs_source(self.processing_instructions,
                                                 records_format) as fileobjs_source:
