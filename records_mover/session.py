@@ -281,7 +281,6 @@ class Session():
             # libaries not installed?  Do I need a workaround like the
             # above for boto3?
 
-        # TODO: needs change here for GCS
         return db_driver(db=db,
                          url_resolver=self.url_resolver,
                          **kwargs)
