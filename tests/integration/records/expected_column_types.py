@@ -147,7 +147,7 @@ expected_table2table_column_types = {
         "<class 'sqlalchemy.sql.sqltypes.String'>",
         "<class 'sqlalchemy.sql.sqltypes.DATE'>",
         "<class 'sqlalchemy.sql.sqltypes.String'>",
-        "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>",
+        "<class 'sqlalchemy.sql.sqltypes.DATETIME'>",
         "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>",
     ],
     ('mysql', 'bigquery'): [
