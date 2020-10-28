@@ -10,8 +10,7 @@ from ...utils.limits import (INT16_MIN, INT16_MAX,
                              num_digits)
 from .sql import schema_sql_from_admin_views
 import timeout_decorator
-from contextlib import contextmanager
-from typing import Iterator, Optional, Union, Dict, List, Tuple
+from typing import Optional, Union, Dict, List, Tuple
 from ...url.base import BaseDirectoryUrl
 from records_mover.db.quoting import quote_group_name, quote_schema_and_table
 from .unloader import RedshiftUnloader
