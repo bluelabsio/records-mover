@@ -11,7 +11,7 @@ from .loader import BigQueryLoader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from ...url.base import BaseDirectoryUrl
 from contextlib import contextmanager
-from ..errors import NoTemporaryBucketConfiguration
+
 
 
 logger = logging.getLogger(__name__)
@@ -24,19 +24,10 @@ class BigQueryDBDriver(DBDriver):
                  gcs_temp_base_loc: Optional[BaseDirectoryUrl]=None,
                  **kwargs: object) -> None:
         super().__init__(db)
-        self.gcs_temp_base_loc = gcs_temp_base_loc
         self._bigquery_loader =\
             BigQueryLoader(db=self.db,
                            url_resolver=url_resolver,
-                           temporary_gcs_directory_loc=self.temporary_gcs_directory_loc)
-
-    @contextmanager
-    def temporary_gcs_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
-        if self.gcs_temp_base_loc is None:
-            raise NoTemporaryBucketConfiguration('Please provide a scratch GCS URL in your config (e.g., set SCRATCH_GCS_URL to a gs:// URL)')
-        else:
-            with self.gcs_temp_base_loc.temporary_directory() as temp_loc:
-                yield temp_loc
+                           gcs_temp_base_loc=gcs_temp_base_loc)
 
     def loader(self) -> Optional[LoaderFromRecordsDirectory]:
         return self._bigquery_loader

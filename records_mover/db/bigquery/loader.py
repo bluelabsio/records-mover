@@ -17,6 +17,7 @@ from google.cloud.bigquery.job import LoadJobConfig
 from .load_job_config_options import load_job_config
 import logging
 from ..loader import LoaderFromFileobj
+from ..errors import NoTemporaryBucketConfiguration
 
 logger = logging.getLogger(__name__)
 
@@ -25,11 +26,19 @@ class BigQueryLoader(LoaderFromFileobj):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
                  url_resolver: UrlResolver,
-                 temporary_gcs_directory_loc: Callable[[],
-                                                       ContextManager[BaseDirectoryUrl]]) -> None:
+                 gcs_temp_base_loc: Optional[BaseDirectoryUrl])\
+            -> None:
         self.db = db
         self.url_resolver = url_resolver
-        self.temporary_gcs_directory_loc = temporary_gcs_directory_loc
+        self.gcs_temp_base_loc = gcs_temp_base_loc
+
+    @contextmanager
+    def temporary_gcs_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        if self.gcs_temp_base_loc is None:
+            raise NoTemporaryBucketConfiguration('Please provide a scratch GCS URL in your config (e.g., set SCRATCH_GCS_URL to a gs:// URL)')
+        else:
+            with self.gcs_temp_base_loc.temporary_directory() as temp_loc:
+                yield temp_loc
 
     def _parse_bigquery_schema_name(self, schema: str) -> Tuple[Optional[str], str]:
         # https://github.com/mxmzdlv/pybigquery/blob/master/pybigquery/sqlalchemy_bigquery.py#L320
@@ -132,6 +141,9 @@ class BigQueryLoader(LoaderFromFileobj):
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         with self.temporary_gcs_directory_loc() as temp_loc:
             yield temp_loc
+
+    def has_temporary_loadable_directory_loc(self) -> bool:
+        return self.gcs_temp_base_loc is not None
 
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
         try:
