@@ -40,7 +40,8 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
             file_loc.delete()
         # Like S3, directories are just a convenient fiction in GCS;
         # once all contents are gone, they disappear from the file
-        # listing, since theye never really existed.
+        # listing, since they never really existed, so we don't need
+        # a final delete on the directory.
 
     def files_in_directory(self) -> List[BaseFileUrl]:
         prefix = self.blob
