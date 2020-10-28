@@ -1,5 +1,4 @@
 from .base_test_redshift_db_driver import BaseTestRedshiftDBDriver
-from records_mover.db.errors import NoTemporaryBucketConfiguration
 from unittest.mock import patch
 import sqlalchemy
 
