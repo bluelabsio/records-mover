@@ -12,20 +12,19 @@ class TestRedshiftUnloader(unittest.TestCase):
                                          mock_redshift_unload_options):
         mock_db = Mock(name='db')
         mock_table = Mock(name='table')
-        mock_temporary_s3_directory_loc = Mock(name='temporary_s3_directory_loc')
 
         mock_target_records_format = Mock(name='target_records_format', spec=DelimitedRecordsFormat)
         mock_unload_plan = mock_RecordsUnloadPlan.return_value
         mock_unload_plan.records_format = mock_target_records_format
 
         mock_processing_instructions = mock_unload_plan.processing_instructions
-        mock_temporary_s3_directory_loc = Mock(name='temporary_s3_directory_loc')
+        mock_s3_temp_base_loc = Mock(name='s3_temp_base_loc')
         mock_target_records_format.hints = {}
 
         redshift_unloader =\
             RedshiftUnloader(db=mock_db,
                              table=mock_table,
-                             temporary_s3_directory_loc=mock_temporary_s3_directory_loc)
+                             s3_temp_base_loc=mock_s3_temp_base_loc)
         out = redshift_unloader.can_unload_this_format(mock_target_records_format)
         mock_RecordsUnloadPlan.\
             assert_called_with(records_format=mock_target_records_format)

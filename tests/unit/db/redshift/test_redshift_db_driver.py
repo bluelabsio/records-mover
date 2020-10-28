@@ -1,5 +1,5 @@
 from .base_test_redshift_db_driver import BaseTestRedshiftDBDriver
-from records_mover.db.redshift.redshift_db_driver import NoTemporaryBucketConfiguration
+from records_mover.db.errors import NoTemporaryBucketConfiguration
 from unittest.mock import patch
 import sqlalchemy
 
@@ -102,9 +102,3 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
                                                                 input_fp_significand_bits)
             self.assertEqual(type(actual_col_type), sqlalchemy.sql.sqltypes.Float)
             self.assertEqual(actual_col_type.precision, expected_fp_significand_bits)
-
-    def test_temporary_s3_directory_loc_unset(self):
-        self.redshift_db_driver.s3_temp_base_loc = None
-        with self.assertRaises(NoTemporaryBucketConfiguration):
-            with self.redshift_db_driver.temporary_s3_directory_loc():
-                pass

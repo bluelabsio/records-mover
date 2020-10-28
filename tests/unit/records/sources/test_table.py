@@ -1,7 +1,7 @@
 from records_mover.records.sources.table import TableRecordsSource
 from mock import Mock, patch, ANY
 import unittest
-from records_mover.records.targets.base import SupportsMoveFromTempLocAfterFillingIt
+from records_mover.records.targets.base import MightSupportMoveFromTempLocAfterFillingIt
 
 
 class TestTableRecordsSource(unittest.TestCase):
@@ -92,7 +92,7 @@ class TestTableRecordsSource(unittest.TestCase):
                                      mock_MoveResult,
                                      mock_RecordsUnloadPlan):
         mock_records_target = Mock(name='records_target',
-                                   spec=SupportsMoveFromTempLocAfterFillingIt)
+                                   spec=MightSupportMoveFromTempLocAfterFillingIt)
         mock_source_format_1 = Mock(name='source_format_1')
         mock_target_format_1 = Mock(name='target_format_1')
         mock_common_format = Mock(name='common_format')
@@ -128,7 +128,7 @@ class TestTableRecordsSource(unittest.TestCase):
                                      mock_MoveResult,
                                      mock_RecordsUnloadPlan):
         mock_records_target = Mock(name='records_target',
-                                   spec=SupportsMoveFromTempLocAfterFillingIt)
+                                   spec=MightSupportMoveFromTempLocAfterFillingIt)
         mock_source_format_1 = Mock(name='source_format_1')
         mock_target_format_1 = Mock(name='target_format_1')
         mock_common_format = Mock(name='common_format')
