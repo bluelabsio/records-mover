@@ -188,13 +188,8 @@ def field_to_sqlalchemy_type(field: 'RecordsSchemaField',
             has_tz = field.field_type == 'timetz'
             return sqlalchemy.sql.sqltypes.TIME(timezone=has_tz)
         else:
-            if driver.varchar_length_is_in_chars():
-                return sqlalchemy.sql.sqltypes.VARCHAR(8)  # HH:MM AM
-            else:
-                # Note: this is not yet taking into account variations in
-                # encoding used
-                utf_8_max_tax = 4
-                return sqlalchemy.sql.sqltypes.VARCHAR(8 * utf_8_max_tax)  # HH:MM AM
+            # HH:MM AM; should be same in bytes as chars at least in UTF-8
+            return sqlalchemy.sql.sqltypes.VARCHAR(8)
     else:
         raise NotImplementedError("Teach me how to handle records schema "
                                   f"type {field.field_type}")
