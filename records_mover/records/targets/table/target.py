@@ -1,6 +1,6 @@
 from records_mover.records.targets.base import (
     SupportsMoveFromRecordsDirectory,
-    SupportsMoveFromTempLocAfterFillingIt,
+    MightSupportMoveFromTempLocAfterFillingIt,
     MightSupportMoveFromFileobjsSource,
     SupportsMoveFromDataframes,
 )
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
-                         SupportsMoveFromTempLocAfterFillingIt,
+                         MightSupportMoveFromTempLocAfterFillingIt,
                          MightSupportMoveFromFileobjsSource,
                          SupportsMoveFromDataframes,
                          TargetTableDetails):
@@ -108,6 +108,13 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         if loader is None:
             return False
         return loader.can_load_this_format(source_records_format)
+
+    def can_move_from_temp_loc_after_filling_it(self) -> bool:
+        driver = self.db_driver(self.db_engine)
+        loader = driver.loader()
+        if loader is None:
+            return False
+        return loader.has_temporary_loadable_directory_loc()
 
     def move_from_temp_loc_after_filling_it(self,
                                             records_source:

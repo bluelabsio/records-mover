@@ -123,7 +123,14 @@ class MightSupportMoveFromFileobjsSource(NegotiatesRecordsFormat, metaclass=ABCM
         pass
 
 
-class SupportsMoveFromTempLocAfterFillingIt(NegotiatesRecordsFormat, metaclass=ABCMeta):
+class MightSupportMoveFromTempLocAfterFillingIt(NegotiatesRecordsFormat, metaclass=ABCMeta):
+    @abstractmethod
+    def can_move_from_temp_loc_after_filling_it(self) -> bool:
+        """Returns True if target as currently configured can be handed a
+        temporary location and fill it.
+        """
+        pass
+
     @abstractmethod
     def move_from_temp_loc_after_filling_it(self,
                                             records_source:

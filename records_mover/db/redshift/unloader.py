@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from sqlalchemy_redshift.commands import UnloadFromSelect
 from ...records.records_directory import RecordsDirectory
 import sqlalchemy
@@ -11,10 +12,10 @@ from ...records.unload_plan import RecordsUnloadPlan
 from ...records.records_format import (
     BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
 )
-from typing import Union, Callable, Optional, ContextManager, List
+from typing import Union, Callable, Optional, List, Iterator
 from ...url.base import BaseDirectoryUrl
 from botocore.credentials import Credentials
-from ..errors import CredsDoNotSupportS3Export
+from ..errors import CredsDoNotSupportS3Export, NoTemporaryBucketConfiguration
 from ...records.delimited import complain_on_unhandled_hints
 from ..unloader import Unloader
 
@@ -26,11 +27,19 @@ class RedshiftUnloader(Unloader):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
                  table: Callable[[str, str], Table],
-                 temporary_s3_directory_loc: Callable[[], ContextManager[BaseDirectoryUrl]],
+                 s3_temp_base_loc: Optional[BaseDirectoryUrl],
                  **kwargs) -> None:
         super().__init__(db=db)
         self.table = table
-        self.temporary_s3_directory_loc = temporary_s3_directory_loc
+        self.s3_temp_base_loc = s3_temp_base_loc
+
+    @contextmanager
+    def temporary_s3_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        if self.s3_temp_base_loc is None:
+            raise NoTemporaryBucketConfiguration('Please provide a scratch S3 URL in your config')
+        else:
+            with self.s3_temp_base_loc.temporary_directory() as temp_loc:
+                yield temp_loc
 
     def unload_to_s3_directory(self,
                                schema: str,
