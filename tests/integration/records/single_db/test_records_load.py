@@ -10,12 +10,15 @@ logger = logging.getLogger(__name__)
 
 class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
     def load_and_verify(self, format_type, variant, hints={}, broken=False, sourcefn=None):
-        if self.engine.name == 'bigquery' and variant == 'csv':
+        redshift_with_no_bucket = self.engine.name == 'redshift' and not self.has_scratch_bucket()
+        # TODO: See if the issue I'm seeing in tests is related too
+        # the issue 80 or if it's something new.  If new, can it be
+        # addressed easily?
+        redshift_with_no_bucket = False
+        if redshift_with_no_bucket:
             # https://github.com/bluelabsio/records-mover/issues/80
-            # https://github.com/bluelabsio/records-mover/issues/81
             logger.warning("This test won't pass until we can use hints to "
-                           "infer date/time/etc columns, or we use records schema "
-                           "from target to set types on the source, so skipping.")
+                           "infer date/time/etc columns, so skipping.")
             return
         if broken:
             expected_exception = 'sqlalchemy.exc.SQLAlchemyError'
