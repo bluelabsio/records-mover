@@ -76,7 +76,7 @@ class TestDataUrlTarget(unittest.TestCase):
                                processing_instructions=mock_processing_instructions)
         self.assertEqual(mock_fileobj_target.move_from_dataframes_source.return_value, out)
 
-    def test_can_load_directly_from_this_scheme(self):
+    def test_can_move_directly_from_scheme(self):
         mock_output_url = 'whatever://foo/foo.csv.gz'
         mock_output_loc = MagicMock(name='output_loc', spec=BaseFileUrl)
         mock_output_loc.scheme = 'whatever'
@@ -86,8 +86,8 @@ class TestDataUrlTarget(unittest.TestCase):
         # Neither can load direct right now, as no schemes have a
         # 'remote copy' option that doesn't involve streaming things
         # over the network to RecordsMover and back.
-        self.assertFalse(data_url_target.can_load_directly_from_this_scheme(mock_output_loc.scheme))
-        self.assertFalse(data_url_target.can_load_directly_from_this_scheme('something_else'))
+        self.assertFalse(data_url_target.can_move_directly_from_scheme(mock_output_loc.scheme))
+        self.assertFalse(data_url_target.can_move_directly_from_scheme('something_else'))
 
     @patch('records_mover.records.targets.data_url.MoveResult')
     def test_move_from_records_directory(self, mock_MoveResult):

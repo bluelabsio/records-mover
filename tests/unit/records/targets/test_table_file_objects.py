@@ -31,10 +31,10 @@ class TestTableFileObjects(unittest.TestCase):
                                         add_group_perms_for=self.mock_permissions_groups,
                                         existing_table_handling=self.mock_existing_table_handling)
 
-    def test_can_load_directly_from_this_scheme(self):
+    def test_can_move_directly_from_scheme(self):
         mock_scheme = Mock(name='scheme')
         mock_driver = self.mock_db_driver.return_value
         mock_loader = mock_driver.loader.return_value
         mock_loader.best_scheme_to_load_from.return_value = mock_scheme
-        self.assertEqual(True, self.table.can_load_directly_from_this_scheme(mock_scheme))
+        self.assertEqual(True, self.table.can_move_directly_from_scheme(mock_scheme))
         self.mock_db_driver.assert_called_with(self.mock_db_engine)

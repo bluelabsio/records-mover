@@ -36,8 +36,8 @@ class NegotiatesRecordsFormat(RecordsTarget, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def can_move_from_this_format(self,
-                                  source_records_format: BaseRecordsFormat) -> bool:
+    def can_move_from_format(self,
+                             source_records_format: BaseRecordsFormat) -> bool:
         """Return true if reading the specified format satisfies our format
         needs"""
         pass
@@ -53,8 +53,8 @@ class SupportsRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMeta):
         else:
             return []
 
-    def can_move_from_this_format(self,
-                                  source_records_format: BaseRecordsFormat) -> bool:
+    def can_move_from_format(self,
+                             source_records_format: BaseRecordsFormat) -> bool:
         """Return true if writing the specified format satisfies our format
         needs"""
         return self.records_format is None or self.records_format == source_records_format
@@ -102,7 +102,7 @@ class SupportsMoveFromRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMet
         pass
 
     @abstractmethod
-    def can_load_directly_from_this_scheme(self, scheme: str) -> bool:
+    def can_move_directly_from_scheme(self, scheme: str) -> bool:
         """If true is returned, the load will be done without streaming data
         down to Records Mover byte by byte--which can be expensive
         when data is large and/or network bandwidth is limited.  A

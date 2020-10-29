@@ -20,14 +20,14 @@ class TestMover(unittest.TestCase):
         mock_target = Mock(name='target', spec=SupportsMoveFromRecordsDirectory)
         mock_target.validate = Mock(name='validate')
         mock_processing_instructions = Mock(name='processing_instructions')
-        mock_target.can_load_directly_from_this_scheme.return_value = True
+        mock_target.can_move_directly_from_scheme.return_value = True
         out = move(mock_source, mock_target, mock_processing_instructions)
         mock_target.move_from_records_directory.\
             assert_called_with(directory=mock_source.records_directory.return_value,
                                override_records_format=mock_source.records_format,
                                processing_instructions=mock_processing_instructions)
         mock_scheme = mock_source.records_directory.return_value.loc.scheme
-        mock_target.can_load_directly_from_this_scheme.assert_called_with(mock_scheme)
+        mock_target.can_move_directly_from_scheme.assert_called_with(mock_scheme)
         self.assertEqual(mock_target.move_from_records_directory.return_value, out)
 
     def test_move_from_deferred_fileobjs_source(self):
