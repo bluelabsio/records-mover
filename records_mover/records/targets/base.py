@@ -102,7 +102,7 @@ class SupportsMoveFromRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMet
         pass
 
     @abstractmethod
-    def can_load_direct(self, scheme: str) -> bool:
+    def can_load_directly_from_this_scheme(self, scheme: str) -> bool:
         """If true is returned, the load will be done without streaming data
         down to Records Mover byte by byte--which can be expensive
         when data is large and/or network bandwidth is limited.  A

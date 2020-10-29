@@ -39,10 +39,10 @@ class TestTarget(unittest.TestCase):
 
         self.mock_db_driver.assert_called_with(self.mock_db_engine)
 
-    def test_can_load_direct_no_loader(self):
+    def test_can_load_directly_from_this_scheme_no_loader(self):
         mock_driver = self.mock_db_driver.return_value
         mock_driver.loader.return_value = None
-        self.assertFalse(self.target.can_load_direct('whatever'))
+        self.assertFalse(self.target.can_load_directly_from_this_scheme('whatever'))
 
         self.mock_db_driver.assert_called_with(self.mock_db_engine)
 

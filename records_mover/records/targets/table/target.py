@@ -84,7 +84,7 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         loader = driver.loader_from_fileobj()
         return loader is not None
 
-    def can_load_direct(self, scheme: str) -> bool:
+    def can_load_directly_from_this_scheme(self, scheme: str) -> bool:
         driver = self.db_driver(self.db_engine)
         loader = driver.loader()
         if loader is None:

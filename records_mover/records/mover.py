@@ -62,7 +62,7 @@ def move(records_source: RecordsSource,
     # being called.
     if (isinstance(records_source, sources_base.SupportsRecordsDirectory) and
         isinstance(records_target, SupportsMoveFromRecordsDirectory) and
-       records_target.can_load_direct(records_source.records_directory().loc.scheme) and
+       records_target.can_load_directly_from_this_scheme(records_source.records_directory().loc.scheme) and
        records_target.can_move_from_this_format(records_source.records_format)):
         # Tell the destination to load directly from wherever the
         # source is, without needing to make any copies of the data or
@@ -85,6 +85,7 @@ def move(records_source: RecordsSource,
                                                         processing_instructions)
     elif (isinstance(records_source, SupportsMoveToRecordsDirectory) and
           isinstance(records_target, targets_base.SupportsRecordsDirectory) and
+#          records_source.can_unload_direct(records_target.records_directory().loc.scheme) and
           records_source.has_compatible_format(records_target)):
         # if target can accept records and doesn't specify a
         # records_format, or uses the same as the source, we can just
