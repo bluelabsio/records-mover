@@ -83,7 +83,10 @@ class TestDataUrlTarget(unittest.TestCase):
         mock_output_loc.url = mock_output_url
         data_url_target = DataUrlTarget(output_loc=mock_output_loc,
                                         records_format=None)
-        self.assertTrue(data_url_target.can_load_direct(mock_output_loc.scheme))
+        # Neither can load direct right now, as no schemes have a
+        # 'remote copy' option that doesn't involve streaming things
+        # over the network.
+        self.assertFalse(data_url_target.can_load_direct(mock_output_loc.scheme))
         self.assertFalse(data_url_target.can_load_direct('something_else'))
 
     @patch('records_mover.records.targets.data_url.MoveResult')
