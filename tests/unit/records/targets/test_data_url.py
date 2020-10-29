@@ -85,7 +85,7 @@ class TestDataUrlTarget(unittest.TestCase):
                                         records_format=None)
         # Neither can load direct right now, as no schemes have a
         # 'remote copy' option that doesn't involve streaming things
-        # over the network.
+        # over the network to RecordsMover and back.
         self.assertFalse(data_url_target.can_load_direct(mock_output_loc.scheme))
         self.assertFalse(data_url_target.can_load_direct('something_else'))
 
