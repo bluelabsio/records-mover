@@ -38,8 +38,8 @@ class NegotiatesRecordsFormat(RecordsTarget, metaclass=ABCMeta):
     @abstractmethod
     def can_move_from_format(self,
                              source_records_format: BaseRecordsFormat) -> bool:
-        """Return true if reading the specified format satisfies our format
-        needs"""
+        """Returns True if any movement operations can be done using the specified format
+        without translation beforehand to a different format"""
         pass
 
 
@@ -55,8 +55,8 @@ class SupportsRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMeta):
 
     def can_move_from_format(self,
                              source_records_format: BaseRecordsFormat) -> bool:
-        """Return true if writing the specified format satisfies our format
-        needs"""
+        """Returns True if any movement operations can be done using the specified format
+        without translation beforehand to a different format"""
         return self.records_format is None or self.records_format == source_records_format
 
     @abstractmethod
