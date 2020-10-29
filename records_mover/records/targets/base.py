@@ -103,11 +103,11 @@ class SupportsMoveFromRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMet
 
     @abstractmethod
     def can_load_direct(self, scheme: str) -> bool:
-        """If true is returned, the load will be done without copying from one
-        URL scheme to the other--i.e., without needing to stream down
-        from one location and up to another byte by byte.  A target
-        that can read from a scheme directly is more likely to be
-        efficient in loading."""
+        """If true is returned, the load will be done without streaming data
+        down to Records Mover byte by byte--which can be expensive
+        when data is large and/or network bandwidth is limited.  A
+        target that can read from a scheme "directly" in this sense is
+        more likely to be efficient in loading."""
         pass
 
 

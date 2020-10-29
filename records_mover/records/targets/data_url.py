@@ -49,7 +49,10 @@ class DataUrlTarget(SupportsMoveFromDataframes,
                                             processing_instructions=processing_instructions)
 
     def can_load_direct(self, scheme: str) -> bool:
-        return scheme == self.output_loc.scheme
+        # Currently all means of copying between different schemes
+        # involve streaming data down to Records Mover from the source
+        # and then back up to the target.
+        return False
 
     def move_from_records_directory(self,
                                     directory: RecordsDirectory,
