@@ -62,8 +62,9 @@ def move(records_source: RecordsSource,
     # being called.
     if (isinstance(records_source, sources_base.SupportsRecordsDirectory) and
         isinstance(records_target, SupportsMoveFromRecordsDirectory) and
-       records_target.can_load_direct(records_source.records_directory().loc.scheme) and
-       records_target.can_move_from_this_format(records_source.records_format)):
+       records_target.
+        can_move_directly_from_scheme(records_source.records_directory().loc.scheme) and
+       records_target.can_move_from_format(records_source.records_format)):
         # Tell the destination to load directly from wherever the
         # source is, without needing to make any copies of the data or
         # streaming it through the current box.
@@ -77,7 +78,7 @@ def move(records_source: RecordsSource,
     elif (isinstance(records_source, FileobjsSource) and
           isinstance(records_target, MightSupportMoveFromFileobjsSource) and
           records_target.can_move_from_fileobjs_source() and
-          records_target.can_move_from_this_format(records_source.records_format)):
+          records_target.can_move_from_format(records_source.records_format)):
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     "by moving directly from stream...")
         # See if we can stream from the source to the destination directly
@@ -104,7 +105,7 @@ def move(records_source: RecordsSource,
         return out
     elif (isinstance(records_source, sources_base.SupportsRecordsDirectory) and
           isinstance(records_target, SupportsMoveFromRecordsDirectory) and
-          records_target.can_move_from_this_format(records_source.records_format)):
+          records_target.can_move_from_format(records_source.records_format)):
         directory = records_source.records_directory()
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     "by loading from {directory.scheme} directory...")
