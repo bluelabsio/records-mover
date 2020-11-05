@@ -52,7 +52,7 @@ class NegotiatesRecordsFormat(RecordsSource, metaclass=ABCMeta):
         # ones can be put at the beginning.
         for source_candidate, target_candidate in ranked_candidates:
             if source_candidate is not None:
-                if records_target.can_move_from_this_format(source_candidate):
+                if records_target.can_move_from_format(source_candidate):
                     compatible_format = source_candidate
                     break
             if target_candidate is not None:

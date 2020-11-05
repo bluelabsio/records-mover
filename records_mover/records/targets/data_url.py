@@ -45,8 +45,11 @@ class DataUrlTarget(SupportsMoveFromDataframes,
                 move_from_dataframes_source(dfs_source=dfs_source,
                                             processing_instructions=processing_instructions)
 
-    def can_load_direct(self, scheme: str) -> bool:
-        return scheme == self.output_loc.scheme
+    def can_move_directly_from_scheme(self, scheme: str) -> bool:
+        # Currently all means of copying between different schemes
+        # involve streaming data down to Records Mover from the source
+        # and then back up to the target.
+        return False
 
     def move_from_records_directory(self,
                                     directory: RecordsDirectory,
@@ -60,8 +63,9 @@ class DataUrlTarget(SupportsMoveFromDataframes,
                               records_format.generate_filename('data'): self.output_loc.url
                           })
 
-    def can_move_from_this_format(self,
-                                  source_records_format: BaseRecordsFormat) -> bool:
+    def can_move_from_format(self,
+                             source_records_format: BaseRecordsFormat) -> bool:
+
         if self.records_format is None:
             return True
         else:
