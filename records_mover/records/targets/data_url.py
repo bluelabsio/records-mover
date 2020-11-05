@@ -65,6 +65,7 @@ class DataUrlTarget(SupportsMoveFromDataframes,
 
     def can_move_from_format(self,
                              source_records_format: BaseRecordsFormat) -> bool:
+
         if self.records_format is None:
             return True
         else:
