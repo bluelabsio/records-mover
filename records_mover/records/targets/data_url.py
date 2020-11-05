@@ -63,8 +63,8 @@ class DataUrlTarget(SupportsMoveFromDataframes,
                               records_format.generate_filename('data'): self.output_loc.url
                           })
 
-    def can_move_from_this_format(self,
-                                  source_records_format: BaseRecordsFormat) -> bool:
+    def can_move_from_format(self,
+                             source_records_format: BaseRecordsFormat) -> bool:
         if self.records_format is None:
             return True
         else:
