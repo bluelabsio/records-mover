@@ -39,6 +39,8 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
         return self.records_format == target_records_format
 
     def can_move_to_scheme(self, scheme: str) -> bool:
+        if scheme is None:
+            return False
         # Any URL can accept a stream of data using
         # move_to_records_directory() below
         return True

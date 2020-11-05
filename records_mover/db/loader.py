@@ -42,6 +42,9 @@ class LoaderFromRecordsDirectory(metaclass=ABCMeta):
         method"""
         ...
 
+    def temporary_loadable_directory_scheme(self) -> str:
+        return 'file'
+
     @contextmanager
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         with TemporaryDirectory(prefix='temporary_loadable_directory_loc') as dirname:

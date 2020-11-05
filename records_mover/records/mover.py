@@ -127,6 +127,7 @@ def move(records_source: RecordsSource,
     elif (isinstance(records_source, SupportsMoveToRecordsDirectory) and
           isinstance(records_target, MightSupportMoveFromTempLocAfterFillingIt) and
           records_source.has_compatible_format(records_target) and
+          records_source.can_move_to_scheme(records_target.temporary_loadable_directory_scheme()) and
           records_target.can_move_from_temp_loc_after_filling_it()):
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     f"by filling in a temporary location...")

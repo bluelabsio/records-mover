@@ -103,6 +103,8 @@ class SupportsMoveToRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMeta)
         data down to Records Mover byte by byte--which can be
         expensive when data is large and/or network bandwidth is
         limited.
+
+        TODO: Document scheme is None
         """
         pass
 

@@ -132,6 +132,11 @@ class MightSupportMoveFromTempLocAfterFillingIt(NegotiatesRecordsFormat, metacla
         pass
 
     @abstractmethod
+    def temporary_loadable_directory_scheme(self) -> str:
+        """TODO.  None if no loading can be supported via a temporary directory."""
+        pass
+
+    @abstractmethod
     def move_from_temp_loc_after_filling_it(self,
                                             records_source:
                                             SupportsMoveToRecordsDirectory,
