@@ -86,6 +86,7 @@ def move(records_source: RecordsSource,
                                                         processing_instructions)
     elif (isinstance(records_source, SupportsMoveToRecordsDirectory) and
           isinstance(records_target, targets_base.SupportsRecordsDirectory) and
+          records_source.can_move_to_scheme(records_target.records_directory().loc.scheme) and
           records_source.has_compatible_format(records_target)):
         # if target can accept records and doesn't specify a
         # records_format, or uses the same as the source, we can just

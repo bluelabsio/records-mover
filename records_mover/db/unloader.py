@@ -25,8 +25,13 @@ class Unloader(metaclass=ABCMeta):
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
         ...
 
+    # TODO: Drop this in name in other PR
     @abstractmethod
     def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
+        ...
+
+    @abstractmethod
+    def can_unload_to_scheme(self, scheme: str) -> bool:
         ...
 
     def best_records_format(self) -> Optional[BaseRecordsFormat]:

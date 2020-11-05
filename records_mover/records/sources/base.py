@@ -97,6 +97,16 @@ class SupportsRecordsDirectory(RecordsSource, metaclass=ABCMeta):
 
 class SupportsMoveToRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMeta):
     @abstractmethod
+    def can_move_to_scheme(self, scheme: str) -> bool:
+        """If true is returned, the given scheme is a compatible place where
+        the unload will be done.  Note that this may include streaming
+        data down to Records Mover byte by byte--which can be
+        expensive when data is large and/or network bandwidth is
+        limited.
+        """
+        pass
+
+    @abstractmethod
     def move_to_records_directory(self,
                                   records_directory: RecordsDirectory,
                                   records_format: BaseRecordsFormat,
