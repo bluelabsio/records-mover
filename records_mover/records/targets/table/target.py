@@ -84,7 +84,7 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         loader = driver.loader_from_fileobj()
         return loader is not None
 
-    def can_load_direct(self, scheme: str) -> bool:
+    def can_move_directly_from_scheme(self, scheme: str) -> bool:
         driver = self.db_driver(self.db_engine)
         loader = driver.loader()
         if loader is None:
@@ -99,8 +99,8 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
             return []
         return loader.known_supported_records_formats_for_load()
 
-    def can_move_from_this_format(self,
-                                  source_records_format: BaseRecordsFormat) -> bool:
+    def can_move_from_format(self,
+                             source_records_format: BaseRecordsFormat) -> bool:
         """Return true if writing the specified format satisfies our format
         needs"""
         driver = self.db_driver(self.db_engine)
