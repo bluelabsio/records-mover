@@ -69,3 +69,11 @@ class TestTarget(unittest.TestCase):
 
         self.mock_db_driver.assert_called_with(self.mock_db_engine)
         mock_loader.has_temporary_loadable_directory_loc.assert_called_with()
+
+    def test_temporary_loadable_directory_schemer(self):
+        mock_driver = self.mock_db_driver.return_value
+        mock_loader = mock_driver.loader.return_value
+        mock_loader.has_temporary_loadable_directory_loc.return_value = True
+        out = self.target.temporary_loadable_directory_scheme()
+        self.assertEqual(out,
+                         mock_loader.temporary_loadable_directory_scheme.return_value)
