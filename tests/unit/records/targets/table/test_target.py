@@ -60,3 +60,12 @@ class TestTarget(unittest.TestCase):
         self.assertFalse(self.target.can_move_from_format(mock_source_records_format))
 
         self.mock_db_driver.assert_called_with(self.mock_db_engine)
+
+    def test_can_move_from_format_with_loader(self):
+        mock_driver = self.mock_db_driver.return_value
+        mock_loader = mock_driver.loader.return_value
+        mock_loader.has_temporary_loadable_directory_loc.return_value = True
+        self.assertTrue(self.target.can_move_from_temp_loc_after_filling_it())
+
+        self.mock_db_driver.assert_called_with(self.mock_db_engine)
+        mock_loader.has_temporary_loadable_directory_loc.assert_called_with()
