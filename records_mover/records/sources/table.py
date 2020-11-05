@@ -53,7 +53,6 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
             return False
         return unloader.can_unload_this_format(target_records_format)
 
-    # TODO: above can_move_to_this_format vs can_move_to_scheme - do I need to modify other PR?
     def can_move_to_scheme(self, scheme: str) -> bool:
         unloader = self.driver.unloader()
         if unloader is None:
