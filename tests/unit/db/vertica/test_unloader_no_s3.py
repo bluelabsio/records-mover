@@ -1,8 +1,7 @@
 from records_mover.db.vertica.unloader import VerticaUnloader
 from records_mover.db.errors import NoTemporaryBucketConfiguration
-from records_mover.records.records_format import DelimitedRecordsFormat
 import unittest
-from mock import patch, Mock
+from mock import Mock
 
 
 class TestVerticaUnloaderNoS3(unittest.TestCase):
