@@ -106,6 +106,8 @@ class RedshiftUnloader(Unloader):
     def can_unload_to_scheme(self, scheme: str) -> bool:
         if scheme == 's3':
             return True
+        # Otherwise we'll need a temporary bucket configured for
+        # Redshift to unload into
         return self.s3_temp_base_loc is not None
 
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
