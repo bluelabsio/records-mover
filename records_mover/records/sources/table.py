@@ -54,8 +54,6 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         return unloader.can_unload_this_format(target_records_format)
 
     def can_move_to_scheme(self, scheme: str) -> bool:
-        if scheme is None:
-            return False
         unloader = self.driver.unloader()
         if unloader is None:
             return False
