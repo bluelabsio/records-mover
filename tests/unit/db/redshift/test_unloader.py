@@ -44,7 +44,7 @@ class TestRedshiftUnloader(unittest.TestCase):
                              s3_temp_base_loc=None)
         self.assertTrue(redshift_unloader.can_unload_to_scheme('s3'))
 
-    def test_can_unload_to_scheme_file_with_temp_bucket_true(self):
+    def test_can_unload_to_scheme_file_without_temp_bucket_true(self):
         mock_db = Mock(name='db')
         mock_table = Mock(name='table')
 
