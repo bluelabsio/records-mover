@@ -56,6 +56,7 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
     def can_move_to_scheme(self, scheme: str) -> bool:
         unloader = self.driver.unloader()
         if unloader is None:
+            # bulk export is not provided by this database
             return False
         return unloader.can_unload_to_scheme(scheme)
 
