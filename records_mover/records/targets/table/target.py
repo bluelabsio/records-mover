@@ -116,6 +116,14 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
             return False
         return loader.has_temporary_loadable_directory_loc()
 
+    def temporary_loadable_directory_scheme(self) -> str:
+        driver = self.db_driver(self.db_engine)
+        loader = driver.loader()
+        if loader is None:
+            raise TypeError("Please check can_move_from_temp_loc_after_filling_it() "
+                            "before calling this")
+        return loader.temporary_loadable_directory_scheme()
+
     def move_from_temp_loc_after_filling_it(self,
                                             records_source:
                                             SupportsMoveToRecordsDirectory,

@@ -174,3 +174,8 @@ class TestTableRecordsSource(unittest.TestCase):
             mock_records_schema.cast_dataframe_types.return_value,
             mock_records_schema.cast_dataframe_types.return_value,
         ])
+
+    def test_can_move_to_scheme(self):
+        out = self.table_records_source.can_move_to_scheme(Mock())
+        self.assertEqual(out,
+                         self.mock_unloader.can_unload_to_scheme.return_value)

@@ -141,3 +141,6 @@ class TestPostgresUnloader(unittest.TestCase):
                                                     'compression': None
                                                 }),
                          self.unloader.best_records_format())
+
+    def test_can_unload_to_scheme_any_true(self):
+        self.assertTrue(self.unloader.can_unload_to_scheme(Mock()))

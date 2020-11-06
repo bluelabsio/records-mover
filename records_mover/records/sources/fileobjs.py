@@ -38,6 +38,11 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
                                 target_records_format: BaseRecordsFormat) -> bool:
         return self.records_format == target_records_format
 
+    def can_move_to_scheme(self, scheme: str) -> bool:
+        # Any URL can accept a stream of data using
+        # move_to_records_directory() below
+        return True
+
     @staticmethod
     @contextmanager
     def infer_if_needed(target_names_to_input_fileobjs: Mapping[str, IO[bytes]],
