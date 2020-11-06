@@ -10,12 +10,12 @@ logger = logging.getLogger(__name__)
 
 class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
     def load_and_verify(self, format_type, variant, hints={}, broken=False, sourcefn=None):
-        if self.engine.name == 'bigquery' and variant == 'csv':
-            # https://github.com/bluelabsio/records-mover/issues/80
+        redshift_with_no_bucket = self.engine.name == 'redshift' and not self.has_scratch_bucket()
+        if redshift_with_no_bucket:
             # https://github.com/bluelabsio/records-mover/issues/81
-            logger.warning("This test won't pass until we can use hints to "
-                           "infer date/time/etc columns, or we use records schema "
-                           "from target to set types on the source, so skipping.")
+            logger.warning("This test won't pass until we can use the "
+                           "records schema from the target to cast the "
+                           "dataframe types appropriately, so skipping.")
             return
         if broken:
             expected_exception = 'sqlalchemy.exc.SQLAlchemyError'

@@ -115,12 +115,19 @@ class RecordsTableTimezoneValidator:
               self.tc.variant_doesnt_support_seconds(self.file_variant)))):
             seconds = '00'
             micros = '000000'
+
+            # Some databases on rendering this as a string will just
+            # drop the microseconds if they're all zeros.
+            assert timestampstr in [f'2000-01-02 12:34:{seconds}.{micros}',
+                                    f'2000-01-02 12:34:{seconds}'],\
+                f"expected '2000-01-02 12:34:{seconds}.{micros}' got '{timestampstr}'"
+
         else:
             seconds = '56'
             micros = '789012'
 
-        assert timestampstr == f'2000-01-02 12:34:{seconds}.{micros}',\
-            f"expected '2000-01-02 12:34:{seconds}.{micros}' got '{timestampstr}'"
+            assert timestampstr == f'2000-01-02 12:34:{seconds}.{micros}',\
+                f"expected '2000-01-02 12:34:{seconds}.{micros}' got '{timestampstr}'"
 
         if (self.source_db_engine is not None and
            self.tc.database_has_no_usable_timestamptz_type(self.source_db_engine)):
@@ -137,13 +144,23 @@ class RecordsTableTimezoneValidator:
                  f"class is {type(timestamptzstr)} - expected "
                  f"hour to be {utc_hour}")
         else:
-            assert timestamptzstr in [
-                f'2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC',
-                f'2000-01-02 {utc_hour}:34:{seconds}.{micros}+00'
-            ],\
-                (f"translated timestamptzstr was {timestamptzstr} and "
-                 f"class is {type(timestamptzstr)} - expected "
-                 f"hour to be {utc_hour}")
+            if micros == '000000':
+                assert timestamptzstr in [
+                    f'2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC',
+                    f'2000-01-02 {utc_hour}:34:{seconds} UTC',
+                    f'2000-01-02 {utc_hour}:34:{seconds}.{micros}+00'
+                ],\
+                    (f"translated timestamptzstr was {timestamptzstr} and "
+                     f"class is {type(timestamptzstr)} - expected "
+                     f"hour to be {utc_hour}")
+            else:
+                assert timestamptzstr in [
+                    f'2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC',
+                    f'2000-01-02 {utc_hour}:34:{seconds}.{micros}+00'
+                ],\
+                    (f"translated timestamptzstr was {timestamptzstr} and "
+                     f"class is {type(timestamptzstr)} - expected "
+                     f"hour to be {utc_hour}")
 
         utc = pytz.timezone('UTC')
         if ((load_variant is not None and

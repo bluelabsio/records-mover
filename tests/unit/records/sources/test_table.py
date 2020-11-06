@@ -104,7 +104,7 @@ class TestTableRecordsSource(unittest.TestCase):
         self.mock_unloader.known_supported_records_formats_for_unload.return_value =\
             mock_source_formats
 
-        def target_can_move_from_this_format(source_candidate):
+        def target_can_move_from_format(source_candidate):
             return (source_candidate == mock_common_format or
                     source_candidate == mock_target_format_1)
 
@@ -114,7 +114,7 @@ class TestTableRecordsSource(unittest.TestCase):
 
         self.mock_loader.can_move_to_this_format = source_can_move_to_this_format
 
-        mock_records_target.can_move_from_this_format = target_can_move_from_this_format
+        mock_records_target.can_move_from_format = target_can_move_from_format
         out = self.table_records_source.has_compatible_format(mock_records_target)
         self.mock_unloader.known_supported_records_formats_for_unload.assert_called_with()
         mock_records_target.known_supported_records_formats.assert_called_with()
@@ -140,7 +140,7 @@ class TestTableRecordsSource(unittest.TestCase):
         self.mock_unloader.known_supported_records_formats_for_unload.return_value =\
             mock_source_formats
 
-        def target_can_move_from_this_format(source_candidate):
+        def target_can_move_from_format(source_candidate):
             return source_candidate in [mock_common_format,
                                         mock_target_format_1,
                                         mock_source_format_1]
@@ -150,7 +150,7 @@ class TestTableRecordsSource(unittest.TestCase):
 
         self.mock_driver.can_move_to_this_format = source_can_move_to_this_format
 
-        mock_records_target.can_move_from_this_format = target_can_move_from_this_format
+        mock_records_target.can_move_from_format = target_can_move_from_format
         out = self.table_records_source.has_compatible_format(mock_records_target)
         self.mock_unloader.known_supported_records_formats_for_unload.assert_called_with()
         mock_records_target.known_supported_records_formats.assert_called_with()
@@ -174,3 +174,8 @@ class TestTableRecordsSource(unittest.TestCase):
             mock_records_schema.cast_dataframe_types.return_value,
             mock_records_schema.cast_dataframe_types.return_value,
         ])
+
+    def test_can_move_to_scheme(self):
+        out = self.table_records_source.can_move_to_scheme(Mock())
+        self.assertEqual(out,
+                         self.mock_unloader.can_unload_to_scheme.return_value)

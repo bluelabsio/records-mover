@@ -53,6 +53,13 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
             return False
         return unloader.can_unload_this_format(target_records_format)
 
+    def can_move_to_scheme(self, scheme: str) -> bool:
+        unloader = self.driver.unloader()
+        if unloader is None:
+            # bulk export is not provided by this database
+            return False
+        return unloader.can_unload_to_scheme(scheme)
+
     @contextmanager
     def to_dataframes_source(self,
                              processing_instructions: ProcessingInstructions) -> \

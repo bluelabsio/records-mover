@@ -84,7 +84,7 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         loader = driver.loader_from_fileobj()
         return loader is not None
 
-    def can_load_direct(self, scheme: str) -> bool:
+    def can_move_directly_from_scheme(self, scheme: str) -> bool:
         driver = self.db_driver(self.db_engine)
         loader = driver.loader()
         if loader is None:
@@ -99,8 +99,8 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
             return []
         return loader.known_supported_records_formats_for_load()
 
-    def can_move_from_this_format(self,
-                                  source_records_format: BaseRecordsFormat) -> bool:
+    def can_move_from_format(self,
+                             source_records_format: BaseRecordsFormat) -> bool:
         """Return true if writing the specified format satisfies our format
         needs"""
         driver = self.db_driver(self.db_engine)
@@ -115,6 +115,14 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         if loader is None:
             return False
         return loader.has_temporary_loadable_directory_loc()
+
+    def temporary_loadable_directory_scheme(self) -> str:
+        driver = self.db_driver(self.db_engine)
+        loader = driver.loader()
+        if loader is None:
+            raise TypeError("Please check can_move_from_temp_loc_after_filling_it() "
+                            "before calling this")
+        return loader.temporary_loadable_directory_scheme()
 
     def move_from_temp_loc_after_filling_it(self,
                                             records_source:
