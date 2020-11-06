@@ -21,6 +21,7 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_target_records_format = mock_load_plan.records_format
         mock_target_records_format.hints = {}
         mock_directory = Mock(name='mock_directory')
+        mock_directory.scheme = 'gs'
         mock_url = Mock(name='mock_url')
         mock_directory.manifest_entry_urls.return_value = [mock_url]
 
@@ -33,7 +34,6 @@ class TestBigQueryLoader(unittest.TestCase):
     def test_load_with_default_project(self, mock_load_job_config):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
-        mock_file_url = mock_url_resolver.file_url
         big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
                                           gcs_temp_base_loc=None)
         mock_schema = 'my_dataset'
@@ -44,21 +44,19 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_target_records_format.format_type = 'delimited'
         mock_target_records_format.hints = {}
         mock_directory = Mock(name='mock_directory')
+        mock_directory.scheme = 'gs'
         mock_url = Mock(name='mock_url')
         mock_directory.manifest_entry_urls.return_value = [mock_url]
 
         mock_connection = mock_db.engine.raw_connection.return_value.connection
         mock_client = mock_connection._client
-        mock_job = mock_client.load_table_from_file.return_value
+        mock_job = mock_client.load_table_from_uri.return_value
         mock_job.output_rows = 42
-        mock_loc = mock_file_url.return_value
-        mock_f = mock_loc.open.return_value.__enter__.return_value
         out = big_query_loader.load(schema=mock_schema, table=mock_table,
                                     load_plan=mock_load_plan,
                                     directory=mock_directory)
-        mock_file_url.assert_called_with(mock_url)
-        mock_client.load_table_from_file.\
-            assert_called_with(mock_f,
+        mock_client.load_table_from_uri.\
+            assert_called_with([mock_url],
                                'my_dataset.my_table',
                                location="US",
                                job_config=mock_load_job_config.return_value)
@@ -70,9 +68,9 @@ class TestBigQueryLoader(unittest.TestCase):
     def test_load(self, mock_load_job_config):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
-        mock_file_url = mock_url_resolver.file_url
+        mock_gcs_temp_base_loc = None
         big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                          gcs_temp_base_loc=None)
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
         mock_schema = 'my_project.my_dataset'
         mock_table = 'mytable'
         mock_load_plan = Mock(name='mock_load_plan')
@@ -81,21 +79,20 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_target_records_format.format_type = 'delimited'
         mock_target_records_format.hints = {}
         mock_directory = Mock(name='mock_directory')
+        mock_directory.scheme = 'gs'
         mock_url = Mock(name='mock_url')
         mock_directory.manifest_entry_urls.return_value = [mock_url]
 
         mock_connection = mock_db.engine.raw_connection.return_value.connection
         mock_client = mock_connection._client
-        mock_job = mock_client.load_table_from_file.return_value
+        mock_job = mock_client.load_table_from_uri.return_value
         mock_job.output_rows = 42
-        mock_loc = mock_file_url.return_value
-        mock_f = mock_loc.open.return_value.__enter__.return_value
         out = big_query_loader.load(schema=mock_schema, table=mock_table,
                                     load_plan=mock_load_plan,
                                     directory=mock_directory)
-        mock_file_url.assert_called_with(mock_url)
-        mock_client.load_table_from_file.\
-            assert_called_with(mock_f,
+        # mock_file_url.assert_called_with(mock_url) # TODO
+        mock_client.load_table_from_uri.\
+            assert_called_with([mock_url],
                                'my_project.my_dataset.mytable',
                                location="US",
                                job_config=mock_load_job_config.return_value)
