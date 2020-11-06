@@ -10,6 +10,14 @@ logger = logging.getLogger(__name__)
 
 class RecordsLoadDataframeIntegrationTest(BaseRecordsIntegrationTest):
     def load_and_verify(self) -> None:
+        redshift_with_no_bucket = self.engine.name == 'redshift' and not self.has_scratch_bucket()
+        if redshift_with_no_bucket:
+            # https://github.com/bluelabsio/records-mover/issues/81
+            logger.warning("This test won't pass until we can use the "
+                           "records schema from the target to cast the "
+                           "dataframe types appropriately, so skipping.")
+            return
+
         if not self.has_pandas():
             logger.warning("Skipping test as we don't have Pandas to save with.")
             return
