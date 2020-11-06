@@ -19,7 +19,7 @@ class BigQueryDBDriver(DBDriver):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
                  url_resolver: UrlResolver,
-                 gcs_temp_base_loc: Optional[BaseDirectoryUrl]=None,
+                 gcs_temp_base_loc: Optional[BaseDirectoryUrl] = None,
                  **kwargs: object) -> None:
         super().__init__(db)
         self._bigquery_loader =\

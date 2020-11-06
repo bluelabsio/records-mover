@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Union, List, IO, Tuple, Optional, Iterator, Callable
+from typing import Union, List, IO, Tuple, Optional, Iterator
 from ...url import BaseDirectoryUrl
 from ...records.delimited import complain_on_unhandled_hints
 import pprint
