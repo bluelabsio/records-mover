@@ -27,13 +27,10 @@ class LoaderFromRecordsDirectory(metaclass=ABCMeta):
              load_plan: RecordsLoadPlan,
              directory: RecordsDirectory) -> Optional[int]:
         """Loads the data from the data specified to the RecordsDirectory
-        instance named 'directory'.  Guarantees a manifest file named
-        'manifest' is written to the target directory pointing to the
-        target records.
+        instance named 'directory'.
 
         Returns number of rows loaded (if database provides that
-        info).
-        """
+        info)."""
         ...
 
     @abstractmethod

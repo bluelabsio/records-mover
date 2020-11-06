@@ -19,21 +19,39 @@ class Unloader(metaclass=ABCMeta):
                table: str,
                unload_plan: RecordsUnloadPlan,
                directory: RecordsDirectory) -> Optional[int]:
+        """Export data in the specified table to the RecordsDirectory instance
+        named 'directory'.  Guarantees a manifest file named
+        'manifest' is written to the target directory pointing to the
+        target records.
+
+        Returns number of rows loaded (if database provides that
+        info)."""
         ...
 
     @abstractmethod
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
+        """Supplies a list of the records formats which can be bulk exported
+        from this database.  This may not be the full set - see
+        can_unlaod_this_format() to test other possibilities.
+        """
         ...
 
     @abstractmethod
     def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
+        """Determine whether a specific records format can be exported by this
+        database."""
         ...
 
     @abstractmethod
     def can_unload_to_scheme(self, scheme: str) -> bool:
+        """Determine whether a URL scheme can be unloaded to by this database.
+        Depending on capabilities of this driver and the underlying database,
+        this may depend on whether a temporary location has been configured."""
         ...
 
     def best_records_format(self) -> Optional[BaseRecordsFormat]:
+        """Returns the ideal records format for export by this database.
+        Useful in the absence of other constraints."""
         supported_formats = self.known_supported_records_formats_for_unload()
         if len(supported_formats) == 0:
             return None
