@@ -275,11 +275,11 @@ class Session():
 
         scratch_gcs_url = self.creds.default_scratch_gcs_url()
         if scratch_gcs_url is not None:
-            gcs_temp_base_loc = self.directory_url(scratch_gcs_url)
-            kwargs['gcs_temp_base_loc'] = gcs_temp_base_loc
-            # TODO: will this blow up with NotImplementedError if
-            # libaries not installed?  Do I need a workaround like the
-            # above for boto3?
+            try:
+                gcs_temp_base_loc = self.directory_url(scratch_gcs_url)
+                kwargs['gcs_temp_base_loc'] = gcs_temp_base_loc
+            except NotImplementedError:
+                logger.debug('google.cloud.storage not installed', exc_info=True)
 
         return db_driver(db=db,
                          url_resolver=self.url_resolver,
