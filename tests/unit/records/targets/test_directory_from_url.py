@@ -36,7 +36,7 @@ class TestDirectoryFromUrlRecordsTarget(unittest.TestCase):
         out = target.known_supported_records_formats()
         self.assertEqual(out, [])
 
-    def test_can_move_from_this_format_always_when_None(self):
+    def test_can_move_from_format_always_when_None(self):
         output_url = 'mumble://foo/bar/baz/'
         mock_url_resolver = Mock(name='url_resolver')
         mock_records_format = None
@@ -44,5 +44,5 @@ class TestDirectoryFromUrlRecordsTarget(unittest.TestCase):
         target = DirectoryFromUrlRecordsTarget(output_url=output_url,
                                                url_resolver=mock_url_resolver,
                                                records_format=mock_records_format)
-        out = target.can_move_from_this_format(mock_rando_records_format)
+        out = target.can_move_from_format(mock_rando_records_format)
         self.assertEqual(out, True)

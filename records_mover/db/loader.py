@@ -47,6 +47,12 @@ class LoaderFromRecordsDirectory(metaclass=ABCMeta):
         with TemporaryDirectory(prefix='temporary_loadable_directory_loc') as dirname:
             yield FilesystemDirectoryUrl(dirname)
 
+    def has_temporary_loadable_directory_loc(self) -> bool:
+        # The default implementation uses the local filesystem where
+        # Records Mover runs, and we assume we can make temporary
+        # files.
+        return True
+
     @abstractmethod
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
         """Candidates to look through when negotiating a common records format

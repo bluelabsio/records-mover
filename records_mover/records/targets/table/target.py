@@ -1,6 +1,6 @@
 from records_mover.records.targets.base import (
     SupportsMoveFromRecordsDirectory,
-    SupportsMoveFromTempLocAfterFillingIt,
+    MightSupportMoveFromTempLocAfterFillingIt,
     MightSupportMoveFromFileobjsSource,
     SupportsMoveFromDataframes,
 )
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
-                         SupportsMoveFromTempLocAfterFillingIt,
+                         MightSupportMoveFromTempLocAfterFillingIt,
                          MightSupportMoveFromFileobjsSource,
                          SupportsMoveFromDataframes,
                          TargetTableDetails):
@@ -84,7 +84,7 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         loader = driver.loader_from_fileobj()
         return loader is not None
 
-    def can_load_direct(self, scheme: str) -> bool:
+    def can_move_directly_from_scheme(self, scheme: str) -> bool:
         driver = self.db_driver(self.db_engine)
         loader = driver.loader()
         if loader is None:
@@ -99,8 +99,8 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
             return []
         return loader.known_supported_records_formats_for_load()
 
-    def can_move_from_this_format(self,
-                                  source_records_format: BaseRecordsFormat) -> bool:
+    def can_move_from_format(self,
+                             source_records_format: BaseRecordsFormat) -> bool:
         """Return true if writing the specified format satisfies our format
         needs"""
         driver = self.db_driver(self.db_engine)
@@ -108,6 +108,13 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         if loader is None:
             return False
         return loader.can_load_this_format(source_records_format)
+
+    def can_move_from_temp_loc_after_filling_it(self) -> bool:
+        driver = self.db_driver(self.db_engine)
+        loader = driver.loader()
+        if loader is None:
+            return False
+        return loader.has_temporary_loadable_directory_loc()
 
     def move_from_temp_loc_after_filling_it(self,
                                             records_source:
