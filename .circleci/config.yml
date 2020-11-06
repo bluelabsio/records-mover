@@ -253,17 +253,6 @@ jobs:
       db_name:
         type: string
         description: "Database to run inside"
-      command:
-        type: string
-        description: "Command to run in records-mover venv"
-        default: |
-            . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export RECORDS_MOVER_SESSION_TYPE=env
-            mkdir -p test-reports/itest
-            cd tests/integration/records/single_db
-            with-db <<parameters.db_name>> nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
 
     docker:
       - image: circleci/python:<<parameters.python_version>>
@@ -279,7 +268,14 @@ jobs:
           pandas_version: <<parameters.pandas_version>>
       - run:
           name: Run tests
-          command: "<<parameters.command>>"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export RECORDS_MOVER_SESSION_TYPE=env
+            mkdir -p test-reports/itest
+            cd tests/integration/records/single_db
+            with-db <<parameters.db_name>> nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
       - store_test_results:
           path: test-reports
       - store_artifacts:
