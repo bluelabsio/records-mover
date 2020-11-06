@@ -529,9 +529,6 @@ workflows:
           db_name: demo-itest
 #          requires:  # TODO
 #            - test-3.8
-          include_s3_scratch_bucket: false
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
