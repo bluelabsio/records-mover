@@ -533,6 +533,17 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
+          name: redshift-s3-itest
+          extras: '[redshift-binary,itest]'
+          python_version: "3.6"
+          db_name: demo-itest
+          include_s3_scratch_bucket: false
+          requires:
+            - redshift-s3-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test:
           name: redshift-no-s3-itest
           extras: '[redshift-binary,itest]'
           python_version: "3.6"
