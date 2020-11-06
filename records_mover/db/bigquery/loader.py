@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Union, List, IO, Tuple, Optional, Iterator, Callable, ContextManager
+from typing import Union, List, IO, Tuple, Optional, Iterator, Callable
 from ...url import BaseDirectoryUrl
 from ...records.delimited import complain_on_unhandled_hints
 import pprint
@@ -35,7 +35,8 @@ class BigQueryLoader(LoaderFromFileobj):
     @contextmanager
     def temporary_gcs_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         if self.gcs_temp_base_loc is None:
-            raise NoTemporaryBucketConfiguration('Please provide a scratch GCS URL in your config (e.g., set SCRATCH_GCS_URL to a gs:// URL)')
+            raise NoTemporaryBucketConfiguration('Please provide a scratch GCS URL in your config '
+                                                 '(e.g., set SCRATCH_GCS_URL to a gs:// URL)')
         else:
             with self.gcs_temp_base_loc.temporary_directory() as temp_loc:
                 yield temp_loc

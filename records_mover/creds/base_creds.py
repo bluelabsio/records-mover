@@ -169,7 +169,7 @@ class BaseCreds():
             #   gcloud config set project my-project-here
             #
             if 'GCP_PROJECT' in os.environ:
-                other_args['project'] = os.environ['GCP_PROJECT']  # TODO: Mention in CONFIG.md
+                other_args['project'] = os.environ['GCP_PROJECT']
             self.__default_gcs_client = google.cloud.storage.Client(credentials=gcs_creds,
                                                                     **other_args)
             return self.__default_gcs_client

@@ -48,7 +48,6 @@ class RecordsHook(BaseHook):
         s3_temp_base_loc = (self._url_resolver.directory_url(self._s3_temp_base_url)
                             if self._s3_temp_base_url else None)
 
-        # TODO: needs change here for GCS
         return db_driver(db=db, url_resolver=self._url_resolver, s3_temp_base_loc=s3_temp_base_loc)
 
     @property

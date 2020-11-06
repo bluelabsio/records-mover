@@ -4,14 +4,12 @@ from ...records import RecordsSchema
 from ...records.records_format import BaseRecordsFormat, ParquetRecordsFormat
 from ...utils.limits import INT64_MAX, INT64_MIN, FLOAT64_SIGNIFICAND_BITS, num_digits
 import re
-from typing import Union, Optional, Tuple, Iterator
+from typing import Union, Optional, Tuple
 from ...url.resolver import UrlResolver
 import sqlalchemy
 from .loader import BigQueryLoader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from ...url.base import BaseDirectoryUrl
-from contextlib import contextmanager
-
 
 
 logger = logging.getLogger(__name__)

@@ -90,7 +90,6 @@ class TestBigQueryLoader(unittest.TestCase):
         out = big_query_loader.load(schema=mock_schema, table=mock_table,
                                     load_plan=mock_load_plan,
                                     directory=mock_directory)
-        # mock_file_url.assert_called_with(mock_url) # TODO
         mock_client.load_table_from_uri.\
             assert_called_with([mock_url],
                                'my_project.my_dataset.mytable',
