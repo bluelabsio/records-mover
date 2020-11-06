@@ -278,7 +278,6 @@ jobs:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            # TODO: Apply same pattern in with_dbs version
             if [ <<parameters.include_s3_scratch_bucket>> == false ]
             then
               # This is set by default in the CircleCI environment
@@ -380,7 +379,7 @@ workflows:
           python_version: "3.6"
           pandas_version: "<1"
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -390,7 +389,7 @@ workflows:
           python_version: "3.7"
           pandas_version: ">=1"
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -417,7 +416,7 @@ workflows:
             unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
             with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -434,7 +433,7 @@ workflows:
             cd tests/integration/records/single_db
             with-db dockerized-postgres nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -451,7 +450,7 @@ workflows:
             cd tests/integration/records/single_db
             with-db dockerized-mysql nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -468,7 +467,7 @@ workflows:
             cd tests/integration/records/single_db
             with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -485,7 +484,7 @@ workflows:
             cd tests/integration/cli
             ./cli-tests.sh ci_1
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -502,7 +501,7 @@ workflows:
             cd tests/integration/cli
             ./cli-tests.sh ci_2
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -519,12 +518,12 @@ workflows:
             cd tests/integration/cli
             ./cli-tests.sh ci_3
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
-          name: redshift-itest-s3
+          name: redshift-s3-itest
           extras: '[redshift-binary,itest]'
           python_version: "3.6"
           db_name: demo-itest
@@ -534,35 +533,35 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
-          name: redshift-itest-no-s3
+          name: redshift-no-s3-itest
           extras: '[redshift-binary,itest]'
           python_version: "3.6"
           db_name: demo-itest
           include_s3_scratch_bucket: false
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
-          name: redshift-itest-s3-old-pandas
+          name: redshift-s3-itest-old-pandas
           extras: '[redshift-binary,itest]'
           python_version: "3.6"
           pandas_version: "<1"
           db_name: demo-itest
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
-          name: redshift-itest-s3-no-pandas
+          name: redshift-s3-itest-no-pandas
           extras: '[redshift-binary,itest]'
           python_version: "3.6"
           pandas_version: ""
           db_name: demo-itest
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -572,7 +571,7 @@ workflows:
           python_version: "3.6"
           db_name: bltoolsdevbq-bq_itest
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -589,14 +588,14 @@ workflows:
             cd tests/integration
             python3 -m records.multi_db.test_records_table2table
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - cli-extra-test:
           name: cli-extra-test
           requires:
-            - redshift-itest-s3
+            - redshift-s3-itest
       - deploy:
           context: PyPI
           requires:
@@ -606,16 +605,15 @@ workflows:
             - cli-extra-test
             - tbl2tbl-itest
             - bigquery-itest
-            - redshift-itest-no-s3
-            - redshift-itest-s3
-            - redshift-itest-s3-old-pandas
-            - redshift-itest-s3-no-pandas
+            - redshift-no-s3-itest
+            - redshift-s3-itest
+            - redshift-s3-itest-old-pandas
+            - redshift-s3-itest-no-pandas
             - postgres-itest
             - mysql-itest
             - cli-1-itest
             - cli-2-itest
             - cli-3-itest
-            # TODO: Decide on name ordering
             - vertica-s3-itest
             - vertica-no-s3-itest
           filters:
