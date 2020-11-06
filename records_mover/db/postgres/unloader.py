@@ -101,6 +101,11 @@ class PostgresUnloader(Unloader):
                                    }),
         ]
 
+    def can_unload_to_scheme(self, scheme: str) -> bool:
+        # Unloading is done via streams, so it is scheme-independent
+        # and requires no scratch buckets.
+        return True
+
     def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
         try:
             unload_plan = RecordsUnloadPlan(records_format=target_records_format)

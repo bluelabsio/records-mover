@@ -4,6 +4,7 @@ from typing import Iterable
 from db_facts.db_facts_types import DBFacts
 from unittest.mock import Mock, patch
 from records_mover.creds.base_creds import BaseCreds
+import boto3
 
 
 class ExampleCredsSubclass(BaseCreds):
@@ -19,6 +20,11 @@ class ExampleCredsSubclass(BaseCreds):
         mock_db_facts = Mock(name='db_facts')
         mock_db_facts.db_creds_name = db_creds_name
         return mock_db_facts
+
+    def boto3_session(self, aws_creds_name: str) -> 'boto3.session.Session':
+        assert aws_creds_name == 'my_default_creds'
+        self.boto3_session_called = True
+        return Mock(name='boto3_session')
 
 
 class TestBaseCreds(unittest.TestCase):
@@ -156,3 +162,13 @@ class TestBaseCreds(unittest.TestCase):
         out = creds.default_scratch_s3_url()
         self.assertIsNone(out)
         mock_get_config.assert_called_with('records_mover', 'bluelabs')
+
+    @patch('records_mover.creds.base_creds.get_config')
+    @patch('records_mover.creds.base_creds.os')
+    def test_default_boto3_session_with_default_creds_name(self,
+                                                           mock_os,
+                                                           mock_get_config):
+        mock_get_config.return_value.config = {}
+        creds = ExampleCredsSubclass(default_aws_creds_name='my_default_creds')
+        creds.default_boto3_session()
+        self.assertTrue(creds.boto3_session_called)

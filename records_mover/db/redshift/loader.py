@@ -162,6 +162,9 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
     def best_scheme_to_load_from(self) -> str:
         return 's3'
 
+    def temporary_loadable_directory_scheme(self) -> str:
+        return 's3'
+
     @contextmanager
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         with self.temporary_s3_directory_loc() as temp_loc:
