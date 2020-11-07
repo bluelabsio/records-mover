@@ -105,8 +105,8 @@ def create_test_func(source_name, target_name):
 if __name__ == '__main__':
     set_stream_logging()
 
-    for source in DB_TYPES:
-        for target in DB_TYPES:
+    for source in ['redshift']:  # DB_TYPES: TODO
+        for target in ['bigquery']:  #  DB_TYPES: TODO
             source_name = DB_NAMES[source]
             target_name = DB_NAMES[target]
             f = create_test_func(source_name, target_name)
