@@ -143,6 +143,25 @@ which allow for configuration via the `TMPDIR`, `TEMP` or `TMP` env
 variables, and generally default to
 [something reasonable per your OS](https://docs.python.org/3/library/tempfile.html#tempfile.gettempdir).
 
+## GCP default project
+
+To specify the default project to use in GCP operations (currently
+this includes interfacing with GCS buckets), you can either set the
+environment variable `GCP_PROJECT` to your project name or configure a
+INI-style file in one of the following locations:
+
+* `/etc/bluelabs/records_mover/app.ini`
+* `/etc/xdg/bluelabs/records_mover/app.ini`
+* `$HOME/.config/bluelabs/records_mover/app.ini`
+* `./.bluelabs/records_mover/app.ini`
+
+Example file:
+
+```ini
+[gcp]
+default_project = "my_gcp_project_name"
+```
+
 ## Cloud credentials (e.g., S3/GCS/Google Sheets)
 
 To be able to access cloud resources, including S3, GCS and Google
