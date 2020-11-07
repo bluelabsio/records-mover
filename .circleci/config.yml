@@ -204,7 +204,8 @@ jobs:
       - run:
           name: Activate gcloud creds
           command: |
-            gcloud auth activate-service-account --key-file <(echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d)
+            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
+            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
       - run:
           name: Symlink gzcat
           command: |
