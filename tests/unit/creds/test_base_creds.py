@@ -163,6 +163,24 @@ class TestBaseCreds(unittest.TestCase):
         self.assertIsNone(out)
         mock_get_config.assert_called_with('records_mover', 'bluelabs')
 
+    @patch('records_mover.creds.base_creds.os')
+    def test_gcs_scratch_bucket_no_env(self,
+                                       mock_os):
+        mock_os.environ = {}
+        creds = ExampleCredsSubclass()
+        out = creds.default_scratch_gcs_url()
+        self.assertIsNone(out)
+
+    @patch('records_mover.creds.base_creds.os')
+    def test_gcs_scratch_bucket_env_set(self,
+                                        mock_os):
+        mock_os.environ = {
+            'SCRATCH_GCS_URL': 'gs://whatever/'
+        }
+        creds = ExampleCredsSubclass()
+        out = creds.default_scratch_gcs_url()
+        self.assertEqual(out, 'gs://whatever/')
+
     @patch('records_mover.creds.base_creds.get_config')
     @patch('records_mover.creds.base_creds.os')
     def test_default_boto3_session_with_default_creds_name(self,
