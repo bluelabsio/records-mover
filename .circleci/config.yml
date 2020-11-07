@@ -589,6 +589,7 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
+          # TODO: Get service account set in this one
           name: bigquery-gcs-itest
           extras: '[bigquery,itest]'
           python_version: "3.6"
@@ -606,7 +607,6 @@ workflows:
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            # TODO: Put login into other things?
             export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
