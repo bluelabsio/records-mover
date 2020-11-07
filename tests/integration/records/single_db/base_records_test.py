@@ -85,6 +85,9 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
     def has_scratch_s3_bucket(self):
         return os.environ.get('SCRATCH_S3_URL') is not None
 
+    def has_scratch_gcs_bucket(self):
+        return os.environ.get('SCRATCH_GCS_URL') is not None
+
     def has_pandas(self):
         try:
             import pandas  # noqa

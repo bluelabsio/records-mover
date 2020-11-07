@@ -62,6 +62,12 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
             return
         self.load_and_verify('delimited', 'bluelabs', sourcefn=self.s3_url_source)
 
+    def test_load_from_gcs_records_directory(self):
+        if not self.has_scratch_gcs_bucket():
+            logger.warning('No scratch GCS bucket, so skipping records directory URL test')
+            return
+        self.load_and_verify('delimited', 'bluelabs', sourcefn=self.gcs_url_source)
+
     def records_filename(self, format_type, variant, hints={}, broken=False):
         basename = f"{self.resources_dir}/{self.resource_name(format_type, variant, hints)}.csv"
         if format_type == 'csv':
@@ -97,6 +103,18 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
     @contextmanager
     def s3_url_source(self, filename, records_format, records_schema):
         base_dir = self.session.directory_url(self.session.creds.default_scratch_s3_url())
+
+        with base_dir.temporary_directory() as temp_dir_loc:
+            file_loc = temp_dir_loc.file_in_this_directory('foo.gz')
+            with open(filename, mode='rb') as inp:
+                file_loc.upload_fileobj(inp)
+            yield self.records.sources.data_url(file_loc.url,
+                                                records_format=records_format,
+                                                records_schema=records_schema)
+
+    @contextmanager
+    def gcs_url_source(self, filename, records_format, records_schema):
+        base_dir = self.session.directory_url(self.session.creds.default_scratch_gcs_url())
 
         with base_dir.temporary_directory() as temp_dir_loc:
             file_loc = temp_dir_loc.file_in_this_directory('foo.gz')
