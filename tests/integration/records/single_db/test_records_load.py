@@ -63,6 +63,13 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
         self.load_and_verify('delimited', 'bluelabs', sourcefn=self.s3_url_source)
 
     def test_load_from_gcs_records_directory(self):
+        try:
+            import google.cloud.storage  # noqa
+        except ModuleNotFoundError:
+            logger.warning("Not running in test environment with google.cloud.storage, "
+                           "so skipping records directory URL test")
+            return
+
         if not self.has_scratch_gcs_bucket():
             logger.warning('No scratch GCS bucket, so skipping records directory URL test')
             return
