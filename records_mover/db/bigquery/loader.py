@@ -138,6 +138,9 @@ class BigQueryLoader(LoaderFromFileobj):
         assert job.output_rows is not None  # should be populated after job result is obtained
         return job.output_rows
 
+    def temporary_loadable_directory_scheme(self) -> str:
+        return 'gs'
+
     @contextmanager
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         with self.temporary_gcs_directory_loc() as temp_loc:
