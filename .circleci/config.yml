@@ -421,7 +421,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
+            unset SCRATCH_GCS_URL SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
             with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
           requires:
             - redshift-s3-itest
