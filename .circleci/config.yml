@@ -202,6 +202,10 @@ jobs:
             # Update the package list and install the Cloud SDK
             sudo apt-get update -y && sudo apt-get install -y google-cloud-sdk
       - run:
+          name: Activate gcloud creds
+          command: |
+            gcloud auth activate-service-account --key-file <(echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d)
+      - run:
           name: Symlink gzcat
           command: |
             # macOS' zcat doesn't handle gzip, so we install gzcat
