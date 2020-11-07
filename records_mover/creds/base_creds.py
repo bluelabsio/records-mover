@@ -246,8 +246,19 @@ class BaseCreds():
         if "SCRATCH_GCS_URL" in os.environ:
             return os.environ["SCRATCH_GCS_URL"]
 
-        logger.debug('No SCRATCH_GCS_URL found')
-        return None
+        config_result = get_config('records_mover', 'bluelabs')
+        cfg = config_result.config
+        if 'gcp' in cfg:
+            aws_cfg = cfg['gcp']
+            gcs_scratch_url: Optional[str] = aws_cfg.get('gcs_scratch_url')
+            if gcs_scratch_url is not None:
+                return gcs_scratch_url
+            else:
+                logger.debug('No GCS scratch bucket config found')
+                return None
+        else:
+            logger.debug('No config ini file found')
+            return None
 
     def default_scratch_gcs_url(self) -> Optional[str]:
         if self._scratch_gcs_url is PleaseInfer.token:

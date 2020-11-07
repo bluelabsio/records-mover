@@ -137,6 +137,34 @@ class TestBaseCreds(unittest.TestCase):
 
     @patch('records_mover.creds.base_creds.get_config')
     @patch('records_mover.creds.base_creds.os')
+    def test_gcs_scratch_bucket_configured(self,
+                                           mock_os,
+                                           mock_get_config):
+        mock_get_config.return_value.config = {
+            'gcp': {
+                'gcs_scratch_url': 'gs://group_bucket/subdir/'
+            }
+        }
+        creds = ExampleCredsSubclass()
+        out = creds.default_scratch_gcs_url()
+        self.assertEqual(out, 'gs://group_bucket/subdir/')
+        mock_get_config.assert_called_with('records_mover', 'bluelabs')
+
+    @patch('records_mover.creds.base_creds.get_config')
+    @patch('records_mover.creds.base_creds.os')
+    def test_gcs_scratch_bucket_not_configured(self,
+                                               mock_os,
+                                               mock_get_config):
+        mock_get_config.return_value.config = {
+            'gcp': {}
+        }
+        creds = ExampleCredsSubclass()
+        out = creds.default_scratch_gcs_url()
+        self.assertIsNone(out)
+        mock_get_config.assert_called_with('records_mover', 'bluelabs')
+
+    @patch('records_mover.creds.base_creds.get_config')
+    @patch('records_mover.creds.base_creds.os')
     def test_s3_scratch_bucket_via_prefix_no_boto3_session(self,
                                                            mock_os,
                                                            mock_get_config):
@@ -160,6 +188,18 @@ class TestBaseCreds(unittest.TestCase):
         mock_get_config.return_value.config = {}
         creds = ExampleCredsSubclass(default_boto3_session=mock_boto3_session)
         out = creds.default_scratch_s3_url()
+        self.assertIsNone(out)
+        mock_get_config.assert_called_with('records_mover', 'bluelabs')
+
+    @patch('records_mover.creds.base_creds.get_config')
+    @patch('records_mover.creds.base_creds.os')
+    def test_gcs_scratch_bucket_no_config_file(self,
+                                               mock_os,
+                                               mock_get_config):
+        mock_boto3_session = None
+        mock_get_config.return_value.config = {}
+        creds = ExampleCredsSubclass(default_boto3_session=mock_boto3_session)
+        out = creds.default_scratch_gcs_url()
         self.assertIsNone(out)
         mock_get_config.assert_called_with('records_mover', 'bluelabs')
 
