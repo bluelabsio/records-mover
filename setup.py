@@ -145,6 +145,17 @@ db_dependencies = [
     'sqlalchemy!=1.3.16,!=1.3.17',
 ]
 
+smart_open_dependencies = [
+    # we rely on exception types from smart_open,
+    # which seem to change in feature releases
+    # without a major version bump
+    'smart_open>=2,<2.1',
+]
+
+gcs_dependencies = [
+    'google-cloud-storage'
+] + smart_open_dependencies
+
 bigquery_dependencies = [
     # This is currently vendored in
     # records_mover/db/postgres/sqlalchemy_postgres_copy.py but
@@ -155,14 +166,7 @@ bigquery_dependencies = [
     #
     # 'sqlalchemy-postgres-copy>=0.5,<0.6',
     'pybigquery',
-] + db_dependencies
-
-smart_open_dependencies = [
-    # we rely on exception types from smart_open,
-    # which seem to change in feature releases
-    # without a major version bump
-    'smart_open>=2,<2.1',
-]
+] + gcs_dependencies + db_dependencies
 
 aws_dependencies = [
     'awscli>=1,<2',
@@ -234,11 +238,6 @@ literally_every_single_database_binary_dependencies = (
     bigquery_dependencies +
     mysql_dependencies
 )
-
-gcs_dependencies = [
-    'google-cloud-storage'
-] + smart_open_dependencies
-
 
 typecheck_dependencies = [
     'mypy==0.770',
