@@ -124,13 +124,29 @@ nose_dependencies = [
     'nose'
 ]
 
+smart_open_dependencies = [
+    # we rely on exception types from smart_open,
+    # which seem to change in feature releases
+    # without a major version bump
+    'smart_open>=2,<2.1',
+]
+
+aws_dependencies = [
+    'awscli>=1,<2',
+    'boto>=2,<3',
+    'boto3',
+    's3-concat>=0.1.7,<0.2'
+] + smart_open_dependencies
+
 itest_dependencies = [
     'jsonschema',  # needed for directory_validator.py
 ] + (
     nose_dependencies +
     # needed for records_database_fixture retrying drop/creates on
     # BigQuery
-    google_api_client_dependencies
+    google_api_client_dependencies +
+    # database tests include loading from an S3 bucket
+    aws_dependencies
 )
 
 airflow_dependencies = [
@@ -143,13 +159,6 @@ db_dependencies = [
     #
     # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
     'sqlalchemy!=1.3.16,!=1.3.17',
-]
-
-smart_open_dependencies = [
-    # we rely on exception types from smart_open,
-    # which seem to change in feature releases
-    # without a major version bump
-    'smart_open>=2,<2.1',
 ]
 
 gcs_dependencies = [
@@ -167,13 +176,6 @@ bigquery_dependencies = [
     # 'sqlalchemy-postgres-copy>=0.5,<0.6',
     'pybigquery',
 ] + gcs_dependencies + db_dependencies
-
-aws_dependencies = [
-    'awscli>=1,<2',
-    'boto>=2,<3',
-    'boto3',
-    's3-concat>=0.1.7,<0.2'
-] + smart_open_dependencies
 
 gsheet_dependencies = [
     'google',
