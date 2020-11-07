@@ -83,6 +83,24 @@ compatible object store in a temporary location.
 Note that you'll need credentials with permission to write to this
 object store - see below for how to configure that.
 
+### GCS (BigQuery)
+
+To specify the temporary location for BigQuery exports and imports,
+you can either set the environment variable `SCRATCH_GCS_URL` to your
+URL or configure a INI-style file in one of the following locations:
+
+* `/etc/bluelabs/records_mover/app.ini`
+* `/etc/xdg/bluelabs/records_mover/app.ini`
+* `$HOME/.config/bluelabs/records_mover/app.ini`
+* `./.bluelabs/records_mover/app.ini`
+
+Example file:
+
+```ini
+[gcp]
+gcs_scratch_url = "gs://mybucket/path/"
+```
+
 ### S3 (Redshift)
 
 To specify the temporary location for Redshift exports and imports,
