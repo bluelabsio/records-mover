@@ -604,6 +604,7 @@ workflows:
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             echo $SCRATCH_GCS_URL  # TODO
             echo $SCRATCH_S3_URL   # TODO
+            echo $GCP_PROJECT   # TODO
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration
