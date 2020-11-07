@@ -202,10 +202,6 @@ jobs:
             # Update the package list and install the Cloud SDK
             sudo apt-get update -y && sudo apt-get install -y google-cloud-sdk
       - run:
-          name: Activate gcloud creds
-          command: |
-            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
-      - run:
           name: Symlink gzcat
           command: |
             # macOS' zcat doesn't handle gzip, so we install gzcat
@@ -280,6 +276,8 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
+            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
+            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -420,12 +418,18 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
+            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
+            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            unset SCRATCH_GCS_URL SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
+            #
+            # This is a no-s3 test, so let's disable AWS creds and
+            # scratch bucket config.
+            #
+            unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
             with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
           requires:
             - redshift-s3-itest
@@ -438,6 +442,8 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
+            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
+            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -455,6 +461,8 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
+            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
+            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -472,6 +480,8 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
+            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
+            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -489,6 +499,8 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
+            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
+            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -506,6 +518,8 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
+            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
+            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -523,6 +537,8 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
+            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
+            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -605,15 +621,18 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
+            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
+            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
+            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
+            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration
             python3 -m records.multi_db.test_records_table2table
-#          requires:  # TODO
-#            - redshift-s3-itest
+          requires:
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
