@@ -60,8 +60,6 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
         if not self.has_scratch_s3_bucket():
             logger.warning('No scratch S3 bucket, so skipping records directory URL test')
             return
-        import os
-        print(f"XXX {os.environ['SCRATCH_S3_URL']}")
         self.load_and_verify('delimited', 'bluelabs', sourcefn=self.s3_url_source)
 
     def records_filename(self, format_type, variant, hints={}, broken=False):
