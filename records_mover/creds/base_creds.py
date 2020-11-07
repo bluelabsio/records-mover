@@ -1,6 +1,6 @@
 from db_facts.db_facts_types import DBFacts
 from .database import db_facts_from_env
-from typing import TYPE_CHECKING, Iterable, Union, Optional
+from typing import TYPE_CHECKING, Iterable, Union, Optional, Dict, Any
 from records_mover.mover_types import PleaseInfer
 from config_resolver import get_config
 import os
@@ -168,8 +168,10 @@ class BaseCreds():
             #   # now we can set a gcloud config and have it read:
             #   gcloud config set project my-project-here
             #
-            if 'GCP_PROJECT' in os.environ:
-                other_args['project'] = os.environ['GCP_PROJECT']
+            gcp_project = self._default_gcp_project()
+            if gcp_project is not None:
+                other_args['project'] = gcp_project
+
             self.__default_gcs_client = google.cloud.storage.Client(credentials=gcs_creds,
                                                                     **other_args)
             return self.__default_gcs_client
@@ -180,6 +182,16 @@ class BaseCreds():
             logger.debug("Details:", exc_info=True)
             self.__default_gcs_client = None
             return self.__default_gcs_client
+
+    def _default_gcp_project(self) -> Optional[str]:
+        if 'GCP_PROJECT' in os.environ:
+            return os.environ['GCP_PROJECT']
+        gcp_cfg = self._config_section('gcp')
+        if gcp_cfg is not None:
+            default_gcp_project: Optional[str] = gcp_cfg.get('default_project')
+            return default_gcp_project
+
+        return None
 
     def default_db_facts(self) -> DBFacts:
         if self.__default_db_facts is not PleaseInfer.token:
@@ -208,15 +220,21 @@ class BaseCreds():
                            f'as there is no username in {arn}')
             return None
 
+    def _config_section(self, section_name: str) -> Optional[Dict[str, Any]]:
+        config_result = get_config('records_mover', 'bluelabs')
+        cfg = config_result.config
+        if section_name in cfg:
+            return cfg[section_name]
+        else:
+            return None
+
     def _infer_scratch_s3_url(self,
                               boto3_session: Optional['boto3.session.Session']) -> Optional[str]:
         if "SCRATCH_S3_URL" in os.environ:
             return os.environ["SCRATCH_S3_URL"]
 
-        config_result = get_config('records_mover', 'bluelabs')
-        cfg = config_result.config
-        if 'aws' in cfg:
-            aws_cfg = cfg['aws']
+        aws_cfg = self._config_section('aws')
+        if aws_cfg is not None:
             s3_scratch_url: Optional[str] = aws_cfg.get('s3_scratch_url')
             if s3_scratch_url is not None:
                 return s3_scratch_url
@@ -246,11 +264,9 @@ class BaseCreds():
         if "SCRATCH_GCS_URL" in os.environ:
             return os.environ["SCRATCH_GCS_URL"]
 
-        config_result = get_config('records_mover', 'bluelabs')
-        cfg = config_result.config
-        if 'gcp' in cfg:
-            aws_cfg = cfg['gcp']
-            gcs_scratch_url: Optional[str] = aws_cfg.get('gcs_scratch_url')
+        gcp_cfg = self._config_section('gcp')
+        if gcp_cfg is not None:
+            gcs_scratch_url: Optional[str] = gcp_cfg.get('gcs_scratch_url')
             if gcs_scratch_url is not None:
                 return gcs_scratch_url
             else:
