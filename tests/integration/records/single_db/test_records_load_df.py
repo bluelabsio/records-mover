@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 
 class RecordsLoadDataframeIntegrationTest(BaseRecordsIntegrationTest):
     def load_and_verify(self) -> None:
-        redshift_with_no_bucket = self.engine.name == 'redshift' and not self.has_scratch_bucket()
+        redshift_with_no_bucket = (self.engine.name == 'redshift' and
+                                   not self.has_scratch_s3_bucket())
         if redshift_with_no_bucket:
             # https://github.com/bluelabsio/records-mover/issues/81
             logger.warning("This test won't pass until we can use the "

@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 
 class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
     def load_and_verify(self, format_type, variant, hints={}, broken=False, sourcefn=None):
-        redshift_with_no_bucket = self.engine.name == 'redshift' and not self.has_scratch_bucket()
+        redshift_with_no_bucket = (self.engine.name == 'redshift' and
+                                   not self.has_scratch_s3_bucket())
         if redshift_with_no_bucket:
             # https://github.com/bluelabsio/records-mover/issues/81
             logger.warning("This test won't pass until we can use the "
@@ -56,9 +57,11 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
                            "so skipping records directory URL test")
             return
 
-        if not self.has_scratch_bucket():
-            logger.warning('No scratch bucket, so skipping records directory URL test')
+        if not self.has_scratch_s3_bucket():
+            logger.warning('No scratch S3 bucket, so skipping records directory URL test')
             return
+        import os
+        print(f"XXX {os.environ['SCRATCH_S3_URL']}")
         self.load_and_verify('delimited', 'bluelabs', sourcefn=self.s3_url_source)
 
     def records_filename(self, format_type, variant, hints={}, broken=False):
