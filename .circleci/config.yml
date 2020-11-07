@@ -256,6 +256,9 @@ jobs:
       include_s3_scratch_bucket:
         type: boolean
         default: true
+      include_gcs_scratch_bucket:
+        type: boolean
+        default: true
 
     docker:
       - image: circleci/python:<<parameters.python_version>>
@@ -282,6 +285,11 @@ jobs:
             then
               # This is set by default in the CircleCI environment
               unset SCRATCH_S3_URL
+            fi
+            if [ <<parameters.include_gcs_scratch_bucket>> == false ]
+            then
+              # This is set by default in the CircleCI environment
+              unset SCRATCH_GCS_URL
             fi
             with-db <<parameters.db_name>> nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
       - store_test_results:
@@ -566,7 +574,18 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
-          name: bigquery-itest
+          name: bigquery-no-gcs-itest
+          extras: '[bigquery,itest]'
+          python_version: "3.6"
+          db_name: bltoolsdevbq-bq_itest
+          include_gcs_scratch_bucket: false
+          requires:
+            - redshift-s3-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test:
+          name: bigquery-gcs-itest
           extras: '[bigquery,itest]'
           python_version: "3.6"
           db_name: bltoolsdevbq-bq_itest
@@ -604,7 +623,8 @@ workflows:
             - test-3.8
             - cli-extra-test
             - tbl2tbl-itest
-            - bigquery-itest
+            - bigquery-no-gcs-itest
+            - bigquery-gcs-itest
             - redshift-no-s3-itest
             - redshift-s3-itest
             - redshift-s3-itest-old-pandas
