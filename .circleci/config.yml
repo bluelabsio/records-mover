@@ -205,7 +205,6 @@ jobs:
           name: Activate gcloud creds
           command: |
             echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
-            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
       - run:
           name: Symlink gzcat
           command: |
@@ -610,6 +609,8 @@ workflows:
             echo $SCRATCH_GCS_URL  # TODO
             echo $SCRATCH_S3_URL   # TODO
             echo $GCP_PROJECT   # TODO
+            # TODO: Put login into other things?
+            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration
