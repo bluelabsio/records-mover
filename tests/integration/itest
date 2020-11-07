@@ -297,7 +297,7 @@ def run_test(args, target, parser):
                                        'nosetests', '--xunit-file=nosetests.xml', '.'],
                                       cwd=f"{script_dir}/records/single_db")
     elif (target == 'table2table'):
-        with set_s3_scratch_bucket(), dockerized_dbs():
+        with set_s3_scratch_bucket(), set_gcs_scratch_bucket(), dockerized_dbs():
             if (args.docker):
                 docker_compose_run(['python3', '-m',
                                     'records.multi_db.test_records_table2table'],
