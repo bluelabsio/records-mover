@@ -176,6 +176,9 @@ class BaseCreds():
             #   # now we can set a gcloud config and have it read:
             #   gcloud config set project my-project-here
             #
+            # See
+            # https://github.com/bluelabsio/records-mover/issues/119
+            # for a way we can improve this.
             gcp_project = self._default_gcp_project()
             if gcp_project is not None:
                 other_args['project'] = gcp_project
