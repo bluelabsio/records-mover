@@ -52,8 +52,9 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
     def test_load_from_s3_records_directory(self):
         try:
             import boto3  # noqa
+            import s3_concat  # noqa
         except ModuleNotFoundError:
-            logger.warning("Not running in test environment with boto3, "
+            logger.warning("Not running in test environment with boto3/s3_concat, "
                            "so skipping records directory URL test")
             return
 
