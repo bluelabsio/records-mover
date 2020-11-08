@@ -246,7 +246,7 @@ jobs:
         description: "Which pip extras to install.  If provided, must be surrounded by [] and comma separated."
       python_version:
         type: string
-        description: "Version of python to test against"
+        description: "Version of Python to test against"
       pandas_version:
         type: string
         default: '>=1'
@@ -255,9 +255,11 @@ jobs:
         description: "Database to run inside"
       include_s3_scratch_bucket:
         type: boolean
+        description: "If true, pass in the env variable specifying an S3 scratch bucket to Records Mover (for Redshift/Vertica)"
         default: true
       include_gcs_scratch_bucket:
         type: boolean
+        description: "If true, pass in the env variable specifying an GCS scratch bucket to Records Mover (for BigQuery)"
         default: true
 
     docker:
