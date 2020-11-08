@@ -241,7 +241,13 @@ class TestSession(unittest.TestCase):
         self.assertEqual(gcp_credentials, mock_credentials)
         second_gcp_credentials = session.url_resolver.gcp_credentials_getter()
         self.assertEqual(second_gcp_credentials, mock_credentials)
-        mock_google_auth_default.assert_called_once_with()
+
+        expected_scopes = (
+            'https://www.googleapis.com/auth/devstorage.full_control',
+            'https://www.googleapis.com/auth/devstorage.read_only',
+            'https://www.googleapis.com/auth/devstorage.read_write'
+        )
+        mock_google_auth_default.assert_called_once_with(scopes=expected_scopes)
 
     def test_session_gcs_client_via_url_resolver_default(self,
                                                          mock_os,
@@ -269,5 +275,10 @@ class TestSession(unittest.TestCase):
 
         second_gcs_client = session.url_resolver.gcs_client_getter()
         self.assertEqual(second_gcs_client, mock_google_cloud_storage_Client.return_value)
+        expected_scopes = (
+            'https://www.googleapis.com/auth/devstorage.full_control',
+            'https://www.googleapis.com/auth/devstorage.read_only',
+            'https://www.googleapis.com/auth/devstorage.read_write'
+        )
 
-        mock_google_auth_default.assert_called_once_with()
+        mock_google_auth_default.assert_called_once_with(scopes=expected_scopes)
