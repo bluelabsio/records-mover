@@ -114,7 +114,7 @@ class TestS3FileUrl(unittest.TestCase):
         out = self.s3_file_url.size()
         self.assertEqual(out, mock_content_length)
 
-    @patch('records_mover.url.s3.s3_file_url.S3Concat')
+    @patch('s3_concat.S3Concat')
     def test_concatenate_from(self,
                               mock_S3Concat):
         mock_loc_1 = MagicMock(name='loc_1', spec=S3FileUrl)

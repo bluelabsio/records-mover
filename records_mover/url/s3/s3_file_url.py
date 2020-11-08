@@ -4,7 +4,6 @@ from ..base import BaseDirectoryUrl, BaseFileUrl
 from typing import IO, List, Optional
 import threading
 from time import sleep
-from s3_concat import S3Concat
 from smart_open.s3 import open as s3_open
 
 
@@ -112,6 +111,8 @@ class S3FileUrl(S3BaseUrl, BaseFileUrl):
         return response['ContentLength']
 
     def concatenate_from(self, other_locs: List['BaseFileUrl']) -> Optional[int]:
+        from s3_concat import S3Concat
+
         if not all([isinstance(loc, S3FileUrl) and loc.bucket == self.bucket
                     for loc in other_locs]):
             logger.warning("Concatenating data locally - this may be slow for large data sets")
