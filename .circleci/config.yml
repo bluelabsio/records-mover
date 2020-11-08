@@ -605,7 +605,6 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
-          # TODO: Get service account set in this one
           name: bigquery-gcs-itest
           extras: '[bigquery,itest]'
           python_version: "3.6"
