@@ -116,7 +116,7 @@ Example file:
 
 ```ini
 [aws]
-s3_scratch_url = "s3://mybucket/path/"
+s3_scratch_url = s3://mybucket/path/
 ```
 
 If you want to use a single scratch bucket for multiple individuals
@@ -125,7 +125,7 @@ use this configuration:
 
 ```toml
 [aws]
-s3_scratch_url_appended_with_iam_username = "s3://mybucket/home/"
+s3_scratch_url_appended_with_iam_username = s3://mybucket/home/
 ```
 
 In this case, creds tied to an AWS user named `first.last` would end
@@ -159,7 +159,7 @@ Example file:
 
 ```ini
 [gcp]
-default_project = "my_gcp_project_name"
+default_project = my_gcp_project_name
 ```
 
 ## Cloud credentials (e.g., S3/GCS/Google Sheets)
