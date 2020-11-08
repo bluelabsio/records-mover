@@ -57,8 +57,8 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         unloader = self.driver.unloader()
         if unloader is None:
             # bulk export is not provided by this database
-            logger.info("No loader configured for this database "
-                        f"type ({self.driver.db_engine.name})")
+            logger.warning("No unloader configured for this database "
+                           f"type ({self.driver.db_engine.name})")
             return False
         can_unload = unloader.can_unload_to_scheme(scheme)
         if not can_unload:

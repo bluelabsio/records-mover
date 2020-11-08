@@ -113,7 +113,7 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         driver = self.db_driver(self.db_engine)
         loader = driver.loader()
         if loader is None:
-            logger.info(f"No loader configured for this database type ({self.db_engine.name})")
+            logger.warning(f"No loader configured for this database type ({self.db_engine.name})")
             return False
         has_scratch_location = loader.has_temporary_loadable_directory_loc()
         if not has_scratch_location:
