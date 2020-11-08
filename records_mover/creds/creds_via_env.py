@@ -44,6 +44,7 @@ class CredsViaEnv(BaseCreds):
             Optional['google.auth.credentials.Credentials']:
         creds = self._gcp_creds_from_env(scopes)
         if creds is None:
+            # Fall back and use Google's default configuration files
             creds = super()._gcp_creds_of_last_resort(scopes=scopes)
         return creds
 
