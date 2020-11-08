@@ -276,8 +276,6 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
-            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
-            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -418,8 +416,6 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
-            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
-            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -442,8 +438,6 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
-            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
-            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -461,8 +455,6 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
-            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
-            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -480,8 +472,6 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
-            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
-            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -499,8 +489,6 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
-            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
-            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -518,8 +506,6 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
-            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
-            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -537,8 +523,6 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
-            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
-            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
@@ -620,10 +604,6 @@ workflows:
           python_version: "3.6"
           command: |
             . venv/bin/activate
-            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
-            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
-            echo "${GCP_SERVICE_ACCOUNT_JSON_BASE64:?}" | base64 -d > $HOME/gcloud-service-user.json
-            export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-user.json
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
