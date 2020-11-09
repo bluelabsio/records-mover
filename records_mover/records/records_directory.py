@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from ..url.base import BaseDirectoryUrl, BaseFileUrl
 from .records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from typing import Mapping, IO, List, Optional
-from .types import UrlDetails, RecordsManifestWithLength, LegacyRecordsManifest
+from .records_types import UrlDetails, RecordsManifestWithLength, LegacyRecordsManifest
 
 
 logger = logging.getLogger(__name__)
