@@ -25,11 +25,3 @@ class CredsViaEnv(BaseCreds):
 
     def db_facts(self, db_creds_name: str) -> DBFacts:
         return db(db_creds_name.split('-'))
-
-    def boto3_session(self, aws_creds_name: str) -> 'boto3.session.Session':
-        import boto3
-
-        if aws_creds_name is None:
-            return boto3.session.Session()
-        else:
-            raise NotImplementedError
