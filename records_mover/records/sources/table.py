@@ -46,12 +46,12 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
             return []
         return unloader.known_supported_records_formats_for_unload()
 
-    def can_move_to_this_format(self,
-                                target_records_format: BaseRecordsFormat) -> bool:
+    def can_move_to_format(self,
+                           target_records_format: BaseRecordsFormat) -> bool:
         unloader = self.driver.unloader()
         if unloader is None:
             return False
-        return unloader.can_unload_this_format(target_records_format)
+        return unloader.can_unload_format(target_records_format)
 
     def can_move_to_scheme(self, scheme: str) -> bool:
         unloader = self.driver.unloader()
