@@ -34,5 +34,5 @@ class TestCredsViaEnv(unittest.TestCase):
         creds_via_env = CredsViaEnv(default_db_creds_name=None,
                                     default_aws_creds_name=None,
                                     default_gcp_creds_name=None)
-        out = creds_via_env.boto3_session(None)
-        self.assertEqual(out, mock_boto3_session.Session.return_value)
+        with self.assertRaises(NotImplementedError):
+            creds_via_env.boto3_session('anything')
