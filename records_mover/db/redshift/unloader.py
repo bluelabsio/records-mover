@@ -47,6 +47,7 @@ class RedshiftUnloader(Unloader):
                                table: str,
                                unload_plan: RecordsUnloadPlan,
                                directory: RecordsDirectory) -> int:
+        logger.info(f"Starting Redshift unload to {directory.loc}...")
         unhandled_hints = set()
         if isinstance(unload_plan.records_format, DelimitedRecordsFormat):
             unhandled_hints = set(unload_plan.records_format.hints.keys())
@@ -93,7 +94,6 @@ class RedshiftUnloader(Unloader):
                table: str,
                unload_plan: RecordsUnloadPlan,
                directory: RecordsDirectory) -> int:
-        logger.info("Starting Redshift unload...")
         if directory.scheme == 's3':
             s3_directory = directory
             return self.unload_to_s3_directory(schema, table, unload_plan, s3_directory)
