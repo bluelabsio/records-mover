@@ -145,7 +145,7 @@ class TestTableRecordsSource(unittest.TestCase):
                                         mock_target_format_1,
                                         mock_source_format_1]
 
-        def test_source_can_move_to_format_true(target_candidate):
+        def source_can_move_to_format(target_candidate):
             return target_candidate in [mock_common_format, mock_source_format_1]
 
         self.mock_driver.can_move_to_format = source_can_move_to_format
