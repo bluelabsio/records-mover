@@ -29,8 +29,13 @@ class ConfigToArgs:
 
     def add_hint_parameter(self, kwargs: Dict[str, Any], param_name: str) -> None:
         if 'records_format' in kwargs:
+            existing_records_format = kwargs['records_format']
+            if not isinstance(existing_records_format, DelimitedRecordsFormat):
+                raise NotImplementedError('Hints are not compatible '
+                                          'with records format '
+                                          f'{existing_records_format.format_type}')
             # records_format already defined by user - populate that
-            kwargs['records_format'] = kwargs['records_format'].\
+            kwargs['records_format'] = existing_records_format.\
                 alter_hints({param_name: kwargs[param_name]})
         elif 'initial_hints' in self.possible_args:
             if 'initial_hints' not in kwargs:
@@ -84,8 +89,9 @@ class ConfigToArgs:
         if 'records_format' in kwargs:
             existing_records_format = kwargs['records_format']
             if type(records_format) != type(existing_records_format):
-                raise NotImplementedError('Hints are not comptible '
-                                          f'with {type(records_format)}')
+                raise NotImplementedError('Hints are not compatible '
+                                          'with records format '
+                                          f'{existing_records_format.format_type}')
         else:
             kwargs['records_format'] = records_format
 
