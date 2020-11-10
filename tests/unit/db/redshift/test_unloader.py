@@ -7,9 +7,9 @@ from mock import patch, Mock
 class TestRedshiftUnloader(unittest.TestCase):
     @patch('records_mover.db.redshift.unloader.redshift_unload_options')
     @patch('records_mover.db.redshift.unloader.RecordsUnloadPlan')
-    def test_can_unload_this_format_true(self,
-                                         mock_RecordsUnloadPlan,
-                                         mock_redshift_unload_options):
+    def test_can_unload_format_true(self,
+                                    mock_RecordsUnloadPlan,
+                                    mock_redshift_unload_options):
         mock_db = Mock(name='db')
         mock_table = Mock(name='table')
 
@@ -25,7 +25,7 @@ class TestRedshiftUnloader(unittest.TestCase):
             RedshiftUnloader(db=mock_db,
                              table=mock_table,
                              s3_temp_base_loc=mock_s3_temp_base_loc)
-        out = redshift_unloader.can_unload_this_format(mock_target_records_format)
+        out = redshift_unloader.can_unload_format(mock_target_records_format)
         mock_RecordsUnloadPlan.\
             assert_called_with(records_format=mock_target_records_format)
         mock_redshift_unload_options.\

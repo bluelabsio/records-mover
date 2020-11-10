@@ -106,7 +106,7 @@ class PostgresUnloader(Unloader):
         # and requires no scratch buckets.
         return True
 
-    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
+    def can_unload_format(self, target_records_format: BaseRecordsFormat) -> bool:
         try:
             unload_plan = RecordsUnloadPlan(records_format=target_records_format)
             records_format = unload_plan.records_format

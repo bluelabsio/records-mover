@@ -16,10 +16,10 @@ class TestVerticaLoader(unittest.TestCase):
     @patch('records_mover.db.vertica.loader.ProcessingInstructions')
     @patch('records_mover.db.vertica.loader.RecordsLoadPlan')
     @patch('records_mover.db.vertica.loader.vertica_import_options')
-    def test_can_unload_this_format_with_s3_true(self,
-                                                 mock_vertica_import_options,
-                                                 mock_RecordsLoadPlan,
-                                                 mock_ProcessingInstructions):
+    def test_can_unload_format_with_s3_true(self,
+                                            mock_vertica_import_options,
+                                            mock_RecordsLoadPlan,
+                                            mock_ProcessingInstructions):
         mock_processing_instructions = mock_ProcessingInstructions.return_value
 
         mock_source_records_format = Mock(name='source_records_format', spec=DelimitedRecordsFormat)
