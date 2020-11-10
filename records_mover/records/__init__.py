@@ -17,7 +17,7 @@ __all__ = [
 ]
 
 from .delimited import UntypedRecordsHints, PartialRecordsHints
-from .types import RecordsFormatType, DelimitedVariant
+from .records_types import RecordsFormatType, DelimitedVariant
 from .schema import RecordsSchema
 from .mover import move
 from .records_format import RecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
