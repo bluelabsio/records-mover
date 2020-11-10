@@ -47,7 +47,8 @@ class RedshiftUnloader(Unloader):
                                table: str,
                                unload_plan: RecordsUnloadPlan,
                                directory: RecordsDirectory) -> int:
-        logger.info(f"Starting Redshift unload to {directory.loc}...")
+        logger.info(f"Starting Redshift unload to {directory.loc} as "
+                    f"{unload_plan.records_format}...")
         unhandled_hints = set()
         if isinstance(unload_plan.records_format, DelimitedRecordsFormat):
             unhandled_hints = set(unload_plan.records_format.hints.keys())
