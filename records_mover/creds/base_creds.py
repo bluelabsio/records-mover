@@ -149,34 +149,9 @@ class BaseCreds():
 
         try:
             other_args = {}
-            #
-            # For mvrec especially, Records Mover on the command line
-            # tends to use "application default creds", which act like
-            # service user creds but are retrieved by browser oauth.
-            #
-            # To create a google.cloud.storage.Client(), we need a
-            # project - projects in GCP are kind of like accounts in
-            # AWS, but a little more convenient to flip through and
-            # less directly tied to billing.
-            #
-            # So it turns out that `google.cloud.storage.Client()`,
-            # when reading "application default creds", requires a GCP
-            # "project" to be passed in.  Nothing you do on the
-            # command line will make it guess the right one short of
-            # (I'm not kidding) logging in again using a different
-            # method that doesn't get useful creds here, and *then*
-            # setting the project in config.
-            #
-            # So the other only option than passing this project arg
-            # in is:
-            #
-            #   # note the next --project arg is ignored for this purpose
-            #   gcloud auth application-default login --project my-project-here
-            #   gcloud auth login
-            #   # now we can set a gcloud config and have it read:
-            #   gcloud config set project my-project-here
-            #
-            # See
+            # Pulling the project here from global config instead of
+            # from the Google API and letting the user configure it
+            # isn't great.  See
             # https://github.com/bluelabsio/records-mover/issues/119
             # for a way we can improve this.
             gcp_project = self._default_gcp_project()
