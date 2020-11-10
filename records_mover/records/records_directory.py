@@ -195,5 +195,16 @@ class RecordsDirectory:
             else:
                 raise NotImplementedError("Please teach me how to concatenate this format of file")
 
+    def await_completion(self,
+                         manifest_filename: str = "_manifest",
+                         log_level: int = logging.INFO,
+                         ms_between_polls: int = 50) -> None:
+        manifest_loc = self.loc.file_in_this_directory(manifest_filename)
+        manifest_loc.wait_to_exist(log_level=log_level, ms_between_polls=ms_between_polls)
+        manifest_locs = [self.loc.file_in_this_directory(self._filename_of_url(url))
+                         for url in self.manifest_entry_urls()]
+        for loc in manifest_locs:
+            loc.wait_to_exist()
+
     def __str__(self) -> str:
         return f"{type(self).__name__}({self.loc.url})"

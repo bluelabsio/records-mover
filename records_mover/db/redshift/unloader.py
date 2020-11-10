@@ -80,7 +80,22 @@ class RedshiftUnloader(Unloader):
                                       secret_access_key=aws_creds.secret_key,
                                       session_token=aws_creds.token, manifest=True,
                                       unload_location=directory.loc.url, **redshift_options)
-            self.db.execute(unload)
+            try:
+                self.db.execute(unload)
+            except sqlalchemy.exc.DatabaseError as e:
+                if 'Operation timed out' in str(e):
+                    # Large database UNLOADs can take hours, and it's
+                    # likely the connection between the client and
+                    # server will get disconnected.  In this
+                    # circumstance, we want to wait until unload is
+                    # complete and then proceed.
+                    logger.info("Server disconnected - awaiting completion "
+                                "of work by checking S3 bucket...")
+                    directory.await_completion(log_level=logging.DEBUG,
+                                               ms_between_polls=5000,
+                                               manifest_filename='manifest')
+                else:
+                    raise
             out = self.db.execute(text("SELECT pg_last_unload_count()"))
             rows: Optional[int] = out.scalar()
             assert rows is not None
