@@ -140,7 +140,7 @@ class RecordsSchema:
 
         if len(fileobjs) != 1:
             # https://github.com/bluelabsio/records-mover/issues/84
-            raise NotImplementedError('Cannot currently sniff schema from mulitple '
+            raise NotImplementedError('Cannot currently sniff schema from multiple '
                                       'files--please provide explicit schema JSON')
         fileobj = fileobjs[0]
         if not fileobj.seekable():

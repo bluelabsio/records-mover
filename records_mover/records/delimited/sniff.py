@@ -191,7 +191,7 @@ def sniff_hints_from_fileobjs(fileobjs: List[IO[bytes]],
                               initial_hints: PartialRecordsHints) -> PartialRecordsHints:
     if len(fileobjs) != 1:
         # https://github.com/bluelabsio/records-mover/issues/84
-        raise NotImplementedError('Cannot currently sniff hints from mulitple '
+        raise NotImplementedError('Cannot currently sniff hints from multiple '
                                   'files--please provide hints')
     fileobj = fileobjs[0]
     hints = sniff_hints(fileobj, initial_hints=initial_hints)
