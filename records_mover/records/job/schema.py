@@ -20,8 +20,7 @@ def method_to_json_schema(method: Callable[..., Any]) -> JsonSchema:
         'records_format': ([JsonParameter('variant', JsonSchemaDocument('string'), optional=True),
                             JsonParameter('format',
                                           JsonSchemaDocument('string',
-                                                             enum=['parquet', 'delimited'],
-                                                             default='delimited'),
+                                                             enum=['parquet', 'delimited']),
                                           optional=True)] +
                            HINT_PARAMETERS),
         'initial_hints': HINT_PARAMETERS,
