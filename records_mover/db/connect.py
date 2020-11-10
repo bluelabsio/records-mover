@@ -33,6 +33,18 @@ query_for_type = {
         # Please see SECURITY.md for security implications!
         "local_infile": True
     },
+    'redshift': {
+        #
+        # Set keepalive configuration to avoid hung connections during
+        # long UNLOAD and COPY commands.
+        #
+        # https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS
+        # https://docs.aws.amazon.com/redshift/latest/mgmt/connecting-firewall-guidance.html
+        'keepalives': "1",
+        'keepalives_idle': "200",
+        'keepalives_interval': "200",
+        'keepalives_count': "20",
+    },
 }
 
 
