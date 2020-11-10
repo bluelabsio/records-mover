@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import json
 from typing import Mapping, Optional
-from .types import RecordsFormatType
+from .records_types import RecordsFormatType
 
 
 class BaseRecordsFormat(metaclass=ABCMeta):
