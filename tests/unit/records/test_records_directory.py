@@ -1,5 +1,6 @@
 import unittest
 from records_mover.records.records_directory import RecordsDirectory
+from records_mover.records.records_format import DelimitedRecordsFormat
 from records_mover.url.base import BaseDirectoryUrl
 from mock import Mock, patch, call
 import json
@@ -230,6 +231,34 @@ class TestRecordsDirectory(unittest.TestCase):
         mock_output_loc = Mock(name='output_loc')
         self.records_directory.save_to_url(mock_output_loc)
         mock_csv_loc.copy_to.assert_called_with(mock_output_loc)
+
+    def test_save_to_url_concatenate(self):
+        mock_records_format = Mock(name='records_format',
+                                   spec=DelimitedRecordsFormat)
+        self.mock_record_format_file.load_format.return_value = mock_records_format
+        mock_records_format.hints = {
+            'header-row': False
+        }
+        mock_manifest_loc = Mock(name='manifest_loc')
+        mock_manifest_loc.exists.return_value = True
+        mock_csv_1_loc = Mock(name='csv_1_loc')
+        mock_csv_2_loc = Mock(name='csv_2_loc')
+        self.mock_records_loc.file_in_this_directory.side_effect = [
+            mock_manifest_loc,
+            mock_csv_1_loc,
+            mock_csv_2_loc
+        ]
+        mock_manifest_loc.exists.return_value = True
+        mock_manifest_loc.json_contents.return_value = {
+            "entries": [
+                {"url": "s3://bucket/path/file1.csv"},
+                {"url": "s3://bucket/path/file2.csv"},
+            ]
+        }
+        mock_output_loc = Mock(name='output_loc')
+        self.records_directory.save_to_url(mock_output_loc)
+        mock_output_loc.concatenate_from.assert_called_with([mock_csv_1_loc,
+                                                             mock_csv_2_loc])
 
     def test_str(self):
         self.assertEqual(str(self.records_directory),

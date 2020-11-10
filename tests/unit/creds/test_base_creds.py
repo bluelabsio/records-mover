@@ -95,6 +95,24 @@ class TestBaseCreds(unittest.TestCase):
         out = creds.default_gcs_client()
         self.assertIsNone(out)
 
+    @patch('google.auth.default')
+    @patch('google.cloud.storage.Client')
+    @patch('records_mover.creds.base_creds.os')
+    def test_default_gcs_client_project_set_via_env(self,
+                                                    mock_os,
+                                                    mock_Client,
+                                                    mock_google_auth_default):
+        mock_gcp_creds = Mock(name='gcp_creds')
+        creds = ExampleCredsSubclass(default_gcp_creds=mock_gcp_creds)
+        mock_gcp_project = Mock(name='gcp_project')
+        mock_os.environ = {
+            'GCP_PROJECT': mock_gcp_project
+        }
+        out = creds.default_gcs_client()
+        mock_Client.assert_called_with(credentials=mock_gcp_creds,
+                                       project=mock_gcp_project)
+        self.assertEqual(out, mock_Client.return_value)
+
     @patch('records_mover.creds.base_creds.get_config')
     @patch('records_mover.creds.base_creds.os')
     def test_s3_scratch_bucket_via_prefix(self,
@@ -124,6 +142,25 @@ class TestBaseCreds(unittest.TestCase):
         mock_get_config.return_value.config = {
             'aws': {
                 's3_scratch_url_appended_with_iam_username': 's3://group_bucket/subdir/'
+            }
+        }
+        mock_sts_client = mock_boto3_session.client.return_value
+        mock_sts_client.get_caller_identity.return_value = {
+            'Arn': 'arn:aws:sts::accountid:assumed-role/SomeAssumedRole/some-session-name'
+        }
+        creds = ExampleCredsSubclass(default_boto3_session=mock_boto3_session)
+        out = creds.default_scratch_s3_url()
+        self.assertIsNone(out)
+        mock_get_config.assert_called_with('records_mover', 'bluelabs')
+
+    @patch('records_mover.creds.base_creds.get_config')
+    @patch('records_mover.creds.base_creds.os')
+    def test_s3_scratch_bucket_no_specific_config_provided(self,
+                                                           mock_os,
+                                                           mock_get_config):
+        mock_boto3_session = Mock(name='boto3_session')
+        mock_get_config.return_value.config = {
+            'aws': {
             }
         }
         mock_sts_client = mock_boto3_session.client.return_value
@@ -203,8 +240,10 @@ class TestBaseCreds(unittest.TestCase):
         self.assertIsNone(out)
         mock_get_config.assert_called_with('records_mover', 'bluelabs')
 
+    @patch('records_mover.creds.base_creds.get_config')
     @patch('records_mover.creds.base_creds.os')
     def test_gcs_scratch_bucket_no_env(self,
+                                       mock_get_config,
                                        mock_os):
         mock_os.environ = {}
         creds = ExampleCredsSubclass()
