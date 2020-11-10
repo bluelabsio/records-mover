@@ -108,7 +108,7 @@ class TestTableRecordsSource(unittest.TestCase):
             return (source_candidate == mock_common_format or
                     source_candidate == mock_target_format_1)
 
-        def test_source_can_move_to_format_true(target_candidate):
+        def source_can_move_to_format(target_candidate):
             return (target_candidate == mock_common_format or
                     target_candidate == mock_source_format_1)
 
