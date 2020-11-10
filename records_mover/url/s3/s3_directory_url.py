@@ -46,4 +46,4 @@ class S3DirectoryUrl(S3BaseUrl, BaseDirectoryUrl):
     def files_matching_prefix(self, prefix: str) -> List[BaseFileUrl]:
         prefix = self.key + prefix
         resp = self.s3_client.list_objects(Bucket=self.bucket, Prefix=prefix, Delimiter='/')
-        return [self._key_in_same_bucket(o['Key']) for o in resp['Contents']]
+        return [self._key_in_same_bucket(o['Key']) for o in resp.get('Contents', [])]
