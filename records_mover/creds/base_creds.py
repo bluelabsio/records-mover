@@ -13,6 +13,12 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+_GSHEETS_SCOPES = ('https://www.googleapis.com/auth/spreadsheets',)
+
+_GCS_SCOPES = ('https://www.googleapis.com/auth/devstorage.full_control',
+               'https://www.googleapis.com/auth/devstorage.read_only',
+               'https://www.googleapis.com/auth/devstorage.read_write')
+
 
 # this interfaces here are probably unstable until we figure out how
 # best to integrate airflow hooks and connections (and maybe
@@ -58,13 +64,11 @@ class BaseCreds():
         self._scratch_s3_url = scratch_s3_url
 
     def google_sheets(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
-        scopes = ('https://www.googleapis.com/auth/spreadsheets',)
+        scopes = _GSHEETS_SCOPES
         return self._gcp_creds(gcp_creds_name, scopes)
 
     def gcs(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
-        scopes = ('https://www.googleapis.com/auth/devstorage.full_control',
-                  'https://www.googleapis.com/auth/devstorage.read_only',
-                  'https://www.googleapis.com/auth/devstorage.read_write')
+        scopes = _GCS_SCOPES
         return self._gcp_creds(gcp_creds_name, scopes)
 
     def _gcp_creds(self, gcp_creds_name: str,
@@ -94,6 +98,13 @@ class BaseCreds():
             self.__default_boto3_session = self.boto3_session(self._default_aws_creds_name)
         return self.__default_boto3_session
 
+    def _gcp_creds_of_last_resort(self,
+                                  scopes: Iterable[str]) ->\
+            Optional['google.auth.credentials.Credentials']:
+        import google.auth
+        credentials, project = google.auth.default(scopes=scopes)
+        return credentials
+
     def default_gcs_creds(self) -> Optional['google.auth.credentials.Credentials']:
         if self.__default_gcs_creds is not PleaseInfer.token:
             return self.__default_gcs_creds
@@ -101,12 +112,9 @@ class BaseCreds():
         try:
             import google.auth.exceptions
             if self._default_gcp_creds_name is None:
-                import google.auth
-                credentials, project = google.auth.default()
-                self.__default_gcs_creds = credentials
+                self.__default_gcs_creds = self._gcp_creds_of_last_resort(scopes=_GCS_SCOPES)
             else:
-                creds = self.gcs(self._default_gcp_creds_name)
-                self.__default_gcs_creds = creds
+                self.__default_gcs_creds = self.gcs(self._default_gcp_creds_name)
         except (OSError, google.auth.exceptions.DefaultCredentialsError):
             # Examples:
             #   OSError: Project was not passed and could not be determined from the environment.

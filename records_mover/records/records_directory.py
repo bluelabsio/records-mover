@@ -121,6 +121,7 @@ class RecordsDirectory:
         return path.split('/')[-1]
 
     def copy_to(self, new_loc: BaseDirectoryUrl) -> 'RecordsDirectory':
+        logger.info(f"Copying files from {self.loc} to {new_loc}...")
         new_loc = self.loc.copy_to(new_loc)
         # rebuild manifest to point to new URLs.
         new_directory = RecordsDirectory(records_loc=new_loc)
