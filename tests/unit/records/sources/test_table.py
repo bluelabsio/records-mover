@@ -108,11 +108,11 @@ class TestTableRecordsSource(unittest.TestCase):
             return (source_candidate == mock_common_format or
                     source_candidate == mock_target_format_1)
 
-        def source_can_move_to_this_format(target_candidate):
+        def source_can_move_to_format(target_candidate):
             return (target_candidate == mock_common_format or
                     target_candidate == mock_source_format_1)
 
-        self.mock_loader.can_move_to_this_format = source_can_move_to_this_format
+        self.mock_loader.can_move_to_format = source_can_move_to_format
 
         mock_records_target.can_move_from_format = target_can_move_from_format
         out = self.table_records_source.has_compatible_format(mock_records_target)
@@ -145,10 +145,10 @@ class TestTableRecordsSource(unittest.TestCase):
                                         mock_target_format_1,
                                         mock_source_format_1]
 
-        def source_can_move_to_this_format(target_candidate):
+        def source_can_move_to_format(target_candidate):
             return target_candidate in [mock_common_format, mock_source_format_1]
 
-        self.mock_driver.can_move_to_this_format = source_can_move_to_this_format
+        self.mock_driver.can_move_to_format = source_can_move_to_format
 
         mock_records_target.can_move_from_format = target_can_move_from_format
         out = self.table_records_source.has_compatible_format(mock_records_target)
