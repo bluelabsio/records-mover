@@ -204,7 +204,7 @@ class RecordsDirectory:
         manifest_locs = [self.loc.file_in_this_directory(self._filename_of_url(url))
                          for url in self.manifest_entry_urls()]
         for loc in manifest_locs:
-            loc.wait_to_exist()
+            loc.wait_to_exist(log_level=log_level, ms_between_polls=ms_between_polls)
 
     def __str__(self) -> str:
         return f"{type(self).__name__}({self.loc.url})"
