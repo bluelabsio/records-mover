@@ -99,7 +99,7 @@ class TestFileobjsSource(unittest.TestCase):
         out = source.known_supported_records_formats()
         self.assertEqual(out, [mock_records_format])
 
-    def test_can_move_to_format_yes(self):
+    def test_can_move_to_format_true(self):
         mock_records_format = Mock(name='records_format')
         mock_records_schema = Mock(name='records_schema')
         mock_records_schema = Mock(name='records_schema')
