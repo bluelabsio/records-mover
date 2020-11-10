@@ -47,11 +47,3 @@ class CredsViaEnv(BaseCreds):
             # Fall back and use Google's default configuration files
             creds = super()._gcp_creds_of_last_resort(scopes=scopes)
         return creds
-
-    def boto3_session(self, aws_creds_name: str) -> 'boto3.session.Session':
-        import boto3
-
-        if aws_creds_name is None:
-            return boto3.session.Session()
-        else:
-            raise NotImplementedError
