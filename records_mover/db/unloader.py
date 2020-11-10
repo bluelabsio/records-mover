@@ -37,7 +37,7 @@ class Unloader(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
+    def can_unload_format(self, target_records_format: BaseRecordsFormat) -> bool:
         """Determine whether a specific records format can be exported by this
         database."""
         ...

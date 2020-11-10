@@ -127,7 +127,7 @@ class VerticaUnloader(Unloader):
             return False
         return scheme == 's3' or self.s3_temp_bucket_available()
 
-    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
+    def can_unload_format(self, target_records_format: BaseRecordsFormat) -> bool:
         try:
             unload_plan = RecordsUnloadPlan(records_format=target_records_format)
             if not isinstance(unload_plan.records_format, DelimitedRecordsFormat):

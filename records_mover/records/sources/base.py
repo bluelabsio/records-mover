@@ -56,7 +56,7 @@ class NegotiatesRecordsFormat(RecordsSource, metaclass=ABCMeta):
                     compatible_format = source_candidate
                     break
             if target_candidate is not None:
-                if self.can_move_to_this_format(target_candidate):
+                if self.can_move_to_format(target_candidate):
                     compatible_format = target_candidate
                     break
         if compatible_format is None:
@@ -75,8 +75,8 @@ class NegotiatesRecordsFormat(RecordsSource, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def can_move_to_this_format(self,
-                                target_records_format: BaseRecordsFormat) -> bool:
+    def can_move_to_format(self,
+                           target_records_format: BaseRecordsFormat) -> bool:
         """Return true if writing the specified format satisfies our format
         needs"""
         pass
