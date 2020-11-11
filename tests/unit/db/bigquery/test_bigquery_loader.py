@@ -245,4 +245,3 @@ class TestBigQueryLoader(unittest.TestCase):
         bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
         self.assertEqual('gs', bigquery_loader.temporary_loadable_directory_scheme())
-        
