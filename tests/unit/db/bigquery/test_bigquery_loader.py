@@ -229,3 +229,19 @@ class TestBigQueryLoader(unittest.TestCase):
             self.assertEqual(loc,
                              mock_gcs_temp_base_loc.temporary_directory.return_value.__enter__.
                              return_value)
+
+    def test_has_temporary_loadable_directory_loc_true(self):
+        mock_db = Mock(name='db')
+        mock_url_resolver = Mock(name='url_resolver')
+        mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
+        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        self.assertTrue(bigquery_loader.has_temporary_loadable_directory_loc())
+
+    def test_temporary_loadable_directory_scheme(self):
+        mock_db = Mock(name='db')
+        mock_url_resolver = Mock(name='url_resolver')
+        mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
+        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        self.assertEqual('gs', bigquery_loader.temporary_loadable_directory_scheme())
