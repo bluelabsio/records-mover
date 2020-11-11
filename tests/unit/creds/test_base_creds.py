@@ -212,7 +212,7 @@ class TestBaseCreds(unittest.TestCase):
         self.assertIsNone(out)
 
     @patch('records_mover.creds.base_creds.os')
-    def test_gcs_scratch_bucket_env_set(self,
+    def test_gcs_scratch_bucket_env_set_true(self,
                                         mock_os):
         mock_os.environ = {
             'SCRATCH_GCS_URL': 'gs://whatever/'
