@@ -1,4 +1,5 @@
 from sqlalchemy.schema import Table
+from contextlib import contextmanager
 from .sqlalchemy_postgres_copy import copy_to
 from ..quoting import quote_value
 from ...records.unload_plan import RecordsUnloadPlan
@@ -6,7 +7,10 @@ from ...records.records_format import BaseRecordsFormat
 from ...records.records_directory import RecordsDirectory
 from ...records.records_format import DelimitedRecordsFormat
 from ...records.delimited import complain_on_unhandled_hints
-from typing import List
+from tempfile import TemporaryDirectory
+from records_mover.url.filesystem import FilesystemDirectoryUrl
+from records_mover.url.base import BaseDirectoryUrl
+from typing import List, Iterator
 from ..unloader import Unloader
 from .copy_options import postgres_copy_to_options
 import logging
@@ -66,6 +70,12 @@ class PostgresUnloader(Unloader):
 
         logger.info('Copy complete')
         directory.save_preliminary_manifest()
+
+    @contextmanager
+    def temporary_unloadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        with TemporaryDirectory(prefix='temporary_loadable_directory_loc') as dirname:
+            yield FilesystemDirectoryUrl(dirname)
+
 
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
         return [

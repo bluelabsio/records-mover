@@ -6,12 +6,14 @@ from ...db import DBDriver
 from ..records_directory import RecordsDirectory
 from ..processing_instructions import ProcessingInstructions
 from ..records_format import BaseRecordsFormat
+from records_mover.url import BaseDirectoryUrl
 from ..unload_plan import RecordsUnloadPlan
 from ..results import MoveResult
 from sqlalchemy.engine import Engine
 from contextlib import contextmanager
 from ..schema import RecordsSchema
 from ...url.resolver import UrlResolver
+from records_mover.db.unloader import Unloader
 import logging
 from typing import Iterator, List, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -33,6 +35,7 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         self.schema_name = schema_name
         self.table_name = table_name
         self.driver = driver
+        # TODO: use this throughout
         self.unloader = driver.unloader()
         if self.unloader is not None:
             self.records_format = self.unloader.best_records_format()
@@ -48,10 +51,9 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
 
     def can_move_to_format(self,
                            target_records_format: BaseRecordsFormat) -> bool:
-        unloader = self.driver.unloader()
-        if unloader is None:
+        if self.unloader is None:
             return False
-        return unloader.can_unload_format(target_records_format)
+        return self.unloader.can_unload_format(target_records_format)
 
     def can_move_to_scheme(self, scheme: str) -> bool:
         unloader = self.driver.unloader()
@@ -127,6 +129,16 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         records_directory.finalize_manifest()
 
         return MoveResult(move_count=export_count, output_urls=None)
+
+    def verified_unloader(self) -> Unloader:
+        assert self.unloader is not None, "Please call can_move_to_format() before this function"
+        return self.unloader
+
+    @contextmanager
+    def temporary_unloadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        unloader = self.verified_unloader()
+        with unloader.temporary_unloadable_directory_loc() as temp_loc:
+            yield temp_loc
 
     def __str__(self) -> str:
         return f"{type(self).__name__}({self.driver.db_engine.name})"

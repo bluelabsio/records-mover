@@ -34,6 +34,11 @@ class RedshiftUnloader(Unloader):
         self.s3_temp_base_loc = s3_temp_base_loc
 
     @contextmanager
+    def temporary_unloadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        with self.temporary_s3_directory_loc() as temp_loc:
+            yield temp_loc
+
+    @contextmanager
     def temporary_s3_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         if self.s3_temp_base_loc is None:
             raise NoTemporaryBucketConfiguration('Please provide a scratch S3 URL in your config '

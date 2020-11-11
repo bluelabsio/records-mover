@@ -1,5 +1,6 @@
 from google.auth.credentials import Credentials
-from typing_extensions import Literal
+from typing_extensions import Literal, TypedDict
+from typing import overload, List
 
 
 class _ListRequest:
@@ -20,7 +21,110 @@ class _GCSService:
         ...
 
 
+class _StorageTransferTransferOperationMetadata(TypedDict):
+    status: str
+
+
+class _StorageTransferTransferOperation(TypedDict):
+    metadata: _StorageTransferTransferOperationMetadata
+
+
+class _StorageTransferTransferList(TypedDict):
+    operations: List[_StorageTransferTransferOperation]
+    ...
+
+
+class _StorageTransferTransferListOperation:
+    def execute(self) -> _StorageTransferTransferList:
+        ...
+
+class _StorageTransferTransferOperations:
+    def list(self, name: Literal['transferOperations'],
+             filter: str) -> _StorageTransferTransferListOperation:
+        ...
+
+
+class _StorageTransferTransferJobResult(TypedDict):
+    name: str
+
+
+class _StorageTransferTransferJob:
+    def execute(self) -> _StorageTransferTransferJobResult:
+        ...
+
+
+class _TransferJobScheduleDateConfig(TypedDict):
+    day: int
+    month: int
+    year: int
+
+
+class _TransferJobScheduleConfig(TypedDict):
+    scheduleStartDate: _TransferJobScheduleDateConfig
+    scheduleEndDate: _TransferJobScheduleDateConfig
+
+
+class _TransferJobObjectConditionsConfig(TypedDict):
+    includePrefixes: List[str]
+
+
+class _TransferJobTransferOptionsConfig(TypedDict):
+    overwriteObjectsAlreadyExistingInSink: bool
+    deleteObjectsUniqueInSink: bool
+    deleteObjectsFromSourceAfterTransfer: bool
+
+
+class _TransferJobGcsDataSinkConfig(TypedDict):
+    bucketName: str
+
+
+class _TransferJobS3DataSourceAwsAccessKeyConfig(TypedDict):
+    accessKeyId: str
+    secretAccessKey: str
+
+
+class _TransferJobS3DataSourceConfig(TypedDict):
+    bucketName: str
+    awsAccessKey: _TransferJobS3DataSourceAwsAccessKeyConfig
+
+
+class _TransferJobTransferSpecConfig(TypedDict):
+    awsS3DataSource: _TransferJobS3DataSourceConfig
+    objectConditions: _TransferJobObjectConditionsConfig
+    transferOptions: _TransferJobTransferOptionsConfig
+    gcsDataSink: _TransferJobGcsDataSinkConfig
+
+
+class _TransferJobConfig(TypedDict):
+    description: str
+    status: Literal['ENABLED']
+    projectId: str
+    schedule: _TransferJobScheduleConfig
+    transferSpec: _TransferJobTransferSpecConfig
+
+
+class _StorageTransferTransferJobs:
+    def create(self, body: _TransferJobConfig) -> _StorageTransferTransferJob:
+        ...
+
+
+class _StorageTransfer:
+    def transferOperations(self) -> _StorageTransferTransferOperations:
+        ...
+
+    def transferJobs(self) -> _StorageTransferTransferJobs:
+        ...
+
+
+@overload
 def build(serviceName: Literal['storage'],
           version: Literal['v1'],
           credentials: Credentials) -> _GCSService:
+    ...
+
+
+@overload
+def build(serviceName: Literal['storagetransfer'],
+          version: Literal['v1'],
+          credentials: Credentials) -> _StorageTransfer:
     ...

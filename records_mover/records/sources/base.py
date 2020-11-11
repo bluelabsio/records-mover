@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from ..records_directory import RecordsDirectory
 from ..results import MoveResult
 from ..records_format import BaseRecordsFormat
+from records_mover.url import BaseDirectoryUrl
 from ..processing_instructions import ProcessingInstructions
 from contextlib import contextmanager
 from typing import Iterator, List, Tuple

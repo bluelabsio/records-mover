@@ -2,7 +2,9 @@ from sqlalchemy import MetaData
 from ..records.unload_plan import RecordsUnloadPlan
 from ..records.records_format import BaseRecordsFormat
 from ..records.records_directory import RecordsDirectory
-from typing import Union, List, Optional
+from records_mover.url.base import BaseDirectoryUrl
+from typing import Union, List, Optional, Iterator
+from contextlib import contextmanager
 from abc import ABCMeta, abstractmethod
 import sqlalchemy
 
@@ -47,6 +49,12 @@ class Unloader(metaclass=ABCMeta):
         """Determine whether a URL scheme can be unloaded to by this database.
         Depending on capabilities of this driver and the underlying database,
         this may depend on whether a temporary location has been configured."""
+        ...
+
+    @abstractmethod
+    @contextmanager
+    def temporary_unloadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        # TODO document
         ...
 
     def best_records_format(self) -> Optional[BaseRecordsFormat]:
