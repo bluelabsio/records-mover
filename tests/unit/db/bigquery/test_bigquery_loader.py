@@ -126,7 +126,7 @@ class TestBigQueryLoader(unittest.TestCase):
         self.assertEqual(True, out)
 
     @patch('records_mover.db.bigquery.loader.load_job_config')
-    def test_load_from_fileobj(self, mock_load_job_config):
+    def test_load_from_fileobj_true(self, mock_load_job_config):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = None
