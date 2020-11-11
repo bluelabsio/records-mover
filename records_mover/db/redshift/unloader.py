@@ -46,8 +46,9 @@ class RedshiftUnloader(Unloader):
                                schema: str,
                                table: str,
                                unload_plan: RecordsUnloadPlan,
-                               directory: RecordsDirectory) -> int:
-        logger.info(f"Starting Redshift unload to {directory.loc}...")
+                               directory: RecordsDirectory) -> Optional[int]:
+        logger.info(f"Starting Redshift unload to {directory.loc} as "
+                    f"{unload_plan.records_format}...")
         unhandled_hints = set()
         if isinstance(unload_plan.records_format, DelimitedRecordsFormat):
             unhandled_hints = set(unload_plan.records_format.hints.keys())
@@ -82,6 +83,11 @@ class RedshiftUnloader(Unloader):
                                       unload_location=directory.loc.url, **redshift_options)
             try:
                 self.db.execute(unload)
+                out = self.db.execute(text("SELECT pg_last_unload_count()"))
+                rows: Optional[int] = out.scalar()
+                assert rows is not None
+                logger.info(f"Just unloaded {rows} rows")
+                out.close()
             except sqlalchemy.exc.DatabaseError as e:
                 if 'Operation timed out' in str(e):
                     # Large database UNLOADs can take hours, and it's
@@ -94,13 +100,12 @@ class RedshiftUnloader(Unloader):
                     directory.await_completion(log_level=logging.DEBUG,
                                                ms_between_polls=5000,
                                                manifest_filename='manifest')
+                    # pg_last_unload_count() doesn't work
+                    # after this situation - the query shows up as
+                    rows = None
+                    logger.info("Unload complete.")
                 else:
                     raise
-            out = self.db.execute(text("SELECT pg_last_unload_count()"))
-            rows: Optional[int] = out.scalar()
-            assert rows is not None
-            logger.info(f"Just unloaded {rows} rows")
-            out.close()
 
             return rows
 
@@ -108,7 +113,7 @@ class RedshiftUnloader(Unloader):
                schema: str,
                table: str,
                unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> int:
+               directory: RecordsDirectory) -> Optional[int]:
         if directory.scheme == 's3':
             s3_directory = directory
             return self.unload_to_s3_directory(schema, table, unload_plan, s3_directory)
