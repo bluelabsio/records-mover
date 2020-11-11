@@ -152,5 +152,5 @@ class TestRedshiftLoader(unittest.TestCase):
         self.assertEqual(self.redshift_loader.temporary_loadable_directory_scheme(),
                          's3')
 
-    def test_has_temporary_loadable_directory_loc(self):
+    def test_has_temporary_loadable_directory_loc_true(self):
         self.assertTrue(self.redshift_loader.has_temporary_loadable_directory_loc())

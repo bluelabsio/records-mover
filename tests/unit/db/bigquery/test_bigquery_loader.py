@@ -126,7 +126,7 @@ class TestBigQueryLoader(unittest.TestCase):
         self.assertEqual(True, out)
 
     @patch('records_mover.db.bigquery.loader.load_job_config')
-    def test_load_from_fileobj(self, mock_load_job_config):
+    def test_load_from_fileobj_true(self, mock_load_job_config):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = None
@@ -230,7 +230,7 @@ class TestBigQueryLoader(unittest.TestCase):
                              mock_gcs_temp_base_loc.temporary_directory.return_value.__enter__.
                              return_value)
 
-    def test_has_temporary_loadable_directory_loc(self):
+    def test_has_temporary_loadable_directory_loc_true(self):
         mock_db = Mock(name='db')
         mock_url_resolver = Mock(name='url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
