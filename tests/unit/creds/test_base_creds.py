@@ -138,8 +138,8 @@ class TestBaseCreds(unittest.TestCase):
     @patch('records_mover.creds.base_creds.get_config')
     @patch('records_mover.creds.base_creds.os')
     def test_gcs_scratch_bucket_configured_true(self,
-                                           mock_os,
-                                           mock_get_config):
+                                                mock_os,
+                                                mock_get_config):
         mock_get_config.return_value.config = {
             'gcp': {
                 'gcs_scratch_url': 'gs://group_bucket/subdir/'
@@ -153,8 +153,8 @@ class TestBaseCreds(unittest.TestCase):
     @patch('records_mover.creds.base_creds.get_config')
     @patch('records_mover.creds.base_creds.os')
     def test_gcs_scratch_bucket_not_configured_true(self,
-                                               mock_os,
-                                               mock_get_config):
+                                                    mock_os,
+                                                    mock_get_config):
         mock_get_config.return_value.config = {
             'gcp': {}
         }
