@@ -193,7 +193,7 @@ class TestBaseCreds(unittest.TestCase):
 
     @patch('records_mover.creds.base_creds.get_config')
     @patch('records_mover.creds.base_creds.os')
-    def test_gcs_scratch_bucket_no_config_file(self,
+    def test_gcs_scratch_bucket_no_config_file_true(self,
                                                mock_os,
                                                mock_get_config):
         mock_boto3_session = None
