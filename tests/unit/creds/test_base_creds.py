@@ -204,7 +204,7 @@ class TestBaseCreds(unittest.TestCase):
         mock_get_config.assert_called_with('records_mover', 'bluelabs')
 
     @patch('records_mover.creds.base_creds.os')
-    def test_gcs_scratch_bucket_no_env(self,
+    def test_gcs_scratch_bucket_no_env_true(self,
                                        mock_os):
         mock_os.environ = {}
         creds = ExampleCredsSubclass()
