@@ -30,10 +30,22 @@ def dockerized_dbs():
 
 
 @contextmanager
-def set_circleci_scratch_bucket():
+def set_s3_scratch_bucket():
     # https://stackoverflow.com/questions/2059482/python-temporarily-modify-the-current-processs-environment
     _environ = dict(os.environ)
     os.environ['SCRATCH_S3_URL'] = 's3://circleci-scratch/'
+    try:
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(_environ)
+
+
+@contextmanager
+def set_gcs_scratch_bucket():
+    # https://stackoverflow.com/questions/2059482/python-temporarily-modify-the-current-processs-environment
+    _environ = dict(os.environ)
+    os.environ['SCRATCH_GCS_URL'] = 'gs://bluelabs-test-recordsmover/'
     try:
         yield
     finally:
@@ -184,7 +196,7 @@ def run_test(args, target, parser):
             with dockerized_dbs(), local_dockerized_dbfacts():
                 subprocess.check_call(["/bin/bash"])
     elif (target == 'cli'):
-        with dockerized_dbs(), set_circleci_scratch_bucket():
+        with dockerized_dbs(), set_s3_scratch_bucket(), set_gcs_scratch_bucket():
             if (args.docker):
                 docker_compose_run(["./cli-tests.sh"],
                                    prefixes=["with-aws-creds", "circleci"],
@@ -207,7 +219,7 @@ def run_test(args, target, parser):
                                            'nosetests', '--xunit-file=nosetests.xml', '.'],
                                           cwd=f"{script_dir}/records/single_db")
     elif (target == 'vertica-s3'):
-        with dockerized_dbs(), set_circleci_scratch_bucket():
+        with dockerized_dbs(), set_s3_scratch_bucket():
             if (args.docker):
                 docker_compose_run(['with-db', 'dockerized-vertica',
                                     'nosetests', '--xunit-file=nosetests.xml', '.'],
@@ -244,7 +256,7 @@ def run_test(args, target, parser):
                                            "nosetests", "--xunit-file=nosetests.xml", "."],
                                           cwd=f"{script_dir}/records/single_db")
     elif (target == 'redshift-s3'):
-        with set_circleci_scratch_bucket():
+        with set_s3_scratch_bucket():
             if (args.docker):
                 docker_compose_run(['with-db', 'demo-itest',
                                     'nosetests', '--xunit-file=nosetests.xml', '.'],
@@ -265,7 +277,7 @@ def run_test(args, target, parser):
             subprocess.check_call(['with-db', 'demo-itest',
                                    'nosetests', '--xunit-file=nosetests.xml', '.'],
                                   cwd=f"{script_dir}/records/single_db")
-    elif (target == 'bigquery'):
+    elif (target == 'bigquery-no-gcs'):
         if (args.docker):
             docker_compose_run(['with-db', 'bltoolsdevbq-bq_itest',
                                 'nosetests', '--xunit-file=nosetests.xml', '.'],
@@ -274,8 +286,18 @@ def run_test(args, target, parser):
             subprocess.check_call(['with-db', 'bltoolsdevbq-bq_itest',
                                    'nosetests', '--xunit-file=nosetests.xml', '.'],
                                   cwd=f"{script_dir}/records/single_db")
+    elif (target == 'bigquery-gcs'):
+        with set_gcs_scratch_bucket():
+            if (args.docker):
+                docker_compose_run(['with-db', 'bltoolsdevbq-bq_itest',
+                                    'nosetests', '--xunit-file=nosetests.xml', '.'],
+                                   cwd="/usr/src/app/tests/integration/records/single_db")
+            else:
+                subprocess.check_call(['with-db', 'bltoolsdevbq-bq_itest',
+                                       'nosetests', '--xunit-file=nosetests.xml', '.'],
+                                      cwd=f"{script_dir}/records/single_db")
     elif (target == 'table2table'):
-        with set_circleci_scratch_bucket(), dockerized_dbs():
+        with set_s3_scratch_bucket(), set_gcs_scratch_bucket(), dockerized_dbs():
             if (args.docker):
                 docker_compose_run(['python3', '-m',
                                     'records.multi_db.test_records_table2table'],
@@ -302,7 +324,8 @@ def main():
         'redshift-s3': 'Run load/unload suite against BlueLabs Demo Redshift, using S3',
         'redshift-no-s3': 'Run load/unload suite against BlueLabs Demo Redshift, using '
         'INSERT/SELECT',
-        'bigquery': 'Run load/unload suite against BlueLabs BigQuery',
+        'bigquery-no-gcs': 'Run load/unload suite against BlueLabs BigQuery, using streams',
+        'bigquery-gcs': 'Run load/unload suite against BlueLabs BigQuery, using GCS',
         'table2table': 'Run Python-based cross-database copy tests',
     }
 
@@ -337,6 +360,9 @@ def main():
     # explicitly here or not used entirely, depending on the test:
     if 'SCRATCH_S3_URL' in os.environ:
         del os.environ['SCRATCH_S3_URL']
+
+    if 'SCRATCH_GCS_URL' in os.environ:
+        del os.environ['SCRATCH_GCS_URL']
 
     targets_lists = [
         [target] if target != 'all'

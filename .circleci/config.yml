@@ -246,7 +246,7 @@ jobs:
         description: "Which pip extras to install.  If provided, must be surrounded by [] and comma separated."
       python_version:
         type: string
-        description: "Version of python to test against"
+        description: "Version of Python to test against"
       pandas_version:
         type: string
         default: '>=1'
@@ -255,6 +255,11 @@ jobs:
         description: "Database to run inside"
       include_s3_scratch_bucket:
         type: boolean
+        description: "If true, pass in the env variable specifying an S3 scratch bucket to Records Mover (for Redshift/Vertica)"
+        default: true
+      include_gcs_scratch_bucket:
+        type: boolean
+        description: "If true, pass in the env variable specifying an GCS scratch bucket to Records Mover (for BigQuery)"
         default: true
 
     docker:
@@ -282,6 +287,11 @@ jobs:
             then
               # This is set by default in the CircleCI environment
               unset SCRATCH_S3_URL
+            fi
+            if [ <<parameters.include_gcs_scratch_bucket>> == false ]
+            then
+              # This is set by default in the CircleCI environment
+              unset SCRATCH_GCS_URL
             fi
             with-db <<parameters.db_name>> nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
       - store_test_results:
@@ -413,6 +423,10 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
+            #
+            # This is a no-s3 test, so let's disable AWS creds and
+            # scratch bucket config.
+            #
             unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
             with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
           requires:
@@ -566,7 +580,18 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
-          name: bigquery-itest
+          name: bigquery-no-gcs-itest
+          extras: '[bigquery,itest]'
+          python_version: "3.6"
+          db_name: bltoolsdevbq-bq_itest
+          include_gcs_scratch_bucket: false
+          requires:
+            - redshift-s3-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test:
+          name: bigquery-gcs-itest
           extras: '[bigquery,itest]'
           python_version: "3.6"
           db_name: bltoolsdevbq-bq_itest
@@ -604,7 +629,8 @@ workflows:
             - test-3.8
             - cli-extra-test
             - tbl2tbl-itest
-            - bigquery-itest
+            - bigquery-no-gcs-itest
+            - bigquery-gcs-itest
             - redshift-no-s3-itest
             - redshift-s3-itest
             - redshift-s3-itest-old-pandas

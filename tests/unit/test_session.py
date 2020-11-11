@@ -1,4 +1,4 @@
-from mock import patch, Mock
+from mock import patch, Mock, call
 from records_mover import Session
 from records_mover.mover_types import PleaseInfer
 import unittest
@@ -57,14 +57,20 @@ class TestSession(unittest.TestCase):
         mock_db = Mock(name='db')
         mock_url_resolver = mock_UrlResolver.return_value
         mock_scratch_s3_url = mock_creds.default_scratch_s3_url.return_value
+        mock_scratch_gcs_url = mock_creds.default_scratch_gcs_url.return_value
         mock_s3_temp_base_loc = mock_url_resolver.directory_url.return_value
+        mock_gcs_temp_base_loc = mock_url_resolver.directory_url.return_value
         session = Session(creds=mock_creds)
         out = session.db_driver(mock_db)
         self.assertEqual(out, mock_db_driver.return_value)
-        mock_url_resolver.directory_url.assert_called_with(mock_scratch_s3_url)
+        mock_url_resolver.directory_url.assert_has_calls(
+            [call(mock_scratch_s3_url),
+             call(mock_scratch_gcs_url)]
+        )
         mock_db_driver.assert_called_with(db=mock_db,
                                           url_resolver=mock_url_resolver,
-                                          s3_temp_base_loc=mock_s3_temp_base_loc)
+                                          s3_temp_base_loc=mock_s3_temp_base_loc,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
 
     @patch('records_mover.session.CredsViaEnv')
     def test_itest_type_uses_creds_via_env(self,
@@ -210,7 +216,8 @@ class TestSession(unittest.TestCase):
                                             default_boto3_session=PleaseInfer.token,
                                             default_gcp_creds=PleaseInfer.token,
                                             default_gcs_client=PleaseInfer.token,
-                                            scratch_s3_url=PleaseInfer.token)
+                                            scratch_s3_url=PleaseInfer.token,
+                                            scratch_gcs_url=PleaseInfer.token)
         mock_CredsViaEnv.return_value.default_boto3_session.assert_called()
 
     @patch('boto3.session')

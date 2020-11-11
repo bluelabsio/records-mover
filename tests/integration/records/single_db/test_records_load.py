@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 
 class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
     def load_and_verify(self, format_type, variant, hints={}, broken=False, sourcefn=None):
-        redshift_with_no_bucket = self.engine.name == 'redshift' and not self.has_scratch_bucket()
+        redshift_with_no_bucket = (self.engine.name == 'redshift' and
+                                   not self.has_scratch_s3_bucket())
         if redshift_with_no_bucket:
             # https://github.com/bluelabsio/records-mover/issues/81
             logger.warning("This test won't pass until we can use the "
@@ -51,15 +52,29 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
     def test_load_from_s3_records_directory(self):
         try:
             import boto3  # noqa
+            import s3_concat  # noqa
         except ModuleNotFoundError:
-            logger.warning("Not running in test environment with boto3, "
+            logger.warning("Not running in test environment with boto3/s3_concat, "
                            "so skipping records directory URL test")
             return
 
-        if not self.has_scratch_bucket():
-            logger.warning('No scratch bucket, so skipping records directory URL test')
+        if not self.has_scratch_s3_bucket():
+            logger.warning('No scratch S3 bucket, so skipping records directory URL test')
             return
         self.load_and_verify('delimited', 'bluelabs', sourcefn=self.s3_url_source)
+
+    def test_load_from_gcs_records_directory(self):
+        try:
+            import google.cloud.storage  # noqa
+        except ModuleNotFoundError:
+            logger.warning("Not running in test environment with google.cloud.storage, "
+                           "so skipping records directory URL test")
+            return
+
+        if not self.has_scratch_gcs_bucket():
+            logger.warning('No scratch GCS bucket, so skipping records directory URL test')
+            return
+        self.load_and_verify('delimited', 'bluelabs', sourcefn=self.gcs_url_source)
 
     def records_filename(self, format_type, variant, hints={}, broken=False):
         basename = f"{self.resources_dir}/{self.resource_name(format_type, variant, hints)}.csv"
@@ -96,6 +111,18 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
     @contextmanager
     def s3_url_source(self, filename, records_format, records_schema):
         base_dir = self.session.directory_url(self.session.creds.default_scratch_s3_url())
+
+        with base_dir.temporary_directory() as temp_dir_loc:
+            file_loc = temp_dir_loc.file_in_this_directory('foo.gz')
+            with open(filename, mode='rb') as inp:
+                file_loc.upload_fileobj(inp)
+            yield self.records.sources.data_url(file_loc.url,
+                                                records_format=records_format,
+                                                records_schema=records_schema)
+
+    @contextmanager
+    def gcs_url_source(self, filename, records_format, records_schema):
+        base_dir = self.session.directory_url(self.session.creds.default_scratch_gcs_url())
 
         with base_dir.temporary_directory() as temp_dir_loc:
             file_loc = temp_dir_loc.file_in_this_directory('foo.gz')

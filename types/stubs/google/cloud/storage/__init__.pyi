@@ -7,7 +7,8 @@ from typing import Optional, Iterator
 # https://googleapis.dev/python/storage/latest/client.html
 class Client:
     def __init__(self,
-                 credentials: Optional[google.auth.credentials.Credentials] = None):
+                 credentials: Optional[google.auth.credentials.Credentials] = None,
+                 project: Optional[str] = None):
         ...
 
     def bucket(self,

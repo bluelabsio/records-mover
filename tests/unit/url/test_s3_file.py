@@ -13,6 +13,11 @@ class TestS3FileUrl(unittest.TestCase):
         self.mock_s3_resource = self.mock_boto3_session.resource.return_value
         self.mock_s3_client = self.mock_boto3_session.client.return_value
 
+    def test_aws_creds(self):
+        self.assertEqual(self.s3_file_url.aws_creds(),
+                         self.mock_boto3_session.get_credentials.return_value.
+                         get_frozen_credentials.return_value)
+
     def test_filename(self):
         self.assertEqual('file', self.s3_file_url.filename())
 

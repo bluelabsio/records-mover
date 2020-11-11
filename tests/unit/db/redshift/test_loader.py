@@ -147,3 +147,10 @@ class TestRedshiftLoader(unittest.TestCase):
                                       table=mock_table,
                                       load_plan=mock_load_plan,
                                       directory=mock_directory)
+
+    def test_temporary_loadable_directory_scheme(self):
+        self.assertEqual(self.redshift_loader.temporary_loadable_directory_scheme(),
+                         's3')
+
+    def test_has_temporary_loadable_directory_loc_true(self):
+        self.assertTrue(self.redshift_loader.has_temporary_loadable_directory_loc())
