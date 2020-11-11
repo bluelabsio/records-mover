@@ -165,10 +165,10 @@ class TestBigQueryLoader(unittest.TestCase):
     @patch('records_mover.db.bigquery.loader.load_job_config')
     @patch('records_mover.db.bigquery.loader.ProcessingInstructions')
     @patch('records_mover.db.bigquery.loader.RecordsLoadPlan')
-    def test_can_load_this_format_false_parquet(self,
-                                                mock_RecordsLoadPlan,
-                                                mock_ProcessingInstructions,
-                                                mock_load_job_config):
+    def test_can_load_this_format_true_parquet(self,
+                                               mock_RecordsLoadPlan,
+                                               mock_ProcessingInstructions,
+                                               mock_load_job_config):
         mock_db = Mock(name='db')
         mock_source_records_format = Mock(name='source_records_format', spec=ParquetRecordsFormat)
         mock_source_records_format.format_type = 'delimited'
@@ -184,7 +184,7 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_RecordsLoadPlan.\
             assert_called_with(records_format=mock_source_records_format,
                                processing_instructions=mock_processing_instructions)
-        self.assertEqual(False, out)
+        self.assertTrue(out)
 
     def test_known_supported_records_formats_for_load(self):
         mock_db = Mock(name='db')

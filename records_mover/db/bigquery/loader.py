@@ -154,6 +154,8 @@ class BigQueryLoader(LoaderFromFileobj):
             processing_instructions = ProcessingInstructions()
             load_plan = RecordsLoadPlan(records_format=source_records_format,
                                         processing_instructions=processing_instructions)
+            if isinstance(load_plan.records_format, ParquetRecordsFormat):
+                return True
             if not isinstance(load_plan.records_format, DelimitedRecordsFormat):
                 return False
             unhandled_hints = set(load_plan.records_format.hints.keys())
