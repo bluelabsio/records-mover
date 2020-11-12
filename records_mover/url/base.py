@@ -5,6 +5,8 @@ import json
 from records_mover.mover_types import JsonValue
 from typing import TypeVar, Iterator, IO, Any, Optional, List, Union
 
+logger = logging.getLogger(__name__)
+
 V = TypeVar('V', bound='BaseDirectoryUrl')
 
 
@@ -47,6 +49,34 @@ class BaseDirectoryUrl:
     def directories_in_directory(self) -> List['BaseDirectoryUrl']:
         "Return entries in this directory."
         raise NotImplementedError()
+
+    def empty(self) -> bool:
+        # TODO document
+        return not self.directories_in_directory()
+
+    @contextmanager
+    def temporary_file(self) -> Iterator['BaseFileUrl']:
+        "Yields a temporary FileUrl in current location"
+        num_chars = 8
+        random_slug = secrets.token_urlsafe(num_chars)
+        temp_loc = self.file_in_this_directory(random_slug)
+        try:
+            yield temp_loc
+        finally:
+            try:
+                temp_loc.delete()
+            except Exception as e:
+                logger.debug(e, exc_info=True)
+
+    def writable(self) -> bool:
+        # TODO document
+        try:
+            with self.temporary_file() as temp_file:
+                temp_file.store_string('test write for Records Mover')
+                return True
+        except Exception as e:
+            logger.debug(e, exc_info=True)
+            return False
 
     def files_and_directories_in_directory(self) -> List[Union['BaseFileUrl', 'BaseDirectoryUrl']]:
         "Return all file and folder entries directly under the current location.  Does not recurse."

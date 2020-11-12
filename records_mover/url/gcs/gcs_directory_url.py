@@ -17,6 +17,7 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
         self.url = url
         parsed = urlparse(url)
         self.blob = unquote(parsed.path[1:])
+        self.key = self.blob
         self.scheme = parsed.scheme
         self.bucket = parsed.netloc
         self.client = gcs_client
@@ -29,6 +30,9 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
     def _file(self, url: str) -> 'GCSFileUrl':
         from .gcs_file_url import GCSFileUrl
         return GCSFileUrl(url, gcs_client=self.client, gcp_credentials=self.credentials)
+
+    def directory_in_this_bucket(self, directory_name: str) -> 'GCSDirectoryUrl':
+        return self._directory(f"gs://{self.bucket}/{directory_name}")
 
     def directory_in_this_directory(self, directory_name: str) -> 'GCSDirectoryUrl':
         return self._directory(f"{self.url}{directory_name}/")

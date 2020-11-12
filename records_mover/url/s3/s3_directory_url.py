@@ -138,6 +138,9 @@ class S3DirectoryUrl(S3BaseUrl, BaseDirectoryUrl):
     def directory_in_this_directory(self, directory_name: str) -> 'S3DirectoryUrl':
         return self._directory(f"{self.url}{directory_name}/")
 
+    def directory_in_this_bucket(self, directory_name: str) -> 'S3DirectoryUrl':
+        return self._directory(f"s3://{self.bucket}/{directory_name}")
+
     def files_in_directory(self) -> List['BaseFileUrl']:
         prefix = self.key
         resp = self.s3_client.list_objects(Bucket=self.bucket, Prefix=prefix, Delimiter='/')
