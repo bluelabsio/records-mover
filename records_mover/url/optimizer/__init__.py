@@ -85,8 +85,7 @@ class CopyOptimizer:
         current_day = now.day
         current_month = now.month
         current_year = now.year
-        # TODO
-        sink_bucket = "bluelabs-test-recordsmover"
+        sink_bucket = other_loc.bucket
         source_bucket = loc.bucket
         aws_creds = loc.aws_creds()
         if aws_creds is None:
