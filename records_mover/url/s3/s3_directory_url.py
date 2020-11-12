@@ -54,7 +54,7 @@ class S3DirectoryUrl(S3BaseUrl, BaseDirectoryUrl):
 
             copy_optimizer = CopyOptimizer()
             # TODO: Swap over to copy() call
-            if copy_optimizer.copy_via_gcp_data_transfer(self, other_loc):
+            if copy_optimizer.copy(self, other_loc):
                 return other_loc
             else:
                 return super(S3DirectoryUrl, self).copy_to(other_loc)
