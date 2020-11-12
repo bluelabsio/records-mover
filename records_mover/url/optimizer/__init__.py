@@ -1,5 +1,6 @@
 import json
 import time
+import datetime
 from contextlib import contextmanager
 from records_mover.url.base import BaseDirectoryUrl
 import logging
@@ -79,14 +80,11 @@ class CopyOptimizer:
         storagetransfer = googleapiclient.discovery.build('storagetransfer', 'v1',
                                                           credentials=gcp_credentials)
         description = "records-mover one-time job"
-        # TODO
         project_id = other_loc.gcp_project_id
-        # TODO
-        current_day = 10
-        # TODO
-        current_month = 11
-        # TODO
-        current_year = 2020
+        now = datetime.datetime.utcnow()
+        current_day = now.day
+        current_month = now.month
+        current_year = now.year
         # TODO
         sink_bucket = "bluelabs-test-recordsmover"
         source_bucket = loc.bucket
