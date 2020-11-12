@@ -28,10 +28,14 @@ class CopyOptimizer:
     values must be checked to determine if the copy was able to be
     performed.
     """
+
     def copy(self,
              loc: BaseDirectoryUrl,
              other_loc: BaseDirectoryUrl) -> bool:
-        # TODO: document
+        """Copy from one directory to another using optimized means.
+
+        :return: True if the copy was performed, or False if no
+        optimized means were possible."""
         if loc.scheme == 's3' and other_loc.scheme == 'gs':
             from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
             from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
@@ -46,14 +50,28 @@ class CopyOptimizer:
     def _copy_via_gcp_data_transfer(self,
                                     loc: 'S3DirectoryUrl',
                                     other_loc: 'GCSDirectoryUrl') -> bool:
-        # TODO: document
+        """Use the Google Cloud Platform Data Transfer Service to copy from S3
+        to GCS.
+
+        To perform this, we need the key on the S3 side to match the
+        blob on the GCS side, as Google Cloud Platform Data Transfer
+        Service does not allow the destination on the GCS side to vary
+        as of 2020-11.
+
+        We also need to be using non-temporary AWS credentials; Google
+        Cloud Platform Data Transfer Service doesn't accept an AWS
+        security token.
+
+        :return: True if the copy was performed, or False if no
+        optimized means were possible.
+
+        """
         import googleapiclient
 
         # https://cloud.google.com/storage-transfer/docs/create-manage-transfer-program#python
-
         if loc.key != other_loc.blob:
             logger.warning("S3 directory does not match GCS directory - "
-                           "cannot copy S3 bucket using Google Storage Transfer.  "
+                           "cannot copy S3 bucket using Google Cloud Platform Data Transfer Service.  "
                            "Falling back to a slower method of bucket copy.")
             return False
 
@@ -75,12 +93,12 @@ class CopyOptimizer:
         aws_creds = loc.aws_creds()
         if aws_creds is None:
             logger.warning("S3 bucket did not provide AWS creds - "
-                           "cannot copy S3 bucket using Google Storage Transfer.  "
+                           "cannot copy S3 bucket using Google Cloud Platform Data Transfer Service.  "
                            "Falling back to a slower method of bucket copy.")
             return False
         if aws_creds.token is not None:
             logger.warning("S3 bucket is using a temporary access token (MFA creds?) which "
-                           "Google Storage Transfer does not support.  Falling back to a slower "
+                           "Google Cloud Platform Data Transfer Service does not support.  Falling back to a slower "
                            "method of bucket copy.")
             return False
 
@@ -153,7 +171,7 @@ class CopyOptimizer:
         ).format(project_id=project_id, job_name=job_name)
 
         done = False
-        logger.info("Awaiting completion of Google Storage Transfer Service job...")
+        logger.info("Awaiting completion of Google Cloud Platform Data Transfer Service job...")
         while not done:
             result = storagetransfer.transferOperations().list(
                 name="transferOperations",
@@ -163,7 +181,7 @@ class CopyOptimizer:
             if result != {}:
                 done = result['operations'][0]['metadata']['status'] != 'IN_PROGRESS'
             time.sleep(10)
-        logger.info("Google Storage Transfer Service job complete.")
+        logger.info("Google Cloud Platform Data Transfer Service job complete.")
 
     def try_swapping_bucket_path(self,
                                  target_bucket: Union['GCSDirectoryUrl', 'S3DirectoryUrl'],
@@ -184,8 +202,8 @@ class CopyOptimizer:
 
     @contextmanager
     def _optimize_temp_locations_for_gcp_data_transfer(self,
-                                                      temp_unloadable_loc: 'S3DirectoryUrl',
-                                                      temp_loadable_loc: 'GCSDirectoryUrl') ->\
+                                                       temp_unloadable_loc: 'S3DirectoryUrl',
+                                                       temp_loadable_loc: 'GCSDirectoryUrl') ->\
             Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
         #
         # GCP data transfer is great, but has the limitations:
@@ -209,7 +227,7 @@ class CopyOptimizer:
             yield (temp_unloadable_loc, optimized_temp_loadable_loc)
             return
         logger.warning("Could not match paths between source and destination buckets--"
-                       "will not be able to use Google Storage Transfer Service for "
+                       "will not be able to use Google Cloud Platform Data Transfer Service for "
                        "cloud-based copy.")
         yield (temp_unloadable_loc, temp_loadable_loc)
 
