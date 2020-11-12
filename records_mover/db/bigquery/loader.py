@@ -107,11 +107,16 @@ class BigQueryLoader(LoaderFromFileobj):
 
         if directory.scheme != 'gs':
             with self.temporary_gcs_directory_loc() as temp_gcs_loc:
-                gcs_directory = directory.copy_to(temp_gcs_loc)
-                return self.load(schema=schema,
-                                 table=table,
-                                 load_plan=load_plan,
-                                 directory=gcs_directory)
+                copy_optimizer = CopyOptimizer()
+                with copy_optimizer.\
+                     optimize_temp_second_location(directory.loc,
+                                                   temp_gcs_loc) as\
+                        optimized_temp_gcs_loc:
+                    gcs_directory = directory.copy_to(optimized_temp_gcs_loc)
+                    return self.load(schema=schema,
+                                     table=table,
+                                     load_plan=load_plan,
+                                     directory=gcs_directory)
 
         logger.info(f"Loading from {directory.loc} into BigQuery...")
         # https://googleapis.github.io/google-cloud-python/latest/bigquery/usage/tables.html#creating-a-table
