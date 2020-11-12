@@ -54,6 +54,7 @@ class UrlClassKwArgs(TypedDict, total=False):
     gcs_client: 'google.cloud.storage.Client'
     gcp_credentials: 'google.auth.credentials.Credentials'
     boto3_session: 'boto3.session.Session'
+    gcp_project_id: str
 
 
 class UrlResolver:
@@ -68,11 +69,14 @@ class UrlResolver:
 
                  gcp_credentials_getter:
                  Callable[[],
-                          Optional['google.auth.credentials.Credentials']])\
+                          Optional['google.auth.credentials.Credentials']],
+                 gcp_project_id: Optional[str])\
             -> None:
         self.boto3_session_getter = boto3_session_getter
         self.gcs_client_getter = gcs_client_getter
         self.gcp_credentials_getter = gcp_credentials_getter
+        self.gcp_project_id = gcp_project_id
+
 
     def file_url(self, url: str) -> BaseFileUrl:
         init_urls()
@@ -112,6 +116,11 @@ class UrlResolver:
                 raise EnvironmentError('URL requires GCP credentials, but none are configured.  '
                                        'Please configure your credentials.')
             out["gcp_credentials"] = gcp_credentials
+        if 'gcp_project_id' in parameters:
+            if self.gcp_project_id is None:
+                raise EnvironmentError('URL requires GCP proejct ID, but not is configured.')
+            else:
+                out['gcp_project_id'] = self.gcp_project_id
         return out
 
     def directory_url(self, url: str) -> BaseDirectoryUrl:

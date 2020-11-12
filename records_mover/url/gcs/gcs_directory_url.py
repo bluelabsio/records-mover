@@ -13,6 +13,7 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
                  url: str,
                  gcs_client: google.cloud.storage.Client,
                  gcp_credentials: google.auth.credentials.Credentials,
+                 gcp_project_id: str,
                  **kwargs) -> None:
         self.url = url
         parsed = urlparse(url)
@@ -22,14 +23,21 @@ class GCSDirectoryUrl(BaseDirectoryUrl):
         self.bucket = parsed.netloc
         self.client = gcs_client
         self.credentials = gcp_credentials
+        self.gcp_project_id = gcp_project_id
         self.bucket_obj = self.client.bucket(self.bucket)
 
     def _directory(self, url: str) -> 'GCSDirectoryUrl':
-        return GCSDirectoryUrl(url, gcs_client=self.client, gcp_credentials=self.credentials)
+        return GCSDirectoryUrl(url,
+                               gcs_client=self.client,
+                               gcp_credentials=self.credentials,
+                               gcp_project_id=self.gcp_project_id)
 
     def _file(self, url: str) -> 'GCSFileUrl':
         from .gcs_file_url import GCSFileUrl
-        return GCSFileUrl(url, gcs_client=self.client, gcp_credentials=self.credentials)
+        return GCSFileUrl(url,
+                          gcs_client=self.client,
+                          gcp_credentials=self.credentials,
+                          gcp_project_id=self.gcp_project_id)
 
     def directory_in_this_bucket(self, directory_name: str) -> 'GCSDirectoryUrl':
         return self._directory(f"gs://{self.bucket}/{directory_name}")

@@ -228,7 +228,8 @@ class Session():
     def url_resolver(self) -> UrlResolver:
         return UrlResolver(boto3_session_getter=self.creds.default_boto3_session,
                            gcp_credentials_getter=self.creds.default_gcs_creds,
-                           gcs_client_getter=self.creds.default_gcs_client)
+                           gcs_client_getter=self.creds.default_gcs_client,
+                           gcp_project_id=self.creds.default_gcp_project())
 
     def get_default_db_engine(self) -> 'Engine':
         """Provide the database object corresponding to the default database

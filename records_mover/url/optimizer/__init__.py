@@ -62,7 +62,7 @@ class CopyOptimizer:
                                                           credentials=gcp_credentials)
         description = "records-mover one-time job"
         # TODO
-        project_id = "bluelabs-tools-dev"
+        project_id = other_loc.gcp_project_id
         # TODO
         current_day = 10
         # TODO

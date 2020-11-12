@@ -13,12 +13,14 @@ class GCSFileUrl(BaseFileUrl):
                  url: str,
                  gcs_client: google.cloud.storage.Client,
                  gcp_credentials: google.auth.credentials.Credentials,
+                 gcp_project_id: str,
                  **kwargs) -> None:
         self.url = url
         parsed = urlparse(url)
         self.blob = unquote(parsed.path[1:])
         self.bucket = parsed.netloc
         self.client = gcs_client
+        self.gcp_project_id = gcp_project_id
         self.credentials = gcp_credentials
         self.bucket_obj = self.client.bucket(self.bucket)
 
@@ -36,7 +38,10 @@ class GCSFileUrl(BaseFileUrl):
             raise FileNotFoundError(f"{self} not found")
 
     def _directory(self, url: str) -> GCSDirectoryUrl:
-        return GCSDirectoryUrl(url, gcs_client=self.client, gcp_credentials=self.credentials)
+        return GCSDirectoryUrl(url,
+                               gcs_client=self.client,
+                               gcp_credentials=self.credentials,
+                               gcp_project_id=self.gcp_project_id)
 
     def _blob_obj(self) -> 'Blob':
         return self.bucket_obj.blob(self.blob)

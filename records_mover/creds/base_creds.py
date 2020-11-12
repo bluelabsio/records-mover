@@ -154,7 +154,7 @@ class BaseCreds():
             # isn't great.  See
             # https://github.com/bluelabsio/records-mover/issues/119
             # for a way we can improve this.
-            gcp_project = self._default_gcp_project()
+            gcp_project = self.default_gcp_project()
             if gcp_project is not None:
                 other_args['project'] = gcp_project
 
@@ -169,7 +169,7 @@ class BaseCreds():
             self.__default_gcs_client = None
             return self.__default_gcs_client
 
-    def _default_gcp_project(self) -> Optional[str]:
+    def default_gcp_project(self) -> Optional[str]:
         if 'GCP_PROJECT' in os.environ:
             return os.environ['GCP_PROJECT']
         gcp_cfg = self._config_section('gcp')
