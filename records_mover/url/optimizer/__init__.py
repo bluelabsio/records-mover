@@ -2,17 +2,13 @@ import json
 import time
 from contextlib import contextmanager
 from records_mover.url.base import BaseDirectoryUrl
-# TODO: Can I do the following block lazily in case google stuff isn't
-# in environment?
-import google.auth.credentials
-import googleapiclient
-from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
-from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
-#
 import logging
 from typing import Iterator, Tuple, Union, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from googleapiclient.discovery import _TransferJobConfig
+    import google.auth.credentials
+    from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
+    from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
 
 
 logger = logging.getLogger(__name__)
@@ -26,6 +22,8 @@ class CopyOptimizer:
     def copy_via_gcp_data_transfer(self,
                                    loc: 'S3DirectoryUrl',
                                    other_loc: 'GCSDirectoryUrl') -> bool:
+        import googleapiclient
+
         # https://cloud.google.com/storage-transfer/docs/create-manage-transfer-program#python
 
         if loc.key != other_loc.blob:
@@ -115,7 +113,9 @@ class CopyOptimizer:
     def _wait_for_transfer_job(self,
                                project_id: str,
                                job_name: str,
-                               gcp_credentials: google.auth.credentials.Credentials) -> None:
+                               gcp_credentials: 'google.auth.credentials.Credentials') -> None:
+        import googleapiclient
+
         # TODO: Pass in correct creds
         storagetransfer = googleapiclient.discovery.build('storagetransfer',
                                                           'v1',
