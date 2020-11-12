@@ -106,6 +106,11 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         return RecordsSchema.from_db_table(self.schema_name, self.table_name,
                                            driver=self.driver)
 
+    def verified_unloader(self) -> Unloader:
+        assert self.unloader is not None,\
+            "Please call can_move_to_format() before this function"
+        return self.unloader
+
     def move_to_records_directory(self,
                                   records_directory: RecordsDirectory,
                                   records_format: BaseRecordsFormat,
@@ -115,23 +120,16 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
                                   engine: Optional[Engine]=None) -> MoveResult:
         unload_plan = RecordsUnloadPlan(records_format=records_format,
                                         processing_instructions=processing_instructions)
-        if self.unloader is None:
-            assert self.unloader is not None,\
-                "Please call can_move_to_format() before this function"
-        export_count = self.unloader.unload(schema=self.schema_name, table=self.table_name,
-                                            unload_plan=unload_plan,
-                                            directory=records_directory)
+        unloader = self.verified_unloader()
+        export_count = unloader.unload(schema=self.schema_name, table=self.table_name,
+                                       unload_plan=unload_plan,
+                                       directory=records_directory)
         records_schema = self.pull_records_schema()
         records_directory.save_format(unload_plan.records_format)
         records_directory.save_schema(records_schema)
         records_directory.finalize_manifest()
 
         return MoveResult(move_count=export_count, output_urls=None)
-
-    def verified_unloader(self) -> Unloader:
-        assert self.unloader is not None,\
-            "Please call can_move_to_format() before this function"
-        return self.unloader
 
     @contextmanager
     def temporary_unloadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
