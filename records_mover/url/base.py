@@ -103,7 +103,7 @@ class BaseDirectoryUrl:
         return other_loc
 
     def is_directory(self) -> bool:
-        "Returns true"
+        "Returns true"  # TODO document
         return self.url.endswith('/')
 
     def containing_directory(self: V) -> V:
@@ -179,6 +179,7 @@ class BaseFileUrl:
             return blcopyfileobj(fileobj, local_file)
 
     def download_fileobj(self, output_fileobj: IO[bytes]) -> None:
+        # TODO: document
         with self.open() as f:
             blcopyfileobj(f, output_fileobj)
 
@@ -237,6 +238,7 @@ class BaseFileUrl:
         return
 
     def exists(self) -> bool:
+        # TODO: document
         try:
             with self.open():
                 return True
@@ -244,9 +246,11 @@ class BaseFileUrl:
             return False
 
     def delete(self) -> None:
+        # TODO: document
         raise NotImplementedError(f"Please implement for {type(self).__name__}")
 
     def size(self) -> int:
+        # TODO: document
         raise NotImplementedError(f"Please implement for {type(self).__name__}")
 
     def __str__(self) -> str:
