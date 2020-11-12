@@ -49,6 +49,12 @@ def copy_via_gcp_data_transfer(loc: 'S3DirectoryUrl',
                                other_loc: 'GCSDirectoryUrl') -> bool:
     # https://cloud.google.com/storage-transfer/docs/create-manage-transfer-program#python
 
+    if loc.key != other_loc.blob:
+        logger.warning("S3 directory does not match GCS directory - "
+                       "cannot copy S3 bucket using Google Storage Transfer.  "
+                       "Falling back to a slower method of bucket copy.")
+        return False
+
     gcp_credentials = other_loc.credentials
     storagetransfer = googleapiclient.discovery.build('storagetransfer', 'v1',
                                                       credentials=gcp_credentials)
