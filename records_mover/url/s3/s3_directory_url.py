@@ -42,22 +42,12 @@ class S3DirectoryUrl(S3BaseUrl, BaseDirectoryUrl):
             self.s3_resource.meta.client.delete_objects(Bucket=self.bucket, Delete=delete_keys)
 
     def copy_to(self, other_loc: BaseDirectoryUrl) -> BaseDirectoryUrl:
-        from ..gcs.gcs_directory_url import GCSDirectoryUrl
         if not other_loc.is_directory():
             raise RuntimeError(f"Cannot copy a directory to a file ({other_loc.url})")
         elif isinstance(other_loc, FilesystemDirectoryUrl):
             # TODO: Should thi salso be part of optimizer?
             aws_cli('s3', 'sync', self.url, other_loc.local_file_path)
             return other_loc
-        elif isinstance(other_loc, GCSDirectoryUrl):
-            from records_mover.url.optimizer import CopyOptimizer
-
-            copy_optimizer = CopyOptimizer()
-            # TODO: Swap over to copy() call
-            if copy_optimizer.copy(self, other_loc):
-                return other_loc
-            else:
-                return super(S3DirectoryUrl, self).copy_to(other_loc)
         else:
             return super(S3DirectoryUrl, self).copy_to(other_loc)
 

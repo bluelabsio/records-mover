@@ -89,6 +89,13 @@ class BaseDirectoryUrl:
 
     def copy_to(self, other_loc: 'BaseDirectoryUrl') -> 'BaseDirectoryUrl':
         "Copy all entries to the specified directory and return it"
+        from records_mover.url.optimizer import CopyOptimizer
+
+        copy_optimizer = CopyOptimizer()
+
+        if copy_optimizer.copy(self, other_loc):
+            return other_loc
+
         for file_or_directory in self.files_and_directories_in_directory():
             if file_or_directory.is_directory():
                 source_subdirectory: BaseDirectoryUrl = file_or_directory  # type: ignore
