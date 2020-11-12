@@ -22,7 +22,7 @@ def _wait_for_transfer_job(project_id: str,
     # TODO: Pass in correct creds
     storagetransfer = googleapiclient.discovery.build('storagetransfer',
                                                       'v1',
-                                                      gcp_credentials)
+                                                      credentials=gcp_credentials)
 
     # https://github.com/karthikey-surineni/bigquery-copy-dataset/blob/fb6be5aee9898cba79387a2f95fb54b8b1119a92/src/storage/storage_transfer.py
     filterString = (

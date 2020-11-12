@@ -1,6 +1,6 @@
 from google.auth.credentials import Credentials
 from typing_extensions import Literal, TypedDict
-from typing import overload, List
+from typing import overload, List, Optional
 
 
 class _ListRequest:
@@ -119,12 +119,32 @@ class _StorageTransfer:
 @overload
 def build(serviceName: Literal['storage'],
           version: Literal['v1'],
-          credentials: Credentials) -> _GCSService:
+          http=None,
+          discoveryServiceUrl: str = "...",
+          developerKey: Optional[object] = None,
+          model: Optional[object] = None,
+          requestBuilder: object = "...",
+          credentials: Optional[Credentials] = None,
+          cache_discovery=True, cache=None,
+          client_options: Optional[object] = None,
+          adc_cert_path: Optional[str] = None,
+          adc_key_path: Optional[str] = None,
+          num_retries: int = 1) -> _GCSService:
     ...
 
 
 @overload
 def build(serviceName: Literal['storagetransfer'],
           version: Literal['v1'],
-          credentials: Credentials) -> _StorageTransfer:
+          http=None,
+          discoveryServiceUrl: str = "...",
+          developerKey: Optional[object] = None,
+          model: Optional[object] = None,
+          requestBuilder: object = "...",
+          credentials: Optional[Credentials] = None,
+          cache_discovery=True, cache=None,
+          client_options: Optional[object] = None,
+          adc_cert_path: Optional[str] = None,
+          adc_key_path: Optional[str] = None,
+          num_retries: int = 1) -> _StorageTransfer:
     ...
