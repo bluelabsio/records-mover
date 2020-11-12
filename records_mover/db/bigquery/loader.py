@@ -11,6 +11,7 @@ from ...records.records_format import (
 from ...records.records_directory import RecordsDirectory
 from ...records.processing_instructions import ProcessingInstructions
 from ...url.resolver import UrlResolver
+from records_mover.url.optimizer import CopyOptimizer
 from google.cloud.bigquery.dbapi.connection import Connection
 from google.cloud.bigquery.client import Client
 from google.cloud.bigquery.job import LoadJobConfig

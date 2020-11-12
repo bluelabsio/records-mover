@@ -215,8 +215,8 @@ class CopyOptimizer:
 
     @contextmanager
     def _optimize_temp_locations_for_gcp_data_transfer(self,
-                                                       temp_unloadable_loc: 'S3DirectoryUrl',
-                                                       temp_loadable_loc: 'GCSDirectoryUrl') ->\
+                                                       temp_first_loc: 'S3DirectoryUrl',
+                                                       temp_second_loc: 'GCSDirectoryUrl') ->\
             Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
         #
         # GCP data transfer is great, but has the limitations:
@@ -229,46 +229,100 @@ class CopyOptimizer:
         #
         # So let's make sure that if at all possible, we use the same
         # directory.
-        optimized_temp_unloadable_loc = self.try_swapping_bucket_path(temp_unloadable_loc,
-                                                                      temp_loadable_loc)
-        if optimized_temp_unloadable_loc is not None:
-            yield (optimized_temp_unloadable_loc, temp_loadable_loc)
+        optimized_temp_first_loc = self.try_swapping_bucket_path(temp_first_loc,
+                                                                      temp_second_loc)
+        if optimized_temp_first_loc is not None:
+            # TODO: Delete after
+            yield (optimized_temp_first_loc, temp_second_loc)
             return
-        optimized_temp_loadable_loc = self.try_swapping_bucket_path(temp_loadable_loc,
-                                                                    temp_unloadable_loc)
-        if optimized_temp_loadable_loc is not None:
-            yield (temp_unloadable_loc, optimized_temp_loadable_loc)
+        optimized_temp_second_loc = self.try_swapping_bucket_path(temp_second_loc,
+                                                                    temp_first_loc)
+        if optimized_temp_second_loc is not None:
+            # TODO: Delete after
+            yield (temp_first_loc, optimized_temp_second_loc)
             return
         logger.warning("Could not match paths between source and destination buckets--"
                        "will not be able to use Google Cloud Platform Data Transfer Service for "
                        "cloud-based copy.")
-        yield (temp_unloadable_loc, temp_loadable_loc)
+        yield (temp_first_loc, temp_second_loc)
 
     @contextmanager
-    def optimize_temp_locations(self,
-                                temp_unloadable_loc: BaseDirectoryUrl,
-                                temp_loadable_loc: BaseDirectoryUrl) ->\
-            Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
-        if temp_unloadable_loc.scheme == 's3' and temp_loadable_loc.scheme == 'gs':
+    def _optimize_temp_second_location_for_gcp_data_transfer(self,
+                                                             permanent_first_loc: 'S3DirectoryUrl',
+                                                             temp_second_loc: 'GCSDirectoryUrl') ->\
+            Iterator[BaseDirectoryUrl]:
+        #
+        # GCP data transfer is great, but has the limitations:
+        #
+        # 1) It only works from GCS -> GCS or S3 -> GCS - like the
+        # roach motel, you can check in but you can't check out.
+        #
+        # 2) You can't specify a different destination location
+        # directory in the GCS bucket than in your source bucket
+        #
+        # So let's make sure that if at all possible, we use the same
+        # directory.
+        optimized_temp_second_loc = self.try_swapping_bucket_path(temp_second_loc,
+                                                                  permanent_first_loc)
+        if optimized_temp_second_loc is not None:
+            # TODO: Delete after
+            yield optimized_temp_second_loc
+            return
+        logger.warning("Could not match paths between source and destination buckets--"
+                       "will not be able to use Google Cloud Platform Data Transfer Service for "
+                       "cloud-based copy.")
+        yield temp_second_loc
+
+    @contextmanager
+    def optimize_temp_second_location(self,
+                                      permanent_first_loc: BaseDirectoryUrl,
+                                      temp_second_loc: BaseDirectoryUrl) ->\
+            Iterator[BaseDirectoryUrl]:
+        if permanent_first_loc.scheme == 's3' and temp_second_loc.scheme == 'gs':
             from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
             from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
 
-            assert isinstance(temp_unloadable_loc, S3DirectoryUrl)
-            assert isinstance(temp_loadable_loc, GCSDirectoryUrl)
+            assert isinstance(permanent_first_loc, S3DirectoryUrl)
+            assert isinstance(temp_second_loc, GCSDirectoryUrl)
 
-        if (isinstance(temp_unloadable_loc, S3DirectoryUrl) and
-           isinstance(temp_loadable_loc, GCSDirectoryUrl)):
-            with self._optimize_temp_locations_for_gcp_data_transfer(temp_unloadable_loc,
-                                                                     temp_loadable_loc) as\
-                    (optimized_unloadable_loc, optimized_loadable_loc):
-                logger.info(f"Optimized bucket locations: {optimized_unloadable_loc}, "
-                            f"{optimized_loadable_loc}")
-                yield (optimized_unloadable_loc, optimized_loadable_loc)
-        elif temp_unloadable_loc.scheme == temp_loadable_loc.scheme:
+            with self._optimize_temp_second_location_for_gcp_data_transfer(permanent_first_loc,
+                                                                           temp_second_loc) as\
+                    optimized_second_loc:
+                logger.info(f"Optimized bucket location: {optimized_second_loc}")
+                yield optimized_second_loc
+        elif permanent_first_loc.scheme == temp_second_loc.scheme:
             # Let's use the same location!
-            yield (temp_unloadable_loc, temp_unloadable_loc)
+            yield permanent_first_loc
         else:
             #
             # No optimizations match
             #
-            yield (temp_unloadable_loc, temp_loadable_loc)
+            yield temp_second_loc
+
+    @contextmanager
+    def optimize_temp_locations(self,
+                                temp_first_loc: BaseDirectoryUrl,
+                                temp_second_loc: BaseDirectoryUrl) ->\
+            Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
+        # TODO document this and other methods
+        if temp_first_loc.scheme == 's3' and temp_second_loc.scheme == 'gs':
+            from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
+            from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
+
+            assert isinstance(temp_first_loc, S3DirectoryUrl)
+            assert isinstance(temp_second_loc, GCSDirectoryUrl)
+
+            with self._optimize_temp_locations_for_gcp_data_transfer(temp_first_loc,
+                                                                     temp_second_loc) as\
+                    (optimized_first_loc, optimized_second_loc):
+                logger.info(f"Optimized bucket locations: {optimized_first_loc}, "
+                            f"{optimized_second_loc}")
+                yield (optimized_first_loc, optimized_second_loc)
+        elif temp_first_loc.scheme == temp_second_loc.scheme:
+            # Let's use the same location!
+            yield (temp_first_loc, temp_first_loc)
+        else:
+            #
+            # No optimizations match
+            #
+            yield (temp_first_loc, temp_second_loc)
