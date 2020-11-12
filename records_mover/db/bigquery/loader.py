@@ -112,7 +112,7 @@ class BigQueryLoader(LoaderFromFileobj):
                                  load_plan=load_plan,
                                  directory=gcs_directory)
 
-        logger.info("Loading from records directory into BigQuery")
+        logger.info(f"Loading from {directory.loc} into BigQuery...")
         # https://googleapis.github.io/google-cloud-python/latest/bigquery/usage/tables.html#creating-a-table
         connection: Connection =\
             self.db.engine.raw_connection().connection
