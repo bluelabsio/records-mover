@@ -15,27 +15,38 @@ logger = logging.getLogger(__name__)
 
 
 class CopyOptimizer:
-    # TODO: Figure out where this should be called from
-    # TODO: Document this class
+    """When Records Mover needs to move data between different URL
+    schemes, the default way (a single-threaded downloading of bytes
+    from the source and then reuploading of bytes to the target) can
+    be very slow for large directories.
 
+    This class can use faster means (ideally a cloud-based service
+    that can copy things at scale, or at least vendor-optimized
+    multi-threaded upload/download code) when they are available.
+
+    This depends on the specifics of the copy, and as such return
+    values must be checked to determine if the copy was able to be
+    performed.
+    """
     def copy(self,
              loc: BaseDirectoryUrl,
              other_loc: BaseDirectoryUrl) -> bool:
-        # TODO: Implement this and swap out call
+        # TODO: document
         if loc.scheme == 's3' and other_loc.scheme == 'gs':
             from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
             from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
 
             assert isinstance(loc, S3DirectoryUrl)
             assert isinstance(other_loc, GCSDirectoryUrl)
-            return self.copy_via_gcp_data_transfer(loc, other_loc)
+            return self._copy_via_gcp_data_transfer(loc, other_loc)
         else:
             logger.info(f"No strategy to optimize copy from {loc} to {other_loc}")
             return False
 
-    def copy_via_gcp_data_transfer(self,
-                                   loc: 'S3DirectoryUrl',
-                                   other_loc: 'GCSDirectoryUrl') -> bool:
+    def _copy_via_gcp_data_transfer(self,
+                                    loc: 'S3DirectoryUrl',
+                                    other_loc: 'GCSDirectoryUrl') -> bool:
+        # TODO: document
         import googleapiclient
 
         # https://cloud.google.com/storage-transfer/docs/create-manage-transfer-program#python
@@ -172,7 +183,7 @@ class CopyOptimizer:
         return optimized_directory
 
     @contextmanager
-    def optimize_temp_locations_for_gcp_data_transfer(self,
+    def _optimize_temp_locations_for_gcp_data_transfer(self,
                                                       temp_unloadable_loc: 'S3DirectoryUrl',
                                                       temp_loadable_loc: 'GCSDirectoryUrl') ->\
             Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
@@ -216,8 +227,8 @@ class CopyOptimizer:
 
         if (isinstance(temp_unloadable_loc, S3DirectoryUrl) and
            isinstance(temp_loadable_loc, GCSDirectoryUrl)):
-            with self.optimize_temp_locations_for_gcp_data_transfer(temp_unloadable_loc,
-                                                                    temp_loadable_loc) as\
+            with self._optimize_temp_locations_for_gcp_data_transfer(temp_unloadable_loc,
+                                                                     temp_loadable_loc) as\
                     (optimized_unloadable_loc, optimized_loadable_loc):
                 logger.info(f"Optimized bucket locations: {optimized_unloadable_loc}, "
                             f"{optimized_loadable_loc}")
