@@ -1,6 +1,7 @@
 import json
 import time
 import datetime
+from config_resolver import get_config
 from contextlib import contextmanager
 from records_mover.url.base import BaseDirectoryUrl
 import logging
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+# TODO: Break out GCP stuff and AWS stuff into separate classes
 class CopyOptimizer:
     """When Records Mover needs to move data between different URL
     schemes, the default way (a single-threaded downloading of bytes
@@ -65,10 +67,13 @@ class CopyOptimizer:
         aws_cli('s3', 'sync', loc.url, other_loc.local_file_path)
         return True
 
-    def _gcp_data_transfer_min_bytes_to_bother(self) -> int:
-        # TODO Add config pulling
+    def _gcp_data_transfer_min_bytes_to_use(self) -> int:
         metric_megabyte = 1_000_000
-        return 10*metric_megabyte
+        default_threshold = 500*metric_megabyte
+        config_result = get_config('records_mover', 'bluelabs')
+        cfg = config_result.config
+        gcp_cfg = dict(cfg).get('gcp', {})
+        return int(gcp_cfg.get('data_transfer_service_min_bytes_to_use', default_threshold))
 
     def _copy_via_gcp_data_transfer(self,
                                     loc: 'S3DirectoryUrl',
@@ -99,8 +104,8 @@ class CopyOptimizer:
             return False
 
         directory_size = loc.size()
-        min_bytes_to_bother = self._gcp_data_transfer_min_bytes_to_bother()
-        if directory_size < min_bytes_to_bother:
+        min_bytes_to_use = self._gcp_data_transfer_min_bytes_to_use()
+        if directory_size < min_bytes_to_use:
             # :,d below does formatting of integers with commas every three digits
             logger.info(f"Bucket directory size ({directory_size:,d} bytes) is less "
                         f"than configured minimum size ({min_bytes_to_bother:,d} bytes) - skipping "
