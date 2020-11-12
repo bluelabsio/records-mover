@@ -65,6 +65,11 @@ class CopyOptimizer:
         aws_cli('s3', 'sync', loc.url, other_loc.local_file_path)
         return True
 
+    def _gcp_data_transfer_min_bytes_to_bother(self) -> int:
+        # TODO Add config pulling
+        metric_megabyte = 1_000_000
+        return 10*metric_megabyte
+
     def _copy_via_gcp_data_transfer(self,
                                     loc: 'S3DirectoryUrl',
                                     other_loc: 'GCSDirectoryUrl') -> bool:
@@ -91,6 +96,15 @@ class CopyOptimizer:
             logger.warning("S3 directory does not match GCS directory - "
                            "cannot copy S3 bucket using Google Cloud Platform Data Transfer Service.  "
                            "Falling back to a slower method of bucket copy.")
+            return False
+
+        directory_size = loc.size()
+        min_bytes_to_bother = self._gcp_data_transfer_min_bytes_to_bother()
+        if directory_size < min_bytes_to_bother:
+            # :,d below does formatting of integers with commas every three digits
+            logger.info(f"Bucket directory size ({directory_size:,d} bytes) is less "
+                        f"than configured minimum size ({min_bytes_to_bother:,d} bytes) - skipping "
+                        "Google Cloud Platform Data Transfer Service")
             return False
 
         gcp_credentials = other_loc.credentials
@@ -160,7 +174,14 @@ class CopyOptimizer:
             }
         }
 
-        result = storagetransfer.transferJobs().create(body=transfer_job).execute()
+        try:
+            result = storagetransfer.transferJobs().create(body=transfer_job).execute()
+        except googleapiclient.errors.HttpError as e:
+            logger.debug("Exception details",
+                         exc_info=True)
+            logger.warning("Google Cloud Platform Data Transfer Service returned an error.  "
+                           f"Falling back to a slower method of bucket copy: {e}")
+            return False
         logger.debug('Returned transferJob: {}'.format(
             json.dumps(result, indent=4)))
         job_name = result['name']

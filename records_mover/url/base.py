@@ -54,6 +54,14 @@ class BaseDirectoryUrl:
         "Return True if there are no files or directories in this directory"
         return not self.directories_in_directory() and not self.files_in_directory()
 
+    def size(self) -> int:
+        "Return directory size in bytes"
+
+        size_so_far = 0
+        for file_or_directory in self.files_and_directories_in_directory():
+            size_so_far += file_or_directory.size()
+        return size_so_far
+
     @contextmanager
     def temporary_file(self) -> Iterator['BaseFileUrl']:
         "Yields a temporary FileUrl in current location"
