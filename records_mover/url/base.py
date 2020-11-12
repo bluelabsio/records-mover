@@ -63,10 +63,8 @@ class BaseDirectoryUrl:
         try:
             yield temp_loc
         finally:
-            try:
+            if temp_loc.exists():
                 temp_loc.delete()
-            except Exception as e:
-                logger.debug(e, exc_info=True)
 
     def writable(self) -> bool:
         # TODO document
