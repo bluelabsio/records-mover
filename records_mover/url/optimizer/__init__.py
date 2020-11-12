@@ -15,9 +15,23 @@ logger = logging.getLogger(__name__)
 
 
 class CopyOptimizer:
-    # TODO: move to new location
-    # TODO: Bring in Google code
     # TODO: Figure out where this should be called from
+    # TODO: Document this class
+
+    def copy(self,
+             loc: BaseDirectoryUrl,
+             other_loc: BaseDirectoryUrl) -> bool:
+        # TODO: Implement this and swap out call
+        if loc.scheme == 's3' and other_loc.scheme == 'gs':
+            from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
+            from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
+
+            assert isinstance(loc, S3DirectoryUrl)
+            assert isinstance(other_loc, GCSDirectoryUrl)
+            return self.copy_via_gcp_data_transfer(loc, other_loc)
+        else:
+            logger.info(f"No strategy to optimize copy from {loc} to {other_loc}")
+            return False
 
     def copy_via_gcp_data_transfer(self,
                                    loc: 'S3DirectoryUrl',
@@ -141,10 +155,10 @@ class CopyOptimizer:
         logger.info("Google Storage Transfer Service job complete.")
 
     def try_swapping_bucket_path(self,
-                                 target_bucket: Union[GCSDirectoryUrl, S3DirectoryUrl],
-                                 bucket_to_steal_path_from: Union[GCSDirectoryUrl,
-                                                                  S3DirectoryUrl]) ->\
-                Optional[Union[GCSDirectoryUrl, S3DirectoryUrl]]:
+                                 target_bucket: Union['GCSDirectoryUrl', 'S3DirectoryUrl'],
+                                 bucket_to_steal_path_from: Union['GCSDirectoryUrl',
+                                                                  'S3DirectoryUrl']) ->\
+            Optional[Union['GCSDirectoryUrl', 'S3DirectoryUrl']]:
         optimized_directory =\
             target_bucket.directory_in_this_bucket(bucket_to_steal_path_from.key)
         if not optimized_directory.empty():
@@ -159,8 +173,8 @@ class CopyOptimizer:
 
     @contextmanager
     def optimize_temp_locations_for_gcp_data_transfer(self,
-                                                      temp_unloadable_loc: S3DirectoryUrl,
-                                                      temp_loadable_loc: GCSDirectoryUrl) ->\
+                                                      temp_unloadable_loc: 'S3DirectoryUrl',
+                                                      temp_loadable_loc: 'GCSDirectoryUrl') ->\
             Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
         #
         # GCP data transfer is great, but has the limitations:
@@ -193,6 +207,13 @@ class CopyOptimizer:
                                 temp_unloadable_loc: BaseDirectoryUrl,
                                 temp_loadable_loc: BaseDirectoryUrl) ->\
             Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
+        if temp_unloadable_loc.scheme == 's3' and temp_loadable_loc.scheme == 'gs':
+            from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
+            from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
+
+            assert isinstance(temp_unloadable_loc, S3DirectoryUrl)
+            assert isinstance(temp_loadable_loc, GCSDirectoryUrl)
+
         if (isinstance(temp_unloadable_loc, S3DirectoryUrl) and
            isinstance(temp_loadable_loc, GCSDirectoryUrl)):
             with self.optimize_temp_locations_for_gcp_data_transfer(temp_unloadable_loc,
