@@ -72,8 +72,8 @@ class BaseDirectoryUrl:
             with self.temporary_file() as temp_file:
                 temp_file.store_string('test write for Records Mover')
                 return True
-        except Exception as e:
-            logger.debug(e, exc_info=True)
+        except Exception:
+            logger.debug(f"Determined {self} is not writable", exc_info=True)
             return False
 
     def files_and_directories_in_directory(self) -> List[Union['BaseFileUrl', 'BaseDirectoryUrl']]:
