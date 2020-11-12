@@ -35,7 +35,6 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         self.schema_name = schema_name
         self.table_name = table_name
         self.driver = driver
-        # TODO: use this throughout
         self.unloader = driver.unloader()
         if self.unloader is not None:
             self.records_format = self.unloader.best_records_format()
@@ -56,13 +55,12 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         return self.unloader.can_unload_format(target_records_format)
 
     def can_move_to_scheme(self, scheme: str) -> bool:
-        unloader = self.driver.unloader()
-        if unloader is None:
+        if self.unloader is None:
             # bulk export is not provided by this database
             logger.warning("No unloader configured for this database "
                            f"type ({self.driver.db_engine.name})")
             return False
-        can_unload = unloader.can_unload_to_scheme(scheme)
+        can_unload = self.unloader.can_unload_to_scheme(scheme)
         if not can_unload:
             logger.warning(f"This database ({self.driver.db_engine.name}) is "
                            f"not configured to export to {scheme}")
@@ -117,12 +115,12 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
                                   engine: Optional[Engine]=None) -> MoveResult:
         unload_plan = RecordsUnloadPlan(records_format=records_format,
                                         processing_instructions=processing_instructions)
-        unloader = self.driver.unloader()
-        if unloader is None:
-            raise ValueError('This DBDriver does not support bulk unloading')
-        export_count = unloader.unload(schema=self.schema_name, table=self.table_name,
-                                       unload_plan=unload_plan,
-                                       directory=records_directory)
+        if self.unloader is None:
+            assert self.unloader is not None,\
+                "Please call can_move_to_format() before this function"
+        export_count = self.unloader.unload(schema=self.schema_name, table=self.table_name,
+                                            unload_plan=unload_plan,
+                                            directory=records_directory)
         records_schema = self.pull_records_schema()
         records_directory.save_format(unload_plan.records_format)
         records_directory.save_schema(records_schema)
@@ -131,7 +129,8 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         return MoveResult(move_count=export_count, output_urls=None)
 
     def verified_unloader(self) -> Unloader:
-        assert self.unloader is not None, "Please call can_move_to_format() before this function"
+        assert self.unloader is not None,\
+            "Please call can_move_to_format() before this function"
         return self.unloader
 
     @contextmanager
