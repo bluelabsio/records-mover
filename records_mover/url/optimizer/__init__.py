@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     import google.auth.credentials
     from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
     from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
+    from records_mover.url.filesystem import FilesystemDirectoryUrl
 
 
 logger = logging.getLogger(__name__)
@@ -37,7 +38,14 @@ class CopyOptimizer:
 
         :return: True if the copy was performed, or False if no
         optimized means were possible."""
-        if loc.scheme == 's3' and other_loc.scheme == 'gs':
+        if loc.scheme == 's3' and other_loc.scheme == 'file':
+            from records_mover.url.filesystem import FilesystemDirectoryUrl
+            from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
+
+            assert isinstance(loc, S3DirectoryUrl)
+            assert isinstance(other_loc, FilesystemDirectoryUrl)
+            return self._copy_via_awscli(loc, other_loc)
+        elif loc.scheme == 's3' and other_loc.scheme == 'gs':
             from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
             from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
 
@@ -47,6 +55,15 @@ class CopyOptimizer:
         else:
             logger.info(f"No strategy to optimize copy from {loc} to {other_loc}")
             return False
+
+    def _copy_via_awscli(self,
+                         loc: 'S3DirectoryUrl',
+                         other_loc: 'FilesystemDirectoryUrl') -> bool:
+        from .awscli import aws_cli
+
+        # TODO: Can I pass in creds?
+        aws_cli('s3', 'sync', loc.url, other_loc.local_file_path)
+        return True
 
     def _copy_via_gcp_data_transfer(self,
                                     loc: 'S3DirectoryUrl',

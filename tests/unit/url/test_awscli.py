@@ -1,4 +1,4 @@
-from records_mover.url.s3.awscli import aws_cli
+from records_mover.url.optimizer.awscli import aws_cli
 from mock import patch, call
 import unittest
 

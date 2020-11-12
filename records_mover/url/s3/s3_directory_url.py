@@ -1,5 +1,4 @@
 from .s3_base_url import S3BaseUrl
-from .awscli import aws_cli
 from ..base import BaseDirectoryUrl, BaseFileUrl
 from ..filesystem import FilesystemDirectoryUrl
 import logging
@@ -40,15 +39,6 @@ class S3DirectoryUrl(S3BaseUrl, BaseDirectoryUrl):
             [{'Key': k} for k in [obj['Key'] for obj in objects_to_delete.get('Contents', [])]]
         if delete_keys['Objects']:
             self.s3_resource.meta.client.delete_objects(Bucket=self.bucket, Delete=delete_keys)
-
-    def copy_to(self, other_loc: BaseDirectoryUrl) -> BaseDirectoryUrl:
-        if not other_loc.is_directory():
-            raise RuntimeError(f"Cannot copy a directory to a file ({other_loc.url})")
-        elif isinstance(other_loc, FilesystemDirectoryUrl):
-            aws_cli('s3', 'sync', self.url, other_loc.local_file_path)
-            return other_loc
-        else:
-            return super(S3DirectoryUrl, self).copy_to(other_loc)
 
     def files_matching_prefix(self, prefix: str) -> List[BaseFileUrl]:
         prefix = self.key + prefix
