@@ -58,7 +58,6 @@ def copy_via_gcp_data_transfer(loc: 'S3DirectoryUrl',
     gcp_credentials = other_loc.credentials
     storagetransfer = googleapiclient.discovery.build('storagetransfer', 'v1',
                                                       credentials=gcp_credentials)
-    # TODO
     description = "records-mover one-time job"
     # TODO
     project_id = "bluelabs-tools-dev"
@@ -70,9 +69,7 @@ def copy_via_gcp_data_transfer(loc: 'S3DirectoryUrl',
     current_year = 2020
     # TODO
     sink_bucket = "bluelabs-test-recordsmover"
-    # TODO
-    source_bucket = "bluelabs-scratch"
-    # TODO
+    source_bucket = loc.bucket
     aws_creds = loc.aws_creds()
     if aws_creds is None:
         logger.warning("S3 bucket did not provide AWS creds - "
@@ -86,7 +83,6 @@ def copy_via_gcp_data_transfer(loc: 'S3DirectoryUrl',
         return False
 
     access_key_id = aws_creds.access_key
-    # TODO
     secret_access_key = aws_creds.secret_key
 
     # Edit this template with desired parameters.
@@ -136,6 +132,7 @@ def copy_via_gcp_data_transfer(loc: 'S3DirectoryUrl',
     job_name = result['name']
     _wait_for_transfer_job(project_id, job_name, gcp_credentials)
     return True
+
 
 class S3DirectoryUrl(S3BaseUrl, BaseDirectoryUrl):
     def directory_in_this_directory(self, directory_name: str) -> 'S3DirectoryUrl':
