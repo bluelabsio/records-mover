@@ -54,7 +54,7 @@ class Unloader(metaclass=ABCMeta):
     @abstractmethod
     @contextmanager
     def temporary_unloadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
-        # TODO document
+        "Yields a place where files can be unloaded to temporarily, then clears it afterwards"
         ...
 
     def best_records_format(self) -> Optional[BaseRecordsFormat]:

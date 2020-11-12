@@ -51,8 +51,8 @@ class BaseDirectoryUrl:
         raise NotImplementedError()
 
     def empty(self) -> bool:
-        # TODO document
-        return not self.directories_in_directory()
+        "Return True if there are no files or directories in this directory"
+        return not self.directories_in_directory() and not self.files_in_directory()
 
     @contextmanager
     def temporary_file(self) -> Iterator['BaseFileUrl']:
@@ -67,7 +67,7 @@ class BaseDirectoryUrl:
                 temp_loc.delete()
 
     def writable(self) -> bool:
-        # TODO document
+        "Return True if new entries can be created in this directory "
         try:
             with self.temporary_file() as temp_file:
                 temp_file.store_string('test write for Records Mover')
@@ -110,7 +110,7 @@ class BaseDirectoryUrl:
         return other_loc
 
     def is_directory(self) -> bool:
-        "Returns true"  # TODO document
+        "Returns True if this is a directory"
         return self.url.endswith('/')
 
     def containing_directory(self: V) -> V:
@@ -186,7 +186,7 @@ class BaseFileUrl:
             return blcopyfileobj(fileobj, local_file)
 
     def download_fileobj(self, output_fileobj: IO[bytes]) -> None:
-        # TODO: document
+        "Download the contents of this file into the output_fileobj stream"
         with self.open() as f:
             blcopyfileobj(f, output_fileobj)
 
@@ -245,7 +245,7 @@ class BaseFileUrl:
         return
 
     def exists(self) -> bool:
-        # TODO: document
+        "Return True if the file in question can be opened"
         try:
             with self.open():
                 return True
@@ -253,11 +253,11 @@ class BaseFileUrl:
             return False
 
     def delete(self) -> None:
-        # TODO: document
+        "Delete this file"
         raise NotImplementedError(f"Please implement for {type(self).__name__}")
 
     def size(self) -> int:
-        # TODO: document
+        "Return file size in bytes"
         raise NotImplementedError(f"Please implement for {type(self).__name__}")
 
     def __str__(self) -> str:
