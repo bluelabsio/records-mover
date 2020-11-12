@@ -161,7 +161,7 @@ class CopyOptimizer:
         }
 
         result = storagetransfer.transferJobs().create(body=transfer_job).execute()
-        print('Returned transferJob: {}'.format(
+        logger.debug('Returned transferJob: {}'.format(
             json.dumps(result, indent=4)))
         job_name = result['name']
         self._wait_for_transfer_job(project_id, job_name, gcp_credentials)
@@ -189,7 +189,7 @@ class CopyOptimizer:
             result = storagetransfer.transferOperations().list(
                 name="transferOperations",
                 filter=filterString).execute()
-            print('Result of transferOperations/list: {}'.format(
+            logger.debug('Result of transferOperations/list: {}'.format(
                 json.dumps(result, indent=4, sort_keys=True)))
             if result != {}:
                 done = result['operations'][0]['metadata']['status'] != 'IN_PROGRESS'
