@@ -156,7 +156,6 @@ class CopyOptimizer:
                                gcp_credentials: 'google.auth.credentials.Credentials') -> None:
         import googleapiclient
 
-        # TODO: Pass in correct creds
         storagetransfer = googleapiclient.discovery.build('storagetransfer',
                                                           'v1',
                                                           credentials=gcp_credentials)
