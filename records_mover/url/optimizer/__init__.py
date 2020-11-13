@@ -108,7 +108,7 @@ class CopyOptimizer:
         if directory_size < min_bytes_to_use:
             # :,d below does formatting of integers with commas every three digits
             logger.info(f"Bucket directory size ({directory_size:,d} bytes) is less "
-                        f"than configured minimum size ({min_bytes_to_bother:,d} bytes) - skipping "
+                        f"than configured minimum size ({min_bytes_to_use:,d} bytes) - skipping "
                         "Google Cloud Platform Data Transfer Service")
             return False
 
