@@ -23,7 +23,8 @@ class TestUrlResolverMisconfigured(unittest.TestCase):
     def test_file_url_misconfigured(self):
         resolver = UrlResolver(boto3_session_getter=lambda: None,
                                gcs_client_getter=lambda: None,
-                               gcp_credentials_getter=lambda: None)
+                               gcp_credentials_getter=lambda: None,
+                               gcp_project_id=None)
         directory_url_ctors['simple'] = SimpleFileUrl
         simple_url = 'simple://foo/bar/baz?a=b&d=f'
         with self.assertRaises(TypeError):
@@ -32,7 +33,8 @@ class TestUrlResolverMisconfigured(unittest.TestCase):
     def test_directory_url_misconfigured(self):
         resolver = UrlResolver(boto3_session_getter=lambda: None,
                                gcs_client_getter=lambda: None,
-                               gcp_credentials_getter=lambda: None)
+                               gcp_credentials_getter=lambda: None,
+                               gcp_project_id=None)
         file_url_ctors['simple'] = SimpleDirectoryUrl
         simple_url = 'simple://foo/bar/baz?a=b&d=f'
         with self.assertRaises(TypeError):

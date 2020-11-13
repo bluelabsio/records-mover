@@ -13,11 +13,12 @@ class TestS3DirectoryUrl(unittest.TestCase):
                                                S3Url=self.mock_S3Url,
                                                boto3_session=self.mock_boto3_session)
 
-    @patch('records_mover.url.s3.s3_directory_url.aws_cli')
+    @patch('records_mover.url.optimizer.awscli.aws_cli')
     def test_copy_to_dir(self,
                          mock_aws_cli):
         file_loc = Mock(name='file_loc', spec=FilesystemDirectoryUrl)
         file_loc.local_file_path = '/my/dir/'
+        file_loc.scheme = 'file'
         self.s3_directory_url.copy_to(file_loc)
         mock_aws_cli.assert_called_with('s3', 'sync', 's3://bucket/topdir/bottomdir/',
                                         '/my/dir/')

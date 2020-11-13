@@ -9,9 +9,11 @@ class TestGCSDirectoryURL(unittest.TestCase):
         self.mock_gcp_credentials = Mock(name='gcp_credentials')
         self.mock_url = 'gs://bucket/dir/'
         self.mock_bucket_obj = self.mock_client.bucket.return_value
+        self.mock_gcp_project_id = Mock(name='gcp_project_id')
         self.loc = GCSDirectoryUrl(url=self.mock_url,
                                    gcs_client=self.mock_client,
-                                   gcp_credentials=self.mock_gcp_credentials)
+                                   gcp_credentials=self.mock_gcp_credentials,
+                                   gcp_project_id=self.mock_gcp_project_id)
 
     def test_init(self):
         self.assertIsNotNone(self.loc)

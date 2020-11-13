@@ -4,9 +4,9 @@ import unittest
 
 
 class TestAwsCli(unittest.TestCase):
-    @patch("records_mover.url.s3.awscli.dict")
-    @patch("records_mover.url.s3.awscli.os")
-    @patch("records_mover.url.s3.awscli.create_clidriver")
+    @patch("records_mover.url.optimizer.awscli.dict")
+    @patch("records_mover.url.optimizer.awscli.os")
+    @patch("records_mover.url.optimizer.awscli.create_clidriver")
     def test_aws_cli(self,
                      mock_create_cli_driver,
                      mock_os,

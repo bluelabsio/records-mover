@@ -19,9 +19,11 @@ class TestUrlResolverNoCreds(unittest.TestCase):
     def test_NeedyFileUrl_with_no_boto3(self):
         mock_gcs_client = Mock(name='gcs_client')
         mock_gcp_credentials = Mock(name='gcp_credentials')
+        mock_gcp_project_id = Mock(name='gcp_project_id')
         resolver = UrlResolver(boto3_session_getter=lambda: None,
                                gcs_client_getter=lambda: mock_gcs_client,
-                               gcp_credentials_getter=lambda: mock_gcp_credentials)
+                               gcp_credentials_getter=lambda: mock_gcp_credentials,
+                               gcp_project_id=mock_gcp_project_id)
         file_url_ctors['needy'] = NeedyFileUrl
         needy_url = 'needy://foo/bar/baz?a=b&d=f'
         with self.assertRaises(EnvironmentError):
@@ -30,9 +32,11 @@ class TestUrlResolverNoCreds(unittest.TestCase):
     def test_NeedyFileUrl_with_no_gcs_client(self):
         mock_boto3_session = Mock(name='boto3_session')
         mock_gcp_credentials = Mock(name='gcp_credentials')
+        mock_gcp_project_id = Mock(name='gcp_project_id')
         resolver = UrlResolver(boto3_session_getter=lambda: mock_boto3_session,
                                gcs_client_getter=lambda: None,
-                               gcp_credentials_getter=lambda: mock_gcp_credentials)
+                               gcp_credentials_getter=lambda: mock_gcp_credentials,
+                               gcp_project_id=mock_gcp_project_id)
         file_url_ctors['needy'] = NeedyFileUrl
         needy_url = 'needy://foo/bar/baz?a=b&d=f'
         with self.assertRaises(EnvironmentError):
@@ -43,7 +47,8 @@ class TestUrlResolverNoCreds(unittest.TestCase):
         mock_boto3_session = Mock(name='boto3_session')
         resolver = UrlResolver(boto3_session_getter=lambda: mock_boto3_session,
                                gcs_client_getter=lambda: mock_gcs_client,
-                               gcp_credentials_getter=lambda: None)
+                               gcp_credentials_getter=lambda: None,
+                               gcp_project_id=None)
         file_url_ctors['needy'] = NeedyFileUrl
         needy_url = 'needy://foo/bar/baz?a=b&d=f'
         with self.assertRaises(EnvironmentError):

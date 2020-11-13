@@ -37,9 +37,11 @@ class TestUrlResolver(unittest.TestCase):
         self.mock_boto3_session = Mock(name='boto3_session')
         self.mock_gcs_client = Mock(name='gcs_client')
         self.mock_gcp_credentials = Mock(name='gcp_credentials')
+        self.mock_gcp_project_id = Mock(name='gcp_project_id')
         self.resolver = UrlResolver(boto3_session_getter=lambda: self.mock_boto3_session,
                                     gcs_client_getter=lambda: self.mock_gcs_client,
-                                    gcp_credentials_getter=lambda: self.mock_gcp_credentials)
+                                    gcp_credentials_getter=lambda: self.mock_gcp_credentials,
+                                    gcp_project_id=self.mock_gcp_project_id)
         file_url_ctors['dummy'] = self.mock_DummyFileUrl
         file_url_ctors['needy'] = NeedyFileUrl
         directory_url_ctors['dummy'] = self.mock_DummyDirectoryUrl
