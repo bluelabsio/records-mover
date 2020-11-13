@@ -79,8 +79,8 @@ class CopyOptimizer:
             assert isinstance(temp_second_loc, GCSDirectoryUrl)
 
             with self._gcp_data_transfer.\
-                 _optimize_temp_second_location_for_gcp_data_transfer(permanent_first_loc,
-                                                                      temp_second_loc) as\
+                _optimize_temp_second_location_for_gcp_data_transfer(permanent_first_loc,
+                                                                     temp_second_loc) as\
                     optimized_second_loc:
                 logger.info(f"Optimized bucket location: {optimized_second_loc}")
                 yield optimized_second_loc
@@ -107,8 +107,8 @@ class CopyOptimizer:
             assert isinstance(temp_second_loc, GCSDirectoryUrl)
 
             with self._gcp_data_transfer.\
-                 _optimize_temp_locations_for_gcp_data_transfer(temp_first_loc,
-                                                                temp_second_loc) as\
+                _optimize_temp_locations_for_gcp_data_transfer(temp_first_loc,
+                                                               temp_second_loc) as\
                     (optimized_first_loc, optimized_second_loc):
                 logger.info(f"Optimized bucket locations: {optimized_first_loc}, "
                             f"{optimized_second_loc}")

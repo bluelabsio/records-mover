@@ -77,7 +77,6 @@ class UrlResolver:
         self.gcp_credentials_getter = gcp_credentials_getter
         self.gcp_project_id = gcp_project_id
 
-
     def file_url(self, url: str) -> BaseFileUrl:
         init_urls()
         parsed_url = urlparse(url)

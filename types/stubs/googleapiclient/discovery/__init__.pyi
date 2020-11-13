@@ -38,6 +38,7 @@ class _StorageTransferTransferListOperation:
     def execute(self) -> _StorageTransferTransferList:
         ...
 
+
 class _StorageTransferTransferOperations:
     def list(self, name: Literal['transferOperations'],
              filter: str) -> _StorageTransferTransferListOperation:

@@ -76,7 +76,6 @@ class PostgresUnloader(Unloader):
         with TemporaryDirectory(prefix='temporary_loadable_directory_loc') as dirname:
             yield FilesystemDirectoryUrl(dirname)
 
-
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
         return [
             #
