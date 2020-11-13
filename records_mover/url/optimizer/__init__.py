@@ -11,7 +11,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-# TODO: Break out GCP stuff and AWS stuff into separate classes
 class CopyOptimizer:
     """When Records Mover needs to move data between different URL
     schemes, the default way (a single-threaded downloading of bytes
@@ -52,7 +51,7 @@ class CopyOptimizer:
 
             assert isinstance(loc, S3DirectoryUrl)
             assert isinstance(other_loc, GCSDirectoryUrl)
-            return self._gcp_data_transfer._copy_via_gcp_data_transfer(loc, other_loc)
+            return self._gcp_data_transfer.copy(loc, other_loc)
         else:
             logger.info(f"No strategy to optimize copy from {loc} to {other_loc}")
             return False
@@ -79,8 +78,8 @@ class CopyOptimizer:
             assert isinstance(temp_second_loc, GCSDirectoryUrl)
 
             with self._gcp_data_transfer.\
-                _optimize_temp_second_location_for_gcp_data_transfer(permanent_first_loc,
-                                                                     temp_second_loc) as\
+                optimize_temp_second_location(permanent_first_loc,
+                                              temp_second_loc) as\
                     optimized_second_loc:
                 logger.info(f"Optimized bucket location: {optimized_second_loc}")
                 yield optimized_second_loc
@@ -107,8 +106,8 @@ class CopyOptimizer:
             assert isinstance(temp_second_loc, GCSDirectoryUrl)
 
             with self._gcp_data_transfer.\
-                _optimize_temp_locations_for_gcp_data_transfer(temp_first_loc,
-                                                               temp_second_loc) as\
+                optimize_temp_locations(temp_first_loc,
+                                        temp_second_loc) as\
                     (optimized_first_loc, optimized_second_loc):
                 logger.info(f"Optimized bucket locations: {optimized_first_loc}, "
                             f"{optimized_second_loc}")

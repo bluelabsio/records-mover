@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: Reduce redundancy in method names
 class GCPDataTransferService:
-    def _gcp_data_transfer_min_bytes_to_use(self) -> int:
+    def _min_bytes_to_use(self) -> int:
         metric_megabyte = 1_000_000
         default_threshold = 500*metric_megabyte
         config_result = get_config('records_mover', 'bluelabs')
@@ -26,9 +26,9 @@ class GCPDataTransferService:
         gcp_cfg = dict(cfg).get('gcp', {})
         return int(gcp_cfg.get('data_transfer_service_min_bytes_to_use', default_threshold))
 
-    def _copy_via_gcp_data_transfer(self,
-                                    loc: 'S3DirectoryUrl',
-                                    other_loc: 'GCSDirectoryUrl') -> bool:
+    def copy(self,
+             loc: 'S3DirectoryUrl',
+             other_loc: 'GCSDirectoryUrl') -> bool:
         """Use the Google Cloud Platform Data Transfer Service to copy from S3
         to GCS.
 
@@ -56,7 +56,7 @@ class GCPDataTransferService:
             return False
 
         directory_size = loc.size()
-        min_bytes_to_use = self._gcp_data_transfer_min_bytes_to_use()
+        min_bytes_to_use = self._min_bytes_to_use()
         if directory_size < min_bytes_to_use:
             # :,d below does formatting of integers with commas every three digits
             logger.info(f"Bucket directory size ({directory_size:,d} bytes) is less "
@@ -194,9 +194,9 @@ class GCPDataTransferService:
         return optimized_directory
 
     @contextmanager
-    def _optimize_temp_locations_for_gcp_data_transfer(self,
-                                                       temp_first_loc: 'S3DirectoryUrl',
-                                                       temp_second_loc: 'GCSDirectoryUrl') ->\
+    def optimize_temp_locations(self,
+                                temp_first_loc: 'S3DirectoryUrl',
+                                temp_second_loc: 'GCSDirectoryUrl') ->\
             Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
         #
         # GCP data transfer is great, but has the limitations:
@@ -227,9 +227,9 @@ class GCPDataTransferService:
         yield (temp_first_loc, temp_second_loc)
 
     @contextmanager
-    def _optimize_temp_second_location_for_gcp_data_transfer(self,
-                                                             permanent_first_loc: 'S3DirectoryUrl',
-                                                             temp_second_loc: 'GCSDirectoryUrl') ->\
+    def optimize_temp_second_location(self,
+                                      permanent_first_loc: 'S3DirectoryUrl',
+                                      temp_second_loc: 'GCSDirectoryUrl') ->\
             Iterator[BaseDirectoryUrl]:
         #
         # GCP data transfer is great, but has the limitations:
