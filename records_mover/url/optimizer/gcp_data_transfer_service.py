@@ -11,7 +11,6 @@ if TYPE_CHECKING:
     import google.auth.credentials
     from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
     from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
-    from records_mover.url.filesystem import FilesystemDirectoryUrl
 
 
 logger = logging.getLogger(__name__)
@@ -26,7 +25,6 @@ class GCPDataTransferService:
         cfg = config_result.config
         gcp_cfg = dict(cfg).get('gcp', {})
         return int(gcp_cfg.get('data_transfer_service_min_bytes_to_use', default_threshold))
-
 
     def _copy_via_gcp_data_transfer(self,
                                     loc: 'S3DirectoryUrl',
@@ -52,7 +50,8 @@ class GCPDataTransferService:
         # https://cloud.google.com/storage-transfer/docs/create-manage-transfer-program#python
         if loc.key != other_loc.blob:
             logger.warning("S3 directory does not match GCS directory - "
-                           "cannot copy S3 bucket using Google Cloud Platform Data Transfer Service.  "
+                           "cannot copy S3 bucket using Google Cloud Platform "
+                           "Data Transfer Service.  "
                            "Falling back to a slower method of bucket copy.")
             return False
 
@@ -79,12 +78,14 @@ class GCPDataTransferService:
         aws_creds = loc.aws_creds()
         if aws_creds is None:
             logger.warning("S3 bucket did not provide AWS creds - "
-                           "cannot copy S3 bucket using Google Cloud Platform Data Transfer Service.  "
+                           "cannot copy S3 bucket using Google Cloud Platform "
+                           "Data Transfer Service.  "
                            "Falling back to a slower method of bucket copy.")
             return False
         if aws_creds.token is not None:
             logger.warning("S3 bucket is using a temporary access token (MFA creds?) which "
-                           "Google Cloud Platform Data Transfer Service does not support.  Falling back to a slower "
+                           "Google Cloud Platform "
+                           "Data Transfer Service does not support.  Falling back to a slower "
                            "method of bucket copy.")
             return False
 
@@ -209,13 +210,13 @@ class GCPDataTransferService:
         # So let's make sure that if at all possible, we use the same
         # directory.
         optimized_temp_first_loc = self.try_swapping_bucket_path(temp_first_loc,
-                                                                      temp_second_loc)
+                                                                 temp_second_loc)
         if optimized_temp_first_loc is not None:
             # TODO: Delete after
             yield (optimized_temp_first_loc, temp_second_loc)
             return
         optimized_temp_second_loc = self.try_swapping_bucket_path(temp_second_loc,
-                                                                    temp_first_loc)
+                                                                  temp_first_loc)
         if optimized_temp_second_loc is not None:
             # TODO: Delete after
             yield (temp_first_loc, optimized_temp_second_loc)

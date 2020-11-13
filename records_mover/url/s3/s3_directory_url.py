@@ -1,8 +1,7 @@
 from .s3_base_url import S3BaseUrl
 from ..base import BaseDirectoryUrl, BaseFileUrl
-from ..filesystem import FilesystemDirectoryUrl
 import logging
-from typing import Dict, List, TYPE_CHECKING
+from typing import Dict, List
 
 
 logger = logging.getLogger(__name__)
