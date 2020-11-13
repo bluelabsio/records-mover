@@ -1,11 +1,9 @@
 from contextlib import contextmanager
 from records_mover.url.base import BaseDirectoryUrl
 import logging
-from .gcp_data_transfer_service import GCPDataTransferService
-from typing import Iterator, Tuple, TYPE_CHECKING
-if TYPE_CHECKING:
-    from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
-    from records_mover.url.filesystem import FilesystemDirectoryUrl
+from .gcp_data_transfer_service import GcpDataTransferService
+from .s3_copy_via_aws_cli import S3CopyViaAwsCli
+from typing import Iterator, Tuple
 
 
 logger = logging.getLogger(__name__)
@@ -27,8 +25,8 @@ class CopyOptimizer:
     """
 
     def __init__(self) -> None:
-        # TODO: can we use method names to start odwn the path of a stronger abstraction?
-        self._gcp_data_transfer = GCPDataTransferService()
+        self._gcp_data_transfer = GcpDataTransferService()
+        self._s3_copy_via_aws_cli = S3CopyViaAwsCli()
 
     def copy(self,
              loc: BaseDirectoryUrl,
@@ -37,14 +35,14 @@ class CopyOptimizer:
 
         :return: True if the copy was performed, or False if no
         optimized means were possible."""
+        # TODO: Can I move some of this logic into the other classes?
         if loc.scheme == 's3' and other_loc.scheme == 'file':
             from records_mover.url.filesystem import FilesystemDirectoryUrl
             from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
 
             assert isinstance(loc, S3DirectoryUrl)
             assert isinstance(other_loc, FilesystemDirectoryUrl)
-            # TODO: Also factor out this class
-            return self._copy_via_awscli(loc, other_loc)
+            return self._s3_copy_via_aws_cli.copy(loc, other_loc)
         elif loc.scheme == 's3' and other_loc.scheme == 'gs':
             from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
             from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
@@ -56,20 +54,12 @@ class CopyOptimizer:
             logger.info(f"No strategy to optimize copy from {loc} to {other_loc}")
             return False
 
-    def _copy_via_awscli(self,
-                         loc: 'S3DirectoryUrl',
-                         other_loc: 'FilesystemDirectoryUrl') -> bool:
-        from .awscli import aws_cli
-
-        # TODO: Can I pass in creds?
-        aws_cli('s3', 'sync', loc.url, other_loc.local_file_path)
-        return True
-
     @contextmanager
     def optimize_temp_second_location(self,
                                       permanent_first_loc: BaseDirectoryUrl,
                                       temp_second_loc: BaseDirectoryUrl) ->\
             Iterator[BaseDirectoryUrl]:
+        # TODO: Can I move some of this logic into the other classes?
         if permanent_first_loc.scheme == 's3' and temp_second_loc.scheme == 'gs':
             from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
             from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
@@ -97,6 +87,7 @@ class CopyOptimizer:
                                 temp_first_loc: BaseDirectoryUrl,
                                 temp_second_loc: BaseDirectoryUrl) ->\
             Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
+        # TODO: Can I move some of this logic into the other classes?
         # TODO document this and other methods
         if temp_first_loc.scheme == 's3' and temp_second_loc.scheme == 'gs':
             from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl

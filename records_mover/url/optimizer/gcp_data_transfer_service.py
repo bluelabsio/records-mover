@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 # TODO: Reduce redundancy in method names
-class GCPDataTransferService:
+class GcpDataTransferService:
     def _min_bytes_to_use(self) -> int:
         metric_megabyte = 1_000_000
         default_threshold = 500*metric_megabyte
