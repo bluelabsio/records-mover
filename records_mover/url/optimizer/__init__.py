@@ -35,6 +35,7 @@ class CopyOptimizer:
     """
 
     def __init__(self) -> None:
+        # TODO: can we use method names to start odwn the path of a stronger abstraction?
         self._gcp_data_transfer = GCPDataTransferService()
 
     def copy(self,
