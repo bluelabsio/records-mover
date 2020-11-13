@@ -109,8 +109,8 @@ class BigQueryLoader(LoaderFromFileobj):
             with self.temporary_gcs_directory_loc() as temp_gcs_loc:
                 copy_optimizer = CopyOptimizer()
                 with copy_optimizer.\
-                     optimize_temp_second_location(directory.loc,
-                                                   temp_gcs_loc) as\
+                    optimize_temp_second_location(directory.loc,
+                                                  temp_gcs_loc) as\
                         optimized_temp_gcs_loc:
                     gcs_directory = directory.copy_to(optimized_temp_gcs_loc)
                     return self.load(schema=schema,

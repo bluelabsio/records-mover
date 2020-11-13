@@ -1,16 +1,9 @@
-import json
-import time
-import datetime
-from config_resolver import get_config
 from contextlib import contextmanager
 from records_mover.url.base import BaseDirectoryUrl
 import logging
 from .gcp_data_transfer_service import GCPDataTransferService
-from typing import Iterator, Tuple, Union, Optional, TYPE_CHECKING
+from typing import Iterator, Tuple, TYPE_CHECKING
 if TYPE_CHECKING:
-    from googleapiclient.discovery import _TransferJobConfig
-    import google.auth.credentials
-    from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
     from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
     from records_mover.url.filesystem import FilesystemDirectoryUrl
 
@@ -51,6 +44,7 @@ class CopyOptimizer:
 
             assert isinstance(loc, S3DirectoryUrl)
             assert isinstance(other_loc, FilesystemDirectoryUrl)
+            # TODO: Also factor out this class
             return self._copy_via_awscli(loc, other_loc)
         elif loc.scheme == 's3' and other_loc.scheme == 'gs':
             from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
