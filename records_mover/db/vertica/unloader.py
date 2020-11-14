@@ -30,7 +30,8 @@ class VerticaUnloader(Unloader):
     @contextmanager
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         if self.s3_temp_base_loc is None:
-            raise NoTemporaryBucketConfiguration('Please provide a scratch S3 URL in your config')
+            raise NoTemporaryBucketConfiguration('Please provide a scratch S3 URL in your config '
+                                                 '(e.g., set SCRATCH_S3_URL to an s3:// URL)')
         else:
             with self.s3_temp_base_loc.temporary_directory() as temp_loc:
                 yield temp_loc
@@ -47,7 +48,7 @@ class VerticaUnloader(Unloader):
                table: str,
                unload_plan: RecordsUnloadPlan,
                directory: RecordsDirectory) -> Optional[int]:
-        if not self.s3_available():
+        if not self.s3_export_available():
             raise NotImplementedError('S3 currently required for Vertica bulk unload')
         try:
             if directory.scheme == 's3':
@@ -64,10 +65,10 @@ class VerticaUnloader(Unloader):
                 logger.warning(msg)
             raise NotImplementedError('S3 currently required for Vertica bulk unload')
 
-    def s3_available(self) -> bool:
-        if self.s3_temp_base_loc is None:
-            logger.info("Not attempting S3 export - SCRATCH_S3_URL not set")
-            return False
+    def s3_temp_bucket_available(self) -> bool:
+        return self.s3_temp_base_loc is not None
+
+    def s3_export_available(self) -> bool:
         out = self.db.execute("SELECT lib_name from user_libraries where lib_name = 'awslib'")
         available = len(list(out.fetchall())) == 1
         if not available:
@@ -119,15 +120,14 @@ class VerticaUnloader(Unloader):
         return export_count
 
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
-        if self.s3_available():
-            return [DelimitedRecordsFormat(variant='vertica')]
-        else:
-            return []
+        return [DelimitedRecordsFormat(variant='vertica')]
 
-    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
-        if not self.s3_available():
+    def can_unload_to_scheme(self, scheme: str) -> bool:
+        if not self.s3_export_available():
             return False
+        return scheme == 's3' or self.s3_temp_bucket_available()
 
+    def can_unload_format(self, target_records_format: BaseRecordsFormat) -> bool:
         try:
             unload_plan = RecordsUnloadPlan(records_format=target_records_format)
             if not isinstance(unload_plan.records_format, DelimitedRecordsFormat):

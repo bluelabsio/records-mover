@@ -36,10 +36,10 @@ class NegotiatesRecordsFormat(RecordsTarget, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def can_move_from_this_format(self,
-                                  source_records_format: BaseRecordsFormat) -> bool:
-        """Return true if reading the specified format satisfies our format
-        needs"""
+    def can_move_from_format(self,
+                             source_records_format: BaseRecordsFormat) -> bool:
+        """Returns True if any movement operations can be done using the specified format
+        without translation beforehand to a different format"""
         pass
 
 
@@ -53,10 +53,10 @@ class SupportsRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMeta):
         else:
             return []
 
-    def can_move_from_this_format(self,
-                                  source_records_format: BaseRecordsFormat) -> bool:
-        """Return true if writing the specified format satisfies our format
-        needs"""
+    def can_move_from_format(self,
+                             source_records_format: BaseRecordsFormat) -> bool:
+        """Returns True if any movement operations can be done using the specified format
+        without translation beforehand to a different format"""
         return self.records_format is None or self.records_format == source_records_format
 
     @abstractmethod
@@ -102,12 +102,12 @@ class SupportsMoveFromRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMet
         pass
 
     @abstractmethod
-    def can_load_direct(self, scheme: str) -> bool:
-        """If true is returned, the load will be done without copying from one
-        URL scheme to the other--i.e., without needing to stream down
-        from one location and up to another byte by byte.  A target
-        that can read from a scheme directly is more likely to be
-        efficient in loading."""
+    def can_move_directly_from_scheme(self, scheme: str) -> bool:
+        """If true is returned, the load will be done without streaming data
+        down to Records Mover byte by byte--which can be expensive
+        when data is large and/or network bandwidth is limited.  A
+        target that can read from a scheme "directly" in this sense is
+        more likely to be efficient in loading."""
         pass
 
 
@@ -123,7 +123,19 @@ class MightSupportMoveFromFileobjsSource(NegotiatesRecordsFormat, metaclass=ABCM
         pass
 
 
-class SupportsMoveFromTempLocAfterFillingIt(NegotiatesRecordsFormat, metaclass=ABCMeta):
+class MightSupportMoveFromTempLocAfterFillingIt(NegotiatesRecordsFormat, metaclass=ABCMeta):
+    @abstractmethod
+    def can_move_from_temp_loc_after_filling_it(self) -> bool:
+        """Returns True if target as currently configured can be handed a
+        temporary location and fill it.
+        """
+        pass
+
+    @abstractmethod
+    def temporary_loadable_directory_scheme(self) -> str:
+        """Which URL scheme will be used to create the temporary location to fill in."""
+        pass
+
     @abstractmethod
     def move_from_temp_loc_after_filling_it(self,
                                             records_source:

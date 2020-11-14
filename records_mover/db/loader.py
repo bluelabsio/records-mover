@@ -27,13 +27,10 @@ class LoaderFromRecordsDirectory(metaclass=ABCMeta):
              load_plan: RecordsLoadPlan,
              directory: RecordsDirectory) -> Optional[int]:
         """Loads the data from the data specified to the RecordsDirectory
-        instance named 'directory'.  Guarantees a manifest file named
-        'manifest' is written to the target directory pointing to the
-        target records.
+        instance named 'directory'.
 
         Returns number of rows loaded (if database provides that
-        info).
-        """
+        info)."""
         ...
 
     @abstractmethod
@@ -42,10 +39,26 @@ class LoaderFromRecordsDirectory(metaclass=ABCMeta):
         method"""
         ...
 
+    def temporary_loadable_directory_scheme(self) -> str:
+        """If we need to provide a temporary location that this database can
+        load from with the temporary_loadable_directory_loc() method,, what
+        URL scheme will be used?"""
+        return 'file'
+
     @contextmanager
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        """Provide a temporary directory which can be used for bulk import to
+        this database and clean it up when done"""
         with TemporaryDirectory(prefix='temporary_loadable_directory_loc') as dirname:
             yield FilesystemDirectoryUrl(dirname)
+
+    def has_temporary_loadable_directory_loc(self) -> bool:
+        """Returns True if a temporary directory can be provided by
+        temporary_loadable_directory_loc()"""
+        # The default implementation uses the local filesystem where
+        # Records Mover runs, and we assume we can make temporary
+        # files.
+        return True
 
     @abstractmethod
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:

@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from ..url.base import BaseDirectoryUrl, BaseFileUrl
 from .records_format import BaseRecordsFormat, DelimitedRecordsFormat
 from typing import Mapping, IO, List, Optional
-from .types import UrlDetails, RecordsManifestWithLength, LegacyRecordsManifest
+from .records_types import UrlDetails, RecordsManifestWithLength, LegacyRecordsManifest
 
 
 logger = logging.getLogger(__name__)
@@ -121,6 +121,7 @@ class RecordsDirectory:
         return path.split('/')[-1]
 
     def copy_to(self, new_loc: BaseDirectoryUrl) -> 'RecordsDirectory':
+        logger.info(f"Copying files from {self.loc} to {new_loc}...")
         new_loc = self.loc.copy_to(new_loc)
         # rebuild manifest to point to new URLs.
         new_directory = RecordsDirectory(records_loc=new_loc)
@@ -193,6 +194,17 @@ class RecordsDirectory:
                     output_loc.concatenate_from(input_locs)
             else:
                 raise NotImplementedError("Please teach me how to concatenate this format of file")
+
+    def await_completion(self,
+                         manifest_filename: str = "_manifest",
+                         log_level: int = logging.INFO,
+                         ms_between_polls: int = 50) -> None:
+        manifest_loc = self.loc.file_in_this_directory(manifest_filename)
+        manifest_loc.wait_to_exist(log_level=log_level, ms_between_polls=ms_between_polls)
+        manifest_locs = [self.loc.file_in_this_directory(self._filename_of_url(url))
+                         for url in self.manifest_entry_urls()]
+        for loc in manifest_locs:
+            loc.wait_to_exist(log_level=log_level, ms_between_polls=ms_between_polls)
 
     def __str__(self) -> str:
         return f"{type(self).__name__}({self.loc.url})"

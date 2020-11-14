@@ -46,12 +46,25 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
             return []
         return unloader.known_supported_records_formats_for_unload()
 
-    def can_move_to_this_format(self,
-                                target_records_format: BaseRecordsFormat) -> bool:
+    def can_move_to_format(self,
+                           target_records_format: BaseRecordsFormat) -> bool:
         unloader = self.driver.unloader()
         if unloader is None:
             return False
-        return unloader.can_unload_this_format(target_records_format)
+        return unloader.can_unload_format(target_records_format)
+
+    def can_move_to_scheme(self, scheme: str) -> bool:
+        unloader = self.driver.unloader()
+        if unloader is None:
+            # bulk export is not provided by this database
+            logger.warning("No unloader configured for this database "
+                           f"type ({self.driver.db_engine.name})")
+            return False
+        can_unload = unloader.can_unload_to_scheme(scheme)
+        if not can_unload:
+            logger.warning(f"This database ({self.driver.db_engine.name}) is "
+                           f"not configured to export to {scheme}")
+        return can_unload
 
     @contextmanager
     def to_dataframes_source(self,

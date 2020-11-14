@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from sqlalchemy_redshift.commands import UnloadFromSelect
 from ...records.records_directory import RecordsDirectory
 import sqlalchemy
@@ -11,10 +12,10 @@ from ...records.unload_plan import RecordsUnloadPlan
 from ...records.records_format import (
     BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
 )
-from typing import Union, Callable, Optional, ContextManager, List
+from typing import Union, Callable, Optional, List, Iterator
 from ...url.base import BaseDirectoryUrl
 from botocore.credentials import Credentials
-from ..errors import CredsDoNotSupportS3Export
+from ..errors import CredsDoNotSupportS3Export, NoTemporaryBucketConfiguration
 from ...records.delimited import complain_on_unhandled_hints
 from ..unloader import Unloader
 
@@ -26,17 +27,28 @@ class RedshiftUnloader(Unloader):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
                  table: Callable[[str, str], Table],
-                 temporary_s3_directory_loc: Callable[[], ContextManager[BaseDirectoryUrl]],
+                 s3_temp_base_loc: Optional[BaseDirectoryUrl],
                  **kwargs) -> None:
         super().__init__(db=db)
         self.table = table
-        self.temporary_s3_directory_loc = temporary_s3_directory_loc
+        self.s3_temp_base_loc = s3_temp_base_loc
+
+    @contextmanager
+    def temporary_s3_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        if self.s3_temp_base_loc is None:
+            raise NoTemporaryBucketConfiguration('Please provide a scratch S3 URL in your config '
+                                                 '(e.g., set SCRATCH_S3_URL to an s3:// URL)')
+        else:
+            with self.s3_temp_base_loc.temporary_directory() as temp_loc:
+                yield temp_loc
 
     def unload_to_s3_directory(self,
                                schema: str,
                                table: str,
                                unload_plan: RecordsUnloadPlan,
-                               directory: RecordsDirectory) -> int:
+                               directory: RecordsDirectory) -> Optional[int]:
+        logger.info(f"Starting Redshift unload to {directory.loc} as "
+                    f"{unload_plan.records_format}...")
         unhandled_hints = set()
         if isinstance(unload_plan.records_format, DelimitedRecordsFormat):
             unhandled_hints = set(unload_plan.records_format.hints.keys())
@@ -69,12 +81,31 @@ class RedshiftUnloader(Unloader):
                                       secret_access_key=aws_creds.secret_key,
                                       session_token=aws_creds.token, manifest=True,
                                       unload_location=directory.loc.url, **redshift_options)
-            self.db.execute(unload)
-            out = self.db.execute(text("SELECT pg_last_unload_count()"))
-            rows: Optional[int] = out.scalar()
-            assert rows is not None
-            logger.info(f"Just unloaded {rows} rows")
-            out.close()
+            try:
+                self.db.execute(unload)
+                out = self.db.execute(text("SELECT pg_last_unload_count()"))
+                rows: Optional[int] = out.scalar()
+                assert rows is not None
+                logger.info(f"Just unloaded {rows} rows")
+                out.close()
+            except sqlalchemy.exc.DatabaseError as e:
+                if 'Operation timed out' in str(e):
+                    # Large database UNLOADs can take hours, and it's
+                    # likely the connection between the client and
+                    # server will get disconnected.  In this
+                    # circumstance, we want to wait until unload is
+                    # complete and then proceed.
+                    logger.info("Server disconnected - awaiting completion "
+                                "of work by checking S3 bucket...")
+                    directory.await_completion(log_level=logging.DEBUG,
+                                               ms_between_polls=5000,
+                                               manifest_filename='manifest')
+                    # pg_last_unload_count() doesn't work
+                    # after this situation - the query shows up as
+                    rows = None
+                    logger.info("Unload complete.")
+                else:
+                    raise
 
             return rows
 
@@ -82,8 +113,7 @@ class RedshiftUnloader(Unloader):
                schema: str,
                table: str,
                unload_plan: RecordsUnloadPlan,
-               directory: RecordsDirectory) -> int:
-        logger.info("Starting Redshift unload...")
+               directory: RecordsDirectory) -> Optional[int]:
         if directory.scheme == 's3':
             s3_directory = directory
             return self.unload_to_s3_directory(schema, table, unload_plan, s3_directory)
@@ -94,10 +124,17 @@ class RedshiftUnloader(Unloader):
                 directory.copy_from(temp_s3_loc)
                 return out
 
+    def can_unload_to_scheme(self, scheme: str) -> bool:
+        if scheme == 's3':
+            return True
+        # Otherwise we'll need a temporary bucket configured for
+        # Redshift to unload into
+        return self.s3_temp_base_loc is not None
+
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
         return [DelimitedRecordsFormat(variant='bluelabs'), ParquetRecordsFormat()]
 
-    def can_unload_this_format(self, target_records_format: BaseRecordsFormat) -> bool:
+    def can_unload_format(self, target_records_format: BaseRecordsFormat) -> bool:
         try:
             unload_plan = RecordsUnloadPlan(records_format=target_records_format)
             unhandled_hints = set()

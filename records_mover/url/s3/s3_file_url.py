@@ -97,15 +97,16 @@ class S3FileUrl(S3BaseUrl, BaseFileUrl):
     def delete(self) -> None:
         self.s3_resource.Object(self.bucket, self.key).delete()
 
-    def wait_to_exist(self) -> None:
+    def wait_to_exist(self, log_level: int = logging.INFO,
+                      ms_between_polls: int = 50) -> None:
         while True:
             try:
                 with self.open():
                     return
             except FileNotFoundError:
-                logger.info(f"Waiting for {self.url} to appear...")
-                fifty_milliseconds = 0.05
-                sleep(fifty_milliseconds)
+                logger.log(log_level, f"Waiting for {self.url} to appear...")
+                seconds_to_sleep = ms_between_polls / 1000.0
+                sleep(seconds_to_sleep)
 
     def size(self) -> int:
         response = self.s3_client.head_object(Bucket=self.bucket, Key=self.key)

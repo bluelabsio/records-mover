@@ -126,13 +126,13 @@ class TestPostgresUnloader(unittest.TestCase):
 
     @patch('records_mover.db.postgres.unloader.complain_on_unhandled_hints')
     @patch('records_mover.db.postgres.unloader.postgres_copy_to_options')
-    def test_can_unload_this_format_true(self,
-                                         mock_postgres_copy_to_options,
-                                         mock_complain_on_unhandled_hints):
+    def test_can_unload_format_true(self,
+                                    mock_postgres_copy_to_options,
+                                    mock_complain_on_unhandled_hints):
         source_records_format = Mock(name='source_records_format',
                                      spec=DelimitedRecordsFormat)
         source_records_format.hints = {}
-        out = self.unloader.can_unload_this_format(source_records_format)
+        out = self.unloader.can_unload_format(source_records_format)
         self.assertTrue(out)
 
     def test_best_records_format(self):
@@ -141,3 +141,6 @@ class TestPostgresUnloader(unittest.TestCase):
                                                     'compression': None
                                                 }),
                          self.unloader.best_records_format())
+
+    def test_can_unload_to_scheme_any_true(self):
+        self.assertTrue(self.unloader.can_unload_to_scheme(Mock()))

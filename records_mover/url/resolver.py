@@ -99,9 +99,12 @@ class UrlResolver:
         if 'gcs_client' in parameters:
             gcs_client = self.gcs_client_getter()
             if gcs_client is None:
-                raise EnvironmentError('URL requires an GCP client for Google '
+                raise EnvironmentError('URL requires a GCP client for Google '
                                        'Cloud Storage use, but none are configured.  '
-                                       'Please configure your credentials.')
+                                       'Please configure your credentials '
+                                       '(e.g., "gcloud auth application-default '
+                                       'login --project <project>" and set '
+                                       'GCP_PROJECT to your project name)')
             out["gcs_client"] = gcs_client
         if 'gcp_credentials' in parameters:
             gcp_credentials = self.gcp_credentials_getter()

@@ -33,6 +33,16 @@ class TestS3DirectoryUrl(unittest.TestCase):
                                                        Prefix='topdir/bottomdir/')
         self.assertEqual([], out)
 
+    def test_files_matching_prefix_none(self):
+        mock_s3_client = self.mock_boto3_session.client.return_value
+        mock_s3_client.list_objects.return_value = {
+        }
+        out = self.s3_directory_url.files_matching_prefix('format_')
+        mock_s3_client.list_objects.assert_called_with(Bucket='bucket',
+                                                       Prefix='topdir/bottomdir/format_',
+                                                       Delimiter='/')
+        self.assertEqual([], out)
+
     def test_temporary_directory_cleans_up_upon_exception(self):
         mock_s3_url = Mock(name='s3_url', spec=S3DirectoryUrl)
         self.mock_S3Url.return_value = mock_s3_url

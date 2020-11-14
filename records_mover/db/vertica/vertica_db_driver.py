@@ -23,7 +23,8 @@ class VerticaDBDriver(DBDriver):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
                  url_resolver: UrlResolver,
-                 s3_temp_base_loc: Optional[BaseDirectoryUrl]=None) -> None:
+                 s3_temp_base_loc: Optional[BaseDirectoryUrl]=None,
+                 **kwargs: object) -> None:
         super().__init__(db)
         self._vertica_loader = VerticaLoader(url_resolver=url_resolver, db=self.db)
         self._vertica_unloader = VerticaUnloader(s3_temp_base_loc=s3_temp_base_loc, db=db)

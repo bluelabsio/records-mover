@@ -1,6 +1,6 @@
 from db_facts.db_facts_types import DBFacts
 from .database import db_facts_from_env
-from typing import TYPE_CHECKING, Iterable, Union, Optional
+from typing import TYPE_CHECKING, Iterable, Union, Optional, Dict, Any
 from records_mover.mover_types import PleaseInfer
 from config_resolver import get_config
 import os
@@ -12,6 +12,12 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
+
+_GSHEETS_SCOPES = ('https://www.googleapis.com/auth/spreadsheets',)
+
+_GCS_SCOPES = ('https://www.googleapis.com/auth/devstorage.full_control',
+               'https://www.googleapis.com/auth/devstorage.read_only',
+               'https://www.googleapis.com/auth/devstorage.read_write')
 
 
 # this interfaces here are probably unstable until we figure out how
@@ -45,7 +51,10 @@ class BaseCreds():
                                            None] = PleaseInfer.token,
                  scratch_s3_url: Union[PleaseInfer,
                                        str,
-                                       None] = PleaseInfer.token) -> None:
+                                       None] = PleaseInfer.token,
+                 scratch_gcs_url: Union[PleaseInfer,
+                                        str,
+                                        None] = PleaseInfer.token) -> None:
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
         self._default_gcp_creds_name = default_gcp_creds_name
@@ -56,15 +65,14 @@ class BaseCreds():
         self.__default_boto3_session = default_boto3_session
 
         self._scratch_s3_url = scratch_s3_url
+        self._scratch_gcs_url = scratch_gcs_url
 
     def google_sheets(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
-        scopes = ('https://www.googleapis.com/auth/spreadsheets',)
+        scopes = _GSHEETS_SCOPES
         return self._gcp_creds(gcp_creds_name, scopes)
 
     def gcs(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
-        scopes = ('https://www.googleapis.com/auth/devstorage.full_control',
-                  'https://www.googleapis.com/auth/devstorage.read_only',
-                  'https://www.googleapis.com/auth/devstorage.read_write')
+        scopes = _GCS_SCOPES
         return self._gcp_creds(gcp_creds_name, scopes)
 
     def _gcp_creds(self, gcp_creds_name: str,
@@ -94,6 +102,13 @@ class BaseCreds():
             self.__default_boto3_session = self.boto3_session(self._default_aws_creds_name)
         return self.__default_boto3_session
 
+    def _gcp_creds_of_last_resort(self,
+                                  scopes: Iterable[str]) ->\
+            Optional['google.auth.credentials.Credentials']:
+        import google.auth
+        credentials, project = google.auth.default(scopes=scopes)
+        return credentials
+
     def default_gcs_creds(self) -> Optional['google.auth.credentials.Credentials']:
         if self.__default_gcs_creds is not PleaseInfer.token:
             return self.__default_gcs_creds
@@ -101,21 +116,18 @@ class BaseCreds():
         try:
             import google.auth.exceptions
             if self._default_gcp_creds_name is None:
-                import google.auth
-                credentials, project = google.auth.default()
-                self.__default_gcs_creds = credentials
+                self.__default_gcs_creds = self._gcp_creds_of_last_resort(scopes=_GCS_SCOPES)
             else:
-                creds = self.gcs(self._default_gcp_creds_name)
-                self.__default_gcs_creds = creds
-        except (OSError, google.auth.exceptions.DefaultCredentialsError):
+                self.__default_gcs_creds = self.gcs(self._default_gcp_creds_name)
+        except (OSError, google.auth.exceptions.DefaultCredentialsError) as e:
             # Examples:
             #   OSError: Project was not passed and could not be determined from the environment.
             #   google.auth.exceptions.DefaultCredentialsError: Could not automatically determine
             #     credentials. Please set GOOGLE_APPLICATION_CREDENTIALS or explicitly create
             #     credentials and re-run the application. For more information, please see
             #     https://cloud.google.com/docs/authentication/getting-started
-            logger.debug("google.cloud.storage not configured",
-                         exc_info=True)
+            logger.warning(f"google.cloud.storage not configured: {e}")
+            logger.debug("Details:", exc_info=True)
             self.__default_gcs_creds = None
         return self.__default_gcs_creds
 
@@ -129,22 +141,43 @@ class BaseCreds():
             return self.__default_gcs_client
         try:
             import google.cloud.storage  # noqa
-        except ModuleNotFoundError:
-            logger.debug("google.cloud.storage not installed",
-                         exc_info=True)
+        except ModuleNotFoundError as e:
+            logger.warning(f"google.cloud.storage not installed: {e}")
+            logger.debug("Details:", exc_info=True)
             self.__default_gcs_client = None
             return self.__default_gcs_client
 
         try:
-            self.__default_gcs_client = google.cloud.storage.Client(credentials=gcs_creds)
+            other_args = {}
+            # Pulling the project here from global config instead of
+            # from the Google API and letting the user configure it
+            # isn't great.  See
+            # https://github.com/bluelabsio/records-mover/issues/119
+            # for a way we can improve this.
+            gcp_project = self._default_gcp_project()
+            if gcp_project is not None:
+                other_args['project'] = gcp_project
+
+            self.__default_gcs_client = google.cloud.storage.Client(credentials=gcs_creds,
+                                                                    **other_args)
             return self.__default_gcs_client
-        except OSError:
+        except OSError as e:
             # Example:
             #   OSError: Project was not passed and could not be determined from the environment.
-            logger.debug("google.cloud.storage not configured",
-                         exc_info=True)
+            logger.warning(f"google.cloud.storage not configured: {e}")
+            logger.debug("Details:", exc_info=True)
             self.__default_gcs_client = None
             return self.__default_gcs_client
+
+    def _default_gcp_project(self) -> Optional[str]:
+        if 'GCP_PROJECT' in os.environ:
+            return os.environ['GCP_PROJECT']
+        gcp_cfg = self._config_section('gcp')
+        if gcp_cfg is not None:
+            default_gcp_project: Optional[str] = gcp_cfg.get('default_project')
+            return default_gcp_project
+
+        return None
 
     def default_db_facts(self) -> DBFacts:
         if self.__default_db_facts is not PleaseInfer.token:
@@ -173,15 +206,21 @@ class BaseCreds():
                            f'as there is no username in {arn}')
             return None
 
+    def _config_section(self, section_name: str) -> Optional[Dict[str, Any]]:
+        config_result = get_config('records_mover', 'bluelabs')
+        cfg = config_result.config
+        if section_name in cfg:
+            return cfg[section_name]
+        else:
+            return None
+
     def _infer_scratch_s3_url(self,
                               boto3_session: Optional['boto3.session.Session']) -> Optional[str]:
         if "SCRATCH_S3_URL" in os.environ:
             return os.environ["SCRATCH_S3_URL"]
 
-        config_result = get_config('records_mover', 'bluelabs')
-        cfg = config_result.config
-        if 'aws' in cfg:
-            aws_cfg = cfg['aws']
+        aws_cfg = self._config_section('aws')
+        if aws_cfg is not None:
             s3_scratch_url: Optional[str] = aws_cfg.get('s3_scratch_url')
             if s3_scratch_url is not None:
                 return s3_scratch_url
@@ -206,3 +245,24 @@ class BaseCreds():
         if self._scratch_s3_url is PleaseInfer.token:
             self._scratch_s3_url = self._infer_scratch_s3_url(self.default_boto3_session())
         return self._scratch_s3_url
+
+    def _infer_scratch_gcs_url(self) -> Optional[str]:
+        if "SCRATCH_GCS_URL" in os.environ:
+            return os.environ["SCRATCH_GCS_URL"]
+
+        gcp_cfg = self._config_section('gcp')
+        if gcp_cfg is not None:
+            gcs_scratch_url: Optional[str] = gcp_cfg.get('gcs_scratch_url')
+            if gcs_scratch_url is not None:
+                return gcs_scratch_url
+            else:
+                logger.debug('No GCS scratch bucket config found')
+                return None
+        else:
+            logger.debug('No config ini file found')
+            return None
+
+    def default_scratch_gcs_url(self) -> Optional[str]:
+        if self._scratch_gcs_url is PleaseInfer.token:
+            self._scratch_gcs_url = self._infer_scratch_gcs_url()
+        return self._scratch_gcs_url

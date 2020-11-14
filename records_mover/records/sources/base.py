@@ -52,11 +52,11 @@ class NegotiatesRecordsFormat(RecordsSource, metaclass=ABCMeta):
         # ones can be put at the beginning.
         for source_candidate, target_candidate in ranked_candidates:
             if source_candidate is not None:
-                if records_target.can_move_from_this_format(source_candidate):
+                if records_target.can_move_from_format(source_candidate):
                     compatible_format = source_candidate
                     break
             if target_candidate is not None:
-                if self.can_move_to_this_format(target_candidate):
+                if self.can_move_to_format(target_candidate):
                     compatible_format = target_candidate
                     break
         if compatible_format is None:
@@ -75,8 +75,8 @@ class NegotiatesRecordsFormat(RecordsSource, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def can_move_to_this_format(self,
-                                target_records_format: BaseRecordsFormat) -> bool:
+    def can_move_to_format(self,
+                           target_records_format: BaseRecordsFormat) -> bool:
         """Return true if writing the specified format satisfies our format
         needs"""
         pass
@@ -96,6 +96,16 @@ class SupportsRecordsDirectory(RecordsSource, metaclass=ABCMeta):
 
 
 class SupportsMoveToRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMeta):
+    @abstractmethod
+    def can_move_to_scheme(self, scheme: str) -> bool:
+        """If true is returned, the given scheme is a compatible place where
+        the unload will be done.  Note that this may include streaming
+        data down to Records Mover byte by byte--which can be
+        expensive when data is large and/or network bandwidth is
+        limited.
+        """
+        pass
+
     @abstractmethod
     def move_to_records_directory(self,
                                   records_directory: RecordsDirectory,

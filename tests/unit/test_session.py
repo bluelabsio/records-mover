@@ -1,4 +1,4 @@
-from mock import patch, Mock
+from mock import patch, Mock, call
 from records_mover import Session
 from records_mover.mover_types import PleaseInfer
 import unittest
@@ -8,10 +8,12 @@ import unittest
 @patch('google.auth.default')
 @patch('records_mover.creds.base_creds.get_config')
 @patch('records_mover.creds.base_creds.os')
+@patch('records_mover.creds.creds_via_env.os')
 class TestSession(unittest.TestCase):
     @patch('records_mover.db.connect.engine_from_db_facts')
     def test_get_db_engine(self,
                            mock_engine_from_db_facts,
+                           mock_creds_via_env_os,
                            mock_os,
                            mock_get_config,
                            mock_google_auth_default,
@@ -25,9 +27,55 @@ class TestSession(unittest.TestCase):
         mock_engine_from_db_facts.assert_called_with(mock_creds.db_facts.return_value)
         self.assertEqual(mock_engine_from_db_facts.return_value, out)
 
+    @patch('records_mover.db.connect.engine_from_db_facts')
+    def test_get_db_engine_use_sesssion_creds(self,
+                                              mock_engine_from_db_facts,
+                                              mock_creds_via_env_os,
+                                              mock_os,
+                                              mock_get_config,
+                                              mock_google_auth_default,
+                                              mock_google_cloud_storage_Client):
+        mock_db_creds_name = Mock(name='db_creds_name')
+        mock_creds = Mock(name='creds')
+        session = Session(creds=mock_creds)
+        out = session.get_db_engine(mock_db_creds_name)
+        mock_creds.db_facts.assert_called_with(mock_db_creds_name)
+        mock_engine_from_db_facts.assert_called_with(mock_creds.db_facts.return_value)
+        self.assertEqual(mock_engine_from_db_facts.return_value, out)
+
+    @patch('records_mover.session.UrlResolver')
+    @patch('records_mover.db.factory.db_driver')
+    def test_db_driver(self,
+                       mock_db_driver,
+                       mock_UrlResolver,
+                       mock_creds_via_env_os,
+                       mock_os,
+                       mock_get_config,
+                       mock_google_auth_default,
+                       mock_google_cloud_storage_Client):
+        mock_creds = Mock(name='creds')
+        mock_db = Mock(name='db')
+        mock_url_resolver = mock_UrlResolver.return_value
+        mock_scratch_s3_url = mock_creds.default_scratch_s3_url.return_value
+        mock_scratch_gcs_url = mock_creds.default_scratch_gcs_url.return_value
+        mock_s3_temp_base_loc = mock_url_resolver.directory_url.return_value
+        mock_gcs_temp_base_loc = mock_url_resolver.directory_url.return_value
+        session = Session(creds=mock_creds)
+        out = session.db_driver(mock_db)
+        self.assertEqual(out, mock_db_driver.return_value)
+        mock_url_resolver.directory_url.assert_has_calls(
+            [call(mock_scratch_s3_url),
+             call(mock_scratch_gcs_url)]
+        )
+        mock_db_driver.assert_called_with(db=mock_db,
+                                          url_resolver=mock_url_resolver,
+                                          s3_temp_base_loc=mock_s3_temp_base_loc,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+
     @patch('records_mover.session.CredsViaEnv')
     def test_itest_type_uses_creds_via_env(self,
                                            mock_CredsViaEnv,
+                                           mock_creds_via_env_os,
                                            mock_os,
                                            mock_get_config,
                                            mock_google_auth_default,
@@ -39,6 +87,7 @@ class TestSession(unittest.TestCase):
     @patch('records_mover.session.CredsViaEnv')
     def test_env_type_uses_creds_via_env(self,
                                          mock_CredsViaEnv,
+                                         mock_creds_via_env_os,
                                          mock_os,
                                          mock_get_config,
                                          mock_google_auth_default,
@@ -52,6 +101,7 @@ class TestSession(unittest.TestCase):
     def test_get_default_db_engine_no_default(self,
                                               mock_engine_from_db_facts,
                                               mock_db_facts_from_env,
+                                              mock_creds_via_env_os,
                                               mock_os,
                                               mock_get_config,
                                               mock_google_auth_default,
@@ -67,6 +117,7 @@ class TestSession(unittest.TestCase):
     def test_get_default_db_facts_no_default(self,
                                              mock_engine_from_db_facts,
                                              mock_db_facts_from_env,
+                                             mock_creds_via_env_os,
                                              mock_os,
                                              mock_get_config,
                                              mock_google_auth_default,
@@ -78,6 +129,7 @@ class TestSession(unittest.TestCase):
     @patch('records_mover.session.set_stream_logging')
     def test_set_stream_logging(self,
                                 mock_set_stream_logging,
+                                mock_creds_via_env_os,
                                 mock_os,
                                 mock_get_config,
                                 mock_google_auth_default,
@@ -102,6 +154,7 @@ class TestSession(unittest.TestCase):
     @patch('records_mover.session.set_stream_logging')
     def test_s3_url_from_get_config(self,
                                     mock_set_stream_logging,
+                                    mock_creds_via_env_os,
                                     mock_os,
                                     mock_get_config,
                                     mock_google_auth_default,
@@ -115,6 +168,7 @@ class TestSession(unittest.TestCase):
     @patch('records_mover.session.UrlResolver')
     def test_file_url(self,
                       mock_UrlResolver,
+                      mock_creds_via_env_os,
                       mock_os,
                       mock_get_config,
                       mock_google_auth_default,
@@ -129,6 +183,7 @@ class TestSession(unittest.TestCase):
     @patch('boto3.session')
     def test_session_boto3_session_via_url_resolver_default(self,
                                                             mock_boto3_session,
+                                                            mock_creds_via_env_os,
                                                             mock_os,
                                                             mock_get_config,
                                                             mock_google_auth_default,
@@ -143,6 +198,7 @@ class TestSession(unittest.TestCase):
     def test_session_boto3_session_via_url_resolver_specified(self,
                                                               mock_boto3_session,
                                                               mock_CredsViaEnv,
+                                                              mock_creds_via_env_os,
                                                               mock_os,
                                                               mock_get_config,
                                                               mock_google_auth_default,
@@ -160,12 +216,14 @@ class TestSession(unittest.TestCase):
                                             default_boto3_session=PleaseInfer.token,
                                             default_gcp_creds=PleaseInfer.token,
                                             default_gcs_client=PleaseInfer.token,
-                                            scratch_s3_url=PleaseInfer.token)
+                                            scratch_s3_url=PleaseInfer.token,
+                                            scratch_gcs_url=PleaseInfer.token)
         mock_CredsViaEnv.return_value.default_boto3_session.assert_called()
 
     @patch('boto3.session')
     def test_session_boto3_session_via_url_resolver_cached(self,
                                                            mock_boto3_session,
+                                                           mock_creds_via_env_os,
                                                            mock_os,
                                                            mock_get_config,
                                                            mock_google_auth_default,
@@ -180,6 +238,7 @@ class TestSession(unittest.TestCase):
         mock_boto3_session.Session.assert_called_once_with()
 
     def test_session_gcp_creds_via_url_resolver_default(self,
+                                                        mock_creds_via_env_os,
                                                         mock_os,
                                                         mock_get_config,
                                                         mock_google_auth_default,
@@ -192,6 +251,7 @@ class TestSession(unittest.TestCase):
         self.assertEqual(gcp_credentials, mock_credentials)
 
     def test_session_gcp_creds_via_url_resolver_cached(self,
+                                                       mock_creds_via_env_os,
                                                        mock_os,
                                                        mock_get_config,
                                                        mock_google_auth_default,
@@ -204,9 +264,16 @@ class TestSession(unittest.TestCase):
         self.assertEqual(gcp_credentials, mock_credentials)
         second_gcp_credentials = session.url_resolver.gcp_credentials_getter()
         self.assertEqual(second_gcp_credentials, mock_credentials)
-        mock_google_auth_default.assert_called_once_with()
+
+        expected_scopes = (
+            'https://www.googleapis.com/auth/devstorage.full_control',
+            'https://www.googleapis.com/auth/devstorage.read_only',
+            'https://www.googleapis.com/auth/devstorage.read_write'
+        )
+        mock_google_auth_default.assert_called_once_with(scopes=expected_scopes)
 
     def test_session_gcs_client_via_url_resolver_default(self,
+                                                         mock_creds_via_env_os,
                                                          mock_os,
                                                          mock_get_config,
                                                          mock_google_auth_default,
@@ -219,6 +286,7 @@ class TestSession(unittest.TestCase):
         self.assertEqual(gcs_client, mock_google_cloud_storage_Client.return_value)
 
     def test_session_gcs_client_via_url_resolver_cached(self,
+                                                        mock_creds_via_env_os,
                                                         mock_os,
                                                         mock_get_config,
                                                         mock_google_auth_default,
@@ -232,5 +300,10 @@ class TestSession(unittest.TestCase):
 
         second_gcs_client = session.url_resolver.gcs_client_getter()
         self.assertEqual(second_gcs_client, mock_google_cloud_storage_Client.return_value)
+        expected_scopes = (
+            'https://www.googleapis.com/auth/devstorage.full_control',
+            'https://www.googleapis.com/auth/devstorage.read_only',
+            'https://www.googleapis.com/auth/devstorage.read_write'
+        )
 
-        mock_google_auth_default.assert_called_once_with()
+        mock_google_auth_default.assert_called_once_with(scopes=expected_scopes)

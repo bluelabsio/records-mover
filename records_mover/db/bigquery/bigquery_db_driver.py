@@ -9,6 +9,7 @@ from ...url.resolver import UrlResolver
 import sqlalchemy
 from .loader import BigQueryLoader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
+from ...url.base import BaseDirectoryUrl
 
 
 logger = logging.getLogger(__name__)
@@ -18,9 +19,13 @@ class BigQueryDBDriver(DBDriver):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
                  url_resolver: UrlResolver,
+                 gcs_temp_base_loc: Optional[BaseDirectoryUrl] = None,
                  **kwargs: object) -> None:
         super().__init__(db)
-        self._bigquery_loader = BigQueryLoader(db=self.db, url_resolver=url_resolver)
+        self._bigquery_loader =\
+            BigQueryLoader(db=self.db,
+                           url_resolver=url_resolver,
+                           gcs_temp_base_loc=gcs_temp_base_loc)
 
     def loader(self) -> Optional[LoaderFromRecordsDirectory]:
         return self._bigquery_loader

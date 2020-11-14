@@ -99,7 +99,7 @@ class TestFileobjsSource(unittest.TestCase):
         out = source.known_supported_records_formats()
         self.assertEqual(out, [mock_records_format])
 
-    def test_can_move_to_this_format_yes(self):
+    def test_can_move_to_format_true(self):
         mock_records_format = Mock(name='records_format')
         mock_records_schema = Mock(name='records_schema')
         mock_records_schema = Mock(name='records_schema')
@@ -107,7 +107,18 @@ class TestFileobjsSource(unittest.TestCase):
         source = FileobjsSource(target_names_to_input_fileobjs=mock_target_names_to_input_fileobjs,
                                 records_schema=mock_records_schema,
                                 records_format=mock_records_format)
-        out = source.can_move_to_this_format(mock_records_format)
+        out = source.can_move_to_format(mock_records_format)
+        self.assertTrue(out)
+
+    def test_can_move_to_schema_yes(self):
+        mock_records_format = Mock(name='records_format')
+        mock_records_schema = Mock(name='records_schema')
+        mock_records_schema = Mock(name='records_schema')
+        mock_target_names_to_input_fileobjs = Mock(name='target_names_to_input_fileobjs')
+        source = FileobjsSource(target_names_to_input_fileobjs=mock_target_names_to_input_fileobjs,
+                                records_schema=mock_records_schema,
+                                records_format=mock_records_format)
+        out = source.can_move_to_scheme(Mock())
         self.assertTrue(out)
 
     def test_str(self):

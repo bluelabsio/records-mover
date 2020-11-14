@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 import secrets
+import logging
 import json
 from records_mover.mover_types import JsonValue
 from typing import TypeVar, Iterator, IO, Any, Optional, List, Union
@@ -201,7 +202,9 @@ class BaseFileUrl:
         "exist in the directory."
         raise NotImplementedError()
 
-    def wait_to_exist(self) -> None:
+    def wait_to_exist(self,
+                      log_level: int = logging.INFO,
+                      ms_between_polls: int = 50) -> None:
         "Returns after the file exists--useful for eventually consistent stores (e.g., S3)"
         return
 

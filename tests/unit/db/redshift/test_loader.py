@@ -9,12 +9,12 @@ class TestRedshiftLoader(unittest.TestCase):
     def setUp(self):
         self.mock_db = Mock(name='db')
         self.mock_meta = Mock(name='meta')
-        self.mock_temporary_s3_directory_loc = MagicMock(name='temporary_s3_directory_loc')
+        self.s3_temp_base_loc = MagicMock(name='s3_temp_base_loc')
 
         self.redshift_loader =\
             RedshiftLoader(db=self.mock_db,
                            meta=self.mock_meta,
-                           temporary_s3_directory_loc=self.mock_temporary_s3_directory_loc)
+                           s3_temp_base_loc=self.s3_temp_base_loc)
 
     @patch('records_mover.db.redshift.loader.redshift_copy_options')
     @patch('records_mover.db.redshift.loader.ProcessingInstructions')
@@ -80,7 +80,7 @@ class TestRedshiftLoader(unittest.TestCase):
         mock_directory = Mock(name='directory')
         mock_directory.scheme = 'mumble'
 
-        mock_temp_s3_loc = self.mock_temporary_s3_directory_loc.return_value.__enter__.return_value
+        mock_temp_s3_loc = self.s3_temp_base_loc.temporary_directory().__enter__()
         mock_s3_directory = mock_directory.copy_to.return_value
         mock_s3_directory.scheme = 's3'
 
@@ -147,3 +147,10 @@ class TestRedshiftLoader(unittest.TestCase):
                                       table=mock_table,
                                       load_plan=mock_load_plan,
                                       directory=mock_directory)
+
+    def test_temporary_loadable_directory_scheme(self):
+        self.assertEqual(self.redshift_loader.temporary_loadable_directory_scheme(),
+                         's3')
+
+    def test_has_temporary_loadable_directory_loc_true(self):
+        self.assertTrue(self.redshift_loader.has_temporary_loadable_directory_loc())

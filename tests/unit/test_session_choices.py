@@ -12,6 +12,7 @@ class TestSessionChoices(unittest.TestCase):
         from records_mover import session
 
         return session.Session(scratch_s3_url='s3://foo/',
+                               scratch_gcs_url='gs://bar/',
                                **kwargs)
 
     @patch.dict('os.environ', {
@@ -31,7 +32,8 @@ class TestSessionChoices(unittest.TestCase):
                                                 default_boto3_session=PleaseInfer.token,
                                                 default_gcp_creds=PleaseInfer.token,
                                                 default_gcs_client=PleaseInfer.token,
-                                                scratch_s3_url='s3://foo/')
+                                                scratch_s3_url='s3://foo/',
+                                                scratch_gcs_url='gs://bar/')
 
     def test_select_cli_session_by_default(self,
                                            mock_get_config,
@@ -47,7 +49,8 @@ class TestSessionChoices(unittest.TestCase):
                                             default_boto3_session=PleaseInfer.token,
                                             default_gcp_creds=PleaseInfer.token,
                                             default_gcs_client=PleaseInfer.token,
-                                            scratch_s3_url='s3://foo/')
+                                            scratch_s3_url='s3://foo/',
+                                            scratch_gcs_url='gs://bar/')
 
     @patch.dict('os.environ', {
         'RECORDS_MOVER_SESSION_TYPE': 'lpass',
@@ -66,7 +69,8 @@ class TestSessionChoices(unittest.TestCase):
                                                  default_boto3_session=PleaseInfer.token,
                                                  default_gcp_creds=PleaseInfer.token,
                                                  default_gcs_client=PleaseInfer.token,
-                                                 scratch_s3_url='s3://foo/')
+                                                 scratch_s3_url='s3://foo/',
+                                                 scratch_gcs_url='gs://bar/')
 
     @patch.dict('os.environ', {
         'RECORDS_MOVER_SESSION_TYPE': 'airflow',
@@ -85,7 +89,8 @@ class TestSessionChoices(unittest.TestCase):
                                                 default_boto3_session=PleaseInfer.token,
                                                 default_gcp_creds=PleaseInfer.token,
                                                 default_gcs_client=PleaseInfer.token,
-                                                scratch_s3_url='s3://foo/')
+                                                scratch_s3_url='s3://foo/',
+                                                scratch_gcs_url='gs://bar/')
 
     @patch.dict('os.environ', {
         'RECORDS_MOVER_SESSION_TYPE': 'bogus',
@@ -116,7 +121,8 @@ class TestSessionChoices(unittest.TestCase):
                                                 default_boto3_session=PleaseInfer.token,
                                                 default_gcp_creds=PleaseInfer.token,
                                                 default_gcs_client=PleaseInfer.token,
-                                                scratch_s3_url='s3://foo/')
+                                                scratch_s3_url='s3://foo/',
+                                                scratch_gcs_url='gs://bar/')
 
     def test_select_cli_session_by_parameter(self,
                                              mock_get_config,
@@ -152,7 +158,8 @@ class TestSessionChoices(unittest.TestCase):
                                                  default_boto3_session=PleaseInfer.token,
                                                  default_gcp_creds=PleaseInfer.token,
                                                  default_gcs_client=PleaseInfer.token,
-                                                 scratch_s3_url='s3://foo/')
+                                                 scratch_s3_url='s3://foo/',
+                                                 scratch_gcs_url='gs://bar/')
 
     def test_select_invalid_session_by_parameter(self,
                                                  mock_get_config,

@@ -32,7 +32,8 @@ def google_sheets_retry():
 def bigquery_retry():
 
     def is_bigquery_rate_limit_exception(e: Exception) -> bool:
-        return '403 Exceeded rate limits:' in str(e)
+        return ('403 Exceeded rate limits:' in str(e) or
+                'Job exceeded rate limits' in str(e))
 
     # Example raised when we exceed BigQuery API rate limits:
 
