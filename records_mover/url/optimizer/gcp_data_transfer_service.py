@@ -47,7 +47,7 @@ class GcpDataTransferService:
         :return: True if the copy was performed, or False if no
         optimized means were possible.
         """
-        import googleapiclient
+        import googleapiclient.discovery
 
         # https://cloud.google.com/storage-transfer/docs/create-manage-transfer-program#python
         if loc.key != other_loc.blob:
@@ -153,7 +153,7 @@ class GcpDataTransferService:
                                project_id: str,
                                job_name: str,
                                gcp_credentials: 'google.auth.credentials.Credentials') -> None:
-        import googleapiclient
+        import googleapiclient.discovery
 
         storagetransfer = googleapiclient.discovery.build('storagetransfer',
                                                           'v1',
