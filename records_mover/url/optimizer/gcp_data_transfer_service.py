@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-# TODO: Reduce redundancy in method names
 class GcpDataTransferService:
     def _min_bytes_to_use(self) -> int:
         metric_megabyte = 1_000_000

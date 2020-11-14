@@ -35,7 +35,6 @@ class CopyOptimizer:
 
         :return: True if the copy was performed, or False if no
         optimized means were possible."""
-        # TODO: Can I move some of this logic into the other classes?
         if loc.scheme == 's3' and other_loc.scheme == 'file':
             from records_mover.url.filesystem import FilesystemDirectoryUrl
             from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
@@ -59,7 +58,6 @@ class CopyOptimizer:
                                       permanent_first_loc: BaseDirectoryUrl,
                                       temp_second_loc: BaseDirectoryUrl) ->\
             Iterator[BaseDirectoryUrl]:
-        # TODO: Can I move some of this logic into the other classes?
         if permanent_first_loc.scheme == 's3' and temp_second_loc.scheme == 'gs':
             from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
             from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
@@ -77,9 +75,7 @@ class CopyOptimizer:
             # Let's use the same location!
             yield permanent_first_loc
         else:
-            #
             # No optimizations match
-            #
             yield temp_second_loc
 
     @contextmanager
@@ -87,7 +83,6 @@ class CopyOptimizer:
                                 temp_first_loc: BaseDirectoryUrl,
                                 temp_second_loc: BaseDirectoryUrl) ->\
             Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
-        # TODO: Can I move some of this logic into the other classes?
         # TODO document this and other methods
         if temp_first_loc.scheme == 's3' and temp_second_loc.scheme == 'gs':
             from records_mover.url.gcs.gcs_directory_url import GCSDirectoryUrl
@@ -107,7 +102,5 @@ class CopyOptimizer:
             # Let's use the same location!
             yield (temp_first_loc, temp_first_loc)
         else:
-            #
             # No optimizations match
-            #
             yield (temp_first_loc, temp_second_loc)
