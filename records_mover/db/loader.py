@@ -89,16 +89,16 @@ class LoaderFromFileobj(LoaderFromRecordsDirectory, metaclass=ABCMeta):
                                                 directory: RecordsDirectory) -> Optional[int]:
         all_urls = directory.manifest_entry_urls()
 
-        total_rows = 0
+        total_rows = None
         for url in all_urls:
             loc = self.url_resolver.file_url(url)
             with loc.open() as f:
                 logger.info(f"Loading {url} into {schema}.{table}...")
                 out = self.load_from_fileobj(schema, table, load_plan, f)
                 if out is not None:
+                    if total_rows is None:
+                        total_rows = 0
                     total_rows += out
-        if total_rows == 0:
-            return None
         return total_rows
 
     def load(self,
