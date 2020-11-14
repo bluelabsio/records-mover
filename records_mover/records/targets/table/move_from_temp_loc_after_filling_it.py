@@ -7,7 +7,7 @@ from records_mover.url.base import BaseDirectoryUrl
 from records_mover.records.sources import SupportsMoveToRecordsDirectory
 from records_mover.records.targets.table.base import BaseTableMoveAlgorithm
 import logging
-from typing import Iterator, Optional, TYPE_CHECKING
+from typing import Iterator, TYPE_CHECKING
 if TYPE_CHECKING:
     from .target import TableRecordsTarget  # Dodge circular dependency
 

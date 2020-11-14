@@ -120,7 +120,6 @@ class TestPostgresLoader(unittest.TestCase):
                                           mock_conn,
                                           abc=123)
 
-    @patch('records_mover.db.loader.ConcatFiles')
     @patch('records_mover.db.postgres.loader.quote_value')
     @patch('records_mover.db.postgres.loader.copy_from')
     @patch('records_mover.db.postgres.loader.complain_on_unhandled_hints')
@@ -131,8 +130,7 @@ class TestPostgresLoader(unittest.TestCase):
                   mock_Table,
                   mock_complain_on_unhandled_hints,
                   mock_copy_from,
-                  mock_quote_value,
-                  mock_ConcatFiles):
+                  mock_quote_value):
         mock_directory = Mock(name='directory')
         mock_url = Mock(name='url')
         mock_directory.manifest_entry_urls.return_value = [mock_url]

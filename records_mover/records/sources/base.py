@@ -125,7 +125,6 @@ class SupportsMoveToRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMeta)
         pass
 
 
-
 class SupportsToFileobjsSource(RecordsSource, metaclass=ABCMeta):
     @abstractmethod
     @contextmanager
