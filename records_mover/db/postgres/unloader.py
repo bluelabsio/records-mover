@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from sqlalchemy.schema import Table
 from .sqlalchemy_postgres_copy import copy_to
 from ..quoting import quote_value
@@ -6,7 +7,10 @@ from ...records.records_format import BaseRecordsFormat
 from ...records.records_directory import RecordsDirectory
 from ...records.records_format import DelimitedRecordsFormat
 from ...records.delimited import complain_on_unhandled_hints
-from typing import List
+from records_mover.url.base import BaseDirectoryUrl
+from records_mover.url.filesystem import FilesystemDirectoryUrl
+from typing import List, Iterator
+from tempfile import TemporaryDirectory
 from ..unloader import Unloader
 from .copy_options import postgres_copy_to_options
 import logging
@@ -105,6 +109,11 @@ class PostgresUnloader(Unloader):
         # Unloading is done via streams, so it is scheme-independent
         # and requires no scratch buckets.
         return True
+
+    @contextmanager
+    def temporary_unloadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        with TemporaryDirectory(prefix='temporary_unloadable_directory_loc') as dirname:
+            yield FilesystemDirectoryUrl(dirname)
 
     def can_unload_format(self, target_records_format: BaseRecordsFormat) -> bool:
         try:

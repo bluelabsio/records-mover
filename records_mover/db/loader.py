@@ -11,6 +11,10 @@ from tempfile import TemporaryDirectory
 from abc import ABCMeta, abstractmethod
 from typing import Optional, Type, Iterator, IO, List
 import sqlalchemy
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class LoaderFromRecordsDirectory(metaclass=ABCMeta):
@@ -80,21 +84,32 @@ class LoaderFromFileobj(LoaderFromRecordsDirectory, metaclass=ABCMeta):
         """
         ...
 
-    # Implement load() in terms of load_from_fileobj()
+    def load_from_records_directory_via_fileobj(self,
+                                                schema: str,
+                                                table: str,
+                                                load_plan: RecordsLoadPlan,
+                                                directory: RecordsDirectory) -> Optional[int]:
+        all_urls = directory.manifest_entry_urls()
+
+        total_rows = 0
+        for url in all_urls:
+            loc = self.url_resolver.file_url(url)
+            with loc.open() as f:
+                logger.info(f"Loading {url} into {schema}.{table}...")
+                out = self.load_from_fileobj(schema, table, load_plan, f)
+                if out is not None:
+                    total_rows += out
+        if total_rows == 0:
+            return None
+        return total_rows
+
     def load(self,
              schema: str,
              table: str,
              load_plan: RecordsLoadPlan,
              directory: RecordsDirectory) -> Optional[int]:
-        all_urls = directory.manifest_entry_urls()
-
-        locs = [self.url_resolver.file_url(url) for url in all_urls]
-        fileobjs: List[IO[bytes]] = []
-        with ExitStack() as stack:
-            fileobjs = [stack.enter_context(loc.open()) for loc in locs]
-            concatted_fileobj: IO[bytes] = ConcatFiles(fileobjs)  # type: ignore
-            return self.load_from_fileobj(schema,
-                                          table,
-                                          load_plan,
-                                          concatted_fileobj)
-        return None  # make mypy happy
+        # Implement load() in terms of load_from_fileobj() by default
+        return self.load_from_records_directory_via_fileobj(schema=schema,
+                                                            table=table,
+                                                            load_plan=load_plan,
+                                                            directory=directory)

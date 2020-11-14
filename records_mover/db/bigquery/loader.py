@@ -32,9 +32,13 @@ class BigQueryLoader(LoaderFromFileobj):
         self.url_resolver = url_resolver
         self.gcs_temp_base_loc = gcs_temp_base_loc
 
+    def best_scheme_to_load_from(self) -> str:
+        return 'gs'
+
     @contextmanager
     def temporary_gcs_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         if self.gcs_temp_base_loc is None:
+            # TODO: Can this yield None succesfully?  Would make logic more typesafe.
             raise NoTemporaryBucketConfiguration('Please provide a scratch GCS URL in your config '
                                                  '(e.g., set SCRATCH_GCS_URL to a gs:// URL)')
         else:
@@ -102,15 +106,21 @@ class BigQueryLoader(LoaderFromFileobj):
              schema: str,
              table: str,
              load_plan: RecordsLoadPlan,
-             directory: RecordsDirectory) -> int:
+             directory: RecordsDirectory) -> Optional[int]:
 
         if directory.scheme != 'gs':
-            with self.temporary_gcs_directory_loc() as temp_gcs_loc:
-                gcs_directory = directory.copy_to(temp_gcs_loc)
-                return self.load(schema=schema,
-                                 table=table,
-                                 load_plan=load_plan,
-                                 directory=gcs_directory)
+            if self.has_temporary_loadable_directory_loc():
+                with self.temporary_gcs_directory_loc() as temp_gcs_loc:
+                    gcs_directory = directory.copy_to(temp_gcs_loc)
+                    return self.load(schema=schema,
+                                     table=table,
+                                     load_plan=load_plan,
+                                     directory=gcs_directory)
+            else:
+                return self.load_from_records_directory_via_fileobj(schema=schema,
+                                                                    table=table,
+                                                                    load_plan=load_plan,
+                                                                    directory=directory)
 
         logger.info("Loading from records directory into BigQuery")
         # https://googleapis.github.io/google-cloud-python/latest/bigquery/usage/tables.html#creating-a-table

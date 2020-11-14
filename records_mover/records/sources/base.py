@@ -3,6 +3,7 @@ from ..records_directory import RecordsDirectory
 from ..results import MoveResult
 from ..records_format import BaseRecordsFormat
 from ..processing_instructions import ProcessingInstructions
+from records_mover.url.base import BaseDirectoryUrl
 from contextlib import contextmanager
 from typing import Iterator, List, Tuple
 import itertools
@@ -116,6 +117,13 @@ class SupportsMoveToRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMeta)
         ProcessingInstructions, move the records into the target
         directory while converting their format."""
         pass
+
+    @contextmanager
+    @abstractmethod
+    def temporary_unloadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        """Yield a temporary directory that can be used to call move_to_records_directory() on."""
+        pass
+
 
 
 class SupportsToFileobjsSource(RecordsSource, metaclass=ABCMeta):

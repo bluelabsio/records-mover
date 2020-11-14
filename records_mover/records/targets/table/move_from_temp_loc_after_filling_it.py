@@ -7,7 +7,7 @@ from records_mover.url.base import BaseDirectoryUrl
 from records_mover.records.sources import SupportsMoveToRecordsDirectory
 from records_mover.records.targets.table.base import BaseTableMoveAlgorithm
 import logging
-from typing import Iterator, TYPE_CHECKING
+from typing import Iterator, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from .target import TableRecordsTarget  # Dodge circular dependency
 
@@ -34,8 +34,13 @@ class DoMoveFromTempLocAfterFillingIt(BaseTableMoveAlgorithm):
         # which means we were able to get a loader and call
         # can_load_this_format() previously.
         assert loader is not None
-        with loader.temporary_loadable_directory_loc() as loc:
-            yield loc
+        if loader.has_temporary_loadable_directory_loc():
+            with loader.temporary_loadable_directory_loc() as loc:
+                yield loc
+        else:
+            # As a last resort, use the source's temporary directory
+            with self.records_source.temporary_unloadable_directory_loc() as loc:
+                yield loc
 
     def move(self) -> MoveResult:
         pis = self.processing_instructions
@@ -49,7 +54,8 @@ class DoMoveFromTempLocAfterFillingIt(BaseTableMoveAlgorithm):
                 move_to_records_directory(records_directory=directory,
                                           records_format=records_format,
                                           processing_instructions=pis)
+            pis = self.processing_instructions
             out = self.table_target.\
                 move_from_records_directory(directory=directory,
-                                            processing_instructions=self.processing_instructions)
+                                            processing_instructions=pis)
             return out
