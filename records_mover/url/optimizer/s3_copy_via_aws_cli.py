@@ -14,6 +14,5 @@ class S3CopyViaAwsCli:
              other_loc: 'FilesystemDirectoryUrl') -> bool:
         from .awscli import aws_cli
 
-        # TODO: Can I pass in creds?
         aws_cli('s3', 'sync', loc.url, other_loc.local_file_path)
         return True
