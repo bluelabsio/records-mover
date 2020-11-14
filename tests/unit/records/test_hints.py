@@ -2,6 +2,7 @@ from records_mover.records.delimited.sniff import (
     sniff_hints_from_fileobjs, PartialRecordsHints
 )
 from mock import MagicMock, patch
+from typing import List, IO
 import unittest
 
 
@@ -17,7 +18,7 @@ class TestHints(unittest.TestCase):
                                        mock_csv) -> None:
         mock_fileobj = MagicMock(name='fileobj')
         mock_fileobj.closed = False
-        mock_fileobjs = [mock_fileobj]
+        mock_fileobjs: List[IO[bytes]] = [mock_fileobj]
         mock_initial_hints: PartialRecordsHints = {
             'field-delimiter': ','
         }

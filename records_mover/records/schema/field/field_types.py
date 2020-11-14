@@ -13,4 +13,4 @@ FieldType = Literal['integer',
                     'datetimetz']
 
 # Be sure to add new things below in FieldType, too
-RECORDS_FIELD_TYPES: List[str] = list(get_args(FieldType))  # type: ignore
+RECORDS_FIELD_TYPES: List[str] = list(get_args(FieldType))

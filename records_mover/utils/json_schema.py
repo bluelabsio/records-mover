@@ -21,7 +21,9 @@ PythonType = Any
 
 def is_iterable_type(python_type: PythonType) -> bool:
     return get_origin(python_type) in [
-        collections.abc.Iterable,
+        # mypy reports error: Module has no attribute "abc", which is not true:
+        # https://docs.python.org/3/library/collections.abc.html
+        collections.abc.Iterable,  # type: ignore
         typing.Iterable,
         typing.List,
         list
