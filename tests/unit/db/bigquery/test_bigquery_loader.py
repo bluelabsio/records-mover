@@ -101,6 +101,57 @@ class TestBigQueryLoader(unittest.TestCase):
         self.assertEqual(out, mock_job.output_rows)
 
     @patch('records_mover.db.bigquery.loader.load_job_config')
+    @patch('records_mover.db.bigquery.loader.CopyOptimizer')
+    def test_load_non_gcs_scheme(self,
+                                 mock_CopyOptimizer,
+                                 mock_load_job_config):
+        mock_db = Mock(name='mock_db')
+        mock_url_resolver = MagicMock(name='mock_url_resolver')
+        mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
+        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        mock_schema = 'my_project.my_dataset'
+        mock_table = 'mytable'
+        mock_load_plan = Mock(name='mock_load_plan')
+        mock_load_plan.records_format = Mock(name='records_format', spec=DelimitedRecordsFormat)
+        mock_target_records_format = mock_load_plan.records_format
+        mock_target_records_format.format_type = 'delimited'
+        mock_target_records_format.hints = {}
+        mock_directory = Mock(name='mock_directory')
+        mock_directory.scheme = 'something-else'
+        mock_url = Mock(name='mock_url')
+        mock_directory.manifest_entry_urls.return_value = [mock_url]
+
+        mock_copy_optimizer = mock_CopyOptimizer.return_value
+        mock_temp_gcs_loc = mock_gcs_temp_base_loc.temporary_directory.\
+            return_value.__enter__.return_value
+        mock_optimized_temp_gcs_loc =\
+            mock_copy_optimizer.optimize_temp_second_location.return_value.__enter__.return_value
+        mock_gcs_directory = mock_directory.copy_to.return_value
+        mock_gcs_directory.scheme = 'gs'
+        mock_gcs_directory_urls = mock_gcs_directory.manifest_entry_urls.return_value
+
+        mock_connection = mock_db.engine.raw_connection.return_value.connection
+        mock_client = mock_connection._client
+        mock_job = mock_client.load_table_from_uri.return_value
+        mock_job.output_rows = 42
+        out = big_query_loader.load(schema=mock_schema, table=mock_table,
+                                    load_plan=mock_load_plan,
+                                    directory=mock_directory)
+        mock_client.load_table_from_uri.\
+            assert_called_with(mock_gcs_directory_urls,
+                               'my_project.my_dataset.mytable',
+                               location="US",
+                               job_config=mock_load_job_config.return_value)
+        mock_job.result.assert_called_with()
+
+        self.assertEqual(out, mock_job.output_rows)
+
+        mock_copy_optimizer.optimize_temp_second_location.assert_called_with(mock_directory.loc,
+                                                                             mock_temp_gcs_loc)
+        mock_directory.copy_to.assert_called_with(mock_optimized_temp_gcs_loc)
+
+    @patch('records_mover.db.bigquery.loader.load_job_config')
     @patch('records_mover.db.bigquery.loader.ProcessingInstructions')
     @patch('records_mover.db.bigquery.loader.RecordsLoadPlan')
     def test_can_load_this_format_true(self,
@@ -161,6 +212,44 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_job.result.assert_called_with()
 
         self.assertEqual(out, mock_job.output_rows)
+
+    @patch('records_mover.db.bigquery.loader.load_job_config')
+    def test_load_from_fileobj_exception(self, mock_load_job_config):
+        mock_db = Mock(name='mock_db')
+        mock_url_resolver = MagicMock(name='mock_url_resolver')
+        mock_gcs_temp_base_loc = None
+        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        mock_schema = 'my_project.my_dataset'
+        mock_table = 'mytable'
+        mock_load_plan = Mock(name='mock_load_plan')
+        mock_load_plan.records_format = Mock(name='records_format', spec=DelimitedRecordsFormat)
+        mock_target_records_format = mock_load_plan.records_format
+        mock_target_records_format.format_type = 'delimited'
+        mock_target_records_format.hints = {}
+        mock_directory = Mock(name='mock_directory')
+        mock_directory.scheme = 'gs'
+        mock_url = Mock(name='mock_url')
+        mock_directory.manifest_entry_urls.return_value = [mock_url]
+
+        mock_connection = mock_db.engine.raw_connection.return_value.connection
+        mock_client = mock_connection._client
+        mock_job = mock_client.load_table_from_file.return_value
+        mock_job.errors = ['err1']
+        mock_exception = Exception()
+        mock_job.result.side_effect = mock_exception
+        mock_fileobj = MagicMock(name='fileobj')
+        with self.assertRaises(Exception):
+            big_query_loader.load_from_fileobj(schema=mock_schema,
+                                               table=mock_table,
+                                               load_plan=mock_load_plan,
+                                               fileobj=mock_fileobj)
+        mock_client.load_table_from_file.\
+            assert_called_with(mock_fileobj,
+                               'my_project.my_dataset.mytable',
+                               location="US",
+                               job_config=mock_load_job_config.return_value)
+        mock_job.result.assert_called_with()
 
     @patch('records_mover.db.bigquery.loader.load_job_config')
     @patch('records_mover.db.bigquery.loader.ProcessingInstructions')
