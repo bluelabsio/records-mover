@@ -54,8 +54,7 @@ class DoMoveFromTempLocAfterFillingIt(BaseTableMoveAlgorithm):
                 move_to_records_directory(records_directory=directory,
                                           records_format=records_format,
                                           processing_instructions=pis)
-            pis = self.processing_instructions
             out = self.table_target.\
                 move_from_records_directory(directory=directory,
-                                            processing_instructions=pis)
+                                            processing_instructions=self.processing_instructions)
             return out
