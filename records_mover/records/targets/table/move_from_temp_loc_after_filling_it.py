@@ -38,14 +38,8 @@ class DoMoveFromTempLocAfterFillingIt(BaseTableMoveAlgorithm):
 
     @contextmanager
     def temporary_directory_locs(self) -> Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
-        # If we are unloading from a table and loading from a
-        # table, let's make sure we pick the optimal unload
-        # and load buckets (and ideally ensure they are one
-        # and the same)
-
-        #
-        # Optimize where we load from and to
-        #
+        # If we are unloading from a table and loading from a table,
+        # let's make sure we pick the optimal unload and load URLs
         if isinstance(self.records_source, TableRecordsSource):
             with self.records_source.temporary_unloadable_directory_loc() as temp_unloadable_loc,\
                     self.temporary_loadable_directory_loc() as temp_loadable_loc:
