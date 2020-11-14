@@ -18,6 +18,9 @@ logger = logging.getLogger(__name__)
 
 class GcpDataTransferService:
     def _min_bytes_to_use(self) -> int:
+        # Number of bytes in an S3 bucket before we break out GCP Data
+        # Transfer Service, which does come with some spin-up time
+        # that seems independent of bucket size.
         metric_megabyte = 1_000_000
         default_threshold = 500*metric_megabyte
         config_result = get_config('records_mover', 'bluelabs')
@@ -34,7 +37,8 @@ class GcpDataTransferService:
         To perform this, we need the key on the S3 side to match the
         blob on the GCS side, as Google Cloud Platform Data Transfer
         Service does not allow the destination on the GCS side to vary
-        as of 2020-11.
+        as of 2020-11.  Be sure to call optimize_temp_locations() or
+        optimize_temp_second_location() beforehand.
 
         We also need to be using non-temporary AWS credentials; Google
         Cloud Platform Data Transfer Service doesn't accept an AWS
@@ -42,7 +46,6 @@ class GcpDataTransferService:
 
         :return: True if the copy was performed, or False if no
         optimized means were possible.
-
         """
         import googleapiclient
 
@@ -175,11 +178,14 @@ class GcpDataTransferService:
             time.sleep(10)
         logger.info("Google Cloud Platform Data Transfer Service job complete.")
 
-    def try_swapping_bucket_path(self,
-                                 target_bucket: Union['GCSDirectoryUrl', 'S3DirectoryUrl'],
-                                 bucket_to_steal_path_from: Union['GCSDirectoryUrl',
-                                                                  'S3DirectoryUrl']) ->\
+    def _try_swapping_bucket_path(self,
+                                  target_bucket: Union['GCSDirectoryUrl', 'S3DirectoryUrl'],
+                                  bucket_to_steal_path_from: Union['GCSDirectoryUrl',
+                                                                   'S3DirectoryUrl']) ->\
             Optional[Union['GCSDirectoryUrl', 'S3DirectoryUrl']]:
+        # Take the path from bucket_to_steal_path_from, apply it to
+        # the bucket in target_bucket, and try a small test write to
+        # see if we can use that space as a temporary directory.
         optimized_directory =\
             target_bucket.directory_in_this_bucket(bucket_to_steal_path_from.key)
         if not optimized_directory.empty():
@@ -197,26 +203,22 @@ class GcpDataTransferService:
                                 temp_first_loc: 'S3DirectoryUrl',
                                 temp_second_loc: 'GCSDirectoryUrl') ->\
             Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
-        # GCP data transfer is great, but has the limitations:
-        #
-        # 1) It only works from GCS -> GCS or S3 -> GCS - like the
-        # roach motel, you can check in but you can't check out.
-        #
-        # 2) You can't specify a different destination location
-        # directory in the GCS bucket than in your source bucket
+        # With GCP, you can't specify a different destination location
+        # directory in the GCS bucket than in your source bucket.
         #
         # So let's make sure that if at all possible, we use the same
-        # directory.
-        optimized_temp_first_loc = self.try_swapping_bucket_path(temp_first_loc,
-                                                                 temp_second_loc)
+        # directory in the S3 and GCS bucket, by trying the path from
+        # each on the other.
+        optimized_temp_first_loc = self._try_swapping_bucket_path(temp_first_loc,
+                                                                  temp_second_loc)
         if optimized_temp_first_loc is not None:
             try:
                 yield (optimized_temp_first_loc, temp_second_loc)
                 return
             finally:
                 optimized_temp_first_loc.purge_directory()
-        optimized_temp_second_loc = self.try_swapping_bucket_path(temp_second_loc,
-                                                                  temp_first_loc)
+        optimized_temp_second_loc = self._try_swapping_bucket_path(temp_second_loc,
+                                                                   temp_first_loc)
         if optimized_temp_second_loc is not None:
             try:
                 yield (temp_first_loc, optimized_temp_second_loc)
@@ -235,8 +237,8 @@ class GcpDataTransferService:
             Iterator[BaseDirectoryUrl]:
         # Same as optimize_temp_locations, but this assumes the first
         # location is fixed but the second one can be adjusted.
-        optimized_temp_second_loc = self.try_swapping_bucket_path(temp_second_loc,
-                                                                  permanent_first_loc)
+        optimized_temp_second_loc = self._try_swapping_bucket_path(temp_second_loc,
+                                                                   permanent_first_loc)
         if optimized_temp_second_loc is not None:
             try:
                 yield optimized_temp_second_loc
