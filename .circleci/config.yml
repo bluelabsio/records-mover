@@ -43,7 +43,7 @@ commands:
               #   Using legacy 'setup.py install' for Flask-JWT-Extended, since package 'wheel' is not installed.
               #
               # afterwards, it is merely pretty slow!
-              pip install --upgrade wheel
+              # pip install --upgrade wheel  # TODO see if this is still needed
               if [ '<<parameters.include_dev_dependencies>>' == 'true' ]
               then
                 pip install --progress-bar=off -r requirements.txt
