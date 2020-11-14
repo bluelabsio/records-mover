@@ -78,8 +78,7 @@ class LoaderFromFileobj(LoaderFromRecordsDirectory, metaclass=ABCMeta):
     @abstractmethod
     def load_from_fileobj(self, schema: str, table: str,
                           load_plan: RecordsLoadPlan, fileobj: IO[bytes]) -> Optional[int]:
-        """Loads the data from the file stream provided.
-        """
+        """Loads the data from the file stream provided and append to the existing table."""
         ...
 
     def load_from_records_directory_via_fileobj(self,
