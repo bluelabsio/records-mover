@@ -1,9 +1,6 @@
 
-from contextlib import contextmanager
-from records_mover.url.base import BaseDirectoryUrl
 import logging
-from .gcp_data_transfer_service import GcpDataTransferService
-from typing import Iterator, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from records_mover.url.s3.s3_directory_url import S3DirectoryUrl
     from records_mover.url.filesystem import FilesystemDirectoryUrl
