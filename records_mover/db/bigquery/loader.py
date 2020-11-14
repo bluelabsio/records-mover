@@ -38,7 +38,6 @@ class BigQueryLoader(LoaderFromFileobj):
     @contextmanager
     def temporary_gcs_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         if self.gcs_temp_base_loc is None:
-            # TODO: Can this yield None succesfully?  Would make logic more typesafe.
             raise NoTemporaryBucketConfiguration('Please provide a scratch GCS URL in your config '
                                                  '(e.g., set SCRATCH_GCS_URL to a gs:// URL)')
         else:
