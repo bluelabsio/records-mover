@@ -197,7 +197,6 @@ class GcpDataTransferService:
                                 temp_first_loc: 'S3DirectoryUrl',
                                 temp_second_loc: 'GCSDirectoryUrl') ->\
             Iterator[Tuple[BaseDirectoryUrl, BaseDirectoryUrl]]:
-        #
         # GCP data transfer is great, but has the limitations:
         #
         # 1) It only works from GCS -> GCS or S3 -> GCS - like the
@@ -211,15 +210,19 @@ class GcpDataTransferService:
         optimized_temp_first_loc = self.try_swapping_bucket_path(temp_first_loc,
                                                                  temp_second_loc)
         if optimized_temp_first_loc is not None:
-            # TODO: Delete after
-            yield (optimized_temp_first_loc, temp_second_loc)
-            return
+            try:
+                yield (optimized_temp_first_loc, temp_second_loc)
+                return
+            finally:
+                optimized_temp_first_loc.purge_directory()
         optimized_temp_second_loc = self.try_swapping_bucket_path(temp_second_loc,
                                                                   temp_first_loc)
         if optimized_temp_second_loc is not None:
-            # TODO: Delete after
-            yield (temp_first_loc, optimized_temp_second_loc)
-            return
+            try:
+                yield (temp_first_loc, optimized_temp_second_loc)
+                return
+            finally:
+                optimized_temp_second_loc.purge_directory()
         logger.warning("Could not match paths between source and destination buckets--"
                        "will not be able to use Google Cloud Platform Data Transfer Service for "
                        "cloud-based copy.")
@@ -230,22 +233,15 @@ class GcpDataTransferService:
                                       permanent_first_loc: 'S3DirectoryUrl',
                                       temp_second_loc: 'GCSDirectoryUrl') ->\
             Iterator[BaseDirectoryUrl]:
-        #
-        # GCP data transfer is great, but has the limitations:
-        #
-        # 1) It only works from GCS -> GCS or S3 -> GCS - like the
-        # roach motel, you can check in but you can't check out.
-        #
-        # 2) You can't specify a different destination location
-        # directory in the GCS bucket than in your source bucket
-        #
-        # So let's make sure that if at all possible, we use the same
-        # directory.
+        # Same as optimize_temp_locations, but this assumes the first
+        # location is fixed but the second one can be adjusted.
         optimized_temp_second_loc = self.try_swapping_bucket_path(temp_second_loc,
                                                                   permanent_first_loc)
         if optimized_temp_second_loc is not None:
-            # TODO: Delete after
-            yield optimized_temp_second_loc
+            try:
+                yield optimized_temp_second_loc
+            finally:
+                optimized_temp_second_loc.purge_directory()
             return
         logger.warning("Could not match paths between source and destination buckets--"
                        "will not be able to use Google Cloud Platform Data Transfer Service for "
