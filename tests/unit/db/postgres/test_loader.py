@@ -179,7 +179,7 @@ class TestPostgresLoader(unittest.TestCase):
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
         mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_ORDER_STYLE')
         mock_conn.execute.assert_called_with('SET LOCAL DateStyle = ABC')
-        mock_copy_from.assert_called_with(mock_ConcatFiles.return_value,
+        mock_copy_from.assert_called_with(mock_loc.open.return_value.__enter__.return_value,
                                           mock_table_obj,
                                           mock_conn,
                                           abc=123)
