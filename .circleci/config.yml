@@ -416,7 +416,7 @@ workflows:
           python_version: "3.8"
           pandas_version: ">=1"
           requires:
-            - redshift-itest
+            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
