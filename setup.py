@@ -138,11 +138,13 @@ airflow_dependencies = [
 ]
 
 db_dependencies = [
-    # sqlalchemy 1.3.16 seems to have (accidentally?) introduced
-    # a breaking change that affects sqlalchemy-redshift:
+    # Without this, pip 2.20.4 with "--use-feature=2020-resolver" will
+    # try to install every version of SQLAlchemy while trying to solve a
+    # dependency conflict.
     #
-    # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
-    'sqlalchemy!=1.3.16,!=1.3.17',
+    # Also, pipgrip takes somewhere between much longer and forever to
+    # provide its output without this line.
+    'sqlalchemy>=1.3.18',
 ]
 
 smart_open_dependencies = [
