@@ -220,7 +220,7 @@ file referenced above:
 
 ```ini
 [session]
-session_type = "lpass"
+session_type = lpass
 ```
 
 ### Airflow connections (Python via Airflow)
