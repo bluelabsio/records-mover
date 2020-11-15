@@ -138,14 +138,30 @@ airflow_dependencies = [
 ]
 
 db_dependencies = [
-    # sqlalchemy 1.3.16 seems to have (accidentally?) introduced
-    # a breaking change that affects sqlalchemy-redshift:
+    # Without this, pip 2.20.4 with "--use-feature=2020-resolver" will
+    # try to install every version of SQLAlchemy while trying to solve a
+    # dependency conflict.
     #
-    # https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/issues/195
-    'sqlalchemy!=1.3.16,!=1.3.17',
+    # Also, pipgrip (used to make Python formulas in Homebrew) takes
+    # somewhere between much longer and forever to provide its output
+    # without this line.
+    'sqlalchemy>=1.3.18',
 ]
 
 smart_open_dependencies = [
+    # smart_open requires rsa>=3.1.4, which causes pip 20.2.4 in
+    # default mode to install rsa 4.6.
+    #
+    # That then results in this error from pip at install-time:
+    #
+    # awscli 1.18.178 requires rsa<=4.5.0,>=3.1.2; python_version !=
+    # "3.4", but you'll have rsa 4.6 which is incompatible.
+    #
+    # Also, pipgrip (used to make Python formulas in Homebrew) takes
+    # somewhere between much longer and forever to provide its output
+    # without this line.
+    #
+    'rsa>=3.1.4,<=4.5.0',
     # we rely on exception types from smart_open,
     # which seem to change in feature releases
     # without a major version bump
