@@ -94,7 +94,7 @@ class RedshiftUnloader(Unloader):
                 logger.info(f"Just unloaded {rows} rows")
                 out.close()
             except sqlalchemy.exc.DatabaseError as e:
-                if 'Operation timed out' in str(e):
+                if 'SSL SYSCALL error: Operation timed out' in str(e):
                     # Large database UNLOADs can take hours, and it's
                     # likely the connection between the client and
                     # server will get disconnected.  In this
