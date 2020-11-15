@@ -142,8 +142,9 @@ db_dependencies = [
     # try to install every version of SQLAlchemy while trying to solve a
     # dependency conflict.
     #
-    # Also, pipgrip takes somewhere between much longer and forever to
-    # provide its output without this line.
+    # Also, pipgrip (used to make Python formulas in Homebrew) takes
+    # somewhere between much longer and forever to provide its output
+    # without this line.
     'sqlalchemy>=1.3.18',
 ]
 
@@ -153,7 +154,13 @@ smart_open_dependencies = [
     #
     # That then results in this error from pip at install-time:
     #
-    # awscli 1.18.178 requires rsa<=4.5.0,>=3.1.2; python_version != "3.4", but you'll have rsa 4.6 which is incompatible.
+    # awscli 1.18.178 requires rsa<=4.5.0,>=3.1.2; python_version !=
+    # "3.4", but you'll have rsa 4.6 which is incompatible.
+    #
+    # Also, pipgrip (used to make Python formulas in Homebrew) takes
+    # somewhere between much longer and forever to provide its output
+    # without this line.
+    #
     'rsa>=3.1.4,<=4.5.0',
     # we rely on exception types from smart_open,
     # which seem to change in feature releases
