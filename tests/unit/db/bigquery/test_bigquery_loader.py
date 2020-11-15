@@ -163,12 +163,56 @@ class TestBigQueryLoader(unittest.TestCase):
         self.assertEqual(out, mock_job.output_rows)
 
     @patch('records_mover.db.bigquery.loader.load_job_config')
+    def test_load_with_fileobj_fallback(self, mock_load_job_config):
+        mock_db = Mock(name='mock_db')
+        mock_url_resolver = MagicMock(name='mock_url_resolver')
+        mock_gcs_temp_base_loc = None
+        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        mock_schema = 'my_project.my_dataset'
+        mock_table = 'mytable'
+        mock_load_plan = Mock(name='mock_load_plan')
+        mock_load_plan.records_format = Mock(name='records_format', spec=DelimitedRecordsFormat)
+        mock_target_records_format = mock_load_plan.records_format
+        mock_target_records_format.format_type = 'delimited'
+        mock_target_records_format.hints = {}
+        mock_directory = Mock(name='mock_directory')
+        mock_directory.scheme = 'gs'
+        mock_url = Mock(name='mock_url')
+        mock_directory.manifest_entry_urls.return_value = [mock_url]
+
+        mock_connection = mock_db.engine.raw_connection.return_value.connection
+        mock_client = mock_connection._client
+        mock_job = mock_client.load_table_from_file.return_value
+        mock_job.output_rows = 42
+
+        mock_directory = Mock(name='directory')
+        mock_directory.scheme = 's3'
+        mock_file_url = MagicMock(name='file_url')
+        mock_directory.manifest_entry_urls.return_value = [mock_file_url]
+        mock_file_loc = mock_url_resolver.file_url.return_value
+        mock_fileobj = mock_file_loc.open.return_value.__enter__.return_value
+
+        out = big_query_loader.load(schema=mock_schema,
+                                    table=mock_table,
+                                    load_plan=mock_load_plan,
+                                    directory=mock_directory)
+        mock_client.load_table_from_file.\
+            assert_called_with(mock_fileobj,
+                               'my_project.my_dataset.mytable',
+                               location="US",
+                               job_config=mock_load_job_config.return_value)
+        mock_job.result.assert_called_with()
+
+        self.assertEqual(out, mock_job.output_rows)
+
+    @patch('records_mover.db.bigquery.loader.load_job_config')
     @patch('records_mover.db.bigquery.loader.ProcessingInstructions')
     @patch('records_mover.db.bigquery.loader.RecordsLoadPlan')
-    def test_can_load_this_format_false_parquet(self,
-                                                mock_RecordsLoadPlan,
-                                                mock_ProcessingInstructions,
-                                                mock_load_job_config):
+    def test_can_load_this_format_true_parquet(self,
+                                               mock_RecordsLoadPlan,
+                                               mock_ProcessingInstructions,
+                                               mock_load_job_config):
         mock_db = Mock(name='db')
         mock_source_records_format = Mock(name='source_records_format', spec=ParquetRecordsFormat)
         mock_source_records_format.format_type = 'delimited'
@@ -184,7 +228,7 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_RecordsLoadPlan.\
             assert_called_with(records_format=mock_source_records_format,
                                processing_instructions=mock_processing_instructions)
-        self.assertEqual(False, out)
+        self.assertTrue(out)
 
     def test_known_supported_records_formats_for_load(self):
         mock_db = Mock(name='db')
@@ -245,3 +289,11 @@ class TestBigQueryLoader(unittest.TestCase):
         bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
         self.assertEqual('gs', bigquery_loader.temporary_loadable_directory_scheme())
+
+    def test_best_scheme_to_load_from(self):
+        mock_db = Mock(name='db')
+        mock_url_resolver = Mock(name='url_resolver')
+        mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
+        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        self.assertEqual('gs', bigquery_loader.best_scheme_to_load_from())

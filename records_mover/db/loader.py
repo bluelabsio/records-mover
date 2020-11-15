@@ -1,7 +1,5 @@
-from contextlib import ExitStack
 from ..url.resolver import UrlResolver
 from ..records.records_format import BaseRecordsFormat
-from ..utils.concat_files import ConcatFiles
 from ..records.load_plan import RecordsLoadPlan
 from ..records.records_directory import RecordsDirectory
 from ..url.filesystem import FilesystemDirectoryUrl
@@ -11,6 +9,10 @@ from tempfile import TemporaryDirectory
 from abc import ABCMeta, abstractmethod
 from typing import Optional, Type, Iterator, IO, List
 import sqlalchemy
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class LoaderFromRecordsDirectory(metaclass=ABCMeta):
@@ -76,25 +78,35 @@ class LoaderFromFileobj(LoaderFromRecordsDirectory, metaclass=ABCMeta):
     @abstractmethod
     def load_from_fileobj(self, schema: str, table: str,
                           load_plan: RecordsLoadPlan, fileobj: IO[bytes]) -> Optional[int]:
-        """Loads the data from the file stream provided.
-        """
+        """Loads the data from the file stream provided and append to the existing table."""
         ...
 
-    # Implement load() in terms of load_from_fileobj()
+    def load_from_records_directory_via_fileobj(self,
+                                                schema: str,
+                                                table: str,
+                                                load_plan: RecordsLoadPlan,
+                                                directory: RecordsDirectory) -> Optional[int]:
+        all_urls = directory.manifest_entry_urls()
+
+        total_rows = None
+        for url in all_urls:
+            loc = self.url_resolver.file_url(url)
+            with loc.open() as f:
+                logger.info(f"Loading {url} into {schema}.{table}...")
+                out = self.load_from_fileobj(schema, table, load_plan, f)
+                if out is not None:
+                    if total_rows is None:
+                        total_rows = 0
+                    total_rows += out
+        return total_rows
+
     def load(self,
              schema: str,
              table: str,
              load_plan: RecordsLoadPlan,
              directory: RecordsDirectory) -> Optional[int]:
-        all_urls = directory.manifest_entry_urls()
-
-        locs = [self.url_resolver.file_url(url) for url in all_urls]
-        fileobjs: List[IO[bytes]] = []
-        with ExitStack() as stack:
-            fileobjs = [stack.enter_context(loc.open()) for loc in locs]
-            concatted_fileobj: IO[bytes] = ConcatFiles(fileobjs)  # type: ignore
-            return self.load_from_fileobj(schema,
-                                          table,
-                                          load_plan,
-                                          concatted_fileobj)
-        return None  # make mypy happy
+        # Implement load() in terms of load_from_fileobj() by default
+        return self.load_from_records_directory_via_fileobj(schema=schema,
+                                                            table=table,
+                                                            load_plan=load_plan,
+                                                            directory=directory)

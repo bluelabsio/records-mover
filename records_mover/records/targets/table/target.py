@@ -89,6 +89,7 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         loader = driver.loader()
         if loader is None:
             # can't bulk load at all, so can't load direct!
+            logger.warning(f"No loader configured for this database type ({self.db_engine.name})")
             return False
         return loader.best_scheme_to_load_from() == scheme
 
@@ -96,6 +97,7 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         driver = self.db_driver(self.db_engine)
         loader = driver.loader()
         if loader is None:
+            logger.warning(f"No loader configured for this database type ({self.db_engine.name})")
             return []
         return loader.known_supported_records_formats_for_load()
 
@@ -106,6 +108,7 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         driver = self.db_driver(self.db_engine)
         loader = driver.loader()
         if loader is None:
+            logger.warning(f"No loader configured for this database type ({self.db_engine.name})")
             return False
         return loader.can_load_this_format(source_records_format)
 
@@ -115,6 +118,11 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         if loader is None:
             logger.warning(f"No loader configured for this database type ({self.db_engine.name})")
             return False
+        if self.can_move_from_fileobjs_source():
+            # Regardless we can certainly stream the data from wherever
+            # the source writes it
+            return True
+
         has_scratch_location = loader.has_temporary_loadable_directory_loc()
         if not has_scratch_location:
             logger.warning("Loader does not have a temporary loadable "
