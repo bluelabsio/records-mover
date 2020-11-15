@@ -28,7 +28,7 @@ class VerticaUnloader(Unloader):
         self.s3_temp_base_loc = s3_temp_base_loc
 
     @contextmanager
-    def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+    def temporary_unloadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
         if self.s3_temp_base_loc is None:
             raise NoTemporaryBucketConfiguration('Please provide a scratch S3 URL in your config '
                                                  '(e.g., set SCRATCH_S3_URL to an s3:// URL)')
@@ -54,7 +54,7 @@ class VerticaUnloader(Unloader):
             if directory.scheme == 's3':
                 return self.unload_to_s3_directory(schema, table, unload_plan, directory)
             else:
-                with self.temporary_loadable_directory_loc() as temp_s3_loc:
+                with self.temporary_unloadable_directory_loc() as temp_s3_loc:
                     s3_directory = RecordsDirectory(records_loc=temp_s3_loc)
                     out = self.unload_to_s3_directory(schema, table, unload_plan, s3_directory)
                     directory.copy_from(temp_s3_loc)

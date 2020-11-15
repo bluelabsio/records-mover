@@ -12,6 +12,7 @@ from sqlalchemy.engine import Engine
 from contextlib import contextmanager
 from ..schema import RecordsSchema
 from ...url.resolver import UrlResolver
+from records_mover.url.base import BaseDirectoryUrl
 import logging
 from typing import Iterator, List, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -127,6 +128,15 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         records_directory.finalize_manifest()
 
         return MoveResult(move_count=export_count, output_urls=None)
+
+    @contextmanager
+    def temporary_unloadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        """Yield a temporary directory that can be used to call move_to_records_directory() on."""
+        unloader = self.driver.unloader()
+        if unloader is None:
+            raise ValueError('This DBDriver does not support bulk unloading')
+        with unloader.temporary_unloadable_directory_loc() as temp_loc:
+            yield temp_loc
 
     def __str__(self) -> str:
         return f"{type(self).__name__}({self.driver.db_engine.name})"

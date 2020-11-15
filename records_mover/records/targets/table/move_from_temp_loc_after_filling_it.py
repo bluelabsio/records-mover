@@ -34,8 +34,13 @@ class DoMoveFromTempLocAfterFillingIt(BaseTableMoveAlgorithm):
         # which means we were able to get a loader and call
         # can_load_this_format() previously.
         assert loader is not None
-        with loader.temporary_loadable_directory_loc() as loc:
-            yield loc
+        if loader.has_temporary_loadable_directory_loc():
+            with loader.temporary_loadable_directory_loc() as loc:
+                yield loc
+        else:
+            # As a last resort, use the source's temporary directory
+            with self.records_source.temporary_unloadable_directory_loc() as loc:
+                yield loc
 
     def move(self) -> MoveResult:
         pis = self.processing_instructions
