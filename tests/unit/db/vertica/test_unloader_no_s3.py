@@ -7,12 +7,12 @@ from mock import Mock
 class TestVerticaUnloaderNoS3(unittest.TestCase):
     maxDiff = None
 
-    def test_temporary_loadable_directory_load_with_no_s3_temp_bucket_configured(self):
+    def test_temporary_unloadable_directory_load_with_no_s3_temp_bucket_configured(self):
         mock_db = Mock(name='db')
         mock_s3_temp_base_loc = None
         vertica_unloader = VerticaUnloader(db=mock_db, s3_temp_base_loc=mock_s3_temp_base_loc)
         with self.assertRaises(NoTemporaryBucketConfiguration):
-            with vertica_unloader.temporary_loadable_directory_loc():
+            with vertica_unloader.temporary_unloadable_directory_loc():
                 pass
 
     def test_can_unload_to_scheme_s3_but_no_s3_export_false(self):

@@ -2,7 +2,7 @@
 import inspect
 from typing import Any, Dict, List, Callable
 from records_mover import Session
-from ..records_format import DelimitedRecordsFormat
+from ..records_format import DelimitedRecordsFormat, ParquetRecordsFormat, BaseRecordsFormat
 from ..existing_table_handling import ExistingTableHandling
 from ..delimited import PartialRecordsHints
 from records_mover.records.delimited.types import HINT_NAMES
@@ -29,8 +29,13 @@ class ConfigToArgs:
 
     def add_hint_parameter(self, kwargs: Dict[str, Any], param_name: str) -> None:
         if 'records_format' in kwargs:
+            existing_records_format = kwargs['records_format']
+            if not isinstance(existing_records_format, DelimitedRecordsFormat):
+                raise NotImplementedError('Hints are not compatible '
+                                          'with records format '
+                                          f'{existing_records_format.format_type}')
             # records_format already defined by user - populate that
-            kwargs['records_format'] = kwargs['records_format'].\
+            kwargs['records_format'] = existing_records_format.\
                 alter_hints({param_name: kwargs[param_name]})
         elif 'initial_hints' in self.possible_args:
             if 'initial_hints' not in kwargs:
@@ -72,24 +77,43 @@ class ConfigToArgs:
     def fill_in_db_engine(self, kwargs: Dict[str, Any]) -> None:
         kwargs['db_engine'] = self.session.get_db_engine(kwargs['db_name'])
 
-    def fill_in_records_format(self, kwargs: Dict[str, Any]) -> None:
-        if kwargs['variant'] is not None:
-            if 'records_format' in kwargs:
-                # We've already started filling this out with hints -
-                # but now we know which variant they want
-                kwargs['records_format'] = kwargs['records_format'].alter_variant(kwargs['variant'])
-            else:
-                hints: PartialRecordsHints = {}
-                if 'initial_hints' in kwargs:
-                    # Given the user gave us a variant, we won't be
-                    # using "initial hints" to sniff with - the hint
-                    # parameters they gave us should be specified as
-                    # part of the records format instead.
-                    hints = kwargs['initial_hints']
-                    del kwargs['initial_hints']
-                kwargs['records_format'] = DelimitedRecordsFormat(variant=kwargs['variant'],
-                                                                  hints=hints)
-            del kwargs['variant']
+    def fill_in_format(self, kwargs: Dict[str, Any]) -> None:
+        records_format: BaseRecordsFormat
+        if kwargs['format'] == 'delimited':
+            records_format = DelimitedRecordsFormat()
+        elif kwargs['format'] == 'parquet':
+            records_format = ParquetRecordsFormat()
+        else:
+            raise NotImplementedError(f"No such records format type: {kwargs['format']}")
+
+        if 'records_format' in kwargs:
+            existing_records_format = kwargs['records_format']
+            if type(records_format) != type(existing_records_format):
+                raise NotImplementedError('Hints are not compatible '
+                                          'with records format '
+                                          f'{existing_records_format.format_type}')
+        else:
+            kwargs['records_format'] = records_format
+
+        del kwargs['format']
+
+    def fill_in_variant(self, kwargs: Dict[str, Any]) -> None:
+        if 'records_format' in kwargs:
+            # We've already started filling this out with hints -
+            # but now we know which variant they want
+            kwargs['records_format'] = kwargs['records_format'].alter_variant(kwargs['variant'])
+        else:
+            hints: PartialRecordsHints = {}
+            if 'initial_hints' in kwargs:
+                # Given the user gave us a variant, we won't be
+                # using "initial hints" to sniff with - the hint
+                # parameters they gave us should be specified as
+                # part of the records format instead.
+                hints = kwargs['initial_hints']
+                del kwargs['initial_hints']
+            kwargs['records_format'] = DelimitedRecordsFormat(variant=kwargs['variant'],
+                                                              hints=hints)
+        del kwargs['variant']
 
     def to_args(self) -> Dict[str, Any]:
         kwargs = {}
@@ -126,7 +150,9 @@ class ConfigToArgs:
             if arg == 'existing_table':
                 self.fill_in_existing_table_handling(kwargs)
             elif arg == 'variant':
-                self.fill_in_records_format(kwargs)
+                self.fill_in_variant(kwargs)
+            elif arg == 'format':
+                self.fill_in_format(kwargs)
             elif arg in HINT_NAMES:
                 self.add_hint_parameter(kwargs, arg)
             else:

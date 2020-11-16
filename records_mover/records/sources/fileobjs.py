@@ -1,3 +1,4 @@
+from tempfile import TemporaryDirectory
 from contextlib import contextmanager
 from .base import (SupportsMoveToRecordsDirectory,
                    SupportsToDataframesSource)
@@ -12,6 +13,8 @@ from ..processing_instructions import ProcessingInstructions
 from ...records.delimited import complain_on_unhandled_hints
 from ..delimited import python_encoding_from_hint
 from ..schema import RecordsSchema
+from records_mover.url.filesystem import FilesystemDirectoryUrl
+from records_mover.url.base import BaseDirectoryUrl
 import logging
 from typing import Mapping, IO, Optional, Iterator, List, Any, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -105,6 +108,12 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
             for url in url_details
         }
         return MoveResult(output_urls=output_urls, move_count=None)
+
+    @contextmanager
+    def temporary_unloadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
+        """Yield a temporary directory that can be used to call move_to_records_directory() on."""
+        with TemporaryDirectory(prefix='temporary_unloadable_directory_loc') as dirname:
+            yield FilesystemDirectoryUrl(dirname)
 
     @contextmanager
     def to_dataframes_source(self,

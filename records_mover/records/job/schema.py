@@ -17,7 +17,19 @@ def method_to_json_schema(method: Callable[..., Any]) -> JsonSchema:
     special_handling: Dict[str, List[JsonParameter]] = {
         'google_cloud_creds': [JsonParameter('gcp_creds_name', JsonSchemaDocument('string'))],
         'db_engine': [JsonParameter('db_name', JsonSchemaDocument('string'))],
-        'records_format': ([JsonParameter('variant', JsonSchemaDocument('string'), optional=True)] +
+        'records_format': ([JsonParameter('variant',
+                                          JsonSchemaDocument('string',
+                                                             description="Records format variant - "
+                                                             "valid for 'delimited' "
+                                                             "records format type"),
+                                          optional=True),
+                            JsonParameter('format',
+                                          JsonSchemaDocument('string',
+                                                             enum=['parquet', 'delimited'],
+                                                             description="Records format type.  "
+                                                             "Note that 'delimited' includes "
+                                                             "CSV/TSV/etc."),
+                                          optional=True,)] +
                            HINT_PARAMETERS),
         'initial_hints': HINT_PARAMETERS,
         'existing_table_handling':
