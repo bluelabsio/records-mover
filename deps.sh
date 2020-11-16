@@ -7,7 +7,7 @@ export SLUGIFY_USES_TEXT_UNIDECODE=yes
 brew update && ( brew upgrade pyenv || true )
 pyenv rehash  # needed if pyenv is updated
 
-python_version=3.8.5
+python_version=3.9.0
 # zipimport.ZipImportError: can't decompress data; zlib not available:
 #    You may need `xcode-select --install` on OS X
 #    https://github.com/pyenv/pyenv/issues/451#issuecomment-151336786

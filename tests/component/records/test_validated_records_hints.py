@@ -6,7 +6,7 @@ import unittest
 
 class TestValidatedRecordsHints(unittest.TestCase):
     def test_valid(self):
-        variants = list(get_args(DelimitedVariant))  # type: ignore
+        variants = list(get_args(DelimitedVariant))
         for variant in variants:
             records_format = DelimitedRecordsFormat(variant=variant)
             records_format.validate(fail_if_cant_handle_hint=True)

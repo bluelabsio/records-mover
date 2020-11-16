@@ -57,7 +57,7 @@ HintName = Literal["header-row",
                    "datetimeformattz",
                    "datetimeformat"]
 
-HINT_NAMES: List[HintName] = list(get_args(HintName))  # type: ignore
+HINT_NAMES: List[HintName] = list(get_args(HintName))
 
 PartialRecordsHints = TypedDict('PartialRecordsHints',
                                 {

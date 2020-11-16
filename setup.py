@@ -257,7 +257,7 @@ literally_every_single_database_binary_dependencies = (
 )
 
 typecheck_dependencies = [
-    'mypy==0.770',
+    'mypy==0.790',
     'lxml',  # needed by mypy HTML coverage reporting
     'sqlalchemy-stubs>=0.3',
 ]

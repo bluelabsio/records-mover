@@ -24,7 +24,7 @@ commands:
         description: "Version of pandas to test against, or empty string for none"
     steps:
       - restore_cache:
-          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v2-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           command: |
@@ -50,7 +50,7 @@ commands:
               fi
             fi
       - save_cache:
-          key: deps-v1-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v2-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
   wait_for_db:
@@ -408,6 +408,16 @@ workflows:
           extras: '[unittest,typecheck]'
           python_version: "3.8"
           pandas_version: ">=1"
+          requires:
+            - redshift-s3-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.9
+          extras: '[unittest,typecheck]'
+          python_version: "3.9"
+          pandas_version: ">=1"
           coverage: true
           filters:
             tags:
@@ -542,7 +552,7 @@ workflows:
           python_version: "3.6"
           db_name: demo-itest
           requires:
-            - test-3.8
+            - test-3.9
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -627,6 +637,7 @@ workflows:
             - test-3.6
             - test-3.7
             - test-3.8
+            - test-3.9
             - cli-extra-test
             - tbl2tbl-itest
             - bigquery-no-gcs-itest
