@@ -1,9 +1,12 @@
+from records_mover.mover_types import _ensure_all_cases_covered
+from records_mover.records.records_types import RecordsFormatType
 from .records_format import (
     BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
 )
 from ..url.base import BaseDirectoryUrl, BaseFileUrl
 from .processing_instructions import ProcessingInstructions
 from .delimited import PartialRecordsHints
+from typing import cast
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,6 +23,9 @@ class RecordsFormatFile:
             raise TypeError(f"_format file not found in bucket under {prefix}*")
         format_loc = matching_locs[0]
         format_type = format_loc.filename()[len(prefix):]
+        # cast so we can ensure at build-time we have covered all
+        # cases below
+        format_type = cast(RecordsFormatType, format_type)
         if format_type == 'delimited':
             return self.load_delimited_format(format_loc, fail_if_dont_understand)
         elif format_type == 'parquet':
@@ -27,6 +33,7 @@ class RecordsFormatFile:
         elif format_type == 'avro':
             return AvroRecordsFormat()
         else:
+            _ensure_all_cases_covered(format_type)
             raise TypeError(f"Format type {format_type} not yet supported in this library")
 
     def load_delimited_format(self, format_loc: BaseFileUrl,

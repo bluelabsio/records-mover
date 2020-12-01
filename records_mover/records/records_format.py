@@ -1,4 +1,5 @@
 import logging
+from records_mover.mover_types import _ensure_all_cases_covered
 from .processing_instructions import ProcessingInstructions
 from . import PartialRecordsHints, UntypedRecordsHints
 from .base_records_format import BaseRecordsFormat
@@ -239,5 +240,8 @@ def RecordsFormat(format_type: 'RecordsFormatType' = 'delimited',
                                       processing_instructions=processing_instructions)
     elif format_type == 'parquet':
         return ParquetRecordsFormat()
+    elif format_type == 'avro':
+        return AvroRecordsFormat()
     else:
+        _ensure_all_cases_covered(format_type)
         raise NotImplementedError(f'Teach me to handle format type {format_type}')
