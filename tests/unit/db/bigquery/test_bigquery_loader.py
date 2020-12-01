@@ -2,8 +2,7 @@ import unittest
 
 from records_mover.db.bigquery.loader import BigQueryLoader
 from records_mover.records.records_format import (
-    DelimitedRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat,
-    BaseRecordsFormat
+    DelimitedRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
 )
 from records_mover.db.errors import NoTemporaryBucketConfiguration
 from mock import MagicMock, Mock
@@ -103,7 +102,6 @@ class TestBigQueryLoader(unittest.TestCase):
 
         self.assertEqual(out, mock_job.output_rows)
 
-
     @patch('records_mover.db.bigquery.loader.load_job_config')
     def test_load_from_fileobj_true(self, mock_load_job_config):
         mock_db = Mock(name='mock_db')
@@ -189,12 +187,14 @@ class TestBigQueryLoader(unittest.TestCase):
         bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
                                          gcs_temp_base_loc=None)
         out = bigquery_loader.known_supported_records_formats_for_load()
-        self.assertEqual(2, len(out))
+        self.assertEqual(3, len(out))
         delimited_records_format = out[0]
         self.assertEqual(type(delimited_records_format), DelimitedRecordsFormat)
         self.assertEqual('bigquery', delimited_records_format.variant)
         parquet_records_format = out[1]
         self.assertEqual(type(parquet_records_format), ParquetRecordsFormat)
+        avro_records_format = out[2]
+        self.assertEqual(type(avro_records_format), AvroRecordsFormat)
 
     def test_temporary_gcs_directory_loc_none(self):
         mock_db = Mock(name='db')

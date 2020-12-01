@@ -176,4 +176,6 @@ class BigQueryLoader(LoaderFromFileobj):
             return False
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
-        return [DelimitedRecordsFormat(variant='bigquery'), ParquetRecordsFormat()]
+        return [DelimitedRecordsFormat(variant='bigquery'),
+                ParquetRecordsFormat(),
+                AvroRecordsFormat()]
