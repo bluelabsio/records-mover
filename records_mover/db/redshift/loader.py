@@ -3,7 +3,7 @@ from sqlalchemy_redshift.commands import CopyCommand
 from records_mover.logging import register_secret
 from ..loader import LoaderFromRecordsDirectory
 from ...records.records_directory import RecordsDirectory
-from ...records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
+from ...records.records_format import BaseRecordsFormat, DelimitedRecordsFormat, AvroRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 import sqlalchemy
 from sqlalchemy.schema import Table
@@ -43,9 +43,6 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
              table: str,
              load_plan: RecordsLoadPlan,
              directory: RecordsDirectory) -> Optional[int]:
-        if not isinstance(load_plan.records_format, DelimitedRecordsFormat):
-            raise NotImplementedError('Teach me how to load '
-                                      f'{load_plan.records_format.format_type} format')
 
         if directory.scheme != 's3':
             with self.temporary_s3_directory_loc() as temp_s3_loc:
@@ -56,18 +53,19 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
                                  directory=s3_directory)
 
         to = Table(table, self.meta, schema=schema)  # no autoload
-        unhandled_hints = set(load_plan.records_format.hints.keys())
+        unhandled_hints = set()
+        if isinstance(load_plan.records_format, DelimitedRecordsFormat):
+            unhandled_hints = set(load_plan.records_format.hints.keys())
         processing_instructions = load_plan.processing_instructions
-        validated_hints = load_plan.records_format.\
-            validate(fail_if_cant_handle_hint=processing_instructions.fail_if_cant_handle_hint)
         redshift_options = redshift_copy_options(unhandled_hints,
-                                                 validated_hints,
+                                                 load_plan.records_format,
                                                  processing_instructions.fail_if_cant_handle_hint,
                                                  processing_instructions.fail_if_row_invalid,
                                                  processing_instructions.max_failure_rows)
         logger.info(f"Copying to Redshift with options: {redshift_options}")
-        complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
-                                    unhandled_hints, load_plan.records_format.hints)
+        if isinstance(load_plan.records_format, DelimitedRecordsFormat):
+            complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
+                                        unhandled_hints, load_plan.records_format.hints)
         # http://sqlalchemy-redshift.readthedocs.io/en/latest/commands.html
         loc = directory.loc
         if not callable(getattr(loc, 'aws_creds', None)):
@@ -114,19 +112,20 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
             processing_instructions = ProcessingInstructions()
             load_plan = RecordsLoadPlan(records_format=source_records_format,
                                         processing_instructions=processing_instructions)
-            if not isinstance(load_plan.records_format, DelimitedRecordsFormat):
-                return False
-            unhandled_hints = set(load_plan.records_format.hints.keys())
+            unhandled_hints = set()
+            records_format = load_plan.records_format
+            if isinstance(records_format, DelimitedRecordsFormat):
+                unhandled_hints = set(records_format.hints.keys())
             processing_instructions = load_plan.processing_instructions
-            hints = load_plan.records_format.\
-                validate(fail_if_cant_handle_hint=processing_instructions.fail_if_cant_handle_hint)
             redshift_copy_options(unhandled_hints,
-                                  hints,
+                                  records_format,
                                   processing_instructions.fail_if_cant_handle_hint,
                                   processing_instructions.fail_if_row_invalid,
                                   processing_instructions.max_failure_rows)
-            complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
-                                        unhandled_hints, load_plan.records_format.hints)
+            if isinstance(records_format, DelimitedRecordsFormat):
+                complain_on_unhandled_hints(processing_instructions.fail_if_dont_understand,
+                                            unhandled_hints,
+                                            records_format.hints)
             return True
         except NotImplementedError:
             return False
@@ -158,6 +157,7 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
             }),
             # Supports newlines in strings, but not empty strings.
             DelimitedRecordsFormat(variant='bluelabs'),
+            AvroRecordsFormat(),
         ]
 
     def best_scheme_to_load_from(self) -> str:
