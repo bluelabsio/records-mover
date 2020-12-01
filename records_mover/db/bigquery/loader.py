@@ -87,8 +87,6 @@ class BigQueryLoader(LoaderFromFileobj):
         # https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.client.Client.html#google.cloud.bigquery.client.Client.load_table_from_file
         job = client.load_table_from_file(fileobj,
                                           f"{schema}.{table}",
-                                          # Must match the destination dataset location.
-                                          location="US",
                                           job_config=job_config)
 
         try:

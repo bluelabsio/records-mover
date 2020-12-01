@@ -100,13 +100,8 @@ class BigQueryUnloader(Unloader):
         job = client.extract_table(f"{schema}.{table}",
                                    destination_uri.url,
                                    # Must match the destination dataset location.
-                                   location="US",
                                    job_config=job_config)
-        try:
-            job.result()  # Waits for table load to complete.
-        except Exception:
-            logger.error(f"BigQuery load errors:\n\n{pprint.pformat(job)}\n")
-            raise
+        job.result()  # Waits for table load to complete.
         logger.info(f"Unloaded from {dataset_id}:{table} into {filename}")
         directory.save_preliminary_manifest()
         return None
