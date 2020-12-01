@@ -1,7 +1,8 @@
 import unittest
 from records_mover.db.redshift.unloader import RedshiftUnloader
+from records_mover.db.errors import NoTemporaryBucketConfiguration
 from records_mover.records.records_format import DelimitedRecordsFormat, ParquetRecordsFormat
-from mock import patch, Mock
+from mock import patch, Mock, MagicMock
 
 
 class TestRedshiftUnloader(unittest.TestCase):
@@ -78,3 +79,30 @@ class TestRedshiftUnloader(unittest.TestCase):
 
         self.assertEqual([f.__class__ for f in formats],
                          [DelimitedRecordsFormat, ParquetRecordsFormat])
+
+    def test_temporary_unloadable_directory_loc(self):
+        mock_db = Mock(name='db')
+        mock_table = Mock(name='table')
+        mock_s3_temp_base_loc = MagicMock(name='s3_temp_base_loc')
+
+        redshift_unloader =\
+            RedshiftUnloader(db=mock_db,
+                             table=mock_table,
+                             s3_temp_base_loc=mock_s3_temp_base_loc)
+        with redshift_unloader.temporary_unloadable_directory_loc() as loc:
+            self.assertEqual(loc,
+                             mock_s3_temp_base_loc.temporary_directory.return_value.__enter__.
+                             return_value)
+
+    def test_temporary_unloadable_directory_loc_unset(self):
+        mock_db = Mock(name='db')
+        mock_table = Mock(name='table')
+        mock_s3_temp_base_loc = None
+
+        redshift_unloader =\
+            RedshiftUnloader(db=mock_db,
+                             table=mock_table,
+                             s3_temp_base_loc=mock_s3_temp_base_loc)
+        with self.assertRaises(NoTemporaryBucketConfiguration):
+            with redshift_unloader.temporary_unloadable_directory_loc():
+                pass
