@@ -1,10 +1,12 @@
 import unittest
 
 from records_mover.db.bigquery.unloader import BigQueryUnloader
-from records_mover.records.records_format import DelimitedRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
+from records_mover.records.records_format import (
+    DelimitedRecordsFormat, AvroRecordsFormat
+)
 from records_mover.db.errors import NoTemporaryBucketConfiguration
 from mock import MagicMock, Mock
-from unittest.mock import patch, ANY
+from unittest.mock import ANY
 
 
 class TestBigQueryUnloader(unittest.TestCase):

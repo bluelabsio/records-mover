@@ -105,7 +105,7 @@ class RecordsDirectory:
 
         manifest_loc = self.loc.file_in_this_directory('manifest')
         if url_details is None:
-            logger.warning(f"Building manifest by listing directory contents")
+            logger.warning("Building manifest by listing directory contents")
             url_details = {
                 loc.url: {
                     'content_length': loc.size()

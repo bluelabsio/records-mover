@@ -132,7 +132,6 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_load_job_config.assert_called_with(set(), mock_load_plan)
         self.assertEqual(True, out)
 
-
     @patch('records_mover.db.bigquery.loader.load_job_config')
     @patch('records_mover.db.bigquery.loader.ProcessingInstructions')
     @patch('records_mover.db.bigquery.loader.RecordsLoadPlan')

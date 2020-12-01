@@ -26,6 +26,7 @@ class AvroRecordsFormat(BaseRecordsFormat):
     def generate_filename(self, basename: str) -> str:
         return f"{basename}.avro"
 
+
 class ParquetRecordsFormat(BaseRecordsFormat):
     "Describes records files in `Parquet <https://parquet.apache.org/>`_ format"
 

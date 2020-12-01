@@ -1,7 +1,6 @@
 from records_mover.records.sources.table import TableRecordsSource
-from mock import Mock, patch, ANY
+from mock import Mock, patch
 import unittest
-from records_mover.records.targets.base import MightSupportMoveFromTempLocAfterFillingIt
 
 
 class TestTableRecordsSourceEdgeCases(unittest.TestCase):
