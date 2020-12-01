@@ -36,10 +36,18 @@ class TestBigQueryUnloader(unittest.TestCase):
                                               gcs_temp_base_loc=mock_gcs_temp_base_loc)
         self.assertTrue(big_query_unloader.can_unload_to_scheme('gs'))
 
-    def test_can_unload_to_scheme_other_false(self):
+    def test_can_unload_to_scheme_other_with_temp_bucket_true(self):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
+        big_query_unloader = BigQueryUnloader(db=mock_db, url_resolver=mock_url_resolver,
+                                              gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        self.assertTrue(big_query_unloader.can_unload_to_scheme('blah'))
+
+    def test_can_unload_to_scheme_other_with_no_temp_bucket_true(self):
+        mock_db = Mock(name='mock_db')
+        mock_url_resolver = MagicMock(name='mock_url_resolver')
+        mock_gcs_temp_base_loc = None
         big_query_unloader = BigQueryUnloader(db=mock_db, url_resolver=mock_url_resolver,
                                               gcs_temp_base_loc=mock_gcs_temp_base_loc)
         self.assertFalse(big_query_unloader.can_unload_to_scheme('blah'))

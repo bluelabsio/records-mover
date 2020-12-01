@@ -20,7 +20,7 @@ class TestRecordsCopy(unittest.TestCase):
                                        })
             unhandled_hints = set(records_format.hints.keys())
             out = redshift_copy_options(unhandled_hints,
-                                        records_format.validate(fail_if_cant_handle_hint=True),
+                                        records_format,
                                         fail_if_cant_handle_hint=True,
                                         fail_if_row_invalid=True,
                                         max_failure_rows=0)

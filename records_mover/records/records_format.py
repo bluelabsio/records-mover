@@ -26,6 +26,11 @@ class AvroRecordsFormat(BaseRecordsFormat):
     def generate_filename(self, basename: str) -> str:
         return f"{basename}.avro"
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, AvroRecordsFormat):
+            return True
+        return False
+
 
 class ParquetRecordsFormat(BaseRecordsFormat):
     "Describes records files in `Parquet <https://parquet.apache.org/>`_ format"
@@ -42,6 +47,11 @@ class ParquetRecordsFormat(BaseRecordsFormat):
 
     def generate_filename(self, basename: str) -> str:
         return f"{basename}.parquet"
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, ParquetRecordsFormat):
+            return True
+        return False
 
 
 class DelimitedRecordsFormat(BaseRecordsFormat):

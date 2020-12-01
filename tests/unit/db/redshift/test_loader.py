@@ -1,7 +1,7 @@
 import unittest
 import sqlalchemy
 from records_mover.db.redshift.loader import RedshiftLoader
-from records_mover.records.records_format import DelimitedRecordsFormat
+from records_mover.records.records_format import DelimitedRecordsFormat, AvroRecordsFormat
 from mock import patch, Mock, MagicMock
 
 
@@ -41,7 +41,7 @@ class TestRedshiftLoader(unittest.TestCase):
                                processing_instructions=mock_processing_instructions)
         mock_redshift_copy_options.\
             assert_called_with(set(),
-                               mock_load_plan.records_format.validate.return_value,
+                               mock_load_plan.records_format,
                                mock_processing_instructions.fail_if_cant_handle_hint,
                                mock_processing_instructions.fail_if_row_invalid,
                                mock_processing_instructions.max_failure_rows)
@@ -61,6 +61,7 @@ class TestRedshiftLoader(unittest.TestCase):
             DelimitedRecordsFormat(variant='csv'),
             DelimitedRecordsFormat(variant='bluelabs', hints={'quoting': 'all'}),
             DelimitedRecordsFormat(variant='bluelabs'),
+            AvroRecordsFormat(),
         ])
 
     @patch('records_mover.db.redshift.loader.CopyCommand')
