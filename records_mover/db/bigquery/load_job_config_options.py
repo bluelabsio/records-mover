@@ -122,6 +122,7 @@ def load_job_config(unhandled_hints: Set[str],
 
     if isinstance(load_plan.records_format, AvroRecordsFormat):
         config.source_format = 'AVRO'
+        config.use_avro_logical_types = True
         return config
 
     raise NotImplementedError("Not currently able to load "
