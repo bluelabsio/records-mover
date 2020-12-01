@@ -26,3 +26,5 @@ class TestTableRecordsSourceEdgeCases(unittest.TestCase):
                                driver=mock_driver,
                                url_resolver=mock_url_resolver)
         self.assertIsNone(table_records_source.records_format)
+        mock_target_records_format = Mock(name='target_records_format')
+        self.assertFalse(table_records_source.can_move_to_format(mock_target_records_format))
