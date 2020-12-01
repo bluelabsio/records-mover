@@ -1,6 +1,8 @@
 from ...utils import quiet_remove
-from ...records.delimited import cant_handle_hint, ValidatedRecordsHints
-from records_mover.records.records_format import BaseRecordsFormat, DelimitedRecordsFormat, AvroRecordsFormat
+from ...records.delimited import cant_handle_hint
+from records_mover.records.records_format import (
+    BaseRecordsFormat, DelimitedRecordsFormat, AvroRecordsFormat
+)
 from records_mover.mover_types import _assert_never
 from sqlalchemy_redshift.commands import Format, Encoding, Compression
 from typing import Dict, Optional, Set
