@@ -66,6 +66,7 @@ class BigQueryUnloader(Unloader):
         config = ExtractJobConfig()
         if isinstance(unload_plan.records_format, AvroRecordsFormat):
             config.destination_format = 'AVRO'
+            # https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-avro#logical_types
             config.use_avro_logical_types = True
         else:
             raise NotImplementedError(f'Please add support for {unload_plan.records_format}')

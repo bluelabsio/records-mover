@@ -122,6 +122,7 @@ def load_job_config(unhandled_hints: Set[str],
 
     if isinstance(load_plan.records_format, AvroRecordsFormat):
         config.source_format = 'AVRO'
+        # https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-avro#logical_types
         config.use_avro_logical_types = True
         return config
 

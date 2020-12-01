@@ -1,7 +1,7 @@
 from ..driver import DBDriver
 import logging
 from ...records import RecordsSchema
-from ...records.records_format import BaseRecordsFormat, ParquetRecordsFormat
+from ...records.records_format import BaseRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
 from ...utils.limits import INT64_MAX, INT64_MIN, FLOAT64_SIGNIFICAND_BITS, num_digits
 import re
 from typing import Union, Optional, Tuple
@@ -116,6 +116,17 @@ class BigQueryDBDriver(DBDriver):
             #
             # So we need to make sure we don't create any DATETIME
             # columns if we're loading from a Parquet file.
+            #
+            # https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-parquet
             return records_schema.convert_datetimes_to_datetimetz()
+        elif isinstance(records_format, AvroRecordsFormat):
+            # https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-avro#logical_types
+            #
+            # "Note: There is no logical type that directly
+            # corresponds to DATETIME, and BigQuery currently doesn't
+            # support any direct conversion from an Avro type into a
+            # DATETIME field."
+            #
+            return records_schema.convert_datetimes_to_string()
         else:
             return records_schema
