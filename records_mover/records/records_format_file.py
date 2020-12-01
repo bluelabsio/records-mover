@@ -1,4 +1,6 @@
-from .records_format import BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
+from .records_format import (
+    BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
+)
 from ..url.base import BaseDirectoryUrl, BaseFileUrl
 from .processing_instructions import ProcessingInstructions
 from .delimited import PartialRecordsHints
@@ -22,6 +24,8 @@ class RecordsFormatFile:
             return self.load_delimited_format(format_loc, fail_if_dont_understand)
         elif format_type == 'parquet':
             return ParquetRecordsFormat()
+        elif format_type == 'avro':
+            return AvroRecordsFormat()
         else:
             raise TypeError(f"Format type {format_type} not yet supported in this library")
 

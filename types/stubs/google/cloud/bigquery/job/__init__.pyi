@@ -1,6 +1,6 @@
 # https://github.com/googleapis/google-cloud-python/blob/de73e45a7183a638113153d0faec105cfc437f0e/bigquery/google/cloud/bigquery/job.py
 
-from typing import Union, List, Optional, Sequence, Mapping, Any
+from typing import Union, List, Optional, Sequence, Mapping, Any, Literal, Dict
 import google.cloud.bigquery.job
 import google.cloud.bigquery.schema
 import google.cloud.bigquery.table
@@ -47,6 +47,13 @@ class LoadJob:
     output_rows: Optional[int]
 
 
+class ExtractJob:
+    def result(self,
+               retry: google.api_core.retry.Retry = DEFAULT_RETRY,
+               timeout: Optional[float] = None) -> _AsyncJob:
+        ...
+
+
 class LoadJobConfig:
     allow_jagged_rows: bool
     allow_quoted_newlines: bool
@@ -75,3 +82,11 @@ class LoadJobConfig:
 
     def to_api_repr(self) -> str:
         ...
+
+
+# https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.job.ExtractJobConfig.html#google.cloud.bigquery.job.ExtractJobConfig.compression
+class ExtractJobConfig:
+    compression: Literal['GZIP', 'DEFLATE', 'SNAPPY', 'NONE']
+    destination_format: Literal['CSV', 'NEWLINE_DELIMITED_JSON', 'AVRO']
+    field_delimeter: str
+    labels: Dict[str, str]

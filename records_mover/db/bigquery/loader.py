@@ -6,7 +6,7 @@ import pprint
 import sqlalchemy
 from ...records.load_plan import RecordsLoadPlan
 from ...records.records_format import (
-    BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
+    BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
 )
 from ...records.records_directory import RecordsDirectory
 from ...records.processing_instructions import ProcessingInstructions
@@ -164,6 +164,8 @@ class BigQueryLoader(LoaderFromFileobj):
             load_plan = RecordsLoadPlan(records_format=source_records_format,
                                         processing_instructions=processing_instructions)
             if isinstance(load_plan.records_format, ParquetRecordsFormat):
+                return True
+            if isinstance(load_plan.records_format, AvroRecordsFormat):
                 return True
             if not isinstance(load_plan.records_format, DelimitedRecordsFormat):
                 return False

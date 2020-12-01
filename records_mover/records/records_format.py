@@ -10,6 +10,22 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+class AvroRecordsFormat(BaseRecordsFormat):
+    "Describes records files in `Avro <https://avro.apache.org/>`_ format"
+
+    def __init__(self) -> None:
+        "Create a new instance of AvroRecordsFormat"
+        self.format_type = 'avro'
+
+    def __str__(self) -> str:
+        return "AvroRecordsFormat"
+
+    def __repr__(self) -> str:
+        return str(self)
+
+    def generate_filename(self, basename: str) -> str:
+        return f"{basename}.avro"
+
 class ParquetRecordsFormat(BaseRecordsFormat):
     "Describes records files in `Parquet <https://parquet.apache.org/>`_ format"
 

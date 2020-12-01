@@ -2,7 +2,9 @@ from ...utils import quiet_remove
 from ...records.delimited import cant_handle_hint
 from typing import Set
 from ...records.load_plan import RecordsLoadPlan
-from ...records.records_format import DelimitedRecordsFormat, ParquetRecordsFormat
+from ...records.records_format import (
+    DelimitedRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
+)
 from records_mover.records.delimited import ValidatedRecordsHints
 from records_mover.mover_types import _assert_never
 from google.cloud.bigquery.job import CreateDisposition, WriteDisposition
@@ -116,6 +118,10 @@ def load_job_config(unhandled_hints: Set[str],
 
     if isinstance(load_plan.records_format, ParquetRecordsFormat):
         config.source_format = 'PARQUET'
+        return config
+
+    if isinstance(load_plan.records_format, AvroRecordsFormat):
+        config.source_format = 'AVRO'
         return config
 
     raise NotImplementedError("Not currently able to load "

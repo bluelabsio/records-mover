@@ -39,3 +39,18 @@ class Client:
                             retry: Optional[google.api_core.retry.Retry] = None,
                             timeout: Optional[float] = None) -> google.cloud.bigquery.job.LoadJob:
         ...
+
+    def extract_table(self,
+                      source: Union[google.cloud.bigquery.table.Table,
+                                    google.cloud.bigquery.table.TableReference,
+                                    str],
+                      destination_uris: Union[str, Sequence[str]],
+                      job_id: Optional[str] = None,
+                      job_id_prefix: Optional[str] = None,
+                      location: Optional[str] = None,
+                      project: Optional[str] = None,
+                      job_config: Optional[google.cloud.bigquery.job.ExtractJobConfig] = None,
+                      retry: Optional[google.api_core.retry.Retry] = None,
+                      timeout: Optional[float] = None,
+                      source_type: Optional[str] = None) -> google.cloud.bigquery.job.ExtractJob:
+        ...

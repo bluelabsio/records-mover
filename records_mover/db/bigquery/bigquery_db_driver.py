@@ -8,7 +8,9 @@ from typing import Union, Optional, Tuple
 from ...url.resolver import UrlResolver
 import sqlalchemy
 from .loader import BigQueryLoader
+from .unloader import BigQueryUnloader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
+from ..unloader import Unloader
 from ...url.base import BaseDirectoryUrl
 
 
@@ -26,6 +28,10 @@ class BigQueryDBDriver(DBDriver):
             BigQueryLoader(db=self.db,
                            url_resolver=url_resolver,
                            gcs_temp_base_loc=gcs_temp_base_loc)
+        self._bigquery_unloader =\
+            BigQueryUnloader(db=self.db,
+                             url_resolver=url_resolver,
+                             gcs_temp_base_loc=gcs_temp_base_loc)
 
     def loader(self) -> Optional[LoaderFromRecordsDirectory]:
         return self._bigquery_loader
@@ -33,8 +39,8 @@ class BigQueryDBDriver(DBDriver):
     def loader_from_fileobj(self) -> LoaderFromFileobj:
         return self._bigquery_loader
 
-    def unloader(self) -> None:
-        return None
+    def unloader(self) -> Unloader:
+        return self._bigquery_unloader
 
     def type_for_date_plus_time(self, has_tz: bool=False) -> sqlalchemy.sql.sqltypes.DateTime:
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types

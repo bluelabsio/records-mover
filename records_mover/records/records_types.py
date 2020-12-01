@@ -36,6 +36,6 @@ Url = str
 UrlDetails = Dict[Url, UrlDetailsEntry]
 
 
-RecordsFormatType = Literal['delimited', 'parquet']
+RecordsFormatType = Literal['avro', 'delimited', 'parquet']
 
 DelimitedVariant = Literal['dumb', 'csv', 'bigquery', 'bluelabs', 'vertica']
