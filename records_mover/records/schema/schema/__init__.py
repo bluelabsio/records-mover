@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from mypy_extensions import TypedDict
 
     from ..field import FieldDict
-    from ..field.field_types import FieldType
+    from ..field.field_types import FieldType  # noqa
     from .known_representation import KnownRepresentationDict
 
     class MandatoryRecordsSchemaDict(TypedDict):
