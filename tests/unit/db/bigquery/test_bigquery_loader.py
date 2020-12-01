@@ -139,6 +139,42 @@ class TestBigQueryLoader(unittest.TestCase):
         self.assertEqual(out, mock_job.output_rows)
 
     @patch('records_mover.db.bigquery.loader.load_job_config')
+    def test_load_from_fileobj_error(self, mock_load_job_config):
+        mock_db = Mock(name='mock_db')
+        mock_url_resolver = MagicMock(name='mock_url_resolver')
+        mock_gcs_temp_base_loc = None
+        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        mock_schema = 'my_project.my_dataset'
+        mock_table = 'mytable'
+        mock_load_plan = Mock(name='mock_load_plan')
+        mock_load_plan.records_format = Mock(name='records_format', spec=DelimitedRecordsFormat)
+        mock_target_records_format = mock_load_plan.records_format
+        mock_target_records_format.format_type = 'delimited'
+        mock_target_records_format.hints = {}
+        mock_directory = Mock(name='mock_directory')
+        mock_directory.scheme = 'gs'
+        mock_url = Mock(name='mock_url')
+        mock_directory.manifest_entry_urls.return_value = [mock_url]
+
+        mock_connection = mock_db.engine.raw_connection.return_value.connection
+        mock_client = mock_connection._client
+        mock_job = mock_client.load_table_from_file.return_value
+        mock_job.output_rows = 42
+        mock_fileobj = MagicMock(name='fileobj')
+        mock_job.result.side_effect = Exception
+        with self.assertRaises(Exception):
+            big_query_loader.load_from_fileobj(schema=mock_schema,
+                                               table=mock_table,
+                                               load_plan=mock_load_plan,
+                                               fileobj=mock_fileobj)
+        mock_client.load_table_from_file.\
+            assert_called_with(mock_fileobj,
+                               'my_project.my_dataset.mytable',
+                               job_config=mock_load_job_config.return_value)
+        mock_job.result.assert_called_with()
+
+    @patch('records_mover.db.bigquery.loader.load_job_config')
     def test_load_with_fileobj_fallback(self, mock_load_job_config):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
