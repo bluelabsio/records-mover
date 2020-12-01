@@ -259,3 +259,56 @@ class TestField(unittest.TestCase):
         self.assertEqual(out.field_type, mock_field_type)
         self.assertEqual(out.constraints, mock_constraints)
         self.assertEqual(out.representations, mock_representations)
+
+    def test_convert_datetime_to_datetimetz_datetime(self):
+        mock_name = Mock(name='name')
+        mock_field_type = 'datetime'
+        mock_constraints = Mock(name='constraints')
+        mock_statistics = Mock(name='statistics')
+        mock_representations = Mock(name='representations')
+        field = RecordsSchemaField(name=mock_name,
+                                   field_type=mock_field_type,
+                                   constraints=mock_constraints,
+                                   statistics=mock_statistics,
+                                   representations=mock_representations)
+        out = field.convert_datetime_to_datetimetz()
+        self.assertEqual(out.name, mock_name)
+        self.assertEqual(out.field_type, 'datetimetz')
+        self.assertEqual(out.constraints, mock_constraints.cast.return_value)
+        self.assertEqual(out.statistics, mock_statistics.cast.return_value)
+        self.assertEqual(out.representations, mock_representations)
+
+    def test_convert_datetime_to_string_not_datetime(self):
+        mock_name = Mock(name='name')
+        mock_field_type = 'time'
+        mock_constraints = Mock(name='constraints')
+        mock_statistics = Mock(name='statistics')
+        mock_representations = Mock(name='representations')
+        field = RecordsSchemaField(name=mock_name,
+                                   field_type=mock_field_type,
+                                   constraints=mock_constraints,
+                                   statistics=mock_statistics,
+                                   representations=mock_representations)
+        out = field.convert_datetime_to_string()
+        self.assertEqual(out.name, mock_name)
+        self.assertEqual(out.field_type, mock_field_type)
+        self.assertEqual(out.constraints, mock_constraints)
+        self.assertEqual(out.representations, mock_representations)
+
+    def test_convert_datetime_to_string_datetime(self):
+        mock_name = Mock(name='name')
+        mock_field_type = 'datetime'
+        mock_constraints = Mock(name='constraints')
+        mock_statistics = Mock(name='statistics')
+        mock_representations = Mock(name='representations')
+        field = RecordsSchemaField(name=mock_name,
+                                   field_type=mock_field_type,
+                                   constraints=mock_constraints,
+                                   statistics=mock_statistics,
+                                   representations=mock_representations)
+        out = field.convert_datetime_to_string()
+        self.assertEqual(out.name, mock_name)
+        self.assertEqual(out.field_type, 'string')
+        self.assertEqual(out.constraints, mock_constraints.cast.return_value)
+        self.assertEqual(out.statistics, mock_statistics.cast.return_value)
+        self.assertEqual(out.representations, mock_representations)
