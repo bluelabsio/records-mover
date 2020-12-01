@@ -16,12 +16,14 @@ def redshift_copy_options(unhandled_hints: Set[str],
                           fail_if_row_invalid: bool,
                           max_failure_rows: Optional[int]) -> RedshiftCopyOptions:
     redshift_options: RedshiftCopyOptions = {}
+
     if isinstance(records_format, AvroRecordsFormat):
         redshift_options['format'] = Format.avro
         return redshift_options
 
     if not isinstance(records_format, DelimitedRecordsFormat):
         raise NotImplementedError(f"Teach me how to COPY to {records_format}")
+
     hints = records_format.\
         validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
 
