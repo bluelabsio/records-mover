@@ -89,5 +89,6 @@ class LoadJobConfig:
 class ExtractJobConfig:
     compression: Literal['GZIP', 'DEFLATE', 'SNAPPY', 'NONE']
     destination_format: Literal['CSV', 'NEWLINE_DELIMITED_JSON', 'AVRO']
+    use_avro_logical_types: bool
     field_delimeter: str
     labels: Dict[str, str]
