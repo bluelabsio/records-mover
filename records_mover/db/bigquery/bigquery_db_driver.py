@@ -119,7 +119,14 @@ class BigQueryDBDriver(DBDriver):
             #
             # https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-parquet
             return records_schema.convert_datetimes_to_datetimetz()
-        elif isinstance(records_format, AvroRecordsFormat):
+
+        else:
+            return records_schema
+
+    def tweak_records_schema_after_unload(self,
+                                          records_schema: RecordsSchema,
+                                          records_format: BaseRecordsFormat) -> RecordsSchema:
+        if isinstance(records_format, AvroRecordsFormat):
             # https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-avro#logical_types
             #
             # "Note: There is no logical type that directly
@@ -127,6 +134,7 @@ class BigQueryDBDriver(DBDriver):
             # support any direct conversion from an Avro type into a
             # DATETIME field."
             #
+            # BigQuery exports this as an Avro string type
             return records_schema.convert_datetimes_to_string()
         else:
             return records_schema

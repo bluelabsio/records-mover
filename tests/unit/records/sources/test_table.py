@@ -74,9 +74,8 @@ class TestTableRecordsSource(unittest.TestCase):
                                                      unload_plan=mock_unload_plan,
                                                      directory=mock_records_directory)
         mock_export_count = self.mock_unloader.unload.return_value
-        mock_records_schema = mock_RecordsSchema.from_db_table.return_value
         mock_records_directory.save_schema.\
-            assert_called_with(mock_records_schema)
+            assert_called_with(self.mock_driver.tweak_records_schema_after_unload.return_value)
         mock_records_directory.save_format.assert_called_with(mock_unload_plan.records_format)
         mock_records_directory.finalize_manifest.assert_called_with()
         mock_MoveResult.assert_called_with(move_count=mock_export_count,
