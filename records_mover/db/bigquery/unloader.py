@@ -33,7 +33,11 @@ class BigQueryUnloader(Unloader):
         return False
 
     def can_unload_to_scheme(self, scheme: str) -> bool:
-        return scheme == 'gs'
+        if scheme == 'gs':
+            return True
+        # Otherwise we'll need a temporary bucket configured for
+        # BigQuery to unload into
+        return self.gcs_temp_base_loc is not None
 
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
         return [AvroRecordsFormat()]
