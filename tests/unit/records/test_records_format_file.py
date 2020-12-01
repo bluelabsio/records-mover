@@ -46,6 +46,21 @@ class TestRecordsFormatFile(unittest.TestCase):
         mock_ParquetRecordsFormat.assert_called_with()
         self.assertEqual(mock_ParquetRecordsFormat.return_value, out)
 
+    @patch('records_mover.records.records_format_file.ProcessingInstructions')
+    @patch('records_mover.records.records_format_file.AvroRecordsFormat')
+    def test_load_format_avro(self,
+                              mock_AvroRecordsFormat,
+                              mock_ProcessingInstructions):
+        mock_fail_if_dont_understand = Mock(name='fail_if_dont_understand')
+        mock_format_loc = Mock(name='mock_format_loc')
+        self.mock_records_loc.files_matching_prefix.return_value = [mock_format_loc]
+        mock_format_loc.filename.return_value = '_format_avro'
+        mock_format_loc.json_contents.return_value = None
+        out = self.records_format_file.\
+            load_format(fail_if_dont_understand=mock_fail_if_dont_understand)
+        mock_AvroRecordsFormat.assert_called_with()
+        self.assertEqual(mock_AvroRecordsFormat.return_value, out)
+
     def test_save_format(self):
         mock_records_format = Mock(name='records_format')
         mock_file_loc = self.mock_records_loc.file_in_this_directory.return_value
