@@ -16,7 +16,6 @@ from ....utils.limits import (INT8_MIN, INT8_MAX,
                               FLOAT80_SIGNIFICAND_BITS)
 from .representation import RecordsSchemaFieldRepresentation
 from .constraints import (RecordsSchemaFieldConstraints,
-                          RecordsSchemaFieldStringConstraints,
                           RecordsSchemaFieldIntegerConstraints,
                           RecordsSchemaFieldDecimalConstraints)
 from .statistics import RecordsSchemaFieldStatistics
