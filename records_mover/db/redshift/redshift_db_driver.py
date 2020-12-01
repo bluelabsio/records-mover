@@ -162,33 +162,18 @@ class RedshiftDBDriver(DBDriver):
                                       records_format: BaseRecordsFormat) -> RecordsSchema:
         if isinstance(records_format, AvroRecordsFormat):
             # upon testing, Redshift does not seem to support any of
-            # Avro's logicalTypes - e.g.:
-            # {
-            #     "name" : "date",
-            #     "type" : [ "null", {
-            #       "type" : "int",
-            #       "logicalType" : "date"
-            #     } ]
-            #   }, {
-            #     "name" : "time",
-            #     "type" : [ "null", {
-            #       "type" : "long",
-            #       "logicalType" : "time-micros"
-            #     } ]
-            #   }, {
-            #     "name" : "timestamp",
-            #     "type" : [ "null", {
-            #       "type" : "string",
-            #       "logicalType" : "datetime"
-            #     } ]
-            #   }, {
-            #     "name" : "timestamptz",
-            #     "type" : [ "null", {
-            #       "type" : "long",
-            #       "logicalType" : "timestamp-micros"
-            #     } ]
-            #   } ]
-            # }
+            # Avro's logicalTypes - here's an example Avro schema; the
+            # data will only import into the base type, not the
+            # logical type :
+            #
+            # {"name": "date", "type": ["null", {"type": "int",
+            #                                    "logicalType": "date" }]},
+            # {"name": "time", "type": [ "null", {"type": "long",
+            #                                     "logicalType": "time-micros"}]},
+            # {"name": "timestamp", "type": [ "null", {"type": "string",
+            #                                          "logicalType": "datetime"}]},
+            # {"name": "timestamptz", "type": [ "null", {"type": "long",
+            #                                            "logicalType": "timestamp-micros"}]}]}
             return records_schema.cast_field_types({
                 'date': 'string',
                 'datetimetz': 'string',
