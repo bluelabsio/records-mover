@@ -187,13 +187,13 @@ class RecordsTableValidator:
         assert ret['doublequote'] == '"'
         assert ret['quotecommaquote'] == '","'
         if self.tc.raw_avro_types_written():
-            assert ret['date'] == '10957', ret['date']
+            assert ret['date'] == 10957, ret['date']
         else:
             assert ret['date'] == datetime.date(2000, 1, 1),\
                 f"Expected datetime.date(2000, 1, 1), got {ret['date']}"
 
         if self.tc.raw_avro_types_written():
-            assert ret['time'] == '0'
+            assert ret['time'] == 0, ret['time']
         elif self.tc.supports_time_without_date():
             if self.tc.selects_time_types_as_timedelta():
                 assert ret['time'] == datetime.timedelta(0, 0),\

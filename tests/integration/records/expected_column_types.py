@@ -140,8 +140,8 @@ expected_table2table_column_types = {
     ],
     ('bigquery', 'redshift'): [
         'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
-        'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(8)', 'VARCHAR(256)',
-        'VARCHAR(256)'
+        'VARCHAR(256)', 'VARCHAR(256)', 'INTEGER', 'INTEGER',
+        'VARCHAR(256)', 'VARCHAR(256)'
     ],
     ('bigquery', 'bigquery'): [
         "<class 'sqlalchemy.sql.sqltypes.Integer'>", "<class 'sqlalchemy.sql.sqltypes.String'>",

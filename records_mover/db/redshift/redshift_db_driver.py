@@ -174,8 +174,17 @@ class RedshiftDBDriver(DBDriver):
             #                                          "logicalType": "datetime"}]},
             # {"name": "timestamptz", "type": [ "null", {"type": "long",
             #                                            "logicalType": "timestamp-micros"}]}]}
+            #
+            # We could potentially tell Redshift to use
+            # TIMEFORMAT/DATEFORMAT on import.  Unfortunately, while
+            # it supports 'epochsecs' and 'epochmillis', it doesn't
+            # support 'epochdays', or 'epochmicros', which would be
+            # needed for the above.
             return records_schema.cast_field_types({
-                'date': 'string',
+                'date': 'integer',
+                'time': 'integer',
+                'datetime': 'string',
+                # timestamp-micros is too large for default integer size
                 'datetimetz': 'string',
             })
         else:
