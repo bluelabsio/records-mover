@@ -1,6 +1,8 @@
 from ..driver import DBDriver
 import sqlalchemy
 from sqlalchemy.schema import Table
+from records_mover.records import RecordsSchema
+from records_mover.records.records_format import BaseRecordsFormat, AvroRecordsFormat
 import logging
 from ...utils.limits import (INT16_MIN, INT16_MAX,
                              INT32_MIN, INT32_MAX,
@@ -154,3 +156,42 @@ class RedshiftDBDriver(DBDriver):
 
     def unloader(self) -> Optional[Unloader]:
         return self._redshift_unloader
+
+    def tweak_records_schema_for_load(self,
+                                      records_schema: RecordsSchema,
+                                      records_format: BaseRecordsFormat) -> RecordsSchema:
+        if isinstance(records_format, AvroRecordsFormat):
+            # upon testing, Redshift does not seem to support any of
+            # Avro's logicalTypes - e.g.:
+            # {
+            #     "name" : "date",
+            #     "type" : [ "null", {
+            #       "type" : "int",
+            #       "logicalType" : "date"
+            #     } ]
+            #   }, {
+            #     "name" : "time",
+            #     "type" : [ "null", {
+            #       "type" : "long",
+            #       "logicalType" : "time-micros"
+            #     } ]
+            #   }, {
+            #     "name" : "timestamp",
+            #     "type" : [ "null", {
+            #       "type" : "string",
+            #       "logicalType" : "datetime"
+            #     } ]
+            #   }, {
+            #     "name" : "timestamptz",
+            #     "type" : [ "null", {
+            #       "type" : "long",
+            #       "logicalType" : "timestamp-micros"
+            #     } ]
+            #   } ]
+            # }
+            return records_schema.cast_field_types({
+                'date': 'string',
+                'datetimetz': 'string',
+            })
+        else:
+            return records_schema
