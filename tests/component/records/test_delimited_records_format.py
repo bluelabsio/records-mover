@@ -115,6 +115,10 @@ class TestDelimitedRecordsFormat(unittest.TestCase):
         records_format = DelimitedRecordsFormat(hints={'compression': 'BZIP'})
         self.assertEqual('foo.csv.bz2', records_format.generate_filename('foo'))
 
+    def test_generate_filename_no_compression(self):
+        records_format = DelimitedRecordsFormat(hints={'compression': None})
+        self.assertEqual('foo.csv', records_format.generate_filename('foo'))
+
     def test_alter_variant(self):
         records_format = DelimitedRecordsFormat(variant='csv', hints={'compression': 'BZIP'})
         new_records_format = records_format.alter_variant('bigquery')
