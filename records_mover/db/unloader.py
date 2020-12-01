@@ -34,7 +34,7 @@ class Unloader(metaclass=ABCMeta):
     def known_supported_records_formats_for_unload(self) -> List[BaseRecordsFormat]:
         """Supplies a list of the records formats which can be bulk exported
         from this database.  This may not be the full set - see
-        can_unlaod_this_format() to test other possibilities.
+        can_unload_this_format() to test other possibilities.
         """
         ...
 

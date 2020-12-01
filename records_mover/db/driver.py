@@ -188,6 +188,11 @@ class DBDriver(metaclass=ABCMeta):
                                       records_format: BaseRecordsFormat) -> RecordsSchema:
         return records_schema
 
+    def tweak_records_schema_after_unload(self,
+                                          records_schema: RecordsSchema,
+                                          records_format: BaseRecordsFormat) -> RecordsSchema:
+        return records_schema
+
 
 class GenericDBDriver(DBDriver):
     def loader_from_fileobj(self) -> None:

@@ -124,6 +124,8 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
                                        directory=records_directory)
         records_schema = self.pull_records_schema()
         records_directory.save_format(unload_plan.records_format)
+        records_schema = self.driver.tweak_records_schema_after_unload(records_schema,
+                                                                       unload_plan.records_format)
         records_directory.save_schema(records_schema)
         records_directory.finalize_manifest()
 

@@ -251,3 +251,8 @@ class RecordsSchema:
         return RecordsSchema(fields=[field.convert_datetime_to_datetimetz()
                                      for field in self.fields],
                              known_representations=self.known_representations)
+
+    def convert_datetimes_to_string(self) -> 'RecordsSchema':
+        return RecordsSchema(fields=[field.convert_datetime_to_string()
+                                     for field in self.fields],
+                             known_representations=self.known_representations)

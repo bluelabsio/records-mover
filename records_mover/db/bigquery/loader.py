@@ -6,7 +6,7 @@ import pprint
 import sqlalchemy
 from ...records.load_plan import RecordsLoadPlan
 from ...records.records_format import (
-    BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
+    BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
 )
 from ...records.records_directory import RecordsDirectory
 from ...records.processing_instructions import ProcessingInstructions
@@ -87,8 +87,6 @@ class BigQueryLoader(LoaderFromFileobj):
         # https://googleapis.dev/python/bigquery/latest/generated/google.cloud.bigquery.client.Client.html#google.cloud.bigquery.client.Client.load_table_from_file
         job = client.load_table_from_file(fileobj,
                                           f"{schema}.{table}",
-                                          # Must match the destination dataset location.
-                                          location="US",
                                           job_config=job_config)
 
         try:
@@ -165,6 +163,8 @@ class BigQueryLoader(LoaderFromFileobj):
                                         processing_instructions=processing_instructions)
             if isinstance(load_plan.records_format, ParquetRecordsFormat):
                 return True
+            if isinstance(load_plan.records_format, AvroRecordsFormat):
+                return True
             if not isinstance(load_plan.records_format, DelimitedRecordsFormat):
                 return False
             unhandled_hints = set(load_plan.records_format.hints.keys())
@@ -176,4 +176,8 @@ class BigQueryLoader(LoaderFromFileobj):
             return False
 
     def known_supported_records_formats_for_load(self) -> List[BaseRecordsFormat]:
-        return [DelimitedRecordsFormat(variant='bigquery'), ParquetRecordsFormat()]
+        return [
+            DelimitedRecordsFormat(variant='bigquery'),
+            ParquetRecordsFormat(),
+            AvroRecordsFormat()
+        ]

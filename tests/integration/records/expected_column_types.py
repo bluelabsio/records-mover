@@ -102,6 +102,15 @@ expected_table2table_column_types = {
     # columns if we're loading from a Parquet file.
     #
     #
+    # bigquery2bigquery:
+    #
+    # Avro is used in this copy.  According to Google:
+    #
+    # "Note: There is no logical type that directly corresponds to
+    # DATETIME, and BigQuery currently doesn't support any direct
+    # conversion from an Avro type into a DATETIME field."
+    #
+    # https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-avro
     #
     ('postgresql', 'postgresql'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
@@ -127,6 +136,15 @@ expected_table2table_column_types = {
         'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
+    ],
+    ('bigquery', 'bigquery'): [
+        "<class 'sqlalchemy.sql.sqltypes.Integer'>", "<class 'sqlalchemy.sql.sqltypes.String'>",
+        "<class 'sqlalchemy.sql.sqltypes.String'>", "<class 'sqlalchemy.sql.sqltypes.String'>",
+        "<class 'sqlalchemy.sql.sqltypes.String'>", "<class 'sqlalchemy.sql.sqltypes.String'>",
+        "<class 'sqlalchemy.sql.sqltypes.String'>", "<class 'sqlalchemy.sql.sqltypes.DATE'>",
+        "<class 'sqlalchemy.sql.sqltypes.TIME'>",
+        "<class 'sqlalchemy.sql.sqltypes.String'>",
+        "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>"
     ],
     ('bigquery', 'postgresql'): [
         'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',

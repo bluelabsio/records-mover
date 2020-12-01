@@ -315,13 +315,35 @@ class RecordsSchemaField:
 
     def convert_datetime_to_datetimetz(self) -> 'RecordsSchemaField':
         field_type = self.field_type
+        constraints = self.constraints
+        statistics = self.statistics
         if field_type == 'datetime':
             field_type = 'datetimetz'
+            if constraints is not None:
+                constraints = constraints.cast('string')
+            if statistics is not None:
+                statistics = statistics.cast('string')
 
         return RecordsSchemaField(name=self.name,
                                   field_type=field_type,
-                                  constraints=self.constraints,
-                                  statistics=self.statistics,
+                                  constraints=constraints,
+                                  statistics=statistics,
+                                  representations=self.representations)
+
+    def convert_datetime_to_string(self) -> 'RecordsSchemaField':
+        field_type = self.field_type
+        constraints = self.constraints
+        statistics = self.statistics
+        if field_type == 'datetime':
+            field_type = 'string'
+            if constraints is not None:
+                constraints = constraints.cast('string')
+            if statistics is not None:
+                statistics = statistics.cast('string')
+        return RecordsSchemaField(name=self.name,
+                                  field_type=field_type,
+                                  constraints=constraints,
+                                  statistics=statistics,
                                   representations=self.representations)
 
     def cast(self, field_type: 'FieldType') -> 'RecordsSchemaField':

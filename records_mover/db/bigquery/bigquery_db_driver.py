@@ -1,14 +1,16 @@
 from ..driver import DBDriver
 import logging
 from ...records import RecordsSchema
-from ...records.records_format import BaseRecordsFormat, ParquetRecordsFormat
+from ...records.records_format import BaseRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
 from ...utils.limits import INT64_MAX, INT64_MIN, FLOAT64_SIGNIFICAND_BITS, num_digits
 import re
 from typing import Union, Optional, Tuple
 from ...url.resolver import UrlResolver
 import sqlalchemy
 from .loader import BigQueryLoader
+from .unloader import BigQueryUnloader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
+from ..unloader import Unloader
 from ...url.base import BaseDirectoryUrl
 
 
@@ -26,6 +28,10 @@ class BigQueryDBDriver(DBDriver):
             BigQueryLoader(db=self.db,
                            url_resolver=url_resolver,
                            gcs_temp_base_loc=gcs_temp_base_loc)
+        self._bigquery_unloader =\
+            BigQueryUnloader(db=self.db,
+                             url_resolver=url_resolver,
+                             gcs_temp_base_loc=gcs_temp_base_loc)
 
     def loader(self) -> Optional[LoaderFromRecordsDirectory]:
         return self._bigquery_loader
@@ -33,8 +39,8 @@ class BigQueryDBDriver(DBDriver):
     def loader_from_fileobj(self) -> LoaderFromFileobj:
         return self._bigquery_loader
 
-    def unloader(self) -> None:
-        return None
+    def unloader(self) -> Unloader:
+        return self._bigquery_unloader
 
     def type_for_date_plus_time(self, has_tz: bool=False) -> sqlalchemy.sql.sqltypes.DateTime:
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types
@@ -110,6 +116,25 @@ class BigQueryDBDriver(DBDriver):
             #
             # So we need to make sure we don't create any DATETIME
             # columns if we're loading from a Parquet file.
+            #
+            # https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-parquet
             return records_schema.convert_datetimes_to_datetimetz()
+
+        else:
+            return records_schema
+
+    def tweak_records_schema_after_unload(self,
+                                          records_schema: RecordsSchema,
+                                          records_format: BaseRecordsFormat) -> RecordsSchema:
+        if isinstance(records_format, AvroRecordsFormat):
+            # https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-avro#logical_types
+            #
+            # "Note: There is no logical type that directly
+            # corresponds to DATETIME, and BigQuery currently doesn't
+            # support any direct conversion from an Avro type into a
+            # DATETIME field."
+            #
+            # BigQuery exports this as an Avro string type
+            return records_schema.convert_datetimes_to_string()
         else:
             return records_schema

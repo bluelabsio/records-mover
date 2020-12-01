@@ -1,5 +1,5 @@
 from records_mover.records.sources.table import TableRecordsSource
-from mock import Mock, patch, ANY
+from mock import MagicMock, Mock, patch, ANY
 import unittest
 from records_mover.records.targets.base import MightSupportMoveFromTempLocAfterFillingIt
 
@@ -8,7 +8,7 @@ class TestTableRecordsSource(unittest.TestCase):
     def setUp(self):
         self.mock_schema_name = Mock(name='schema_name')
         self.mock_table_name = Mock(name='table_name')
-        self.mock_driver = Mock(name='driver')
+        self.mock_driver = MagicMock(name='driver')
         self.mock_loader = self.mock_driver.loader.return_value
         self.mock_unloader = self.mock_driver.unloader.return_value
         self.mock_db_driver = Mock(name='db_driver')
@@ -74,9 +74,8 @@ class TestTableRecordsSource(unittest.TestCase):
                                                      unload_plan=mock_unload_plan,
                                                      directory=mock_records_directory)
         mock_export_count = self.mock_unloader.unload.return_value
-        mock_records_schema = mock_RecordsSchema.from_db_table.return_value
         mock_records_directory.save_schema.\
-            assert_called_with(mock_records_schema)
+            assert_called_with(self.mock_driver.tweak_records_schema_after_unload.return_value)
         mock_records_directory.save_format.assert_called_with(mock_unload_plan.records_format)
         mock_records_directory.finalize_manifest.assert_called_with()
         mock_MoveResult.assert_called_with(move_count=mock_export_count,
@@ -179,3 +178,9 @@ class TestTableRecordsSource(unittest.TestCase):
         out = self.table_records_source.can_move_to_scheme(Mock())
         self.assertEqual(out,
                          self.mock_unloader.can_unload_to_scheme.return_value)
+
+    def test_temporary_unloadable_directory_loc_None(self):
+        with self.table_records_source.temporary_unloadable_directory_loc() as loc:
+            self.assertEqual(loc,
+                             self.mock_unloader.temporary_unloadable_directory_loc.
+                             return_value.__enter__.return_value)
