@@ -112,6 +112,12 @@ expected_table2table_column_types = {
     #
     # https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-avro
     #
+    #
+    # bigquery2redshift:
+    #
+    # Avro is used in this copy.  Redshift doesn't seem to support any
+    # of the Avro logicalTypes, meaning that
+    # date/time/timestamp/timestamptz all get turned into strings.
     ('postgresql', 'postgresql'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME WITHOUT TIME ZONE',
@@ -134,8 +140,8 @@ expected_table2table_column_types = {
     ],
     ('bigquery', 'redshift'): [
         'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
-        'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
+        'VARCHAR(256)', 'VARCHAR(256)', 'INTEGER', 'INTEGER',
+        'VARCHAR(256)', 'VARCHAR(256)'
     ],
     ('bigquery', 'bigquery'): [
         "<class 'sqlalchemy.sql.sqltypes.Integer'>", "<class 'sqlalchemy.sql.sqltypes.String'>",

@@ -157,6 +157,16 @@ class RecordsTableValidator:
                        DATE_FORMAT(timestamptz, '%%Y-%%m-%%d %%H:%%i:%%s.%%f+00') as timestamptzstr
                 FROM {schema_name}.{table_name}
                 """
+            elif self.tc.raw_avro_types_written():
+                # no real date/time column types used, so can't cast types
+                select_sql = f"""
+                SELECT num, numstr, comma, doublequote, quotecommaquote, date, "time",
+                       "timestamp",
+                       "timestamp" as timestampstr,
+                       timestamptz,
+                       timestamptz as timestamptzstr
+                FROM {schema_name}.{table_name}
+                """
             else:
                 select_sql = f"""
                 SELECT num, numstr, comma, doublequote, quotecommaquote, date, "time",
@@ -176,10 +186,15 @@ class RecordsTableValidator:
         assert ret['comma'] == ','
         assert ret['doublequote'] == '"'
         assert ret['quotecommaquote'] == '","'
-        assert ret['date'] == datetime.date(2000, 1, 1),\
-            f"Expected datetime.date(2000, 1, 1), got {ret['date']}"
+        if self.tc.raw_avro_types_written():
+            assert ret['date'] == 10957, ret['date']
+        else:
+            assert ret['date'] == datetime.date(2000, 1, 1),\
+                f"Expected datetime.date(2000, 1, 1), got {ret['date']}"
 
-        if self.tc.supports_time_without_date():
+        if self.tc.raw_avro_types_written():
+            assert ret['time'] == 0, ret['time']
+        elif self.tc.supports_time_without_date():
             if self.tc.selects_time_types_as_timedelta():
                 assert ret['time'] == datetime.timedelta(0, 0),\
                     f"Incorrect time: {ret['time']} (of type {type(ret['time'])})"
@@ -192,10 +207,13 @@ class RecordsTableValidator:
                 assert ret['time'] == '12:00 AM', f"time was {ret['time']}"
             else:
                 assert ret['time'] == '00:00:00', f"time was {ret['time']}"
-        if (((load_variant is not None) and
-             self.tc.variant_doesnt_support_seconds(load_variant)) or
-           ((self.file_variant is not None) and
-           self.tc.variant_doesnt_support_seconds(self.file_variant))):
+
+        if self.tc.raw_avro_types_written():
+            assert ret['timestamp'] == '2000-01-02T12:34:56.789012'
+        elif (((load_variant is not None) and
+               self.tc.variant_doesnt_support_seconds(load_variant)) or
+              ((self.file_variant is not None) and
+              self.tc.variant_doesnt_support_seconds(self.file_variant))):
             assert ret['timestamp'] ==\
                 datetime.datetime(2000, 1, 2, 12, 34),\
                 f"Found timestamp {ret['timestamp']}"

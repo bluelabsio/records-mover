@@ -109,10 +109,14 @@ class RecordsTableTimezoneValidator:
             # the same result will happen, as the database will
             # understand that noon on the east coast is hour 17 UTC.
             utc_hour = 17
-        if ((load_variant is not None and
-             self.tc.variant_doesnt_support_seconds(load_variant)) or
-            ((self.file_variant is not None and
-              self.tc.variant_doesnt_support_seconds(self.file_variant)))):
+        if self.tc.raw_avro_types_written():
+            assert timestampstr == '2000-01-02T12:34:56.789012'
+            seconds = '56'
+            micros = '789012'
+        elif ((load_variant is not None and
+               self.tc.variant_doesnt_support_seconds(load_variant)) or
+                ((self.file_variant is not None and
+                  self.tc.variant_doesnt_support_seconds(self.file_variant)))):
             seconds = '00'
             micros = '000000'
 
@@ -129,8 +133,10 @@ class RecordsTableTimezoneValidator:
             assert timestampstr == f'2000-01-02 12:34:{seconds}.{micros}',\
                 f"expected '2000-01-02 12:34:{seconds}.{micros}' got '{timestampstr}'"
 
-        if (self.source_db_engine is not None and
-           self.tc.database_has_no_usable_timestamptz_type(self.source_db_engine)):
+        if self.tc.raw_avro_types_written():
+            assert timestamptzstr == '946834496789012'
+        elif (self.source_db_engine is not None and
+              self.tc.database_has_no_usable_timestamptz_type(self.source_db_engine)):
             # Depending on the capabilities of the target database, we
             # may not be able to get a rendered version that includes
             # the UTC tz - but either way we won't have transferred a
@@ -176,7 +182,9 @@ class RecordsTableTimezoneValidator:
         # timestamptzstr shows that db knows what's up internally:
         #
         actual_time = timestamptz
-        if actual_time.tzinfo is None:
+        if self.tc.raw_avro_types_written():
+            pass
+        elif actual_time.tzinfo is None:
             assert actual_time - utc_naive_expected_time == datetime.timedelta(0),\
                 f"Delta is {actual_time - utc_naive_expected_time}, " \
                 f"actual_time is {actual_time}, tz-naive expected time is {utc_naive_expected_time}"

@@ -118,8 +118,7 @@ class BigQueryDBDriver(DBDriver):
             # columns if we're loading from a Parquet file.
             #
             # https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-parquet
-            return records_schema.convert_datetimes_to_datetimetz()
-
+            return records_schema.cast_field_types({'datetime': 'datetimetz'})
         else:
             return records_schema
 
@@ -135,6 +134,6 @@ class BigQueryDBDriver(DBDriver):
             # DATETIME field."
             #
             # BigQuery exports this as an Avro string type
-            return records_schema.convert_datetimes_to_string()
+            return records_schema.cast_field_types({'datetime': 'string'})
         else:
             return records_schema

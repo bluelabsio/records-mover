@@ -118,3 +118,10 @@ class MoverTestCase:
 
     def loaded_from_file(self) -> bool:
         return self.file_variant is not None
+
+    def raw_avro_types_written(self) -> bool:
+        # Transferred via Avro.  Redshift has poor Avro
+        # support and doesn't support date/time types.
+        return (self.source_db_engine is not None and
+                self.source_db_engine.name == 'bigquery' and
+                self.target_db_engine.name == 'redshift')

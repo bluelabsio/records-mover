@@ -1,6 +1,7 @@
 from ...utils.json_schema import method_signature_to_json_schema, JsonParameter, JsonSchemaDocument
 from ..existing_table_handling import ExistingTableHandling
 from records_mover.records.delimited.hints import Hints
+from records_mover.records.records_types import RECORDS_FORMAT_TYPES
 from typing import Any, Dict, List, Callable
 from ...mover_types import JsonSchema
 
@@ -25,7 +26,7 @@ def method_to_json_schema(method: Callable[..., Any]) -> JsonSchema:
                                           optional=True),
                             JsonParameter('format',
                                           JsonSchemaDocument('string',
-                                                             enum=['parquet', 'delimited'],
+                                                             enum=RECORDS_FORMAT_TYPES,
                                                              description="Records format type.  "
                                                              "Note that 'delimited' includes "
                                                              "CSV/TSV/etc."),

@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from mypy_extensions import TypedDict
 
     from ..field import FieldDict
+    from ..field.field_types import FieldType  # noqa
     from .known_representation import KnownRepresentationDict
 
     class MandatoryRecordsSchemaDict(TypedDict):
@@ -247,12 +248,8 @@ class RecordsSchema:
         raw_df = DataFrame(df_data)
         return self.cast_dataframe_types(raw_df)
 
-    def convert_datetimes_to_datetimetz(self) -> 'RecordsSchema':
-        return RecordsSchema(fields=[field.convert_datetime_to_datetimetz()
-                                     for field in self.fields],
-                             known_representations=self.known_representations)
-
-    def convert_datetimes_to_string(self) -> 'RecordsSchema':
-        return RecordsSchema(fields=[field.convert_datetime_to_string()
+    def cast_field_types(self, typecasts: Dict['FieldType', 'FieldType']) -> 'RecordsSchema':
+        return RecordsSchema(fields=[field.cast(typecasts.get(field.field_type,
+                                                              field.field_type))
                                      for field in self.fields],
                              known_representations=self.known_representations)

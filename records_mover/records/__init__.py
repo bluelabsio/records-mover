@@ -6,6 +6,7 @@ __all__ = [
     'RecordsFormat',
     'DelimitedVariant',
     'DelimitedRecordsFormat',
+    'AvroRecordsFormat',
     'ParquetRecordsFormat',
     'ProcessingInstructions',
     'ExistingTableHandling',
@@ -20,7 +21,9 @@ from .delimited import UntypedRecordsHints, PartialRecordsHints
 from .records_types import RecordsFormatType, DelimitedVariant
 from .schema import RecordsSchema
 from .mover import move
-from .records_format import RecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
+from .records_format import (
+    RecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
+)
 from .processing_instructions import ProcessingInstructions
 from .existing_table_handling import ExistingTableHandling
 from .records import Records

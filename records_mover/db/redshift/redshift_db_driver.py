@@ -1,6 +1,8 @@
 from ..driver import DBDriver
 import sqlalchemy
 from sqlalchemy.schema import Table
+from records_mover.records import RecordsSchema
+from records_mover.records.records_format import BaseRecordsFormat, AvroRecordsFormat
 import logging
 from ...utils.limits import (INT16_MIN, INT16_MAX,
                              INT32_MIN, INT32_MAX,
@@ -154,3 +156,36 @@ class RedshiftDBDriver(DBDriver):
 
     def unloader(self) -> Optional[Unloader]:
         return self._redshift_unloader
+
+    def tweak_records_schema_for_load(self,
+                                      records_schema: RecordsSchema,
+                                      records_format: BaseRecordsFormat) -> RecordsSchema:
+        if isinstance(records_format, AvroRecordsFormat):
+            # upon testing, Redshift does not seem to support any of
+            # Avro's logicalTypes - here's an example Avro schema; the
+            # data will only import into the base type, not the
+            # logical type :
+            #
+            # {"name": "date", "type": ["null", {"type": "int",
+            #                                    "logicalType": "date" }]},
+            # {"name": "time", "type": [ "null", {"type": "long",
+            #                                     "logicalType": "time-micros"}]},
+            # {"name": "timestamp", "type": [ "null", {"type": "string",
+            #                                          "logicalType": "datetime"}]},
+            # {"name": "timestamptz", "type": [ "null", {"type": "long",
+            #                                            "logicalType": "timestamp-micros"}]}]}
+            #
+            # We could potentially tell Redshift to use
+            # TIMEFORMAT/DATEFORMAT on import.  Unfortunately, while
+            # it supports 'epochsecs' and 'epochmillis', it doesn't
+            # support 'epochdays', or 'epochmicros', which would be
+            # needed for the above.
+            return records_schema.cast_field_types({
+                'date': 'integer',
+                'time': 'integer',
+                'datetime': 'string',
+                # timestamp-micros is too large for default integer size
+                'datetimetz': 'string',
+            })
+        else:
+            return records_schema

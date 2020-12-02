@@ -4,7 +4,9 @@ from .base import (SupportsMoveFromDataframes,
                    SupportsMoveFromRecordsDirectory)
 from ..processing_instructions import ProcessingInstructions
 from ...url.base import BaseFileUrl
-from ..records_format import BaseRecordsFormat, DelimitedRecordsFormat
+from ..records_format import (
+    BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
+)
 from ..delimited import sniff_compression_from_url
 from .fileobj import FileobjTarget
 from typing import Optional, List, TYPE_CHECKING
@@ -13,13 +15,22 @@ if TYPE_CHECKING:
     from ..sources.dataframes import DataframesRecordsSource
 
 
+def sniff_records_format_from_url(url: str) -> BaseRecordsFormat:
+    if url.endswith('.parquet'):
+        return ParquetRecordsFormat()
+    elif url.endswith('.avro'):
+        return AvroRecordsFormat()
+    else:
+        return DelimitedRecordsFormat()
+
+
 class DataUrlTarget(SupportsMoveFromDataframes,
                     SupportsMoveFromRecordsDirectory):
     def __init__(self,
                  output_loc: BaseFileUrl,
                  records_format: Optional[BaseRecordsFormat]) -> None:
         if records_format is None:
-            records_format = DelimitedRecordsFormat()
+            records_format = sniff_records_format_from_url(output_loc.url)
 
         if (isinstance(records_format, DelimitedRecordsFormat) and
            'compression' not in records_format.custom_hints):

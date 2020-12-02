@@ -1,5 +1,8 @@
 from ...utils import quiet_remove
-from ...records.delimited import cant_handle_hint, ValidatedRecordsHints
+from ...records.delimited import cant_handle_hint
+from records_mover.records.records_format import (
+    BaseRecordsFormat, DelimitedRecordsFormat, AvroRecordsFormat
+)
 from records_mover.mover_types import _assert_never
 from sqlalchemy_redshift.commands import Format, Encoding, Compression
 from typing import Dict, Optional, Set
@@ -8,11 +11,22 @@ RedshiftCopyOptions = Dict[str, Optional[object]]
 
 
 def redshift_copy_options(unhandled_hints: Set[str],
-                          hints: ValidatedRecordsHints,
+                          records_format: BaseRecordsFormat,
                           fail_if_cant_handle_hint: bool,
                           fail_if_row_invalid: bool,
                           max_failure_rows: Optional[int]) -> RedshiftCopyOptions:
     redshift_options: RedshiftCopyOptions = {}
+
+    if isinstance(records_format, AvroRecordsFormat):
+        redshift_options['format'] = Format.avro
+        return redshift_options
+
+    if not isinstance(records_format, DelimitedRecordsFormat):
+        raise NotImplementedError(f"Teach me how to COPY to {records_format}")
+
+    hints = records_format.\
+        validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
+
     if hints.compression == 'GZIP':
         redshift_options['compression'] = Compression.gzip
     elif hints.compression == 'LZO':
