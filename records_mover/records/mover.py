@@ -146,7 +146,19 @@ def move(records_source: RecordsSource,
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     f"by first converting to dataframe...")
         with records_source.to_dataframes_source(processing_instructions) as dataframes_source:
-            return move(dataframes_source, records_target, processing_instructions)
+            try:
+                return move(dataframes_source, records_target, processing_instructions)
+            finally:
+                dfs = dataframes_source.dfs
+                if 'close' in dir(dfs):
+                    # Ensure database connection is closed
+                    dfs.close()  # type: ignore
+                else:
+                    # TODO: Can I implement a ClosableIterator type or
+                    # something and have mypy ensure everything
+                    # provides this ability?
+                    raise TypeError("Not able to close dataframes - "
+                                    "please implement a close() method on iterator")
     else:
         raise NotImplementedError(f"Please teach me how to move records between "
                                   f"{records_source} and {records_target}")
