@@ -1,7 +1,6 @@
 import logging
 import json
 from typing import List, Dict, Mapping, IO, Any, TYPE_CHECKING
-from records_mover.pandas import convert_dtypes
 from records_mover.records.schema.field import RecordsSchemaField
 from records_mover.records.records_format import BaseRecordsFormat
 from records_mover.records.processing_instructions import ProcessingInstructions
@@ -141,6 +140,7 @@ class RecordsSchema:
         """
         from records_mover.records.delimited import stream_csv
         from records_mover.pandas import purge_unnamed_unused_columns
+        from records_mover.pandas import convert_dtypes
 
         if len(fileobjs) != 1:
             # https://github.com/bluelabsio/records-mover/issues/84
