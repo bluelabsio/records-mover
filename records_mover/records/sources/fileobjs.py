@@ -13,7 +13,6 @@ from ..processing_instructions import ProcessingInstructions
 from ...records.delimited import complain_on_unhandled_hints
 from ..delimited import python_encoding_from_hint
 from ..schema import RecordsSchema
-from records_mover.pandas import convert_dtypes
 from records_mover.url.filesystem import FilesystemDirectoryUrl
 from records_mover.url.base import BaseDirectoryUrl
 import logging
@@ -121,8 +120,9 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
                              processing_instructions: ProcessingInstructions) \
             -> Iterator['DataframesRecordsSource']:
         import pandas as pd
-        from .dataframes import DataframesRecordsSource  # noqa
-        from ..pandas import pandas_read_csv_options
+        from records_mover.pandas import convert_dtypes
+        from records_mover.records.dataframes import DataframesRecordsSource  # noqa
+        from records_mover.records.pandas import pandas_read_csv_options
 
         """Convert current source to a DataframeSource and present it in a context manager"""
         if not isinstance(self.records_format, DelimitedRecordsFormat):
