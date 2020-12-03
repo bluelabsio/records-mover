@@ -19,6 +19,7 @@ import logging
 from typing import Mapping, IO, Optional, Iterator, List, Any, TYPE_CHECKING
 if TYPE_CHECKING:
     from .dataframes import DataframesRecordsSource  # noqa
+    from pandas import Dataframe
 
 
 logger = logging.getLogger(__name__)
@@ -154,6 +155,19 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
             else:
                 chunksize = int(entries_per_chunk / num_fields)
 
+            def fix_integer_columns(dfs: Iterator['Dataframe']) -> Iterator['Dataframe']:
+                # TODO: Move generator expression using that function
+                for df in dfs:
+                    if 'convert_dtypes' in dir(df):
+                        # Allow nullable integers to be represented
+                        df = df.convert_dtypes(convert_integer=True)
+                    else:
+                        logger.warning("Using old version of pandas; "
+                                       "not able to represent nullable integer columns")
+                    yield df
+
+            # TODO: switch to generator expressions: https://treyhunner.com/2018/06/how-to-make-an-iterator-in-python/
+
             try:
                 dfs = pd.read_csv(filepath_or_buffer=target_fileobj,
                                   iterator=True,
@@ -161,7 +175,8 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
                                   **options)
             except pd.errors.EmptyDataError:
                 dfs = [self.records_schema.to_empty_dataframe()]
-            yield DataframesRecordsSource(dfs=dfs, records_schema=self.records_schema)
+            yield DataframesRecordsSource(dfs=fix_integer_columns(dfs),
+                                          records_schema=self.records_schema)
         finally:
             if text_fileobj is not None:
                 text_fileobj.detach()
