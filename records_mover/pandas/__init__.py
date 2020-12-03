@@ -39,7 +39,7 @@ def purge_unnamed_unused_columns(df: DataFrame) -> DataFrame:
     return df
 
 
-def convert_dtypes(df: 'DataFrame'):
+def convert_dtypes(df: 'DataFrame') -> 'DataFrame':
     """Allow nullable columns to be used in Pandas 1.0+ - prior to that,
     Pandas would use e.g., a numpy floating point type for integers,
     representing nulls as NaN.
