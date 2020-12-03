@@ -68,8 +68,26 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
         hints = {}
         self.save_and_verify(records_format=DelimitedRecordsFormat(hints=hints))
 
+    def test_save_with_defaults_dd_dash_mm(self):
+        hints = {
+            'datetimeformattz': 'DD-MM-YY HH24:MIOF',
+            'datetimeformat': 'DD-MM-YY HH24:MI',
+            'dateformat': 'DD-MM-YYYY'
+        }
+        self.save_and_verify(records_format=DelimitedRecordsFormat(hints=hints))
+
     def test_save_csv_variant(self):
         records_format = DelimitedRecordsFormat(variant='csv')
+        self.save_and_verify(records_format=records_format)
+
+    def test_save_csv_variant_dd_dash_mm(self):
+        hints = {
+            'datetimeformattz': 'DD-MM-YY HH24:MIOF',
+            'datetimeformat': 'DD-MM-YY HH24:MI',
+            'dateformat': 'DD-MM-YYYY'
+        }
+        records_format = DelimitedRecordsFormat(variant='csv',
+                                                hints=hints)
         self.save_and_verify(records_format=records_format)
 
     def test_save_with_no_compression(self):

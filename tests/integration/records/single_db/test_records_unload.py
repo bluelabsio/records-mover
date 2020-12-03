@@ -13,6 +13,14 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
     def test_unload_csv_format(self):
         self.unload_and_verify('delimited', 'csv')
 
+    def test_unload_csv_format_dd_dash_mm(self):
+        self.unload_and_verify('delimited', 'csv',
+                               hints={
+                                   'datetimeformattz': 'DD-MM-YY HH24:MIOF',
+                                   'datetimeformat': 'DD-MM-YY HH24:MI',
+                                   'dateformat': 'DD-MM-YYYY'
+                               })
+
     def test_unload_csv_format_uncompressed(self):
         self.unload_and_verify('delimited', 'csv', {'compression': None})
 
@@ -21,6 +29,14 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
 
     def test_unload_bluelabs_format(self):
         self.unload_and_verify('delimited', 'bluelabs')
+
+    def test_unload_bluelabs_format_dd_dash_mm(self):
+        self.unload_and_verify('delimited', 'bluelabs',
+                               hints={
+                                   'datetimeformattz': 'DD-MM-YY HH24:MIOF',
+                                   'datetimeformat': 'DD-MM-YY HH24:MI',
+                                   'dateformat': 'DD-MM-YYYY'
+                               })
 
     def test_unload_bluelabs_format_uncompressed(self):
         self.unload_and_verify('delimited', 'bluelabs', {'compression': None})
@@ -31,11 +47,27 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
     def test_unload_vertica_format(self):
         self.unload_and_verify('delimited', 'vertica')
 
+    def test_unload_vertica_format_dd_dash_mm(self):
+        self.unload_and_verify('delimited', 'vertica',
+                               hints={
+                                   'datetimeformattz': 'DD-MM-YY HH24:MIOF',
+                                   'datetimeformat': 'DD-MM-YY HH24:MI',
+                                   'dateformat': 'DD-MM-YYYY'
+                               })
+
     def test_unload_vertica_format_with_header_row(self):
         self.unload_and_verify('delimited', 'vertica', {'header-row': True})
 
     def test_unload_bigquery_format(self):
         self.unload_and_verify('delimited', 'bigquery')
+
+    def test_unload_bigquery_format_dd_dash_mm(self):
+        self.unload_and_verify('delimited', 'bigquery',
+                               hints={
+                                   'datetimeformattz': 'DD-MM-YY HH24:MIOF',
+                                   'datetimeformat': 'DD-MM-YY HH24:MI',
+                                   'dateformat': 'DD-MM-YYYY'
+                               })
 
     def test_unload_bigquery_format_uncompressed(self):
         self.unload_and_verify('delimited', 'bigquery', {'compression': None})

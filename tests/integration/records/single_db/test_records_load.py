@@ -34,14 +34,38 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
     def test_load_csv_format(self):
         self.load_and_verify('delimited', 'csv')
 
+    def test_load_csv_format_dd_dash_mm(self) -> None:
+        self.load_and_verify('delimited', 'csv',
+                             hints={
+                                 'datetimeformattz': 'DD-MM-YY HH24:MIOF',
+                                 'datetimeformat': 'DD-MM-YY HH24:MI',
+                                 'dateformat': 'DD-MM-YYYY'
+                             })
+
     def test_load_bigquery_format(self):
         self.load_and_verify('delimited', 'bigquery')
+
+    def test_load_bigquery_format_dd_dash_mm(self):
+        self.load_and_verify('delimited', 'bigquery',
+                             hints={
+                                 'datetimeformattz': 'DD-MM-YY HH24:MIOF',
+                                 'datetimeformat': 'DD-MM-YY HH24:MI',
+                                 'dateformat': 'DD-MM-YYYY'
+                             })
 
     def test_load_bigquery_format_with_header_row(self):
         self.load_and_verify('delimited', 'bigquery', {'header-row': True})
 
     def test_load_bluelabs_format(self):
         self.load_and_verify('delimited', 'bluelabs')
+
+    def test_load_bluelabs_format_dd_dash_mm(self):
+        self.load_and_verify('delimited', 'bluelabs',
+                             hints={
+                                 'datetimeformattz': 'DD-MM-YY HH24:MIOF',
+                                 'datetimeformat': 'DD-MM-YY HH24:MI',
+                                 'dateformat': 'DD-MM-YYYY'
+                             })
 
     def test_load_bluelabs_format_with_header_row(self):
         self.load_and_verify('delimited', 'bluelabs', {'header-row': True})
