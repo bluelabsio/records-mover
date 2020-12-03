@@ -159,14 +159,17 @@ class RecordsSchema:
 
             fileobj.seek(0)
 
+            def convert_integer_dtypes(df: 'DataFrame'):
+                if 'convert_dtypes' in dir(df):
+                    # Allow nullable integers to be represented
+                    df = df.convert_dtypes(convert_integer=True)
+                else:
+                    logger.warning("Using old version of pandas; "
+                                   "not able to represent nullable integer columns")
+                return df
+
             df = purge_unnamed_unused_columns(df)
-            # TODO: Move into function
-            if 'convert_dtypes' in dir(df):
-                # Allow nullable integers to be represented
-                df = df.convert_dtypes(convert_integer=True)
-            else:
-                logger.warning("Using old version of pandas; "
-                               "not able to represent nullable integer columns")
+            df = convert_integer_dtypes(df)
             schema = RecordsSchema.from_dataframe(df, processing_instructions,
                                                   include_index=False)
 
