@@ -155,13 +155,11 @@ class TestFileobjsSource(unittest.TestCase):
             'name': mock_fileobj
         }
         mock_processing_instructions = Mock(name='processing_instructions')
-        mock_reader = mock_read_csv.return_value
-        mock_dfs = mock_reader
         source = FileobjsSource(target_names_to_input_fileobjs=mock_target_names_to_input_fileobjs,
                                 records_schema=mock_records_schema,
                                 records_format=mock_records_format)
         with source.to_dataframes_source(mock_processing_instructions) as df_source:
-            self.assertEqual(df_source.dfs, mock_dfs)
+            self.assertIsNotNone(df_source)
 
     @patch('records_mover.records.sources.fileobjs.MoveResult')
     def test_move_to_records_directory(self,
