@@ -1,7 +1,11 @@
+import logging
 import json
 import numpy as np
 from pandas import DataFrame
 from typing import Any
+
+
+logger = logging.getLogger(__name__)
 
 
 # http://stackoverflow.com/questions/27050108/convert-numpy-type-to-python
@@ -32,4 +36,15 @@ def purge_unnamed_unused_columns(df: DataFrame) -> DataFrame:
         if column.startswith('Unnamed: ') or column.startswith('unnamed: '):
             if not df[column].notnull().any():
                 df = df.drop(column, axis=1)
+    return df
+
+
+def convert_integer_dtypes(df: 'DataFrame'):
+    # TODO: Document
+    if 'convert_dtypes' in dir(df):
+        # Allow nullable integers to be represented
+        df = df.convert_dtypes(convert_integer=True)
+    else:
+        logger.warning("Using old version of pandas; "
+                       "not able to represent nullable integer columns")
     return df

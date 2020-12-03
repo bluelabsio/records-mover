@@ -1,11 +1,14 @@
 import logging
 import json
 from typing import List, Dict, Mapping, IO, Any, TYPE_CHECKING
-from ..field import RecordsSchemaField
-from ...records_format import BaseRecordsFormat
-from ...processing_instructions import ProcessingInstructions
-from .known_representation import RecordsSchemaKnownRepresentation
-from ..errors import UnsupportedSchemaError
+from records_mover.pandas import convert_integer_dtypes
+from records_mover.records.schema.field import RecordsSchemaField
+from records_mover.records.records_format import BaseRecordsFormat
+from records_mover.records.processing_instructions import ProcessingInstructions
+from records_mover.records.schema.schema.known_representation import (
+    RecordsSchemaKnownRepresentation
+)
+from records_mover.records.schema.errors import UnsupportedSchemaError
 if TYPE_CHECKING:
     from pandas import DataFrame
 
@@ -158,15 +161,6 @@ class RecordsSchema:
                 df = reader.read()
 
             fileobj.seek(0)
-
-            def convert_integer_dtypes(df: 'DataFrame'):
-                if 'convert_dtypes' in dir(df):
-                    # Allow nullable integers to be represented
-                    df = df.convert_dtypes(convert_integer=True)
-                else:
-                    logger.warning("Using old version of pandas; "
-                                   "not able to represent nullable integer columns")
-                return df
 
             df = purge_unnamed_unused_columns(df)
             df = convert_integer_dtypes(df)
