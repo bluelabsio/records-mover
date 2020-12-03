@@ -1,7 +1,7 @@
 import logging
 import json
 from typing import List, Dict, Mapping, IO, Any, TYPE_CHECKING
-from records_mover.pandas import convert_integer_dtypes
+from records_mover.pandas import convert_dtypes
 from records_mover.records.schema.field import RecordsSchemaField
 from records_mover.records.records_format import BaseRecordsFormat
 from records_mover.records.processing_instructions import ProcessingInstructions
@@ -163,7 +163,7 @@ class RecordsSchema:
             fileobj.seek(0)
 
             df = purge_unnamed_unused_columns(df)
-            df = convert_integer_dtypes(df)
+            df = convert_dtypes(df)
             schema = RecordsSchema.from_dataframe(df, processing_instructions,
                                                   include_index=False)
 

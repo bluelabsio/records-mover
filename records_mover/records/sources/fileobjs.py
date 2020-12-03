@@ -13,7 +13,7 @@ from ..processing_instructions import ProcessingInstructions
 from ...records.delimited import complain_on_unhandled_hints
 from ..delimited import python_encoding_from_hint
 from ..schema import RecordsSchema
-from records_mover.pandas import convert_integer_dtypes
+from records_mover.pandas import convert_dtypes
 from records_mover.url.filesystem import FilesystemDirectoryUrl
 from records_mover.url.base import BaseDirectoryUrl
 import logging
@@ -162,7 +162,7 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
                                   **options)
             except pd.errors.EmptyDataError:
                 dfs = [self.records_schema.to_empty_dataframe()]
-            yield DataframesRecordsSource(dfs=(convert_integer_dtypes(df) for df in dfs),
+            yield DataframesRecordsSource(dfs=(convert_dtypes(df) for df in dfs),
                                           records_schema=self.records_schema)
         finally:
             if text_fileobj is not None:

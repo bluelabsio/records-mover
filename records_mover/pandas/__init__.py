@@ -39,11 +39,17 @@ def purge_unnamed_unused_columns(df: DataFrame) -> DataFrame:
     return df
 
 
-def convert_integer_dtypes(df: 'DataFrame'):
-    # TODO: Document
+def convert_dtypes(df: 'DataFrame'):
+    """Allow nullable columns to be used in Pandas 1.0+ - prior to that,
+    Pandas would use e.g., a numpy floating point type for integers,
+    representing nulls as NaN.
+
+    If Pandas <1.0 is being used, logs a warning message and proceeds
+    with the raw dtypes.
+    """
     if 'convert_dtypes' in dir(df):
         # Allow nullable integers to be represented
-        df = df.convert_dtypes(convert_integer=True)
+        df = df.convert_dtypes()
     else:
         logger.warning("Using old version of pandas; "
                        "not able to represent nullable integer columns")
