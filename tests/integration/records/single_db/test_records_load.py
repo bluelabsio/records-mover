@@ -4,12 +4,20 @@ from .base_records_test import BaseRecordsIntegrationTest
 from ..table_validator import RecordsTableValidator
 
 from records_mover.records import RecordsSchema, RecordsFormat
+from records_mover.records.records_types import RecordsFormatType, DelimitedVariant
+from records_mover.records.delimited.types import PartialRecordsHints
+from typing import Optional, Callable
 
 logger = logging.getLogger(__name__)
 
 
 class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
-    def load_and_verify(self, format_type, variant, hints={}, broken=False, sourcefn=None):
+    def load_and_verify(self,
+                        format_type: RecordsFormatType,
+                        variant: DelimitedVariant,
+                        hints: PartialRecordsHints = {},
+                        broken: bool = False,
+                        sourcefn: Optional[Callable[[], None]] = None) -> None: # TODO fix this type
         redshift_with_no_bucket = (self.engine.name == 'redshift' and
                                    not self.has_scratch_s3_bucket())
         if redshift_with_no_bucket:
