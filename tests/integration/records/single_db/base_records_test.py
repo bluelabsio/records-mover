@@ -77,10 +77,17 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         return variant in ['csv', 'bigquery']
 
     def resource_name(self, format_type, variant, hints):
-        if hints.get('header-row', self.variant_has_header(variant)):
-            return f"{format_type}-{variant}-with-header"
+        unhandled_hints = dict(hints)
+
+        name = f"{format_type}-{variant}"
+        if unhandled_hints.pop('header-row', self.variant_has_header(variant)):
+            name += "-with-header"
         else:
-            return f"{format_type}-{variant}-no-header"
+            name += "-no-header"
+        # not relevant for base name - handled in records_filename()
+        unhandled_hints.pop('compression', None)
+        assert len(unhandled_hints) == 0, f"unhandled_hints={unhandled_hints} from hints={hints}"
+        return name
 
     def has_scratch_s3_bucket(self):
         return os.environ.get('SCRATCH_S3_URL') is not None
