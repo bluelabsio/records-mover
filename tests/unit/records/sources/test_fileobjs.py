@@ -191,3 +191,20 @@ class TestFileobjsSource(unittest.TestCase):
         mock_MoveResult.assert_called_with(move_count=None,
                                            output_urls={'file.mumble': 'vmb://dir/file.mumble'})
         self.assertEqual(out, mock_MoveResult.return_value)
+
+    @patch('records_mover.records.sources.fileobjs.TemporaryDirectory')
+    @patch('records_mover.records.sources.fileobjs.FilesystemDirectoryUrl')
+    def test_temporary_unloadable_directory_loc(self,
+                                                mock_FilesystemDirectoryUrl,
+                                                mock_TemporaryDirectory):
+        mock_records_format = Mock(name='records_format')
+        mock_records_schema = Mock(name='records_schema')
+        mock_records_schema = Mock(name='records_schema')
+        mock_target_names_to_input_fileobjs = Mock(name='target_names_to_input_fileobjs')
+        source = FileobjsSource(target_names_to_input_fileobjs=mock_target_names_to_input_fileobjs,
+                                records_schema=mock_records_schema,
+                                records_format=mock_records_format)
+        with source.temporary_unloadable_directory_loc() as temp_loc:
+            self.assertEqual(temp_loc, mock_FilesystemDirectoryUrl.return_value)
+        mock_temp_dir = mock_TemporaryDirectory.return_value.__enter__.return_value
+        mock_FilesystemDirectoryUrl.assert_called_with(mock_temp_dir)
