@@ -121,7 +121,7 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
             -> Iterator['DataframesRecordsSource']:
         import pandas as pd
         from records_mover.pandas import convert_dtypes
-        from records_mover.records.dataframes import DataframesRecordsSource  # noqa
+        from records_mover.records.sources.dataframes import DataframesRecordsSource  # noqa
         from records_mover.records.pandas import pandas_read_csv_options
 
         """Convert current source to a DataframeSource and present it in a context manager"""
