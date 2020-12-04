@@ -50,6 +50,13 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
 
     # Default value is "YYYY-MM-DD HH:MI:SSOF".
 
+    # TODO: Does this need to be generalized to be more helpful to people?
+    #
+    # To get a postgres database to test these cases with:
+    #
+    # cd tests/integration
+    # ./itest shell
+    # db dockerized-postgres
     if datetimeformattz in ['YYYY-MM-DD HH:MI:SSOF',
                             'YYYY-MM-DD HH24:MI:SSOF']:
         #
@@ -86,6 +93,46 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
         #  (1 row)
         #
         #  postgres=#
+        upgrade_date_order_style('MDY', 'datetimeformattz')
+    elif datetimeformattz == 'DD-MM-YY HH:MI:SSOF':
+        #  postgres=# select timestamptz '02-01-2999 23:01:01-10';
+        #        timestamptz
+        #  ------------------------
+        #   2999-02-02 09:01:01+00
+        #  (1 row)
+        #
+        upgrade_date_order_style('DMY', 'datetimeformattz')
+    elif datetimeformattz == 'DD/MM/YY HH:MI:SSOF':
+        #  postgres=# select timestamptz '02/01/99 23:01:01-10';
+        #        timestamptz
+        #  ------------------------
+        #   1999-02-02 09:01:01+00
+        #  (1 row)
+        #
+        upgrade_date_order_style('DMY', 'datetimeformattz')
+    elif datetimeformattz == 'DD-MM-YYYY HH:MI:SSOF':
+        #  postgres=# select timestamptz '02-01-1999 23:01:01-10';
+        #        timestamptz
+        #  ------------------------
+        #   1999-02-02 09:01:01+00
+        #  (1 row)
+        #
+        upgrade_date_order_style('DMY', 'datetimeformattz')
+    elif datetimeformattz == 'MM/DD/YY HH:MI:SSOF':
+        #  postgres=# select timestamptz '01/02/99 23:01:01-10';
+        #        timestamptz
+        #  ------------------------
+        #   1999-01-03 09:01:01+00
+        #  (1 row)
+        #
+        upgrade_date_order_style('MDY', 'datetimeformattz')
+    elif datetimeformattz == 'MM-DD-YYYY HH:MI:SSOF':
+        #  postgres=# select timestamptz '01-02-1999 23:01:01-10';
+        #        timestamptz
+        #  ------------------------
+        #   1999-01-03 09:01:01+00
+        #  (1 row)
+        #
         upgrade_date_order_style('MDY', 'datetimeformattz')
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
@@ -131,6 +178,60 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
         #
         #  postgres=#
 
+        upgrade_date_order_style('MDY', 'datetimeformat')
+    elif datetimeformat == 'DD-MM-YY HH12:MI AM':
+        #  postgres=# select timestamp '02-01-20 3:23 PM';
+        #        timestamp
+        #  ---------------------
+        #   2020-02-01 15:23:00
+        #  (1 row)
+        #
+        #  postgres=#
+        upgrade_date_order_style('DMY', 'datetimeformat')
+    elif datetimeformat == 'DD/MM/YY HH12:MI AM':
+        #  postgres=# select timestamp '02/01/20 3:23 PM';
+        #        timestamp
+        #  ---------------------
+        #   2020-02-01 15:23:00
+        #  (1 row)
+        #
+        #  postgres=#
+        upgrade_date_order_style('DMY', 'datetimeformat')
+    elif datetimeformat == 'DD-MM-YYYY HH12:MI AM':
+        #  postgres=# select timestamp '02-01-2020 3:23 PM';
+        #        timestamp
+        #  ---------------------
+        #   2020-02-01 15:23:00
+        #  (1 row)
+        #
+        #  postgres=#
+        upgrade_date_order_style('DMY', 'datetimeformat')
+    elif datetimeformat == 'MM-DD-YY HH12:MI AM':
+        #  postgres=# select timestamp '02-01-20 3:23 PM';
+        #        timestamp
+        #  ---------------------
+        #   2020-02-01 15:23:00
+        #  (1 row)
+        #
+        #  postgres=#
+        upgrade_date_order_style('MDY', 'datetimeformat')
+    elif datetimeformat == 'MM/DD/YY HH12:MI AM':
+        #  postgres=# select timestamp '02/01/20 3:23 PM';
+        #        timestamp
+        #  ---------------------
+        #   2020-02-01 15:23:00
+        #  (1 row)
+        #
+        #  postgres=#
+        upgrade_date_order_style('MDY', 'datetimeformat')
+    elif datetimeformat == 'MM-DD-YYYY HH12:MI AM':
+        #  postgres=# select timestamp '02/01/2020 3:23 PM';
+        #        timestamp
+        #  ---------------------
+        #   2020-02-01 15:23:00
+        #  (1 row)
+        #
+        #  postgres=#
         upgrade_date_order_style('MDY', 'datetimeformat')
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
@@ -206,6 +307,15 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
         #
         #  postgres=#
         upgrade_date_order_style('DMY', 'dateformat')
+    elif dateformat == "DD-MM-YY":
+        #  postgres=# select date '02-01-99';
+        #      date
+        #  ------------
+        #   1999-02-01
+        #  (1 row)
+        #
+        #  postgres=#
+        upgrade_date_order_style('DMY', 'dateformat')
     elif dateformat == "MM/DD/YY":
         # "MM/DD/YY".
         #
@@ -217,6 +327,15 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
         #
         #  postgres=#
         upgrade_date_order_style('MDY', 'dateformat')
+    elif dateformat == "DD/MM/YY":
+        #  postgres=# select date '02/01/99';
+        #      date
+        #  ------------
+        #   1999-02-01
+        #  (1 row)
+        #
+        #  postgres=#
+        upgrade_date_order_style('DMY', 'dateformat')
     elif dateformat is None:
         # null implies that that date format is unknown, and that the
         # implementation SHOULD generate using their default value and

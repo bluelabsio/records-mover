@@ -21,6 +21,7 @@ DATE_CASES = [
     'DD-MM-YYYY',
     'MM/DD/YY',
     'DD/MM/YY',
+    'DD-MM-YY',
 ]
 
 TIMEONLY_CASES = [
