@@ -87,6 +87,8 @@ class TestMover(unittest.TestCase):
                                               spec=GoogleSheetsRecordsSource)
         mock_dataframes_source = MagicMock(name='dataframes_source',
                                            spec=DataframesRecordsSource)
+        mock_dataframes_source.dfs = MagicMock(name='dfs')
+        mock_dataframes_source.dfs.close = Mock(name='dfs')
         mock_google_sheets_source.to_dataframes_source.return_value.__enter__.return_value =\
             mock_dataframes_source
         mock_fileobjs_source = MagicMock(name='fileobjs_source',
@@ -104,6 +106,7 @@ class TestMover(unittest.TestCase):
             assert_called_with(processing_instructions=mock_processing_instructions,
                                records_directory=mock_directory,
                                records_format=mock_fileobjs_source.compatible_format.return_value)
+        mock_dataframes_source.dfs.close.assert_called_with()
 
         self.assertEqual(mock_fileobjs_source.move_to_records_directory.return_value,
                          out)
