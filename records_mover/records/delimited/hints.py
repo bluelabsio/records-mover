@@ -14,22 +14,20 @@ logger = logging.getLogger(__name__)
 
 class Hints(Enum):
     value: Hint
+    datetimeformattz = StringHint("datetimeformattz",
+                                  "YYYY-MM-DD HH24:MI:SSOF",
+                                  description=("Format used to write "
+                                               "'datetimetz' values"))
+    datetimeformat = StringHint("datetimeformat",
+                                default="YYYY-MM-DD HH24:MI:SS",
+                                description=("Format used to write "
+                                             "'datetime' values"))
     # mypy gives this when we pass the HintBlahBlah aliases in as an
     # argument here:
     #
     # error: The type alias to Union is invalid in runtime context
     #
     # Nonetheless, the validation works.
-    datetimeformattz = LiteralHint[HintDateTimeFormatTz](HintDateTimeFormatTz,  # type: ignore
-                                                         "datetimeformattz",
-                                                         "YYYY-MM-DD HH24:MI:SSOF",
-                                                         description=("Format used to write "
-                                                                      "'datetimetz' values"))
-    datetimeformat = LiteralHint[HintDateTimeFormat](HintDateTimeFormat,  # type: ignore
-                                                     "datetimeformat",
-                                                     default="YYYY-MM-DD HH24:MI:SS",
-                                                     description=("Format used to write "
-                                                                  "'datetime' values"))
     compression = LiteralHint[HintCompression](HintCompression,  # type: ignore
                                                'compression',
                                                default=None,
@@ -52,16 +50,14 @@ class Hints(Enum):
                                          'encoding',
                                          default='UTF8',
                                          description="Text encoding of file")
-    dateformat = LiteralHint[HintDateFormat](HintDateFormat,  # type: ignore
-                                             'dateformat',
-                                             default='YYYY-MM-DD',
-                                             description=("Format used to write "
-                                                          "'date' values"))
-    timeonlyformat = LiteralHint[HintTimeOnlyFormat](HintTimeOnlyFormat,  # type: ignore
-                                                     'timeonlyformat',
-                                                     default="HH24:MI:SS",
-                                                     description=("Format used to write "
-                                                                  "'time' values"))
+    dateformat = StringHint('dateformat',
+                            default='YYYY-MM-DD',
+                            description=("Format used to write "
+                                         "'date' values"))
+    timeonlyformat = StringHint('timeonlyformat',
+                                default="HH24:MI:SS",
+                                description=("Format used to write "
+                                             "'time' values"))
     # https://docs.python.org/3/library/csv.html#csv.Dialect.doublequote
     doublequote = LiteralHint[HintDoublequote](HintDoublequote,  # type: ignore
                                                'doublequote',
