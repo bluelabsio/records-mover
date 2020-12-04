@@ -279,7 +279,7 @@ configuration provided to it outside of this spec).
 
 * `datetimeformat`: Valid values:
   `"YYYY-MM-DD HH:MI:SS"`,
-  `"YYYY-MM-DD HH12:MI AM"`.
+  `"YYYY-MM-DD HH12:MI AM"`,
   `"YYYY-MM-DD HH24:MI:SS"`,
   `"DD-MM-YY HH24:MI"`,
   `"MM-DD-YY HH24:MI"`,
