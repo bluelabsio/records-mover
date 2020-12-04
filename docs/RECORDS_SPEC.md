@@ -244,8 +244,16 @@ configuration provided to it outside of this spec).
 
   Default value is `"UTF8"`
 
-* `dateformat`: Valid values: `"YYYY-MM-DD"`, `"MM-DD-YYYY"`,
-  `"DD-MM-YYYY"`, `"MM/DD/YY"`, `DD/MM/YY`.
+* `dateformat`: Valid values:
+  `"YYYY-MM-DD"`,
+  `"DD-MM-YY"`,
+  `"MM-DD-YY"`,
+  `"DD-MM-YYYY"`,
+  `"MM-DD-YYYY"`,
+  `"DD/MM/YY"`,
+  `"MM/DD/YY"`,
+  `"DD/MM/YYYY"`,
+  `"MM/DD/YYYY"`.
 
   See
   [Redshift docs](https://docs.aws.amazon.com/redshift/latest/dg/r_DATEFORMAT_and_TIMEFORMAT_strings.html)
@@ -267,8 +275,12 @@ configuration provided to it outside of this spec).
   `"YYYY-MM-DD HH24:MI:SS"`,
   `"DD-MM-YY HH24:MI"`,
   `"MM-DD-YY HH24:MI"`,
+  `"DD-MM-YYYY HH24:MI"`,
+  `"MM-DD-YYYY HH24:MI"`,
   `"DD/MM/YY HH24:MI"`,
   `"MM/DD/YY HH24:MI"`,
+  `"DD/MM/YYYY HH24:MI"`,
+  `"MM/DD/YYYY HH24:MI"`,
   as well as all the above with `OF` appended   See
   [Redshift docs](https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-data-conversion.html#copy-timeformat)
   for more information (note that `HH:` is equivalent to `HH24:` and
@@ -283,8 +295,12 @@ configuration provided to it outside of this spec).
   `"YYYY-MM-DD HH24:MI:SS"`,
   `"DD-MM-YY HH24:MI"`,
   `"MM-DD-YY HH24:MI"`,
+  `"DD-MM-YYYY HH24:MI"`,
+  `"MM-DD-YYYY HH24:MI"`,
   `"DD/MM/YY HH24:MI"`,
   `"MM/DD/YY HH24:MI"`,
+  `"DD/MM/YYYY HH24:MI"`,
+  `"MM/DD/YYYY HH24:MI"`,
   See
   [Redshift docs](https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-data-conversion.html#copy-timeformat)
   for more information (note that `HH:` is equivalent to `HH24:`).

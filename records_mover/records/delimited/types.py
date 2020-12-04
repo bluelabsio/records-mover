@@ -23,7 +23,17 @@ HintHeaderRow = Literal[True, False]
 
 HintDoublequote = Literal[True, False]
 
-HintDateFormat = Literal['YYYY-MM-DD', 'MM-DD-YYYY', 'DD-MM-YYYY', 'MM/DD/YY', 'DD/MM/YY']
+HintDateFormat = Literal[
+    "YYYY-MM-DD",
+    "DD-MM-YY",
+    "MM-DD-YY",
+    "DD-MM-YYYY",
+    "MM-DD-YYYY",
+    "DD/MM/YY",
+    "MM/DD/YY",
+    "DD/MM/YYYY",
+    "MM/DD/YYYY",
+]
 
 HintTimeOnlyFormat = Literal["HH12:MI AM", "HH24:MI:SS"]
 
@@ -36,10 +46,18 @@ HintDateTimeFormatTz = Literal[
     "DD-MM-YY HH24:MIOF",
     "MM-DD-YY HH24:MI",
     "MM-DD-YY HH24:MIOF",
+    "DD-MM-YYYY HH24:MI",
+    "DD-MM-YYYY HH24:MIOF",
+    "MM-DD-YYYY HH24:MI",
+    "MM-DD-YYYY HH24:MIOF",
     "DD/MM/YY HH24:MI",
     "DD/MM/YY HH24:MIOF",
     "MM/DD/YY HH24:MI",
     "MM/DD/YY HH24:MIOF",
+    "DD/MM/YYYY HH24:MI",
+    "DD/MM/YYYY HH24:MIOF",
+    "MM/DD/YYYY HH24:MI",
+    "MM/DD/YYYY HH24:MIOF",
 ]
 
 HintDateTimeFormat = Literal[
@@ -48,8 +66,12 @@ HintDateTimeFormat = Literal[
     "YYYY-MM-DD HH24:MI:SS",
     "DD-MM-YY HH24:MI",
     "MM-DD-YY HH24:MI",
+    "DD-MM-YYYY HH24:MI",
+    "MM-DD-YYYY HH24:MI",
     "DD/MM/YY HH24:MI",
     "MM/DD/YY HH24:MI",
+    "DD/MM/YYYY HH24:MI",
+    "MM/DD/YYYY HH24:MI",
 ]
 
 HintFieldDelimiter = str
