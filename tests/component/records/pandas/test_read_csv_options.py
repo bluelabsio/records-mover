@@ -53,7 +53,10 @@ class TestReadCsvOptions(unittest.TestCase):
             },
             'DD/MM/YY': {
                 'dayfirst': True,
-            }
+            },
+            'DD-MM-YY': {
+                'dayfirst': True,
+            },
         }
         for dateformat in DATE_CASES:
             records_format = DelimitedRecordsFormat(hints={
