@@ -8,9 +8,9 @@ def create_sample(template: str) -> str:
     return (
         template
         .replace('YYYY', str(SAMPLE_YEAR))
-        .replace('YY', str(SAMPLE_YEAR_SHORT))
-        .replace('MM', str(SAMPLE_MONTH))
-        .replace('DD', str(SAMPLE_DAY))
+        .replace('YY', ('%02d' % SAMPLE_YEAR_SHORT))
+        .replace('MM', ('%02d' % SAMPLE_MONTH))
+        .replace('DD', ('%02d' % SAMPLE_DAY))
     )
 
 
@@ -20,6 +20,7 @@ DATE_CASES = [
     'MM-DD-YYYY',
     'DD-MM-YYYY',
     'MM/DD/YY',
+    'DD/MM/YY',
 ]
 
 TIMEONLY_CASES = [

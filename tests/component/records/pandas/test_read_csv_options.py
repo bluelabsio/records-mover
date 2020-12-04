@@ -50,6 +50,9 @@ class TestReadCsvOptions(unittest.TestCase):
             },
             'MM/DD/YY': {
                 'dayfirst': False,
+            },
+            'DD/MM/YY': {
+                'dayfirst': True,
             }
         }
         for dateformat in DATE_CASES:

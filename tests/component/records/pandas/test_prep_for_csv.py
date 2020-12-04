@@ -4,6 +4,9 @@ import unittest
 from records_mover.records.pandas import prep_df_for_csv_output
 from records_mover.records.schema import RecordsSchema
 from records_mover.records import DelimitedRecordsFormat, ProcessingInstructions
+from ..datetime_cases import (
+    DATE_CASES, create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY
+)
 
 
 class TestPrepForCsv(unittest.TestCase):
@@ -121,8 +124,7 @@ class TestPrepForCsv(unittest.TestCase):
         # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
         self.assertIsNotNone(new_df)
 
-
-    def test_dateformat(self):
+    def test_dateformats(self):
         schema_data = {
             'schema': "bltypes/v1",
             'fields': {
@@ -130,51 +132,29 @@ class TestPrepForCsv(unittest.TestCase):
                     "type": "date",
                     "index": 1,
                 },
-                "time": {
-                    "type": "time",
-                    "index": 2,
-                },
-                "timetz": {
-                    "type": "timetz",
-                    "index": 3,
-                },
             }
         }
-        records_format = DelimitedRecordsFormat(variant='bluelabs')
         records_schema = RecordsSchema.from_data(schema_data)
         processing_instructions = ProcessingInstructions()
-        # us_eastern = pytz.timezone('US/Eastern')
-        data = {
-            'time': [
-                pd.Timestamp(year=1970, month=1, day=1,
-                             hour=12, minute=33, second=53, microsecond=1234)
-            ],
-            # timetz is not well supported in records mover yet.  For
-            # instance, specifying how it's turned into a CSV is not
-            # currently part of the records spec:
-            #
-            #   https://github.com/bluelabsio/records-mover/issues/76
-            #
-            # In addition, Vertica suffers from a driver limitation:
-            #
-            #   https://github.com/bluelabsio/records-mover/issues/77
-            #
-            # 'timetz': [
-            #     us_eastern.localize(pd.Timestamp(year=1970, month=1, day=1,
-            #                                      hour=12, minute=33, second=53,
-            #                                      microsecond=1234)),
-            # ],
-        }
-        df = pd.DataFrame(data,
-                          index=[pd.Timestamp(year=1970, month=1, day=1)],
-                          columns=['time', 'timetz'])
+        for dateformat in DATE_CASES:
+            records_format = DelimitedRecordsFormat(variant='bluelabs',
+                                                    hints={
+                                                        'dateformat': dateformat
+                                                    })
+            # us_eastern = pytz.timezone('US/Eastern')
+            data = {
+                'date': [
+                    pd.Timestamp(year=SAMPLE_YEAR, month=SAMPLE_MONTH, day=SAMPLE_DAY)
+                ],
+            }
+            df = pd.DataFrame(data, columns=['date'])
 
-        new_df = prep_df_for_csv_output(df=df,
-                                        include_index=True,
-                                        records_schema=records_schema,
-                                        records_format=records_format,
-                                        processing_instructions=processing_instructions)
-        self.assertEqual(new_df.index[0], '1970-01-01')
-        self.assertEqual(new_df['time'][0], '12:33:53')
-        # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
-        self.assertIsNotNone(new_df)
+            new_df = prep_df_for_csv_output(df=df,
+                                            include_index=False,
+                                            records_schema=records_schema,
+                                            records_format=records_format,
+                                            processing_instructions=processing_instructions)
+            self.assertEqual(new_df['date'][0],
+                             create_sample(dateformat))
+            # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
+            self.assertIsNotNone(new_df)
