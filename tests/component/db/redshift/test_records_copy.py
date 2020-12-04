@@ -2,7 +2,7 @@ import unittest
 from records_mover.db.redshift.records_copy import redshift_copy_options
 from records_mover.records import DelimitedRecordsFormat, AvroRecordsFormat
 from sqlalchemy_redshift.commands import Encoding, Format
-from ..records.datetime_cases import DATE_CASES
+from ...records.datetime_cases import DATE_CASES
 
 
 class TestRecordsCopy(unittest.TestCase):
@@ -50,4 +50,4 @@ class TestRecordsCopy(unittest.TestCase):
                                         fail_if_cant_handle_hint=True,
                                         fail_if_row_invalid=True,
                                         max_failure_rows=0)
-            self.assertIs(out['date_format'], 123)
+            self.assertIs(out['date_format'], dateformat)
