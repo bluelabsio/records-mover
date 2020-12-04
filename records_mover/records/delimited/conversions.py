@@ -44,8 +44,8 @@ python_encoding_from_hint: Dict[Optional[HintEncoding], str] = {
 # Add test cases to repro, verify it gets reproed, and then fix.
 python_date_format_from_hints: Dict[Union[HintDateFormat, Literal['DD/MM/YY']], str] = {
     'YYYY-MM-DD': '%Y-%m-%d',
-    'MM/DD/YY': '%m/%d/%Y',
-    'DD/MM/YY': '%d/%m/%Y',
+    'MM/DD/YY': '%m/%d/%y',
+    'DD/MM/YY': '%d/%m/%y',
 }
 
 # TODO: Need to make these functions or this will be very brittle.
