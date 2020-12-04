@@ -1,13 +1,10 @@
 import unittest
 
-from records_mover.records.delimited import complain_on_unhandled_hints
 from records_mover.db.bigquery.load_job_config_options import load_job_config
 from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.records.processing_instructions import ProcessingInstructions
 from records_mover.records.records_format import DelimitedRecordsFormat
-from ...records.datetime_cases import (
-    DATE_CASES, create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY
-)
+from ...records.datetime_cases import DATE_CASES
 
 
 class TestLoadJobConfigDatetime(unittest.TestCase):
