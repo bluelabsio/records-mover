@@ -48,6 +48,7 @@ python_date_format_from_hints: Dict[Union[HintDateFormat, Literal['DD/MM/YY']], 
     'YYYY-MM-DD': '%Y-%m-%d',
     'MM/DD/YY': '%m/%d/%y',
     'DD/MM/YY': '%d/%m/%y',
+    'DD-MM-YY': '%d-%m-%y',
 }
 
 # TODO: Need to make these functions or this will be very brittle.
