@@ -47,7 +47,7 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
                              hints={
                                  'datetimeformattz': 'DD-MM-YY HH24:MIOF',
                                  'datetimeformat': 'DD-MM-YY HH24:MI',
-                                 'dateformat': 'DD-MM-YYYY'
+                                 'dateformat': 'DD-MM-YY'
                              })
 
     def test_load_bigquery_format(self):
@@ -58,7 +58,7 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
                              hints={
                                  'datetimeformattz': 'DD-MM-YY HH24:MIOF',
                                  'datetimeformat': 'DD-MM-YY HH24:MI',
-                                 'dateformat': 'DD-MM-YYYY'
+                                 'dateformat': 'DD-MM-YY'
                              })
 
     def test_load_bigquery_format_with_header_row(self):
@@ -72,7 +72,7 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
                              hints={
                                  'datetimeformattz': 'DD-MM-YY HH24:MIOF',
                                  'datetimeformat': 'DD-MM-YY HH24:MI',
-                                 'dateformat': 'DD-MM-YYYY'
+                                 'dateformat': 'DD-MM-YY'
                              })
 
     def test_load_bluelabs_format_with_header_row(self):

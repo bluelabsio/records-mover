@@ -18,7 +18,7 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
                                hints={
                                    'datetimeformattz': 'DD-MM-YY HH24:MIOF',
                                    'datetimeformat': 'DD-MM-YY HH24:MI',
-                                   'dateformat': 'DD-MM-YYYY'
+                                   'dateformat': 'DD-MM-YY'
                                })
 
     def test_unload_csv_format_uncompressed(self):
@@ -35,7 +35,7 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
                                hints={
                                    'datetimeformattz': 'DD-MM-YY HH24:MIOF',
                                    'datetimeformat': 'DD-MM-YY HH24:MI',
-                                   'dateformat': 'DD-MM-YYYY'
+                                   'dateformat': 'DD-MM-YY'
                                })
 
     def test_unload_bluelabs_format_uncompressed(self):
@@ -52,7 +52,7 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
                                hints={
                                    'datetimeformattz': 'DD-MM-YY HH24:MIOF',
                                    'datetimeformat': 'DD-MM-YY HH24:MI',
-                                   'dateformat': 'DD-MM-YYYY'
+                                   'dateformat': 'DD-MM-YY'
                                })
 
     def test_unload_vertica_format_with_header_row(self):
@@ -66,7 +66,7 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
                                hints={
                                    'datetimeformattz': 'DD-MM-YY HH24:MIOF',
                                    'datetimeformat': 'DD-MM-YY HH24:MI',
-                                   'dateformat': 'DD-MM-YYYY'
+                                   'dateformat': 'DD-MM-YY'
                                })
 
     def test_unload_bigquery_format_uncompressed(self):

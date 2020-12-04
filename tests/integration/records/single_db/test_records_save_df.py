@@ -72,7 +72,7 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
         hints = {
             'datetimeformattz': 'DD-MM-YY HH24:MIOF',
             'datetimeformat': 'DD-MM-YY HH24:MI',
-            'dateformat': 'DD-MM-YYYY'
+            'dateformat': 'DD-MM-YY'
         }
         self.save_and_verify(records_format=DelimitedRecordsFormat(hints=hints))
 
@@ -84,7 +84,7 @@ class RecordsSaveDataframeIntegrationTest(BaseRecordsIntegrationTest):
         hints = {
             'datetimeformattz': 'DD-MM-YY HH24:MIOF',
             'datetimeformat': 'DD-MM-YY HH24:MI',
-            'dateformat': 'DD-MM-YYYY'
+            'dateformat': 'DD-MM-YY'
         }
         records_format = DelimitedRecordsFormat(variant='csv',
                                                 hints=hints)
