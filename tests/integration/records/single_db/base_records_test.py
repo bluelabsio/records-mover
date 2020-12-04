@@ -84,8 +84,21 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
             name += "-with-header"
         else:
             name += "-no-header"
+
         # not relevant for base name - handled in records_filename()
         unhandled_hints.pop('compression', None)
+
+        dd_dash_mm_hints = {
+            'datetimeformattz': 'DD-MM-YY HH24:MIOF',
+            'datetimeformat': 'DD-MM-YY HH24:MI',
+            'dateformat': 'DD-MM-YYYY'
+        }
+        if all(item in hints.items() for item in dd_dash_mm_hints.items()):
+            unhandled_hints.pop('datetimeformattz', None)
+            unhandled_hints.pop('datetimeformat', None)
+            unhandled_hints.pop('dateformat', None)
+            name += '-mmdd'
+
         assert len(unhandled_hints) == 0, f"unhandled_hints={unhandled_hints} from hints={hints}"
         return name
 
