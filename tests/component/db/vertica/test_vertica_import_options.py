@@ -2,7 +2,6 @@ from records_mover.records.records_format import DelimitedRecordsFormat
 from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.records.processing_instructions import ProcessingInstructions
 from records_mover.db.vertica.records_import_options import vertica_import_options
-from ...records.format_hints import christmas_tree_format_1_hints
 from records_mover.records.delimited.utils import logger as driver_logger
 import unittest
 from mock import call, patch
@@ -85,34 +84,6 @@ class TestVerticaImportOptions(unittest.TestCase):
             'trailing_nullcols': True,
         }
         self.assertDictEqual(options, expected_options)
-        self.assertEqual(unhandled_hints, set())
-
-    def test_christmas_tree_format_1_permissive(self):
-        vertica_format = DelimitedRecordsFormat(variant='dumb', hints=christmas_tree_format_1_hints)
-        processing_instructions = ProcessingInstructions(fail_if_cant_handle_hint=False)
-        load_plan = RecordsLoadPlan(processing_instructions=processing_instructions,
-                                    records_format=vertica_format)
-        unhandled_hints = set(load_plan.records_format.hints.keys())
-        with patch.object(driver_logger, 'warning') as mock_warning:
-            options = vertica_import_options(unhandled_hints, load_plan)
-        expected_options = {
-            'abort_on_error': True,
-            'delimiter': '\x01',
-            'enforcelength': True,
-            'error_tolerance': False,
-            'escape_as': '\\',
-            'load_method': 'AUTO',
-            'no_commit': False,
-            'null_as': None,
-            'record_terminator': '\x02',
-            'rejectmax': 1,
-            'skip': 1,
-            'trailing_nullcols': False,
-        }
-        self.assertDictEqual(options, expected_options)
-        self.assertListEqual(mock_warning.mock_calls,
-                             [call("Ignoring hint compression = 'LZO'"),
-                              call("Ignoring hint quoting = 'nonnumeric'")])
         self.assertEqual(unhandled_hints, set())
 
     def test_weird_timeonlyformat(self):
