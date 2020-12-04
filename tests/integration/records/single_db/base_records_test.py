@@ -97,7 +97,7 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
             unhandled_hints.pop('datetimeformattz', None)
             unhandled_hints.pop('datetimeformat', None)
             unhandled_hints.pop('dateformat', None)
-            name += '-mmdd'
+            name += '-mmdashdd'
 
         assert len(unhandled_hints) == 0, f"unhandled_hints={unhandled_hints} from hints={hints}"
         return name
