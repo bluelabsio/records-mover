@@ -106,7 +106,7 @@ class TestMySQLLoadOptions(unittest.TestCase):
 
     def test_mysql_load_options_dateformat(self) -> None:
         # See comment in load_options.py - this list should be longer.
-        expected_failures: Set[str] = {}
+        expected_failures: Set[str] = set()
 
         for dateformat in DATE_CASES:
             records_format = DelimitedRecordsFormat(variant='bluelabs',
