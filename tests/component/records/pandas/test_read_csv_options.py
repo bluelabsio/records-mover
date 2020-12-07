@@ -3,9 +3,10 @@ import pandas
 import io
 from typing import Dict
 from typing_extensions import TypedDict
-from records_mover.records.delimited.types import HintDateFormat
+from records_mover.records.delimited.types import HintDateFormat, HintDateTimeFormatTz
 from ..datetime_cases import (
-    DATE_CASES, create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY
+    DATE_CASES, DATETIMEFORMATTZ_CASES,
+    create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND
 )
 from records_mover.records.pandas.read_csv_options import pandas_read_csv_options
 from records_mover.records.schema import RecordsSchema
@@ -91,3 +92,66 @@ class TestReadCsvOptions(unittest.TestCase):
             self.assertEqual(timestamp.year, SAMPLE_YEAR)
             self.assertEqual(timestamp.month, SAMPLE_MONTH)
             self.assertEqual(timestamp.day, SAMPLE_DAY)
+
+    def test_datetimeformattz(self) -> None:
+        class DateTimeFormatTzExpectations(TypedDict):
+            # Use the datetimeformat/datetimeformattz which is
+            # compatible, as pandas doesn't let you configure those
+            # separately
+            dayfirst: bool
+
+        testcases: Dict[HintDateTimeFormatTz, DateTimeFormatTzExpectations] = {
+            'YYYY-MM-DD HH:MI:SSOF': {
+                'dayfirst': False,
+            },
+            'YYYY-MM-DD HH:MI:SS': {
+                'dayfirst': False,
+            },
+            'YYYY-MM-DD HH24:MI:SSOF': {
+                'dayfirst': False,
+            },
+            'MM/DD/YY HH24:MI': {
+                'dayfirst': False,
+            },
+        }
+        for datetimeformattz in DATETIMEFORMATTZ_CASES:
+            records_format = DelimitedRecordsFormat(hints={
+                'datetimeformattz': datetimeformattz,
+                'compression': None,
+            })
+            records_schema = RecordsSchema.from_data({
+                'schema': 'bltypes/v1',
+                'fields': {
+                    'first': {
+                        'type': 'datetimetz'
+                    }
+                },
+            })
+            unhandled_hints = set(records_format.hints)
+            processing_instructions = ProcessingInstructions()
+            expectations = testcases[datetimeformattz]
+            try:
+                options = pandas_read_csv_options(records_format,
+                                                  records_schema,
+                                                  unhandled_hints,
+                                                  processing_instructions)
+            except NotImplementedError:
+                self.fail(f'Could not handle combination for {datetimeformattz}')
+            self.assertEqual(options['parse_dates'], [0])
+            self.assertTrue(all(item in options.items() for item in expectations.items()))
+            datetimetz = create_sample(datetimeformattz)
+            fileobj = io.StringIO(datetimetz)
+            df = pandas.read_csv(filepath_or_buffer=fileobj,
+                                 **options)
+            timestamp = df['untitled_0'][0]
+            self.assertIsInstance(timestamp, pandas.Timestamp,
+                                  f"Pandas did not parse {datetimetz} as a timestamp object")
+            self.assertEqual(timestamp.year, SAMPLE_YEAR)
+            self.assertEqual(timestamp.month, SAMPLE_MONTH)
+            self.assertEqual(timestamp.day, SAMPLE_DAY)
+            self.assertEqual(timestamp.hour, SAMPLE_HOUR)
+            self.assertEqual(timestamp.minute, SAMPLE_MINUTE)
+            if 'SS' in datetimeformattz:
+                self.assertEqual(timestamp.second, SAMPLE_SECOND)
+            else:
+                self.assertEqual(timestamp.second, 0)
