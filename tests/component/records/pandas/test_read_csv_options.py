@@ -216,10 +216,7 @@ class TestReadCsvOptions(unittest.TestCase):
             self.assertEqual(timestamp.year, SAMPLE_YEAR)
             self.assertEqual(timestamp.month, SAMPLE_MONTH)
             self.assertEqual(timestamp.day, SAMPLE_DAY)
-            if 'AM' in datetimeformat:
-                self.assertEqual(timestamp.hour, SAMPLE_HOUR_12H)
-            else:
-                self.assertEqual(timestamp.hour, SAMPLE_HOUR)
+            self.assertEqual(timestamp.hour, SAMPLE_HOUR)
             self.assertEqual(timestamp.minute, SAMPLE_MINUTE)
             if 'SS' in datetimeformat:
                 self.assertEqual(timestamp.second, SAMPLE_SECOND)
@@ -257,10 +254,7 @@ class TestReadCsvOptions(unittest.TestCase):
             timestamp = df['untitled_0'][0]
             self.assertIsInstance(timestamp, pandas.Timestamp,
                                   f"Pandas did not parse {timeonly} as a timestamp object")
-            if 'AM' in timeonlyformat:
-                self.assertEqual(timestamp.hour, SAMPLE_HOUR_12H)
-            else:
-                self.assertEqual(timestamp.hour, SAMPLE_HOUR)
+            self.assertEqual(timestamp.hour, SAMPLE_HOUR)
             self.assertEqual(timestamp.minute, SAMPLE_MINUTE)
             if 'SS' in timeonlyformat:
                 self.assertEqual(timestamp.second, SAMPLE_SECOND)
