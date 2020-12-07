@@ -54,6 +54,7 @@ def vertica_export_options(unhandled_hints: Set[str],
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
     quiet_remove(unhandled_hints, 'datetimeformat')
 
+    # TODO: Add test that reproduces HH:MM:SS
     if hints['timeonlyformat'] != 'HH24:MI:SS':
         cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', hints)
     quiet_remove(unhandled_hints, 'timeonlyformat')

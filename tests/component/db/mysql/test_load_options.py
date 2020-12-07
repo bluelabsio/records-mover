@@ -2,7 +2,7 @@ import unittest
 from records_mover.records import DelimitedRecordsFormat
 from records_mover.db.mysql.load_options import mysql_load_options
 from ...records.datetime_cases import (
-    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES,
+    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES, TIMEONLY_CASES,
     create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY
 )
 from typing import Set
@@ -164,6 +164,26 @@ class TestMySQLLoadOptions(unittest.TestCase):
                                    fail_if_cant_handle_hint=True)
             except NotImplementedError:
                 if datetimeformat in expected_failures:
+                    pass
+                else:
+                    raise
+
+    def test_mysql_load_options_timeonlyformat(self) -> None:
+        expected_failures: Set[str] = set()
+
+        for timeonlyformat in TIMEONLY_CASES:
+            records_format = DelimitedRecordsFormat(variant='bluelabs',
+                                                    hints={
+                                                        'timeonlyformat': timeonlyformat,
+                                                        'compression': None,
+                                                    })
+            unhandled_hints = set(records_format.hints.keys())
+            try:
+                mysql_load_options(unhandled_hints,
+                                   records_format,
+                                   fail_if_cant_handle_hint=True)
+            except NotImplementedError:
+                if timeonlyformat in expected_failures:
                     pass
                 else:
                     raise
