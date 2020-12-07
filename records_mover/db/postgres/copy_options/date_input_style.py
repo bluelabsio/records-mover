@@ -51,7 +51,6 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
 
     # Default value is "YYYY-MM-DD HH:MI:SSOF".
 
-    # TODO: Does this need to be generalized to be more helpful to people?
     #
     # To get a postgres database to test these cases with:
     #
