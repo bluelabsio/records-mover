@@ -2,7 +2,9 @@ import unittest
 from records_mover.db.redshift.records_copy import redshift_copy_options
 from records_mover.records import DelimitedRecordsFormat, AvroRecordsFormat
 from sqlalchemy_redshift.commands import Encoding, Format
-from ...records.datetime_cases import DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES
+from ...records.datetime_cases import (
+    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES, TIMEONLY_CASES
+)
 
 
 class TestRecordsCopy(unittest.TestCase):
@@ -108,9 +110,6 @@ class TestRecordsCopy(unittest.TestCase):
         # Please verify new formats have a test run
         # and documented in records_copy.py before putting an entry in
         # here.
-        expectations = {
-            'YYYY-MM-DD HH24:MI:SS': 'auto',
-        }
         for datetimeformat in DATETIMEFORMAT_CASES:
             hints = {
                 'datetimeformattz': f"{datetimeformat}OF",
@@ -141,3 +140,24 @@ class TestRecordsCopy(unittest.TestCase):
                                         fail_if_row_invalid=True,
                                         max_failure_rows=0)
             self.assertEqual(out['time_format'], datetimeformat)
+
+    def test_redshift_copy_options_timeonlyformat(self):
+        # Redshift didn't used to have a time only format, so Records
+        # Mover doesn't yet support anything here and just treats
+        # these as strings.  Nothing should raise.
+        #
+        # TODO: Point to a backlog item
+        for timeonlyformat in TIMEONLY_CASES:
+            hints = {
+                'timeonlyformat': timeonlyformat,
+            }
+            records_format =\
+                DelimitedRecordsFormat(variant='bluelabs',
+                                       hints=hints)
+            unhandled_hints = set(records_format.hints.keys())
+            redshift_copy_options(unhandled_hints,
+                                  records_format,
+                                  fail_if_cant_handle_hint=True,
+                                  fail_if_row_invalid=True,
+                                  max_failure_rows=0)
+            # hurray, we didn't raise!
