@@ -41,7 +41,7 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                    table_name=self.table_name,
                                    db_engine=self.engine)
             out = self.records.move(source, target)
-            out = self.engine.execute('SELECT dateformat '
+            out = self.engine.execute('SELECT date '
                                       f'from {self.schema_name}.{self.table_name}')
             ret = out.fetchall()
             assert 1 == len(ret)
