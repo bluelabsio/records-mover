@@ -4,7 +4,6 @@ from records_mover.db.postgres.copy_options.date_output_style import\
     determine_date_output_style
 from ...records.datetime_cases import (
     DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES,
-    create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY
 )
 
 
