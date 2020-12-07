@@ -331,8 +331,7 @@ def add_load_job_csv_config(unhandled_hints: Set[str],
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
     quiet_remove(unhandled_hints, 'datetimeformattz')
 
-    # TODO: Ensure this raises as HH:MI:SS should also work
-    if hints.timeonlyformat == 'HH24:MI:SS':
+    if hints.timeonlyformat in ['HH24:MI:SS', 'HH:MI:SS']:
         pass
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', hints)

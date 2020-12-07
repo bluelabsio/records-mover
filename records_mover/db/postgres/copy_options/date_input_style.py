@@ -226,10 +226,19 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
         #  postgres=#
         upgrade_date_order_style('MDY', 'datetimeformat')
     elif datetimeformat == 'MM-DD-YYYY HH12:MI AM':
-        #  postgres=# select timestamp '02/01/2020 3:23 PM';
+        #  postgres=# select timestamp '01-02-2020 3:23 PM';
         #        timestamp
         #  ---------------------
-        #   2020-02-01 15:23:00
+        #   2020-01-02 15:23:00
+        #  (1 row)
+        #
+        #  postgres=#
+        upgrade_date_order_style('MDY', 'datetimeformat')
+    elif datetimeformat == 'MM-DD-YYYY HH:MI:SS':
+        #  postgres=# select timestamp '01-02-2020 3:23 PM';
+        #        timestamp
+        #  ---------------------
+        #   2020-01-02 15:23:00
         #  (1 row)
         #
         #  postgres=#
@@ -268,6 +277,15 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
         #  postgres=#
 
         # Supported!
+        quiet_remove(unhandled_hints, 'timeonlyformat')
+    elif timeonlyformat == "HH:MI:SS":
+        #  postgres=# select time '13:00:00';
+        #     time
+        #  ----------
+        #   13:00:00
+        #  (1 row)
+        #
+        #  postgres=#
         quiet_remove(unhandled_hints, 'timeonlyformat')
     elif timeonlyformat == "HH24:MI":
 

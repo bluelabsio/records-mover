@@ -38,6 +38,7 @@ DATE_CASES = [
 
 TIMEONLY_CASES = [
     "HH12:MI AM",
+    "HH:MI:SS",
     "HH24:MI:SS",
 ]
 

@@ -115,6 +115,15 @@ class TestDateOrderStyle(unittest.TestCase):
                 'MDY'
             ),
             (
+                {
+                    'datetimeformattz': 'MM-DD-YYYY HH:MI:SSOF',
+                    'datetimeformat': "MM-DD-YYYY HH:MI:SS",
+                    'timeonlyformat': "HH:MI:SS",
+                    'dateformat': "MM-DD-YYYY",
+                },
+                'MDY'
+            ),
+            (
                 # No ambiguity, can handle all
                 {
                     'datetimeformattz': 'INVALID',
