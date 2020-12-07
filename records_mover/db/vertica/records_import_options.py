@@ -48,6 +48,9 @@ def vertica_import_options(unhandled_hints: Set[str],
     quiet_remove(unhandled_hints, 'quotechar')
     quiet_remove(unhandled_hints, 'quoting')
 
+    # TODO: Does this perhaps support more things on input for all of
+    # these fields?  Can I start by documenting a low key way to test this manually?
+
     if not hints['dateformat'] in ['YYYY-MM-DD']:
         cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', hints)
     quiet_remove(unhandled_hints, 'dateformat')
@@ -55,7 +58,8 @@ def vertica_import_options(unhandled_hints: Set[str],
     vertica_options['delimiter'] = hints['field-delimiter']
     quiet_remove(unhandled_hints, 'field-delimiter')
 
-    if hints['datetimeformattz'] != 'YYYY-MM-DD HH:MI:SSOF':
+    if hints['datetimeformattz'] not in ['YYYY-MM-DD HH:MI:SSOF',
+                                         'YYYY-MM-DD HH24:MI:SSOF']:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
     quiet_remove(unhandled_hints, 'datetimeformattz')
 
