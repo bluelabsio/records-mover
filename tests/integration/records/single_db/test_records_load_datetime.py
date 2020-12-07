@@ -27,7 +27,11 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             targets = self.records.targets
             sources = self.records.sources
             fileobj = io.BytesIO(create_sample(dateformat).encode('utf-8'))
-            records_format = RecordsFormat(variant=variant_for_db[self.engine.name])
+            records_format = RecordsFormat(variant=variant_for_db[self.engine.name],
+                                           hints={
+                                               'dateformat': dateformat,
+                                               'compression': None,
+                                           })
             source = sources.fileobjs(target_names_to_input_fileobjs={
                                         'test': fileobj
                                       },
