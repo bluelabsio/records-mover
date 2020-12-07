@@ -29,6 +29,7 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
     # interpretation, DMY to select day-month-year interpretation, or
     # YMD to select year-month-day interpretation."
 
+    # $ cd tests/integration
     # $ ./itest shell
     # $ db dockerized-postgres
     # postgres=# SHOW DateStyle;
@@ -268,8 +269,22 @@ def determine_input_date_order_style(unhandled_hints: Set[str],
 
         # Supported!
         quiet_remove(unhandled_hints, 'timeonlyformat')
+    elif timeonlyformat == "HH24:MI":
+
+        # "HH24:MI" (e.g., "13:00")
+        #
+        #  postgres=# select time '13:00';
+        #     time
+        #  ----------
+        #   13:00:00
+        #  (1 row)
+        #
+        #  postgres=#
+
+        # Supported!
+        quiet_remove(unhandled_hints, 'timeonlyformat')
     else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
+        cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', hints)
 
     # dateformat: Valid values: null, "YYYY-MM-DD", "MM-DD-YYYY", "DD-MM-YYYY", "MM/DD/YY".
     dateformat = hints.dateformat
