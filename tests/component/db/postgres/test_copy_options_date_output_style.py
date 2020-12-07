@@ -3,7 +3,7 @@ from records_mover.records import DelimitedRecordsFormat
 from records_mover.db.postgres.copy_options.date_output_style import\
     determine_date_output_style
 from ...records.datetime_cases import (
-    DATE_CASES, DATETIMEFORMATTZ_CASES,
+    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES,
     create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY
 )
 
@@ -87,7 +87,7 @@ class TestPostgresCopyOptionsDateOutputStyle(unittest.TestCase):
             'YYYY-MM-DD HH:MI:SSOF': 'YYYY-MM-DD HH:MI:SS',
             'YYYY-MM-DD HH:MI:SS': 'YYYY-MM-DD HH:MI:SS',
             'YYYY-MM-DD HH24:MI:SSOF': 'YYYY-MM-DD HH24:MI:SS',
-            'MM/DD/YY HH24:MI': 'HH24:MI',
+            'MM/DD/YY HH24:MI': 'MM/DD/YY HH24:MI',
         }
         for datetimeformattz in DATETIMEFORMATTZ_CASES:
             records_format = DelimitedRecordsFormat(hints={
@@ -105,6 +105,59 @@ class TestPostgresCopyOptionsDateOutputStyle(unittest.TestCase):
                                                   fail_if_cant_handle_hint)
             except NotImplementedError:
                 if datetimeformattz in expected_failures:
+                    pass
+                else:
+                    raise
+            self.assertEqual(out, ('ISO', None))
+
+
+    def test_determine_output_date_order_style_datetimeformat(self):
+        unhandled_hints = set()
+        # Records Mover only supports Postgres in ISO format at this
+        # point (YYYY-MM-DD) - see comments in types.py and in
+        # date_output_style.py for more detail.
+        expected_failures = {
+            # no timezone, even though otherwise in ISO format
+            'YYYY-MM-DD HH:MI:SS',
+            # not in ISO format
+            'MM/DD/YY HH24:MI',
+            # not in ISO format
+            'YYYY-MM-DD HH12:MI AM',
+        }
+        natural_dateformat = {
+            'YYYY-MM-DD HH:MI:SS': 'YYYY-MM-DD',
+            'MM/DD/YY HH24:MI': 'MM/DD/YY',
+            'YYYY-MM-DD HH24:MI:SS': 'YYYY-MM-DD',
+            'YYYY-MM-DD HH12:MI AM': 'YYYY-MM-DD',
+        }
+        natural_timeonlyformat = {
+            'YYYY-MM-DD HH:MI:SS': 'HH:MI:SS',
+            'MM/DD/YY HH24:MI': 'HH24:MI',
+            'YYYY-MM-DD HH24:MI:SS': 'HH24:MI:SS',
+            'YYYY-MM-DD HH12:MI AM': 'HH12:MI AM',
+        }
+        natural_datetimeformattz = {
+            'YYYY-MM-DD HH:MI:SS': 'YYYY-MM-DD HH:MI:SSOF',
+            'MM/DD/YY HH24:MI': 'MM/DD/YY HH24:MIOF',
+            'YYYY-MM-DD HH24:MI:SS': 'YYYY-MM-DD HH24:MI:SSOF',
+            'YYYY-MM-DD HH12:MI AM': 'YYYY-MM-DD HH12:MI AM'
+        }
+        for datetimeformat in DATETIMEFORMAT_CASES:
+            records_format = DelimitedRecordsFormat(hints={
+                'dateformat': natural_dateformat[datetimeformat],
+                'timeonlyformat': natural_timeonlyformat[datetimeformat],
+                'datetimeformattz': natural_datetimeformattz[datetimeformat],
+                'datetimeformat': datetimeformat,
+            })
+            fail_if_cant_handle_hint = True
+            validated_hints =\
+                records_format.validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
+            try:
+                out = determine_date_output_style(unhandled_hints,
+                                                  validated_hints,
+                                                  fail_if_cant_handle_hint)
+            except NotImplementedError:
+                if datetimeformat in expected_failures:
                     pass
                 else:
                     raise

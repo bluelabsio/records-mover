@@ -49,8 +49,8 @@ def vertica_export_options(unhandled_hints: Set[str],
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
     quiet_remove(unhandled_hints, 'datetimeformattz')
 
-    # TODO: WRite a test that forces me to add HH24 variation below
-    if hints['datetimeformat'] != 'YYYY-MM-DD HH:MI:SS':
+    if hints['datetimeformat'] not in ['YYYY-MM-DD HH:MI:SS',
+                                       'YYYY-MM-DD HH24:MI:SS']:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
     quiet_remove(unhandled_hints, 'datetimeformat')
 
