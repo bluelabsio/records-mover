@@ -111,33 +111,6 @@ class TestVerticaImportOptions(unittest.TestCase):
                 else:
                     self.fail()
 
-    def test_vertica_import_options_datetimeformattz(self):
-        # Vertica doesn't currently allow any configurability on
-        # input datetimeformattz.  Check again before adding any test cases
-        # here!
-        should_raise = {
-            'YYYY-MM-DD HH:MI:SS': True,
-            'YYYY-MM-DD HH24:MI:SSOF': False,
-            'MM/DD/YY HH24:MI': True,
-
-        }
-        for datetimeformattz in DATETIMEFORMATTZ_CASES:
-            records_format = DelimitedRecordsFormat(variant='vertica',
-                                                    hints={
-                                                        'datetimeformattz': datetimeformattz,
-                                                    })
-            unhandled_hints = set(records_format.hints)
-            processing_instructions = ProcessingInstructions(max_failure_rows=123)
-            load_plan = RecordsLoadPlan(processing_instructions=processing_instructions,
-                                        records_format=records_format)
-            try:
-                vertica_import_options(unhandled_hints, load_plan)
-            except NotImplementedError:
-                if should_raise[datetimeformattz]:
-                    pass
-                else:
-                    self.fail()
-
     def test_vertica_import_options_timeonlyformat(self):
         # Vertica doesn't currently allow any configurability on input
         # timeonlyformat.  Check again before adding any test cases
