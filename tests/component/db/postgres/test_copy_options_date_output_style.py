@@ -10,13 +10,43 @@ from ...records.datetime_cases import (
 class TestPostgresCopyOptionsDateOutputStyle(unittest.TestCase):
     def test_determine_output_date_order_style_iso_1(self):
         unhandled_hints = set()
-        # TODO: Shouldn't variations of this that include HH or HH24
-        # also work?
         records_format = DelimitedRecordsFormat(hints={
             'dateformat': 'YYYY-MM-DD',
             'timeonlyformat': 'HH24:MI:SS',
             'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
             'datetimeformat': 'YYYY-MM-DD HH24:MI:SS'
+        })
+        fail_if_cant_handle_hint = True
+        validated_hints = records_format.validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
+
+        out = determine_date_output_style(unhandled_hints,
+                                          validated_hints,
+                                          fail_if_cant_handle_hint)
+        self.assertEqual(out, ('ISO', None))
+
+    def test_determine_output_date_order_style_iso_2(self):
+        unhandled_hints = set()
+        records_format = DelimitedRecordsFormat(hints={
+            'dateformat': 'YYYY-MM-DD',
+            'timeonlyformat': 'HH24:MI:SS',
+            'datetimeformattz': 'YYYY-MM-DD HH24:MI:SSOF',
+            'datetimeformat': 'YYYY-MM-DD HH24:MI:SS'
+        })
+        fail_if_cant_handle_hint = True
+        validated_hints = records_format.validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
+
+        out = determine_date_output_style(unhandled_hints,
+                                          validated_hints,
+                                          fail_if_cant_handle_hint)
+        self.assertEqual(out, ('ISO', None))
+
+    def test_determine_output_date_order_style_iso_3(self):
+        unhandled_hints = set()
+        records_format = DelimitedRecordsFormat(hints={
+            'dateformat': 'YYYY-MM-DD',
+            'timeonlyformat': 'HH:MI:SS',
+            'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
+            'datetimeformat': 'YYYY-MM-DD HH:MI:SS'
         })
         fail_if_cant_handle_hint = True
         validated_hints = records_format.validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
