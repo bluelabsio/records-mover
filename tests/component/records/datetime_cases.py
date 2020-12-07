@@ -3,6 +3,7 @@ SAMPLE_YEAR_SHORT = 83
 SAMPLE_MONTH = 1
 SAMPLE_DAY = 2
 SAMPLE_HOUR = 15
+SAMPLE_HOUR_12H = 3
 SAMPLE_MINUTE = 4
 SAMPLE_SECOND = 5
 
@@ -15,7 +16,7 @@ def create_sample(template: str) -> str:
         .replace('MM', ('%02d' % SAMPLE_MONTH))
         .replace('DD', ('%02d' % SAMPLE_DAY))
         .replace('HH24', ('%02d' % SAMPLE_HOUR))
-        .replace('HH12', ('%02d' % (SAMPLE_HOUR % 12)))
+        .replace('HH12', ('%02d' % SAMPLE_HOUR_12H))
         .replace('HH', ('%02d' % SAMPLE_HOUR))
         .replace('MI', ('%02d' % SAMPLE_MINUTE))
         .replace('SS', ('%02d' % SAMPLE_SECOND))
