@@ -3,7 +3,7 @@ from records_mover.records import DelimitedRecordsFormat
 from records_mover.db.postgres.copy_options.date_output_style import\
     determine_date_output_style
 from ...records.datetime_cases import (
-    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES,
+    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES, TIMEONLY_CASES,
     create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY
 )
 
@@ -110,7 +110,6 @@ class TestPostgresCopyOptionsDateOutputStyle(unittest.TestCase):
                     raise
             self.assertEqual(out, ('ISO', None))
 
-
     def test_determine_output_date_order_style_datetimeformat(self):
         unhandled_hints = set()
         # Records Mover only supports Postgres in ISO format at this
@@ -162,3 +161,40 @@ class TestPostgresCopyOptionsDateOutputStyle(unittest.TestCase):
                 else:
                     raise
             self.assertEqual(out, ('ISO', None))
+
+    def test_determine_output_date_order_style_timeonlyformat(self):
+        unhandled_hints = set()
+        # Records Mover only supports Postgres in ISO format at this
+        # point (HH24:MI:SS aka HH:MI:SS) - see comments in types.py and in
+        # date_output_style.py for more detail.
+        expected_failures = {
+            # only HH:MM:SS/HH24MM:SS are supported via the 'ISO'
+            # format output
+            'HH12:MI AM'
+        }
+        for timeonlyformat in TIMEONLY_CASES:
+            if 'AM' in timeonlyformat:
+                datetimeformattz = f"YYYY-MM-DD {timeonlyformat}"
+            else:
+                datetimeformattz = f"YYYY-MM-DD {timeonlyformat}OF"
+            records_format = DelimitedRecordsFormat(hints={
+                'dateformat': "YYYY-MM-DD",
+                'timeonlyformat': timeonlyformat,
+                'datetimeformattz': datetimeformattz,
+                'datetimeformat': f"YYYY-MM-DD {timeonlyformat}",
+            })
+            fail_if_cant_handle_hint = True
+            validated_hints =\
+                records_format.validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
+            out = None
+            try:
+                out = determine_date_output_style(unhandled_hints,
+                                                  validated_hints,
+                                                  fail_if_cant_handle_hint)
+            except NotImplementedError:
+                if timeonlyformat in expected_failures:
+                    pass
+                else:
+                    raise
+            if out is not None:
+                self.assertEqual(out, ('ISO', None))
