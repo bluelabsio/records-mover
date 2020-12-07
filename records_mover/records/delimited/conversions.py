@@ -1,8 +1,7 @@
 from .types import HintCompression, HintEncoding, HintDateFormat, HintTimeOnlyFormat, HintQuoting
 import logging
 import csv
-from typing import Optional, Dict, Union
-from typing_extensions import Literal
+from typing import Optional, Dict
 
 
 logger = logging.getLogger(__name__)

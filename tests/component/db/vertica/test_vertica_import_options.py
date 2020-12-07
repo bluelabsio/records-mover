@@ -2,9 +2,7 @@ from records_mover.records.records_format import DelimitedRecordsFormat
 from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.records.processing_instructions import ProcessingInstructions
 from records_mover.db.vertica.records_import_options import vertica_import_options
-from records_mover.records.delimited.utils import logger as driver_logger
 import unittest
-from mock import call, patch
 
 
 class TestVerticaImportOptions(unittest.TestCase):
