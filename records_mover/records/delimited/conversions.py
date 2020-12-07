@@ -39,10 +39,7 @@ python_encoding_from_hint: Dict[Optional[HintEncoding], str] = {
 # account for MM/DD time.
 #
 # https://github.com/bluelabsio/records-mover/issues/75
-
-# TODO: Need to make these functions or this will be very brittle.
-# Add test cases to repro, verify it gets reproed, and then fix.
-python_date_format_from_hints: Dict[Union[HintDateFormat, Literal['DD/MM/YY']], str] = {
+python_date_format_from_hints: Dict[HintDateFormat, str] = {
     'DD-MM-YYYY': '%d-%m-%Y',
     'MM-DD-YYYY': '%m-%d-%Y',
     'YYYY-MM-DD': '%Y-%m-%d',
