@@ -5,7 +5,8 @@ from records_mover.records.pandas import prep_df_for_csv_output
 from records_mover.records.schema import RecordsSchema
 from records_mover.records import DelimitedRecordsFormat, ProcessingInstructions
 from ..datetime_cases import (
-    DATE_CASES, create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY
+    DATE_CASES, DATETIMEFORMATTZ_CASES,
+    create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND
 )
 
 
@@ -124,7 +125,7 @@ class TestPrepForCsv(unittest.TestCase):
         # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
         self.assertIsNotNone(new_df)
 
-    def test_dateformats(self):
+    def test_dateformat(self):
         schema_data = {
             'schema': "bltypes/v1",
             'fields': {
@@ -156,5 +157,48 @@ class TestPrepForCsv(unittest.TestCase):
                                             processing_instructions=processing_instructions)
             self.assertEqual(new_df['date'][0],
                              create_sample(dateformat))
+            # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
+            self.assertIsNotNone(new_df)
+
+    def test_datetimeformattz(self):
+        schema_data = {
+            'schema': "bltypes/v1",
+            'fields': {
+                "datetimetz": {
+                    "type": "datetimetz",
+                    "index": 1,
+                },
+            }
+        }
+        records_schema = RecordsSchema.from_data(schema_data)
+        processing_instructions = ProcessingInstructions()
+        for datetimeformattz in DATETIMEFORMATTZ_CASES:
+            records_format = DelimitedRecordsFormat(variant='bluelabs',
+                                                    hints={
+                                                        'datetimeformattz': datetimeformattz
+                                                    })
+            # us_eastern = pytz.timezone('US/Eastern')
+            timestamp = pd.Timestamp(year=SAMPLE_YEAR, month=SAMPLE_MONTH, day=SAMPLE_DAY,
+                                     hour=SAMPLE_HOUR, minute=SAMPLE_MINUTE,
+                                     second=SAMPLE_SECOND)
+
+            data = {
+                'datetimetz': [
+                    timestamp
+                ],
+            }
+            df = pd.DataFrame(data, columns=['datetimetz'])
+
+            new_df = prep_df_for_csv_output(df=df,
+                                            include_index=False,
+                                            records_schema=records_schema,
+                                            records_format=records_format,
+                                            processing_instructions=processing_instructions)
+            # No conversion is done of datetimetz as pandas' CSV
+            # outputter handles it properly, so we should expect the
+            # original again
+            self.assertEqual(new_df['datetimetz'][0],
+                             timestamp,
+                             create_sample(datetimeformattz))
             # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
             self.assertIsNotNone(new_df)
