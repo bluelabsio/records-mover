@@ -2,7 +2,7 @@ import unittest
 from records_mover.db.redshift.records_copy import redshift_copy_options
 from records_mover.records import DelimitedRecordsFormat, AvroRecordsFormat
 from sqlalchemy_redshift.commands import Encoding, Format
-from ...records.datetime_cases import DATE_CASES, DATETIMEFORMATTZ_CASES
+from ...records.datetime_cases import DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES
 
 
 class TestRecordsCopy(unittest.TestCase):
@@ -68,10 +68,10 @@ class TestRecordsCopy(unittest.TestCase):
                 self.fail('define what to expect here')
 
     def test_redshift_copy_options_datetimeformattz(self):
-        # Redshift's time_format doesn't support separte configuration
-        # for datetimeformat vs datetimeformattz, but the 'auto' flag
-        # seems to work with specific things (see tests run in
-        # records_copy.py).
+        # Redshift's time_format doesn't support separate
+        # configuration for datetimeformat vs datetimeformattz, but
+        # the 'auto' flag seems to work with specific things (see
+        # tests run in records_copy.py).
         #
         # Please verify new formats have a test run
         # and documented in records_copy.py before putting an entry in
@@ -98,3 +98,46 @@ class TestRecordsCopy(unittest.TestCase):
                                         fail_if_row_invalid=True,
                                         max_failure_rows=0)
             self.assertEquals(out['time_format'], expectations[datetimeformattz])
+
+    def test_redshift_copy_options_datetimeformat(self):
+        # Redshift's time_format doesn't support separate
+        # configuration for datetimeformat vs datetimeformattz, but
+        # the 'auto' flag seems to work with specific things (see
+        # tests run in records_copy.py).
+        #
+        # Please verify new formats have a test run
+        # and documented in records_copy.py before putting an entry in
+        # here.
+        expectations = {
+            'YYYY-MM-DD HH24:MI:SS': 'auto',
+        }
+        for datetimeformat in DATETIMEFORMAT_CASES:
+            hints = {
+                'datetimeformattz': f"{datetimeformat}OF",
+                'datetimeformat': datetimeformat,
+            }
+            records_format =\
+                DelimitedRecordsFormat(variant='bluelabs',
+                                       hints=hints)
+            unhandled_hints = set(records_format.hints.keys())
+            out = redshift_copy_options(unhandled_hints,
+                                        records_format,
+                                        fail_if_cant_handle_hint=True,
+                                        fail_if_row_invalid=True,
+                                        max_failure_rows=0)
+            self.assertEqual(out['time_format'], 'auto')
+        for datetimeformat in DATETIMEFORMAT_CASES:
+            hints = {
+                'datetimeformattz': datetimeformat,
+                'datetimeformat': datetimeformat,
+            }
+            records_format =\
+                DelimitedRecordsFormat(variant='bluelabs',
+                                       hints=hints)
+            unhandled_hints = set(records_format.hints.keys())
+            out = redshift_copy_options(unhandled_hints,
+                                        records_format,
+                                        fail_if_cant_handle_hint=True,
+                                        fail_if_row_invalid=True,
+                                        max_failure_rows=0)
+            self.assertEqual(out['time_format'], datetimeformat)

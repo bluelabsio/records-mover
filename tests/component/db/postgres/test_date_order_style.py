@@ -1,7 +1,7 @@
 import unittest
 from records_mover.records import DelimitedRecordsFormat
 from records_mover.db.postgres.copy_options.date_input_style import determine_input_date_order_style
-from ...records.datetime_cases import DATE_CASES, DATETIMEFORMATTZ_CASES
+from ...records.datetime_cases import DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES
 
 
 class TestDateOrderStyle(unittest.TestCase):
@@ -13,6 +13,16 @@ class TestDateOrderStyle(unittest.TestCase):
                 {
                     'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
                     'datetimeformat': "YYYY-MM-DD HH12:MI AM",
+                    'timeonlyformat': "HH12:MI AM",
+                    'dateformat': "YYYY-MM-DD",
+                },
+                None
+            ),
+            (
+                # No ambiguity, can handle all
+                {
+                    'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
+                    'datetimeformat': "YYYY-MM-DD HH:MI:SS",
                     'timeonlyformat': "HH12:MI AM",
                     'dateformat': "YYYY-MM-DD",
                 },
@@ -124,6 +134,7 @@ class TestDateOrderStyle(unittest.TestCase):
         ]
         unhandled_date_cases = set(DATE_CASES)
         unhandled_datetimeformattz_cases = set(DATETIMEFORMATTZ_CASES)
+        unhandled_datetimeformat_cases = set(DATETIMEFORMAT_CASES)
         fail_if_cant_handle_hint = True
         for raw_hints, expected_result in tests:
             records_format = DelimitedRecordsFormat(hints=raw_hints)
@@ -143,5 +154,7 @@ class TestDateOrderStyle(unittest.TestCase):
                 self.assertEqual(out, expected_result)
                 unhandled_date_cases.discard(raw_hints['dateformat'])
                 unhandled_datetimeformattz_cases.discard(raw_hints['datetimeformattz'])
+                unhandled_datetimeformat_cases.discard(raw_hints['datetimeformat'])
         self.assertFalse(unhandled_date_cases)
         self.assertFalse(unhandled_datetimeformattz_cases)
+        self.assertFalse(unhandled_datetimeformat_cases)
