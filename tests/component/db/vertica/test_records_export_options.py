@@ -4,7 +4,6 @@ from records_mover.db.vertica.records_export_options import vertica_export_optio
 from records_mover.records import DelimitedRecordsFormat, ProcessingInstructions
 from ...records.datetime_cases import (
     DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES,
-    create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY
 )
 
 
