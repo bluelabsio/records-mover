@@ -3,7 +3,7 @@ from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.db.vertica.records_import_options import vertica_import_options
 from records_mover.records import DelimitedRecordsFormat, ProcessingInstructions
 from ...records.datetime_cases import (
-    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES, TIMEONLY_CASES,
+    DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES,
     create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY
 )
 
@@ -67,7 +67,7 @@ class TestVerticaImportOptions(unittest.TestCase):
             'MM/DD/YY HH24:MI': True,
 
         }
-        for datetimeformattz in DATETIMEFORMATTZ_CASES:
+        for datetimeformattz in DATETIMETZ_CASES:
             records_format = DelimitedRecordsFormat(variant='vertica',
                                                     hints={
                                                         'datetimeformattz': datetimeformattz,
@@ -94,7 +94,7 @@ class TestVerticaImportOptions(unittest.TestCase):
             'MM/DD/YY HH24:MI': True,
             'YYYY-MM-DD HH12:MI AM': True,
         }
-        for datetimeformat in DATETIMEFORMAT_CASES:
+        for datetimeformat in DATETIME_CASES:
             records_format = DelimitedRecordsFormat(variant='vertica',
                                                     hints={
                                                         'datetimeformat': datetimeformat,

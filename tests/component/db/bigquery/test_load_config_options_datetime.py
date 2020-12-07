@@ -5,7 +5,7 @@ from records_mover.records.load_plan import RecordsLoadPlan
 from records_mover.records.processing_instructions import ProcessingInstructions
 from records_mover.records.records_format import DelimitedRecordsFormat
 from ...records.datetime_cases import (
-    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES, TIMEONLY_CASES
+    DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES
 )
 
 
@@ -56,7 +56,7 @@ class TestLoadJobConfigDatetime(unittest.TestCase):
         processing_instructions = ProcessingInstructions(fail_if_dont_understand=True,
                                                          fail_if_cant_handle_hint=True,
                                                          fail_if_row_invalid=True)
-        for datetimeformattz in DATETIMEFORMATTZ_CASES:
+        for datetimeformattz in DATETIMETZ_CASES:
             records_format =\
                 DelimitedRecordsFormat(variant='bigquery',
                                        hints={
@@ -85,7 +85,7 @@ class TestLoadJobConfigDatetime(unittest.TestCase):
         processing_instructions = ProcessingInstructions(fail_if_dont_understand=True,
                                                          fail_if_cant_handle_hint=True,
                                                          fail_if_row_invalid=True)
-        for datetimeformat in DATETIMEFORMAT_CASES:
+        for datetimeformat in DATETIME_CASES:
             records_format =\
                 DelimitedRecordsFormat(variant='bigquery',
                                        hints={

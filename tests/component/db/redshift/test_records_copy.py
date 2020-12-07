@@ -3,7 +3,7 @@ from records_mover.db.redshift.records_copy import redshift_copy_options
 from records_mover.records import DelimitedRecordsFormat, AvroRecordsFormat
 from sqlalchemy_redshift.commands import Encoding, Format
 from ...records.datetime_cases import (
-    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES, TIMEONLY_CASES
+    DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES
 )
 
 
@@ -85,7 +85,7 @@ class TestRecordsCopy(unittest.TestCase):
             'MM/DD/YY HH24:MIOF': 'auto',
             'MM/DD/YY HH24:MI': 'MM/DD/YY HH24:MI',
         }
-        for datetimeformattz in DATETIMEFORMATTZ_CASES:
+        for datetimeformattz in DATETIMETZ_CASES:
             hints = {
                 'datetimeformattz': datetimeformattz,
                 'datetimeformat': datetimeformattz.replace('OF', '')
@@ -110,7 +110,7 @@ class TestRecordsCopy(unittest.TestCase):
         # Please verify new formats have a test run
         # and documented in records_copy.py before putting an entry in
         # here.
-        for datetimeformat in DATETIMEFORMAT_CASES:
+        for datetimeformat in DATETIME_CASES:
             hints = {
                 'datetimeformattz': f"{datetimeformat}OF",
                 'datetimeformat': datetimeformat,
@@ -125,7 +125,7 @@ class TestRecordsCopy(unittest.TestCase):
                                         fail_if_row_invalid=True,
                                         max_failure_rows=0)
             self.assertEqual(out['time_format'], 'auto')
-        for datetimeformat in DATETIMEFORMAT_CASES:
+        for datetimeformat in DATETIME_CASES:
             hints = {
                 'datetimeformattz': datetimeformat,
                 'datetimeformat': datetimeformat,

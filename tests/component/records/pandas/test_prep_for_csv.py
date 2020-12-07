@@ -5,7 +5,7 @@ from records_mover.records.pandas import prep_df_for_csv_output
 from records_mover.records.schema import RecordsSchema
 from records_mover.records import DelimitedRecordsFormat, ProcessingInstructions
 from ..datetime_cases import (
-    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES, TIMEONLY_CASES,
+    DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES,
     create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND
 )
 
@@ -172,7 +172,7 @@ class TestPrepForCsv(unittest.TestCase):
         }
         records_schema = RecordsSchema.from_data(schema_data)
         processing_instructions = ProcessingInstructions()
-        for datetimeformattz in DATETIMEFORMATTZ_CASES:
+        for datetimeformattz in DATETIMETZ_CASES:
             records_format = DelimitedRecordsFormat(variant='bluelabs',
                                                     hints={
                                                         'datetimeformattz': datetimeformattz
@@ -215,7 +215,7 @@ class TestPrepForCsv(unittest.TestCase):
         }
         records_schema = RecordsSchema.from_data(schema_data)
         processing_instructions = ProcessingInstructions()
-        for datetimeformat in DATETIMEFORMAT_CASES:
+        for datetimeformat in DATETIME_CASES:
             records_format = DelimitedRecordsFormat(variant='bluelabs',
                                                     hints={
                                                         'datetimeformat': datetimeformat

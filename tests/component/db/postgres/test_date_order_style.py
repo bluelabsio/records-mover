@@ -2,7 +2,7 @@ import unittest
 from records_mover.records import DelimitedRecordsFormat
 from records_mover.db.postgres.copy_options.date_input_style import determine_input_date_order_style
 from ...records.datetime_cases import (
-    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES, TIMEONLY_CASES
+    DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES
 )
 
 
@@ -155,8 +155,8 @@ class TestDateOrderStyle(unittest.TestCase):
             ),
         ]
         unhandled_date_cases = set(DATE_CASES)
-        unhandled_datetimeformattz_cases = set(DATETIMEFORMATTZ_CASES)
-        unhandled_datetimeformat_cases = set(DATETIMEFORMAT_CASES)
+        unhandled_datetimeformattz_cases = set(DATETIMETZ_CASES)
+        unhandled_datetimeformat_cases = set(DATETIME_CASES)
         unhandled_timeonly_cases = set(TIMEONLY_CASES)
         fail_if_cant_handle_hint = True
         for raw_hints, expected_result in tests:

@@ -2,7 +2,7 @@ import unittest
 from records_mover.records import DelimitedRecordsFormat
 from records_mover.db.mysql.load_options import mysql_load_options
 from ...records.datetime_cases import (
-    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES, TIMEONLY_CASES,
+    DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES,
     create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY
 )
 from typing import Set
@@ -130,7 +130,7 @@ class TestMySQLLoadOptions(unittest.TestCase):
         # See comment in load_options.py - this list should be longer.
         expected_failures: Set[str] = set()
 
-        for datetimeformattz in DATETIMEFORMATTZ_CASES:
+        for datetimeformattz in DATETIMETZ_CASES:
             records_format = DelimitedRecordsFormat(variant='bluelabs',
                                                     hints={
                                                         'datetimeformattz': datetimeformattz,
@@ -151,7 +151,7 @@ class TestMySQLLoadOptions(unittest.TestCase):
         # See comment in load_options.py - this list should be longer.
         expected_failures: Set[str] = set()
 
-        for datetimeformat in DATETIMEFORMAT_CASES:
+        for datetimeformat in DATETIME_CASES:
             records_format = DelimitedRecordsFormat(variant='bluelabs',
                                                     hints={
                                                         'datetimeformat': datetimeformat,

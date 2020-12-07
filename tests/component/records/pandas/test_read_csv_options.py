@@ -7,7 +7,7 @@ from records_mover.records.delimited.types import (
     HintDateFormat, HintDateTimeFormatTz, HintDateTimeFormat, HintTimeOnlyFormat
 )
 from ..datetime_cases import (
-    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES, TIMEONLY_CASES,
+    DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES,
     create_sample,
     SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_HOUR_12H,
     SAMPLE_MINUTE, SAMPLE_SECOND
@@ -118,7 +118,7 @@ class TestReadCsvOptions(unittest.TestCase):
                 'dayfirst': False,
             },
         }
-        for datetimeformattz in DATETIMEFORMATTZ_CASES:
+        for datetimeformattz in DATETIMETZ_CASES:
             records_format = DelimitedRecordsFormat(hints={
                 'datetimeformattz': datetimeformattz,
                 'compression': None,
@@ -181,7 +181,7 @@ class TestReadCsvOptions(unittest.TestCase):
                 'dayfirst': False,
             }
         }
-        for datetimeformat in DATETIMEFORMAT_CASES:
+        for datetimeformat in DATETIME_CASES:
             records_format = DelimitedRecordsFormat(hints={
                 'datetimeformat': datetimeformat,
                 'compression': None,
