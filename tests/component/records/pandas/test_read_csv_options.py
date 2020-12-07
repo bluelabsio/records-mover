@@ -4,10 +4,10 @@ import io
 from typing import Dict
 from typing_extensions import TypedDict
 from records_mover.records.delimited.types import (
-    HintDateFormat, HintDateTimeFormatTz, HintDateTimeFormat
+    HintDateFormat, HintDateTimeFormatTz, HintDateTimeFormat, HintTimeOnlyFormat
 )
 from ..datetime_cases import (
-    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES,
+    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES, TIMEONLY_CASES,
     create_sample,
     SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_HOUR_12H,
     SAMPLE_MINUTE, SAMPLE_SECOND
@@ -225,3 +225,45 @@ class TestReadCsvOptions(unittest.TestCase):
                 self.assertEqual(timestamp.second, SAMPLE_SECOND)
             else:
                 self.assertEqual(timestamp.second, 0)
+
+    def test_timeonlyformat(self) -> None:
+        for timeonlyformat in TIMEONLY_CASES:
+            records_format = DelimitedRecordsFormat(hints={
+                'timeonlyformat': timeonlyformat,
+                'compression': None,
+            })
+            records_schema = RecordsSchema.from_data({
+                'schema': 'bltypes/v1',
+                'fields': {
+                    'first': {
+                        'type': 'time'
+                    }
+                },
+            })
+            unhandled_hints = set(records_format.hints)
+            processing_instructions = ProcessingInstructions()
+            try:
+                options = pandas_read_csv_options(records_format,
+                                                  records_schema,
+                                                  unhandled_hints,
+                                                  processing_instructions)
+            except NotImplementedError:
+                self.fail(f'Could not handle combination for {timeonlyformat}')
+            self.assertEqual(options['parse_dates'], [0])
+            timeonly = create_sample(timeonlyformat)
+            fileobj = io.StringIO(timeonly)
+            df = pandas.read_csv(filepath_or_buffer=fileobj,
+                                 **options)
+            timestamp = df['untitled_0'][0]
+            self.assertIsInstance(timestamp, pandas.Timestamp,
+                                  f"Pandas did not parse {timeonly} as a timestamp object")
+            if 'AM' in timeonlyformat:
+                self.assertEqual(timestamp.hour, SAMPLE_HOUR_12H)
+            else:
+                self.assertEqual(timestamp.hour, SAMPLE_HOUR)
+            self.assertEqual(timestamp.minute, SAMPLE_MINUTE)
+            if 'SS' in timeonlyformat:
+                self.assertEqual(timestamp.second, SAMPLE_SECOND)
+            else:
+                self.assertEqual(timestamp.second, 0,
+                                 timeonly)

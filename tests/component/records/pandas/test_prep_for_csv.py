@@ -5,7 +5,7 @@ from records_mover.records.pandas import prep_df_for_csv_output
 from records_mover.records.schema import RecordsSchema
 from records_mover.records import DelimitedRecordsFormat, ProcessingInstructions
 from ..datetime_cases import (
-    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES,
+    DATE_CASES, DATETIMEFORMATTZ_CASES, DATETIMEFORMAT_CASES, TIMEONLY_CASES,
     create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND
 )
 
@@ -243,5 +243,45 @@ class TestPrepForCsv(unittest.TestCase):
             self.assertEqual(new_df['datetime'][0],
                              timestamp,
                              create_sample(datetimeformat))
+            # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
+            self.assertIsNotNone(new_df)
+
+    def test_timeonlyformat(self):
+        schema_data = {
+            'schema': "bltypes/v1",
+            'fields': {
+                "datetimez": {
+                    "type": "time",
+                    "index": 1,
+                },
+            }
+        }
+        records_schema = RecordsSchema.from_data(schema_data)
+        processing_instructions = ProcessingInstructions()
+        for timeonlyformat in TIMEONLY_CASES:
+            records_format = DelimitedRecordsFormat(variant='bluelabs',
+                                                    hints={
+                                                        'timeonlyformat': timeonlyformat
+                                                    })
+            # us_eastern = pytz.timezone('US/Eastern')
+            timestamp = pd.Timestamp(year=SAMPLE_YEAR, month=SAMPLE_MONTH, day=SAMPLE_DAY,
+                                     hour=SAMPLE_HOUR, minute=SAMPLE_MINUTE,
+                                     second=SAMPLE_SECOND)
+
+            data = {
+                'time': [
+                    timestamp
+                ],
+            }
+            df = pd.DataFrame(data, columns=['time'])
+
+            new_df = prep_df_for_csv_output(df=df,
+                                            include_index=False,
+                                            records_schema=records_schema,
+                                            records_format=records_format,
+                                            processing_instructions=processing_instructions)
+            self.assertEqual(new_df['time'][0],
+                             create_sample(timeonlyformat),
+                             timeonlyformat)
             # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
             self.assertIsNotNone(new_df)

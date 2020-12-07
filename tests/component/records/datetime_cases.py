@@ -6,6 +6,7 @@ SAMPLE_HOUR = 15
 SAMPLE_HOUR_12H = 3
 SAMPLE_MINUTE = 4
 SAMPLE_SECOND = 5
+SAMPLE_PERIOD = 'PM'
 
 
 def create_sample(template: str) -> str:
@@ -21,6 +22,7 @@ def create_sample(template: str) -> str:
         .replace('MI', ('%02d' % SAMPLE_MINUTE))
         .replace('SS', ('%02d' % SAMPLE_SECOND))
         .replace('OF', '-00')
+        .replace('AM', SAMPLE_PERIOD)
     )
 
 
