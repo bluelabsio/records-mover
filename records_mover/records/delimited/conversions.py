@@ -51,8 +51,6 @@ python_date_format_from_hints: Dict[Union[HintDateFormat, Literal['DD/MM/YY']], 
     'DD-MM-YY': '%d-%m-%y',
 }
 
-# TODO: Need to make these functions or this will be very brittle.
-# Add test cases to repro, verify it gets reproed, and then fix.
 python_time_format_from_hints: Dict[HintTimeOnlyFormat, str] = {
     'HH24:MI:SS': '%H:%M:%S',
     'HH:MI:SS': '%H:%M:%S',
