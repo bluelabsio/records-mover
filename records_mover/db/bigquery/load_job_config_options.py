@@ -324,6 +324,7 @@ def add_load_job_csv_config(unhandled_hints: Set[str],
     quiet_remove(unhandled_hints, 'datetimeformat')
 
     if hints.datetimeformattz in ['YYYY-MM-DD HH:MI:SSOF',
+                                  'YYYY-MM-DD HH24:MI:SSOF',
                                   'YYYY-MM-DD HH:MI:SS']:
         pass
     else:
