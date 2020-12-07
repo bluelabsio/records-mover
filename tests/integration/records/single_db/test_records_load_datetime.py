@@ -43,8 +43,9 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             out = self.records.move(source, target)
             out = self.engine.execute('SELECT date '
                                       f'from {self.schema_name}.{self.table_name}')
-            ret = out.fetchall()
-            assert 1 == len(ret)
+            ret_all = out.fetchall()
+            assert 1 == len(ret_all)
+            ret = ret_all[0]
             date = ret['date']
             self.assertEqual(date.year, SAMPLE_YEAR)
             self.assertEqual(date.month, SAMPLE_MONTH)
