@@ -3,7 +3,6 @@ from records_mover.records import DelimitedRecordsFormat
 from records_mover.db.mysql.load_options import mysql_load_options
 from ...records.datetime_cases import (
     DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES,
-    create_sample, SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY
 )
 from typing import Set
 
