@@ -109,6 +109,12 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
         return self.engine.name == 'redshift'
 
     def test_load_timeonly(self) -> None:
+        if self.engine.name == 'redshift' and not self.has_scratch_s3_bucket():
+            # https://github.com/bluelabsio/records-mover/issues/141
+            logger.warning('Records Mover does not yet support Redshift TIME '
+                           'fields, nor is it not smart enough to format Pandas '
+                           'time types to the Redshift VARCHAR(8) columns it creates')
+            return
         for timeformat in TIMEONLY_CASES:
             self.load(hint_name='timeonlyformat',
                       format_string=timeformat,
