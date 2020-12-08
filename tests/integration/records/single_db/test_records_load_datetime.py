@@ -66,17 +66,23 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
 
     def test_load_date(self) -> None:
         for dateformat in DATE_CASES:
+            addl_hints: PartialRecordsHints = {}
+            if self.engine.name == 'vertica':
+                # Use something more compatible with Pandas that is
+                # still compatible with Vertica for when the
+                # dateformat is not compatible with Vertica...
+                addl_hints = {
+                    'datetimeformat': f"{dateformat} HH:MI:SS",
+                    'datetimeformattz': f"{dateformat} HH:MI:SSOF",
+                    'timeonlyformat': "HH:MI:SS",
+                }
             self.load(hint_name='dateformat',
                       format_string=dateformat,
                       column_name='date',
                       field_type='date',
                       # ensure a Pandas-compatible format in case
                       # database doesn't support hints directly
-                      addl_hints={
-                          'datetimeformat': f"{dateformat} HH:MM:SS",
-                          'datetimeformattz': f"{dateformat} HH:MM:SS",
-                          'timeonlyformat': "HH:MM:SS",
-                      })
+                      addl_hints=addl_hints)
             date = self.pull_result(column_name='date')
             self.assertEqual(date.year, SAMPLE_YEAR)
             self.assertEqual(date.month, SAMPLE_MONTH)
