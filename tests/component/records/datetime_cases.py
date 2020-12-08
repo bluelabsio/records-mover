@@ -3,11 +3,13 @@ SAMPLE_YEAR_SHORT = 83
 SAMPLE_MONTH = 1
 SAMPLE_DAY = 2
 SAMPLE_HOUR = 15
+SAMPLE_UTC_HOUR = 20
 SAMPLE_HOUR_12H = 3
 SAMPLE_MINUTE = 4
 SAMPLE_SECOND = 5
 SAMPLE_PERIOD = 'PM'
-
+SAMPLE_OFFSET = '-00'
+SAMPLE_LONG_TZ = 'UTC'
 
 def create_sample(template: str) -> str:
     return (
@@ -21,10 +23,9 @@ def create_sample(template: str) -> str:
         .replace('HH', ('%02d' % SAMPLE_HOUR))
         .replace('MI', ('%02d' % SAMPLE_MINUTE))
         .replace('SS', ('%02d' % SAMPLE_SECOND))
-        .replace('OF', '-00')
+        .replace('OF', SAMPLE_OFFSET)
         .replace('AM', SAMPLE_PERIOD)
     )
-
 
 DATE_CASES = [
     'YYYY-MM-DD',
