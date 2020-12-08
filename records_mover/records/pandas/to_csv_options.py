@@ -108,6 +108,16 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
             pandas_options['date_format'] = '%m/%d/%y %H:%M:%S.%f'
         else:
             pandas_options['date_format'] = '%m/%d/%y %H:%M:%S.%f%z'
+    elif hints.dateformat == 'DD/MM/YY':
+        if hints.datetimeformattz == hints.datetimeformat:
+            pandas_options['date_format'] = '%d/%m/%y %H:%M:%S.%f'
+        else:
+            pandas_options['date_format'] = '%d/%m/%y %H:%M:%S.%f%z'
+    elif hints.dateformat == 'DD-MM-YY':
+        if hints.datetimeformattz == hints.datetimeformat:
+            pandas_options['date_format'] = '%d-%m-%y %H:%M:%S.%f'
+        else:
+            pandas_options['date_format'] = '%d-%m-%y %H:%M:%S.%f%z'
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', hints)
     quiet_remove(unhandled_hints, 'dateformat')
