@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
 
     def load(self,
+             hint_name: str,
              format_string: str,
              column_name: str,
              field_type: FieldType) -> None:
@@ -34,7 +35,7 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
         fileobj = io.BytesIO(create_sample(format_string).encode('utf-8'))
         records_format = RecordsFormat(variant=variant_for_db[self.engine.name],
                                        hints={
-                                           'dateformat': format_string,
+                                           hint_name: format_string,
                                            'compression': None,
                                            'header-row': False,
                                        })
@@ -59,7 +60,8 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
 
     def test_load_date(self) -> None:
         for dateformat in DATE_CASES:
-            self.load(format_string=dateformat,
+            self.load(hint_name='dateformat',
+                      format_string=dateformat,
                       column_name='date',
                       field_type='date')
             date = self.pull_result(column_name='date')
@@ -67,9 +69,10 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             self.assertEqual(date.month, SAMPLE_MONTH)
             self.assertEqual(date.day, SAMPLE_DAY)
 
-    def test_load_timeonly(self):
+    def test_load_timeonly(self) -> None:
         for timeformat in TIMEONLY_CASES:
-            self.load(format_string=timeformat,
+            self.load(hint_name='timeonlyformat',
+                      format_string=timeformat,
                       column_name='time',
                       field_type='time')
             date = self.pull_result(column_name='time')
@@ -80,9 +83,10 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             else:
                 self.assertEqual(date.second, 0)
 
-    def test_load_datetimetz(self):
+    def test_load_datetimetz(self) -> None:
         for datetimetzformat in DATETIMETZ_CASES:
-            self.load(format_string=datetimetzformat,
+            self.load(hint_name='datetimeformattz',
+                      format_string=datetimetzformat,
                       column_name='datetimetz',
                       field_type='datetimetz')
             date = self.pull_result(column_name='datetimetz')
@@ -96,9 +100,10 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             else:
                 self.assertEqual(date.second, 0)
 
-    def test_load_datetime(self):
+    def test_load_datetime(self) -> None:
         for datetimeformat in DATETIME_CASES:
-            self.load(format_string=datetimeformat,
+            self.load(hint_name='datetimeformat',
+                      format_string=datetimeformat,
                       column_name='datetime',
                       field_type='datetime')
             date = self.pull_result(column_name='datetime')
