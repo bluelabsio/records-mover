@@ -188,10 +188,9 @@ class TestToCsvOptions(unittest.TestCase):
 
     def test_timeonlyformat(self) -> None:
         known_failures = {
-            # We could probably support this once to_csv_options.py is
-            # less an if/else lookup and more of a function.
+            # TODO see comment in to_csv_options
             'HH12:MI AM',
-            '',
+            'HH:MI:SS',
         }
         for timeonlyformat in TIMEONLY_CASES:
             records_format = DelimitedRecordsFormat(hints={
