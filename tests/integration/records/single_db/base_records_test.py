@@ -1,8 +1,7 @@
-import sys
 import unittest
 import logging
 import time
-from records_mover import Session
+from records_mover import Session, set_stream_logging
 from sqlalchemy import MetaData
 from sqlalchemy.schema import Table
 import os
@@ -26,10 +25,7 @@ from ..purge_old_test_tables import purge_old_tables
 logger = logging.getLogger(__name__)
 
 
-stdout_handler = logging.StreamHandler(stream=sys.stdout)
-formatter = logging.Formatter('%(asctime)s - %(message)s', '%H:%M:%S')
-stdout_handler.setFormatter(formatter)
-logging.getLogger().addHandler(stdout_handler)
+set_stream_logging()
 
 
 class BaseRecordsIntegrationTest(unittest.TestCase):
