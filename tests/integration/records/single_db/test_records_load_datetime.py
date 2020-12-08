@@ -100,8 +100,8 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
         for datetimeformat in DATETIME_CASES:
             self.load(format_string=datetimeformat,
                       column_name='datetime',
-                      field_type='datetimetz')
-            date = self.pull_result(column_name='datetimetz')
+                      field_type='datetime')
+            date = self.pull_result(column_name='datetime')
             self.assertEqual(date.year, SAMPLE_YEAR)
             self.assertEqual(date.month, SAMPLE_MONTH)
             self.assertEqual(date.day, SAMPLE_DAY)
