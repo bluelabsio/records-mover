@@ -1,4 +1,5 @@
 from pandas import DataFrame
+import datetime
 import pandas as pd
 from records_mover.records import ProcessingInstructions
 from records_mover.records.schema import RecordsSchema
@@ -21,10 +22,8 @@ def _convert_series_or_index(series_or_index: T,
                              records_format: DelimitedRecordsFormat,
                              processing_instructions: ProcessingInstructions) -> Optional[T]:
     if field.field_type == 'date':
-        if not isinstance(series_or_index[0], pd.Timestamp):
-            logger.warning(f"Found {series_or_index.name} as unexpected type "
-                           f"{type(series_or_index[0])}")
-        else:
+        # TODO: Simplify code below
+        if isinstance(series_or_index[0], pd.Timestamp):
             logger.info(f"Converting {series_or_index.name} from np.datetime64 to "
                         "string in CSV's format")
             hint_date_format = records_format.hints['dateformat']
@@ -39,6 +38,22 @@ def _convert_series_or_index(series_or_index: T,
                 return series_or_index.dt.strftime(pandas_date_format)
             else:
                 return series_or_index.strftime(pandas_date_format)
+        elif isinstance(series_or_index[0], datetime.date):
+            logger.info(f"Converting {series_or_index.name} from datetime.date to "
+                        "string in CSV's format")
+            hint_date_format = records_format.hints['dateformat']
+            assert isinstance(hint_date_format, str)
+            pandas_date_format = python_date_format_from_hints.get(hint_date_format)
+            if pandas_date_format is None:
+                cant_handle_hint(processing_instructions.fail_if_cant_handle_hint,
+                                 'dateformat',
+                                 records_format.hints)
+                pandas_date_format = '%Y-%m-%d'
+            return series_or_index.apply(pd.Timestamp).dt.strftime(pandas_date_format)
+        else:
+            logger.warning(f"Found {series_or_index.name} as unexpected type "
+                           f"{type(series_or_index[0])}")
+
     elif field.field_type == 'time':
         if not isinstance(series_or_index[0], pd.Timestamp):
             logger.warning(f"Found {series_or_index.name} as unexpected "
