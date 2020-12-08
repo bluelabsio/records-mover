@@ -21,6 +21,10 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
              field_type: FieldType) -> None:
         variant_for_db = {
             'redshift': 'bluelabs',
+            'vertica': 'vertica',
+            'postgres': 'bluelabs',
+            'mysql': 'bluelabs',
+            'bigquery': 'bigquery',
         }
         records_schema: RecordsSchema = RecordsSchema.from_data({
             'schema': 'bltypes/v1',
