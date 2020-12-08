@@ -4,7 +4,7 @@ import datetime
 from .base_records_test import BaseRecordsIntegrationTest
 from ..datetime_cases import (
     DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES, create_sample,
-    SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND
+    SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND, SAMPLE_PERIOD
 )
 from records_mover.records import RecordsSchema, RecordsFormat
 from records_mover.records.schema.field.field_types import FieldType
@@ -69,6 +69,9 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             self.assertEqual(date.month, SAMPLE_MONTH)
             self.assertEqual(date.day, SAMPLE_DAY)
 
+    def database_has_no_time_type(self) -> bool:
+        return self.engine.name == 'redshift'
+
     def test_load_timeonly(self) -> None:
         for timeformat in TIMEONLY_CASES:
             self.load(hint_name='timeonlyformat',
@@ -76,12 +79,15 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                       column_name='time',
                       field_type='time')
             date = self.pull_result(column_name='time')
-            self.assertEqual(date.hour, SAMPLE_HOUR)
-            self.assertEqual(date.minute, SAMPLE_MINUTE)
-            if 'SS' in timeformat:
-                self.assertEqual(date.second, SAMPLE_SECOND)
+            if self.database_has_no_time_type():
+                self.assertEqual(date, f"{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d} {SAMPLE_PERIOD}")
             else:
-                self.assertEqual(date.second, 0)
+                self.assertEqual(date.hour, SAMPLE_HOUR)
+                self.assertEqual(date.minute, SAMPLE_MINUTE)
+                if 'SS' in timeformat:
+                    self.assertEqual(date.second, SAMPLE_SECOND)
+                else:
+                    self.assertEqual(date.second, 0)
 
     def test_load_datetimetz(self) -> None:
         for datetimetzformat in DATETIMETZ_CASES:
