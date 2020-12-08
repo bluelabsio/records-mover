@@ -252,7 +252,10 @@ def mysql_load_options(unhandled_hints: Set[str],
     #
     # To address, we'll want to look into "set trade_date" per
     # https://stackoverflow.com/questions/44171283/load-data-local-infile-with-sqlalchemy-and-pymysql
+    # TODO update above comment
     #
+    if hints.dateformat != 'YYYY-MM-DD':
+        cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', records_format.hints)
     quiet_remove(unhandled_hints, 'dateformat')
     quiet_remove(unhandled_hints, 'timeonlyformat')
     quiet_remove(unhandled_hints, 'datetimeformat')
