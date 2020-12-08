@@ -105,8 +105,13 @@ class TestMySQLLoadOptions(unittest.TestCase):
         self.assertIn("doublequote='mumble'", str(r.exception))
 
     def test_mysql_load_options_dateformat(self) -> None:
-        # See comment in load_options.py - this list should be longer.
-        expected_failures: Set[str] = set()
+        expected_failures: Set[str] = {
+            'MM-DD-YYYY',
+            'DD-MM-YYYY',
+            'MM/DD/YY',
+            'DD/MM/YY',
+            'DD-MM-YY',
+        }
 
         for dateformat in DATE_CASES:
             records_format = DelimitedRecordsFormat(variant='bluelabs',
@@ -126,8 +131,9 @@ class TestMySQLLoadOptions(unittest.TestCase):
                     raise
 
     def test_mysql_load_options_datetimeformattz(self) -> None:
-        # See comment in load_options.py - this list should be longer.
-        expected_failures: Set[str] = set()
+        expected_failures: Set[str] = {
+            'MM/DD/YY HH24:MI'
+        }
 
         for datetimeformattz in DATETIMETZ_CASES:
             records_format = DelimitedRecordsFormat(variant='bluelabs',
@@ -147,8 +153,10 @@ class TestMySQLLoadOptions(unittest.TestCase):
                     raise
 
     def test_mysql_load_options_datetimeformat(self) -> None:
-        # See comment in load_options.py - this list should be longer.
-        expected_failures: Set[str] = set()
+        expected_failures: Set[str] = {
+            'YYYY-MM-DD HH12:MI AM',
+            'MM/DD/YY HH24:MI',
+        }
 
         for datetimeformat in DATETIME_CASES:
             records_format = DelimitedRecordsFormat(variant='bluelabs',
@@ -168,7 +176,9 @@ class TestMySQLLoadOptions(unittest.TestCase):
                     raise
 
     def test_mysql_load_options_timeonlyformat(self) -> None:
-        expected_failures: Set[str] = set()
+        expected_failures: Set[str] = {
+            'HH12:MI AM',
+        }
 
         for timeonlyformat in TIMEONLY_CASES:
             records_format = DelimitedRecordsFormat(variant='bluelabs',
