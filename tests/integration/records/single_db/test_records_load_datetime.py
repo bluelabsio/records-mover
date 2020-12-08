@@ -67,7 +67,17 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             self.assertEqual(date.day, SAMPLE_DAY)
 
     def test_load_timeonly(self):
-        raise
+        for dateformat in TIMEONLY_CASES:
+            self.load(format_string=dateformat,
+                      column_name='time',
+                      field_type='time')
+            date = self.pull_result(column_name='time')
+            self.assertEqual(date.hour, SAMPLE_HOUR)
+            self.assertEqual(date.minute, SAMPLE_MINUTE)
+            if 'SS' in dateformat:
+                self.assertEqual(date.second, SAMPLE_SECOND)
+            else:
+                self.assertEqual(date.second, 0)
 
     def test_load_datetimetz(self):
         raise
