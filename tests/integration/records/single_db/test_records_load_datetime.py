@@ -36,6 +36,7 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                        hints={
                                            'dateformat': format_string,
                                            'compression': None,
+                                           'header-row': False,
                                        })
         source = sources.fileobjs(target_names_to_input_fileobjs={
                                     'test': fileobj
