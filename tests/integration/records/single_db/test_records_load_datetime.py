@@ -6,7 +6,7 @@ from ..datetime_cases import (
     DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES, create_sample,
     SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND
 )
-from records_mover.records import RecordsSchema, RecordsFormat
+from records_mover.records import RecordsSchema, RecordsFormat, PartialRecordsHints
 from records_mover.records.schema.field.field_types import FieldType
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,8 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
              hint_name: str,
              format_string: str,
              column_name: str,
-             field_type: FieldType) -> None:
+             field_type: FieldType,
+             addl_hints: PartialRecordsHints = {}) -> None:
         variant_for_db = {
             'redshift': 'bluelabs',
             'vertica': 'vertica',
@@ -31,7 +32,7 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             'fields': {
                 column_name: {
                     'type': field_type,
-                }
+                },
             },
         })
         targets = self.records.targets
@@ -42,6 +43,7 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                            hint_name: format_string,  # type: ignore
                                            'compression': None,
                                            'header-row': False,
+                                           **addl_hints,
                                        })
         source = sources.fileobjs(target_names_to_input_fileobjs={
                                     'test': fileobj
@@ -67,7 +69,14 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             self.load(hint_name='dateformat',
                       format_string=dateformat,
                       column_name='date',
-                      field_type='date')
+                      field_type='date',
+                      # ensure a Pandas-compatible format in case
+                      # database doesn't support hints directly
+                      addl_hints={
+                          'datetimeformat': f"{dateformat} HH:MM:SS",
+                          'datetimeformattz': f"{dateformat} HH:MM:SS",
+                          'timeonlyformat': "HH:MM:SS",
+                      })
             date = self.pull_result(column_name='date')
             self.assertEqual(date.year, SAMPLE_YEAR)
             self.assertEqual(date.month, SAMPLE_MONTH)
