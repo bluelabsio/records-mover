@@ -76,7 +76,7 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
         for dateformat in DATE_CASES:
             addl_hints: PartialRecordsHints = {}
             # TODO: extract out this predicate
-            if self.engine.name in ['vertica', 'mysql', 'redshift']:
+            if self.engine.name in ['vertica', 'mysql', 'redshift', 'bigquery']:
                 # Use something more compatible with Pandas that is
                 # still compatible with Vertica for when the
                 # dateformat is not compatible with Vertica or MySQL,
