@@ -6,7 +6,7 @@ from ..datetime_cases import (
     SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND
 )
 from records_mover.records import RecordsSchema, RecordsFormat
-from records_mover.records.schema.field import FieldType
+from records_mover.records.schema.field.field_types import FieldType
 
 logger = logging.getLogger(__name__)
 
