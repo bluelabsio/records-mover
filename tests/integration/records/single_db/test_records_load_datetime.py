@@ -22,7 +22,7 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
         variant_for_db = {
             'redshift': 'bluelabs',
             'vertica': 'vertica',
-            'postgres': 'bluelabs',
+            'postgresql': 'bluelabs',
             'mysql': 'bluelabs',
             'bigquery': 'bigquery',
         }
