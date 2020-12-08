@@ -26,7 +26,6 @@ def create_sample(template: str) -> str:
     )
 
 
-# TODO: Convert back to date cases probably
 DATE_CASES = [
     'YYYY-MM-DD',
     'MM-DD-YYYY',
