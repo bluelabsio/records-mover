@@ -21,6 +21,15 @@ from records_mover.records.schema.field.field_types import FieldType
 logger = logging.getLogger(__name__)
 
 
+VARIANT_FOR_DB = {
+    'redshift': 'bluelabs',
+    'vertica': 'vertica',
+    'postgresql': 'bluelabs',
+    'mysql': 'bluelabs',
+    'bigquery': 'bigquery',
+}
+
+
 class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
     def quote_schema_and_table(self, schema, table):
         return quote_schema_and_table(self.engine, schema, table)
@@ -30,31 +39,61 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
         sql = f"DROP TABLE IF EXISTS {self.quote_schema_and_table(schema, table)}"
         self.engine.execute(sql)
 
-    def createDateTable(self) -> None:
+    def createDateTimeTable(self) -> None:
         if self.engine.name == 'redshift':
             create_tables = f"""
               CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '1983-01-02'::DATE AS date;
+              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIMESTAMP AS timestamp;
 """  # noqa
         elif self.engine.name == 'vertica':
             create_tables = f"""
               CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '1983-01-02'::DATE AS date;
+              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIMESTAMP AS timestamp;
 """  # noqa
         elif self.engine.name == 'bigquery':
             create_tables = f"""
               CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT cast('1983-01-02' as DATE) AS date;
+              SELECT cast('{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}' AS DATETIME) AS timestamp;
 """  # noqa
         elif self.engine.name == 'postgresql':
             create_tables = f"""
               CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '1983-01-02'::DATE AS date;
+              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIMESTAMP AS "timestamp";
 """  # noqa
         elif self.engine.name == 'mysql':
             create_tables = f"""
               CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT DATE '1983-01-02' AS "date";
+              SELECT TIMESTAMP '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}' AS "timestamp";
+"""  # noqa
+        else:
+            raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
+        self.engine.execute(create_tables)
+
+    def createDateTable(self) -> None:
+        if self.engine.name == 'redshift':
+            create_tables = f"""
+              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}'::DATE AS date;
+"""  # noqa
+        elif self.engine.name == 'vertica':
+            create_tables = f"""
+              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}'::DATE AS date;
+"""  # noqa
+        elif self.engine.name == 'bigquery':
+            create_tables = f"""
+              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              SELECT cast('{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}' as DATE) AS date;
+"""  # noqa
+        elif self.engine.name == 'postgresql':
+            create_tables = f"""
+              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}'::DATE AS date;
+"""  # noqa
+        elif self.engine.name == 'mysql':
+            create_tables = f"""
+              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              SELECT DATE '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}' AS "date";
 """  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
@@ -105,14 +144,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                         'datetimeformat': f'{dateformat} HH24:MI:SS',
                         'datetimeformattz': f'{dateformat} HH:MI:SS',
                     }
-            variant_for_db = {
-                'redshift': 'bluelabs',
-                'vertica': 'vertica',
-                'postgresql': 'bluelabs',
-                'mysql': 'bluelabs',
-                'bigquery': 'bigquery',
-            }
-            records_format = RecordsFormat(variant=variant_for_db[self.engine.name],
+            records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'dateformat': dateformat,
                                                'compression': None,
@@ -125,7 +157,44 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                              f"from dateformat {dateformat} and addl_hints {addl_hints}")
 
     def test_unload_datetime(self) -> None:
-        raise
+        self.createDateTimeTable()
+        matching_dateformat = {
+            'YYYY-MM-DD HH:MI:SS': 'YYYY-MM-DD',
+            'YYYY-MM-DD HH12:MI AM': 'YYYY-MM-DD',
+            'MM/DD/YY HH24:MI': 'MM/DD/YY',
+        }
+        for datetimeformat in DATETIME_CASES:
+            addl_hints: PartialRecordsHints = {}
+            if self.engine.name == 'redshift':
+                if datetimeformat != 'YYYY-MM-DD HH24:MI:SS':
+                    # this is the only format supported by Redshift on
+                    # export, so we're going to need to be sure to use
+                    # hints that work in Pandas - i.e.,
+                    addl_hints = {
+                        'dateformat': matching_dateformat[datetimeformat],
+                        'datetimeformattz': datetimeformat,
+                    }
+                    if 'AM' in datetimeformat:
+                        # TODO: Add a GitHub issue for this
+                        logger.warning('Cannot export this dateformat using Pandas or Redshift--'
+                                       'skipping test')
+                        continue
+            records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
+                                           hints={
+                                               'datetimeformat': datetimeformat,
+                                               'compression': None,
+                                               'header-row': False,
+                                               **addl_hints,  # type: ignore
+                                           })
+            csv_text = self.unload(column_name='timestamp',
+                                   records_format=records_format)
+            self.assertIn(csv_text, [create_sample(datetimeformat) + "\n",
+                                     # TODO: Should this be necessary?
+                                     create_sample(datetimeformat) + ".000000\n",
+                                     # TODO: Should this be necessary?
+                                     create_sample(datetimeformat) +
+                                     f":{SAMPLE_SECOND:02d}.000000\n"],
+                          f"from datetimeformat {datetimeformat} and addl_hints {addl_hints}")
 
     def test_unload_datetimetz(self) -> None:
         raise
