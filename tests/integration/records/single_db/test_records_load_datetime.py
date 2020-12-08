@@ -1,5 +1,6 @@
 import logging
 import io
+import datetime
 from .base_records_test import BaseRecordsIntegrationTest
 from ..datetime_cases import (
     DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES, create_sample,
@@ -46,17 +47,21 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                db_engine=self.engine)
         self.records.move(source, target)
 
+    def pull_result(self,
+                    column_name: str) -> datetime.datetime:
+        out = self.engine.execute(f'SELECT {column_name} '
+                                  f'from {self.schema_name}.{self.table_name}')
+        ret_all = out.fetchall()
+        assert 1 == len(ret_all)
+        ret = ret_all[0]
+        return ret[column_name]
+
     def test_load_date(self) -> None:
         for dateformat in DATE_CASES:
             self.load(format_string=dateformat,
                       column_name='date',
                       field_type='date')
-            out = self.engine.execute('SELECT date '
-                                      f'from {self.schema_name}.{self.table_name}')
-            ret_all = out.fetchall()
-            assert 1 == len(ret_all)
-            ret = ret_all[0]
-            date = ret['date']
+            date = self.pull_result(column_name='date')
             self.assertEqual(date.year, SAMPLE_YEAR)
             self.assertEqual(date.month, SAMPLE_MONTH)
             self.assertEqual(date.day, SAMPLE_DAY)
