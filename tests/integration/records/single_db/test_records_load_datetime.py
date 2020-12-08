@@ -6,41 +6,51 @@ from ..datetime_cases import (
     SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND
 )
 from records_mover.records import RecordsSchema, RecordsFormat
+from records_mover.records.schema.field import FieldType
 
 logger = logging.getLogger(__name__)
 
 
 class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
-    def test_load_date(self) -> None:
+
+    def load(self,
+             format_string: str,
+             column_name: str,
+             field_type: FieldType) -> None:
         variant_for_db = {
             'redshift': 'bluelabs',
         }
+        records_schema: RecordsSchema = RecordsSchema.from_data({
+            'schema': 'bltypes/v1',
+            'fields': {
+                column_name: {
+                    'type': field_type,
+                }
+            },
+        })
+        targets = self.records.targets
+        sources = self.records.sources
+        fileobj = io.BytesIO(create_sample(format_string).encode('utf-8'))
+        records_format = RecordsFormat(variant=variant_for_db[self.engine.name],
+                                       hints={
+                                           'dateformat': format_string,
+                                           'compression': None,
+                                       })
+        source = sources.fileobjs(target_names_to_input_fileobjs={
+                                    'test': fileobj
+                                  },
+                                  records_schema=records_schema,
+                                  records_format=records_format)
+        target = targets.table(schema_name=self.schema_name,
+                               table_name=self.table_name,
+                               db_engine=self.engine)
+        self.records.move(source, target)
+
+    def test_load_date(self) -> None:
         for dateformat in DATE_CASES:
-            records_schema: RecordsSchema = RecordsSchema.from_data({
-                'schema': 'bltypes/v1',
-                'fields': {
-                    'date': {
-                        'type': 'date',
-                    }
-                },
-            })
-            targets = self.records.targets
-            sources = self.records.sources
-            fileobj = io.BytesIO(create_sample(dateformat).encode('utf-8'))
-            records_format = RecordsFormat(variant=variant_for_db[self.engine.name],
-                                           hints={
-                                               'dateformat': dateformat,
-                                               'compression': None,
-                                           })
-            source = sources.fileobjs(target_names_to_input_fileobjs={
-                                        'test': fileobj
-                                      },
-                                      records_schema=records_schema,
-                                      records_format=records_format)
-            target = targets.table(schema_name=self.schema_name,
-                                   table_name=self.table_name,
-                                   db_engine=self.engine)
-            out = self.records.move(source, target)
+            self.load(format_string=dateformat,
+                      column_name='date',
+                      field_type='date')
             out = self.engine.execute('SELECT date '
                                       f'from {self.schema_name}.{self.table_name}')
             ret_all = out.fetchall()
@@ -50,7 +60,6 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             self.assertEqual(date.year, SAMPLE_YEAR)
             self.assertEqual(date.month, SAMPLE_MONTH)
             self.assertEqual(date.day, SAMPLE_DAY)
-
 
     def test_load_timeonly(self):
         raise
