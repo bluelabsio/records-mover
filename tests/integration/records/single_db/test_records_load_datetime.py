@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
-
     def load(self,
              hint_name: str,
              format_string: str,
@@ -74,10 +73,11 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
     def test_load_date(self) -> None:
         for dateformat in DATE_CASES:
             addl_hints: PartialRecordsHints = {}
-            if self.engine.name == 'vertica':
+            if self.engine.name in ['vertica', 'mysql']:
                 # Use something more compatible with Pandas that is
                 # still compatible with Vertica for when the
-                # dateformat is not compatible with Vertica...
+                # dateformat is not compatible with Vertica or MySQL,
+                # which are limited in what they can accept...
                 addl_hints = {
                     'datetimeformat': f"{dateformat} HH:MI:SS",
                     'datetimeformattz': f"{dateformat} HH:MI:SSOF",
