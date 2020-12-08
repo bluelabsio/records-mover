@@ -64,8 +64,9 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
         ret = ret_all[0]
         return ret[column_name]
 
-    def database_driver_provides_dates_and_datetimes_as_strings(self) -> bool:
-        return self.engine.name == 'mysql'
+    # TODO
+    # def database_driver_provides_dates_and_datetimes_as_strings(self) -> bool:
+    #     return self.engine.name == 'mysql'
 
     def database_provides_times_as_timedeltas(self) -> bool:
         return self.engine.name == 'mysql'
@@ -137,18 +138,19 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                       column_name='datetimetz',
                       field_type='datetimetz')
             datetime = self.pull_result(column_name='datetimetz')
-            if self.database_driver_provides_dates_and_datetimes_as_strings():
-                self.assertEqual(datetime, 123)
+            # if self.database_driver_provides_dates_and_datetimes_as_strings():
+            if isinstance(datetime, str):
+                # TODO
+                self.assertFalse(datetime)
+            self.assertEqual(datetime.year, SAMPLE_YEAR)
+            self.assertEqual(datetime.month, SAMPLE_MONTH)
+            self.assertEqual(datetime.day, SAMPLE_DAY)
+            self.assertEqual(datetime.hour, SAMPLE_HOUR)
+            self.assertEqual(datetime.minute, SAMPLE_MINUTE)
+            if 'SS' in datetimetzformat:
+                self.assertEqual(datetime.second, SAMPLE_SECOND)
             else:
-                self.assertEqual(datetime.year, SAMPLE_YEAR)
-                self.assertEqual(datetime.month, SAMPLE_MONTH)
-                self.assertEqual(datetime.day, SAMPLE_DAY)
-                self.assertEqual(datetime.hour, SAMPLE_HOUR)
-                self.assertEqual(datetime.minute, SAMPLE_MINUTE)
-                if 'SS' in datetimetzformat:
-                    self.assertEqual(datetime.second, SAMPLE_SECOND)
-                else:
-                    self.assertEqual(datetime.second, 0)
+                self.assertEqual(datetime.second, 0)
 
     def test_load_datetime(self) -> None:
         for datetimeformat in DATETIME_CASES:
@@ -157,15 +159,16 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                       column_name='datetime',
                       field_type='datetime')
             datetime = self.pull_result(column_name='datetime')
-            if self.database_driver_provides_dates_and_datetimes_as_strings():
-                self.assertEqual(datetime, 123)
+            # if self.database_driver_provides_dates_and_datetimes_as_strings():
+            if isinstance(datetime, str):
+                # TODO
+                self.assertFalse(datetime)
+            self.assertEqual(datetime.year, SAMPLE_YEAR)
+            self.assertEqual(datetime.month, SAMPLE_MONTH)
+            self.assertEqual(datetime.day, SAMPLE_DAY)
+            self.assertEqual(datetime.hour, SAMPLE_HOUR)
+            self.assertEqual(datetime.minute, SAMPLE_MINUTE)
+            if 'SS' in datetimeformat:
+                self.assertEqual(datetime.second, SAMPLE_SECOND)
             else:
-                self.assertEqual(datetime.year, SAMPLE_YEAR)
-                self.assertEqual(datetime.month, SAMPLE_MONTH)
-                self.assertEqual(datetime.day, SAMPLE_DAY)
-                self.assertEqual(datetime.hour, SAMPLE_HOUR)
-                self.assertEqual(datetime.minute, SAMPLE_MINUTE)
-                if 'SS' in datetimeformat:
-                    self.assertEqual(datetime.second, SAMPLE_SECOND)
-                else:
-                    self.assertEqual(datetime.second, 0)
+                self.assertEqual(datetime.second, 0)
