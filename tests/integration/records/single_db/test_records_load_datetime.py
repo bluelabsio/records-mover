@@ -4,7 +4,7 @@ import datetime
 from .base_records_test import BaseRecordsIntegrationTest
 from ..datetime_cases import (
     DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES, create_sample,
-    SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND, SAMPLE_PERIOD
+    SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND, SAMPLE_PERIOD, SAMPLE_HOUR_12H
 )
 from records_mover.records import RecordsSchema, RecordsFormat
 from records_mover.records.schema.field.field_types import FieldType
@@ -35,7 +35,7 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
         fileobj = io.BytesIO(create_sample(format_string).encode('utf-8'))
         records_format = RecordsFormat(variant=variant_for_db[self.engine.name],
                                        hints={
-                                           hint_name: format_string,
+                                           hint_name: format_string,  # type: ignore
                                            'compression': None,
                                            'header-row': False,
                                        })
@@ -80,7 +80,7 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                       field_type='time')
             date = self.pull_result(column_name='time')
             if self.database_has_no_time_type():
-                self.assertEqual(date, f"{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d} {SAMPLE_PERIOD}")
+                self.assertEqual(date, f"{SAMPLE_HOUR_12H:02d}:{SAMPLE_MINUTE:02d} {SAMPLE_PERIOD}")
             else:
                 self.assertEqual(date.hour, SAMPLE_HOUR)
                 self.assertEqual(date.minute, SAMPLE_MINUTE)
