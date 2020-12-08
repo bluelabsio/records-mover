@@ -99,6 +99,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
         self.engine.execute(create_tables)
 
+    @bigquery_retry()
     def createDateTable(self) -> None:
         if self.engine.name == 'redshift':
             create_tables = f"""
@@ -124,6 +125,37 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             create_tables = f"""
               CREATE TABLE {self.schema_name}.{self.table_name} AS
               SELECT DATE '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}' AS "date";
+"""  # noqa
+        else:
+            raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
+        self.engine.execute(create_tables)
+
+    @bigquery_retry()
+    def createTimeTable(self):
+        if self.engine.name == 'redshift':
+            create_tables = f"""
+              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              SELECT '{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}' AS "time";
+"""  # noqa
+        elif self.engine.name == 'vertica':
+            create_tables = f"""
+              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              SELECT '{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIME AS "time";
+"""  # noqa
+        elif self.engine.name == 'bigquery':
+            create_tables = f"""
+              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              SELECT cast('{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}' as TIME) AS time;
+"""  # noqa
+        elif self.engine.name == 'postgresql':
+            create_tables = f"""
+              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              SELECT '{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIME AS "time";
+"""  # noqa
+        elif self.engine.name == 'mysql':
+            create_tables = f"""
+              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              SELECT TIME '{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}' AS "time";
 """  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
@@ -272,4 +304,50 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                           f"from datetimeformattz {datetimeformattz} and addl_hints {addl_hints}")
 
     def test_unload_timeonly(self) -> None:
-        raise
+        self.createTimeTable()
+        matching_dateformat = {
+#            'YYYY-MM-DD HH:MI:SS': 'YYYY-MM-DD',
+#            'YYYY-MM-DD HH12:MI AM': 'YYYY-MM-DD',
+#            'MM/DD/YY HH24:MI': 'MM/DD/YY',
+#            'YYYY-MM-DD HH24:MI:SSOF': 'YYYY-MM-DD',
+        }
+        for timeonlyformat in TIMEONLY_CASES:
+            addl_hints: PartialRecordsHints = {}
+            # if self.engine.name == 'redshift':
+            #     if datetimeformattz != 'YYYY-MM-DD HH:MI:SSOF':
+            #         # this is the only format supported by Redshift on
+            #         # export, so we're going to need to be sure to use
+            #         # hints that work in Pandas - i.e.,
+            #         addl_hints = {
+            #             'dateformat': matching_dateformat[datetimeformattz],
+            #             'datetimeformat': datetimeformattz.replace('OF', ''),
+            #         }
+            #         if 'AM' in datetimeformattz:
+            #             # TODO: Add a GitHub issue for this
+            #             logger.warning('Cannot export this dateformattz using Pandas or Redshift--'
+            #                            'skipping test')
+            #             continue
+            records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
+                                           hints={
+                                               'timeonlyformat': timeonlyformat,
+                                               'compression': None,
+                                               'header-row': False,
+                                               **addl_hints,  # type: ignore
+                                           })
+            csv_text = self.unload(column_name='time',
+                                   records_format=records_format)
+            allowed_items = [create_sample(timeonlyformat) + "\n",
+                                     # create_sample(datetimeformattz).replace('-00', '+00') + "\n",
+                                     # # TODO: Should this be necessary?
+                                     # create_sample(datetimeformattz) + ".000000\n",
+                                     # # TODO: Should this be necessary?
+                                     # create_sample(datetimeformattz).replace('-00', '.000000+0000\n'),
+                                     # # TODO: Should this be necessary?
+                                     # create_sample(datetimeformattz) +
+                                     # f":{SAMPLE_SECOND:02d}.000000\n"
+                                     ]
+            if self.engine.name == 'redshift':
+                # TODO point to issue here
+                allowed_items += [f'{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}\n']
+            self.assertIn(csv_text, allowed_items,
+                          f"from timeonlyformat {timeonlyformat} and addl_hints {addl_hints}")
