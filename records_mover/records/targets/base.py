@@ -127,7 +127,7 @@ class MightSupportMoveFromTempLocAfterFillingIt(NegotiatesRecordsFormat, metacla
     @abstractmethod
     def can_move_from_temp_loc_after_filling_it(self) -> bool:
         """Returns True if target as currently configured can be handed a
-        temporary location and fill it.
+        temporary location and load from it.
         """
         pass
 
