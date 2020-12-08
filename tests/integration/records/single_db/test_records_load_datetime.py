@@ -67,20 +67,46 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             self.assertEqual(date.day, SAMPLE_DAY)
 
     def test_load_timeonly(self):
-        for dateformat in TIMEONLY_CASES:
-            self.load(format_string=dateformat,
+        for timeformat in TIMEONLY_CASES:
+            self.load(format_string=timeformat,
                       column_name='time',
                       field_type='time')
             date = self.pull_result(column_name='time')
             self.assertEqual(date.hour, SAMPLE_HOUR)
             self.assertEqual(date.minute, SAMPLE_MINUTE)
-            if 'SS' in dateformat:
+            if 'SS' in timeformat:
                 self.assertEqual(date.second, SAMPLE_SECOND)
             else:
                 self.assertEqual(date.second, 0)
 
     def test_load_datetimetz(self):
-        raise
+        for datetimetzformat in DATETIMETZ_CASES:
+            self.load(format_string=datetimetzformat,
+                      column_name='datetimetz',
+                      field_type='datetimetz')
+            date = self.pull_result(column_name='datetimetz')
+            self.assertEqual(date.year, SAMPLE_YEAR)
+            self.assertEqual(date.month, SAMPLE_MONTH)
+            self.assertEqual(date.day, SAMPLE_DAY)
+            self.assertEqual(date.hour, SAMPLE_HOUR)
+            self.assertEqual(date.minute, SAMPLE_MINUTE)
+            if 'SS' in datetimetzformat:
+                self.assertEqual(date.second, SAMPLE_SECOND)
+            else:
+                self.assertEqual(date.second, 0)
 
     def test_load_datetime(self):
-        raise
+        for datetimeformat in DATETIME_CASES:
+            self.load(format_string=datetimeformat,
+                      column_name='datetime',
+                      field_type='datetimetz')
+            date = self.pull_result(column_name='datetimetz')
+            self.assertEqual(date.year, SAMPLE_YEAR)
+            self.assertEqual(date.month, SAMPLE_MONTH)
+            self.assertEqual(date.day, SAMPLE_DAY)
+            self.assertEqual(date.hour, SAMPLE_HOUR)
+            self.assertEqual(date.minute, SAMPLE_MINUTE)
+            if 'SS' in datetimeformat:
+                self.assertEqual(date.second, SAMPLE_SECOND)
+            else:
+                self.assertEqual(date.second, 0)
