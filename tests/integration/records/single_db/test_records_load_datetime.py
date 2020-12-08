@@ -4,7 +4,7 @@ import datetime
 from .base_records_test import BaseRecordsIntegrationTest
 from ..datetime_cases import (
     DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES, create_sample,
-    SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND, SAMPLE_PERIOD, SAMPLE_HOUR_12H
+    SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND
 )
 from records_mover.records import RecordsSchema, RecordsFormat
 from records_mover.records.schema.field.field_types import FieldType
