@@ -80,7 +80,7 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                       field_type='time')
             date = self.pull_result(column_name='time')
             if self.database_has_no_time_type():
-                self.assertEqual(date, f"{SAMPLE_HOUR_12H:02d}:{SAMPLE_MINUTE:02d} {SAMPLE_PERIOD}")
+                self.assertEqual(date, create_sample(timeformat))
             else:
                 self.assertEqual(date.hour, SAMPLE_HOUR)
                 self.assertEqual(date.minute, SAMPLE_MINUTE)
