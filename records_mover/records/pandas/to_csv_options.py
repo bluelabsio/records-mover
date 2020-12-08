@@ -152,8 +152,9 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
     quiet_remove(unhandled_hints, 'datetimeformat')
 
-    if hints.timeonlyformat != 'HH24:MI:SS':
-        cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', hints)
+    # Raw dates and times aren't handed to to_csv(); they'
+    # pre-processed prep_for_csv.py, which will raise an error if it
+    # can't handle a given hint.
     quiet_remove(unhandled_hints, 'timeonlyformat')
 
     pandas_options['sep'] = hints.field_delimiter
