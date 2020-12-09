@@ -134,7 +134,9 @@ itest_dependencies = [
 )
 
 airflow_dependencies = [
-    'apache-airflow>=1.10,<2'
+    # Airflow 1.10.0 has an installation failure that bombs the
+    # installation, at least in pip 20.30.0
+    'apache-airflow>=1.10.1,<2'
 ]
 
 db_dependencies = [
@@ -322,7 +324,8 @@ setup(name='records-mover',
           # let's be conservative about what we're specifying for now.
           'db-facts>=4,<5',
           'chardet',
-          'tenacity>=6<7',
+          # As of 2020-12, Airflow requires tenacity 4
+          'tenacity>=4<7',
           # v5.0.1 resolves https://github.com/exhuma/config_resolver/issues/69
           'config-resolver>=5.0.1,<6',
           'typing_inspect',
