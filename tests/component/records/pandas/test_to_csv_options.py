@@ -12,6 +12,11 @@ from records_mover.records import DelimitedRecordsFormat, ProcessingInstructions
 
 class TestToCsvOptions(unittest.TestCase):
     def test_dateformat(self) -> None:
+        #
+        # This behavior isn't right; to_csv_options uses
+        # prep_for_csv.py to preformat date columns as strings.  See
+        # https://github.com/bluelabsio/records-mover/issues/142
+        #
         expectations = {
             'YYYY-MM-DD': '%Y-%m-%d %H:%M:%S.%f%z',
             'MM-DD-YY': '%m-%d-%y %H:%M:%S.%f%z',
