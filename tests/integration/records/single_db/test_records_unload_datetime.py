@@ -1,22 +1,16 @@
 import logging
-import io
 import tempfile
 import pathlib
 from .base_records_test import BaseRecordsIntegrationTest
 from records_mover.db.quoting import quote_schema_and_table
 from records_mover.records.records_directory import RecordsDirectory
 from records_mover.records.records_format import BaseRecordsFormat
-from records_mover.utils.retry import bigquery_retry
-from ..records_database_fixture import RecordsDatabaseFixture
+from ..records_datetime_fixture import RecordsDatetimeFixture
 from ..datetime_cases import (
     DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES, create_sample,
-    SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND, SAMPLE_OFFSET, SAMPLE_LONG_TZ
+    SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND
 )
-from records_mover.records import (
-    RecordsSchema, RecordsFormat, PartialRecordsHints
-)
-from records_mover.records.records_format import DelimitedRecordsFormat
-from records_mover.records.schema.field.field_types import FieldType
+from records_mover.records import RecordsFormat, PartialRecordsHints
 
 logger = logging.getLogger(__name__)
 
@@ -31,144 +25,15 @@ VARIANT_FOR_DB = {
 
 
 class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
-    def quote_schema_and_table(self, schema, table):
-        return quote_schema_and_table(self.engine, schema, table)
-
-    @bigquery_retry()
-    def drop_table_if_exists(self, schema, table):
-        sql = f"DROP TABLE IF EXISTS {self.quote_schema_and_table(schema, table)}"
-        self.engine.execute(sql)
-
-    def createDateTimeTzTable(self) -> None:
-        if self.engine.name == 'redshift':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d} {SAMPLE_LONG_TZ}'::TIMESTAMPTZ as timestamptz;
-"""  # noqa
-        elif self.engine.name == 'vertica':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d} {SAMPLE_LONG_TZ}'::TIMESTAMPTZ as timestamptz;
-"""  # noqa
-        elif self.engine.name == 'bigquery':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT cast('{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d} {SAMPLE_LONG_TZ}' AS TIMESTAMP) as timestamptz;
-"""  # noqa
-        elif self.engine.name == 'postgresql':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d} {SAMPLE_LONG_TZ}'::TIMESTAMPTZ as "timestamptz";
-"""  # noqa
-        elif self.engine.name == 'mysql':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT TIMESTAMP '{SAMPLE_YEAR}-{SAMPLE_MONTH:02d}-{SAMPLE_DAY:02d} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}.000000{SAMPLE_OFFSET}' AS "timestamptz";
-"""  # noqa
-        else:
-            raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
-        self.engine.execute(create_tables)
-
-    def createDateTimeTable(self) -> None:
-        if self.engine.name == 'redshift':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIMESTAMP AS timestamp;
-"""  # noqa
-        elif self.engine.name == 'vertica':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIMESTAMP AS timestamp;
-"""  # noqa
-        elif self.engine.name == 'bigquery':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT cast('{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}' AS DATETIME) AS timestamp;
-"""  # noqa
-        elif self.engine.name == 'postgresql':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIMESTAMP AS "timestamp";
-"""  # noqa
-        elif self.engine.name == 'mysql':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT TIMESTAMP '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}' AS "timestamp";
-"""  # noqa
-        else:
-            raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
-        self.engine.execute(create_tables)
-
-    @bigquery_retry()
-    def createDateTable(self) -> None:
-        if self.engine.name == 'redshift':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}'::DATE AS date;
-"""  # noqa
-        elif self.engine.name == 'vertica':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}'::DATE AS date;
-"""  # noqa
-        elif self.engine.name == 'bigquery':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT cast('{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}' as DATE) AS date;
-"""  # noqa
-        elif self.engine.name == 'postgresql':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}'::DATE AS date;
-"""  # noqa
-        elif self.engine.name == 'mysql':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT DATE '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}' AS "date";
-"""  # noqa
-        else:
-            raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
-        self.engine.execute(create_tables)
-
-    @bigquery_retry()
-    def createTimeTable(self):
-        if self.engine.name == 'redshift':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}' AS "time";
-"""  # noqa
-        elif self.engine.name == 'vertica':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIME AS "time";
-"""  # noqa
-        elif self.engine.name == 'bigquery':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT cast('{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}' as TIME) AS time;
-"""  # noqa
-        elif self.engine.name == 'postgresql':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT '{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIME AS "time";
-"""  # noqa
-        elif self.engine.name == 'mysql':
-            create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT TIME '{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}' AS "time";
-"""  # noqa
-        else:
-            raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
-        self.engine.execute(create_tables)
-
-    def drop_tables(self):
-        logger.info('Dropping tables...')
-        self.drop_table_if_exists(self.schema_name, f"{self.table_name}_frozen")
-        self.drop_table_if_exists(self.schema_name, self.table_name)
+    def setUp(self) -> None:
+        super().setUp()
+        self.datetime_fixture = RecordsDatetimeFixture(engine=self.engine,
+                                                       table_name=self.table_name,
+                                                       schema_name=self.schema_name)
 
     def tearDown(self):
         super().tearDown()
-        self.drop_tables()
+        self.datetime_fixture.drop_tables()
 
     def unload(self,
                column_name: str,
@@ -192,7 +57,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 return output_loc.string_contents()
 
     def test_unload_date(self) -> None:
-        self.createDateTable()
+        self.datetime_fixture.createDateTable()
         for dateformat in DATE_CASES:
             addl_hints: PartialRecordsHints = {}
             pandas_compatible_addl_hints: PartialRecordsHints = {
@@ -250,9 +115,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     raise
             self.assertFalse(expect_pandas_failure)
 
-
     def test_unload_datetime(self) -> None:
-        self.createDateTimeTable()
+        self.datetime_fixture.createDateTimeTable()
         matching_dateformat = {
             'YYYY-MM-DD HH:MI:SS': 'YYYY-MM-DD',
             'YYYY-MM-DD HH12:MI AM': 'YYYY-MM-DD',
@@ -331,9 +195,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     raise
             self.assertFalse(expect_pandas_failure)
 
-
     def test_unload_datetimetz(self) -> None:
-        self.createDateTimeTzTable()
+        self.datetime_fixture.createDateTimeTzTable()
         matching_dateformat = {
             'YYYY-MM-DD HH:MI:SS': 'YYYY-MM-DD',
             'YYYY-MM-DD HH12:MI AM': 'YYYY-MM-DD',
@@ -398,7 +261,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 csv_text = self.unload(column_name='timestamptz',
                                        records_format=records_format)
                 self.assertIn(csv_text, [create_sample(datetimeformattz) + "\n",
-                                         create_sample(datetimeformattz).replace('-00', '+00') + "\n",
+                                         create_sample(datetimeformattz).
+                                         replace('-00', '+00') + "\n",
                                          create_sample(datetimeformattz).replace('-00', '') +
                                          ".000000\n",
                                          # TODO: Should this be necessary?
@@ -410,7 +274,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                          create_sample(datetimeformattz) +
                                          f":{SAMPLE_SECOND:02d}.000000\n"
                                          ],
-                              f"from datetimeformattz {datetimeformattz} and addl_hints {addl_hints}")
+                              f"from datetimeformattz {datetimeformattz} and "
+                              f"addl_hints {addl_hints}")
             except ModuleNotFoundError as e:
                 if 'pandas' in str(e) and expect_pandas_failure:
                     # as expected
@@ -419,9 +284,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     raise
             self.assertFalse(expect_pandas_failure)
 
-
     def test_unload_timeonly(self) -> None:
-        self.createTimeTable()
+        self.datetime_fixture.createTimeTable()
         for timeonlyformat in TIMEONLY_CASES:
             pandas_compatible_addl_hints: PartialRecordsHints = {
                 'dateformat': 'YYYY-MM-DD',
@@ -484,7 +348,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                  ]
                 if self.engine.name == 'redshift':
                     # TODO point to issue here
-                    allowed_items += [f'{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}\n']
+                    allowed_items +=\
+                        [f'{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}\n']
                 self.assertIn(csv_text, allowed_items,
                               f"from timeonlyformat {timeonlyformat} and addl_hints {addl_hints}")
             except ModuleNotFoundError as e:
