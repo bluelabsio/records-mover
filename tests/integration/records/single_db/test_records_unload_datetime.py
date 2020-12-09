@@ -210,6 +210,17 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             elif self.engine.name == 'mysql':
                 # mysql has no exporter defined, so everything is via Pandas
                 addl_hints = pandas_compatible_addl_hints
+            elif self.engine.name == 'postgresql':
+                if dateformat == 'YYYY-MM-DD':
+                    # ensure we keep other areas of ISO style
+                    addl_hints = {
+                        'timeonlyformat': 'HH:MI:SS',
+                        'datetimeformattz': 'YYYY-MM-DD HH:MI:SS',
+                        'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
+                    }
+                else:
+                    # We will be using pandas
+                    addl_hints = pandas_compatible_addl_hints
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'dateformat': dateformat,
@@ -255,6 +266,23 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     logger.warning('Cannot export this dateformat using Pandas, '
                                    'which is needed on MySQL--skipping test')
                     continue
+            elif self.engine.name == 'postgresql':
+                if datetimeformat in ['YYYY-MM-DD HH:MI:SS',
+                                      'YYYY-MM-DD HH24:MI:SS']:
+                    # ensure we keep other areas of ISO style
+                    addl_hints = {
+                        'timeonlyformat': 'HH:MI:SS',
+                        'dateformat': 'YYYY-MM-DD',
+                        'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
+                    }
+                else:
+                    # We will be using pandas
+                    addl_hints = pandas_compatible_addl_hints
+                    if 'AM' in datetimeformat:
+                        # TODO: Add a GitHub issue for this
+                        logger.warning('Cannot export this dateformat using Pandas or PostgreSQL--'
+                                       'skipping test')
+                        continue
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'datetimeformat': datetimeformat,
@@ -306,6 +334,23 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     logger.warning('Cannot export this dateformat using Pandas, '
                                    'which is needed on MySQL--skipping test')
                     continue
+            elif self.engine.name == 'postgresql':
+                if datetimeformattz in ['YYYY-MM-DD HH:MI:SSOF',
+                                        'YYYY-MM-DD HH24:MI:SSOF']:
+                    # ensure we keep other areas of ISO style
+                    addl_hints = {
+                        'timeonlyformat': 'HH:MI:SS',
+                        'dateformat': 'YYYY-MM-DD',
+                        'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
+                    }
+                else:
+                    # We will be using pandas
+                    addl_hints = pandas_compatible_addl_hints
+                    if 'AM' in datetimeformattz:
+                        # TODO: Add a GitHub issue for this
+                        logger.warning('Cannot export this dateformat using Pandas or PostgreSQL--'
+                                       'skipping test')
+                        continue
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'datetimeformattz': datetimeformattz,
@@ -322,7 +367,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                      # TODO: Should this be necessary?
                                      create_sample(datetimeformattz) + ".000000\n",
                                      # TODO: Should this be necessary?
-                                     create_sample(datetimeformattz).replace('-00', '.000000+0000\n'),
+                                     create_sample(datetimeformattz).replace('-00', '') +
+                                     '.000000+0000\n',
                                      # TODO: Should this be necessary?
                                      create_sample(datetimeformattz) +
                                      f":{SAMPLE_SECOND:02d}.000000\n"
@@ -346,6 +392,22 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     logger.warning('Cannot export this dateformat using Pandas, '
                                    'which is needed on MySQL--skipping test')
                     continue
+            elif self.engine.name == 'postgresql':
+                if timeonlyformat in ['HH:MI:SS', 'HH24:MI:SS']:
+                    # ensure we keep other areas of ISO style
+                    addl_hints = {
+                        'dateformat': 'YYYY-MM-DD',
+                        'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
+                        'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
+                    }
+                else:
+                    # We will be using pandas
+                    addl_hints = pandas_compatible_addl_hints
+                    if 'AM' in timeonlyformat:
+                        # TODO: Add a GitHub issue for this
+                        logger.warning('Cannot export this dateformat using Pandas or PostgreSQL--'
+                                       'skipping test')
+                        continue
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'timeonlyformat': timeonlyformat,
