@@ -1,7 +1,8 @@
 from records_mover.db.quoting import quote_schema_and_table
 from records_mover.utils.retry import bigquery_retry
 from .datetime_cases import (
-    SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND, SAMPLE_OFFSET, SAMPLE_LONG_TZ
+    SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY,
+    SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND, SAMPLE_OFFSET, SAMPLE_LONG_TZ
 )
 from sqlalchemy.engine import Engine
 import logging
