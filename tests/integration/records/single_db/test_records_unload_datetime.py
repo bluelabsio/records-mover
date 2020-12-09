@@ -257,7 +257,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                          # Pandas doesn't truncate fractional seconds in the
                                          # same way other tools do.
                                          create_sample(datetimeformattz) + ".000000\n",
-                                         # TODO: Should this be necessary?
+                                         # It's valid to not include an offset with no impact.
                                          create_sample(datetimeformattz).replace('-00', '') +
                                          '.000000+0000\n',
                                          # An example of having an overly simplistic
@@ -342,7 +342,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                         records_format=records_format)
                 allowed_items = [create_sample(timeonlyformat) + "\n"]
                 if self.engine.name == 'redshift':
-                    # TODO point to issue here
+                    # https://github.com/bluelabsio/records-mover/issues/141
                     allowed_items +=\
                         [f'{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}\n']
                 self.assertIn(csv_text, allowed_items,
