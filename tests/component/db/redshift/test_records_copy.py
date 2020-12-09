@@ -146,7 +146,7 @@ class TestRecordsCopy(unittest.TestCase):
         # Mover doesn't yet support anything here and just treats
         # these as strings.  Nothing should raise.
         #
-        # TODO: Point to a backlog item
+        # https://github.com/bluelabsio/records-mover/issues/141
         for timeonlyformat in TIMEONLY_CASES:
             hints = {
                 'timeonlyformat': timeonlyformat,
