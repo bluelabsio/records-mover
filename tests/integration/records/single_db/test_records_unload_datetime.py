@@ -158,7 +158,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 # All current export is via Avro
                 uses_pandas = True
             if uses_pandas:
-                # TODO: Should I verify this?
                 # We're going to need to be sure to use hints that
                 # work in Pandas
                 addl_hints.update(pandas_compatible_addl_hints)
