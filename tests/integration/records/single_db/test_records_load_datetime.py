@@ -93,17 +93,17 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                       # ensure a Pandas-compatible format in case
                       # database doesn't support hints directly
                       addl_hints=addl_hints)
-            date = self.pull_result(column_name='date')
-            if isinstance(date, str):
+            date_obj = self.pull_result(column_name='date')
+            if isinstance(date_obj, str):
                 # If Pandas was required, the date type will be
                 # simplified to string as pandas doesn't support
                 # date-only columns
-                self.assertEqual(date, create_sample(dateformat),
+                self.assertEqual(date_obj, create_sample(dateformat),
                                  f"Problem loading date with dateformat {dateformat}")
             else:
-                self.assertEqual(date.year, SAMPLE_YEAR)
-                self.assertEqual(date.month, SAMPLE_MONTH)
-                self.assertEqual(date.day, SAMPLE_DAY)
+                self.assertEqual(date_obj.year, SAMPLE_YEAR)
+                self.assertEqual(date_obj.month, SAMPLE_MONTH)
+                self.assertEqual(date_obj.day, SAMPLE_DAY)
 
     def database_has_no_time_type(self) -> bool:
         return self.engine.name == 'redshift'
@@ -120,25 +120,25 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                       format_string=timeformat,
                       column_name='time',
                       field_type='time')
-            time = self.pull_result(column_name='time')
+            time_obj = self.pull_result(column_name='time')
             if self.database_has_no_time_type():
-                self.assertEqual(time, create_sample(timeformat))
+                self.assertEqual(time_obj, create_sample(timeformat))
             elif self.database_provides_times_as_timedeltas():
-                assert isinstance(time, datetime.timedelta)
+                assert isinstance(time_obj, datetime.timedelta)
                 minutes = SAMPLE_HOUR*60 + SAMPLE_MINUTE
                 if 'SS' in timeformat:
                     seconds = minutes*60 + SAMPLE_SECOND
                 else:
                     seconds = minutes*60
-                self.assertEqual(time.seconds, seconds)
+                self.assertEqual(time_obj.seconds, seconds)
 
             else:
-                self.assertEqual(time.hour, SAMPLE_HOUR)
-                self.assertEqual(time.minute, SAMPLE_MINUTE)
+                self.assertEqual(time_obj.hour, SAMPLE_HOUR)
+                self.assertEqual(time_obj.minute, SAMPLE_MINUTE)
                 if 'SS' in timeformat:
-                    self.assertEqual(time.second, SAMPLE_SECOND)
+                    self.assertEqual(time_obj.second, SAMPLE_SECOND)
                 else:
-                    self.assertEqual(time.second, 0)
+                    self.assertEqual(time_obj.second, 0)
 
     def test_load_datetimetz(self) -> None:
         for datetimetzformat in DATETIMETZ_CASES:
@@ -147,10 +147,6 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                       column_name='datetimetz',
                       field_type='datetimetz')
             datetime = self.pull_result(column_name='datetimetz')
-            # if self.database_driver_provides_dates_and_datetimes_as_strings():
-            if isinstance(datetime, str):
-                # TODO
-                self.assertFalse(datetime)
             self.assertEqual(datetime.year, SAMPLE_YEAR)
             self.assertEqual(datetime.month, SAMPLE_MONTH)
             self.assertEqual(datetime.day, SAMPLE_DAY)
@@ -167,17 +163,13 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                       format_string=datetimeformat,
                       column_name='datetime',
                       field_type='datetime')
-            datetime = self.pull_result(column_name='datetime')
-            # if self.database_driver_provides_dates_and_datetimes_as_strings():
-            if isinstance(datetime, str):
-                # TODO
-                self.assertFalse(datetime)
-            self.assertEqual(datetime.year, SAMPLE_YEAR)
-            self.assertEqual(datetime.month, SAMPLE_MONTH)
-            self.assertEqual(datetime.day, SAMPLE_DAY)
-            self.assertEqual(datetime.hour, SAMPLE_HOUR)
-            self.assertEqual(datetime.minute, SAMPLE_MINUTE)
+            datetime_obj = self.pull_result(column_name='datetime')
+            self.assertEqual(datetime_obj.year, SAMPLE_YEAR)
+            self.assertEqual(datetime_obj.month, SAMPLE_MONTH)
+            self.assertEqual(datetime_obj.day, SAMPLE_DAY)
+            self.assertEqual(datetime_obj.hour, SAMPLE_HOUR)
+            self.assertEqual(datetime_obj.minute, SAMPLE_MINUTE)
             if 'SS' in datetimeformat:
-                self.assertEqual(datetime.second, SAMPLE_SECOND)
+                self.assertEqual(datetime_obj.second, SAMPLE_SECOND)
             else:
-                self.assertEqual(datetime.second, 0)
+                self.assertEqual(datetime_obj.second, 0)
