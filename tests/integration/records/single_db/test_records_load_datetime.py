@@ -65,22 +65,17 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
         ret = ret_all[0]
         return ret[column_name]
 
-    # TODO
-    # def database_driver_provides_dates_and_datetimes_as_strings(self) -> bool:
-    #     return self.engine.name == 'mysql'
-
     def database_provides_times_as_timedeltas(self) -> bool:
         return self.engine.name == 'mysql'
 
     def test_load_date(self) -> None:
         for dateformat in DATE_CASES:
             addl_hints: PartialRecordsHints = {}
-            # TODO: extract out this predicate
-            if self.engine.name in ['vertica', 'mysql', 'redshift', 'bigquery']:
+            if self.engine.name in ['vertica', 'mysql', 'redshift',
+                                    'bigquery']:
                 # Use something more compatible with Pandas that is
-                # still compatible with Vertica for when the
-                # dateformat is not compatible with Vertica or MySQL,
-                # which are limited in what they can accept...
+                # still compatible when the above databases, which are
+                # limited in what they can accept...
                 addl_hints = {
                     'datetimeformat': f"{dateformat} HH:MI:SS",
                     'datetimeformattz': f"{dateformat} HH:MI:SSOF",
