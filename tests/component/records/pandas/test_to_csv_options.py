@@ -117,10 +117,12 @@ class TestToCsvOptions(unittest.TestCase):
             # is in our example
             datetimeformattz_minus_offset = datetimeformattz.replace('OF', '')
             sample = create_sample(datetimeformattz_minus_offset)
-            # TODO: Why exactly do we do this?
+            # TODO: Why are we including microsecond?  Is that in
+            # Records or Redshift specs?
             if 'SS' in datetimeformattz:
                 self.assertEqual(output, f"{sample}.000000\n")
             else:
+                # TODO: Why is second included when hint didn't include it?
                 self.assertEqual(output, f"{sample}:{SAMPLE_SECOND:02d}.000000\n")
 
     def test_datetimeformattz(self) -> None:
@@ -180,10 +182,12 @@ class TestToCsvOptions(unittest.TestCase):
             # try to handle lone dates or times.  Instead, we use
             # prep_for_csv() to preconvert these Serieses into strings.
             sample = create_sample(datetimeformat)
-            # TODO: Why exactly do we do this?
+            # TODO: Why are we including microsecond?  Is that in
+            # Records or Redshift specs?
             if 'SS' in datetimeformat:
                 self.assertEqual(output, f"{sample}.000000\n")
             else:
+                # TODO: Why is second included when hint didn't include it?
                 self.assertEqual(output, f"{sample}:{SAMPLE_SECOND:02d}.000000\n")
 
     def test_timeonlyformat(self) -> None:
