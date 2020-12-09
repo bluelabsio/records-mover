@@ -60,11 +60,13 @@ class TestToCsvOptions(unittest.TestCase):
 
     def test_datetimeformat(self) -> None:
         known_failures: Set[str] = set()
-        # TODO: do these really seem right?
+        # TODO: Why are we including microsecond?  Is that in
+        # Records or Redshift specs?
         expectations = {
             'YYYY-MM-DD HH:MI:SSOF': '%Y-%m-%d %H:%M:%S.%f%z',
             'YYYY-MM-DD HH:MI:SS': '%Y-%m-%d %H:%M:%S.%f',
             'YYYY-MM-DD HH24:MI:SSOF': '%Y-%m-%d %H:%M:%S.%f%z',
+            # TODO: Why are we including seconds here are at all?
             'MM/DD/YY HH24:MI': '%m/%d/%y %H:%M:%S.%f',
         }
         compatible_dateformat = {
@@ -192,7 +194,7 @@ class TestToCsvOptions(unittest.TestCase):
 
     def test_timeonlyformat(self) -> None:
         known_failures = {
-            # TODO see comment in to_csv_options
+            # https://github.com/bluelabsio/records-mover/issues/142
             'HH12:MI AM',
             'HH:MI:SS',
         }
