@@ -162,7 +162,10 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 # work in Pandas
                 addl_hints.update(pandas_compatible_addl_hints)
                 if 'AM' in datetimeformat:
-                    # TODO: Add a GitHub issue for this
+                    # Pandas is more limited in hint support than it
+                    # should be:
+                    #
+                    # https://github.com/bluelabsio/records-mover/issues/143
                     # TODO: Should expect failure and complain if it doesn't fail
                     logger.warning('Cannot export this dateformat using Pandas--'
                                    'skipping test')
@@ -242,7 +245,11 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 # work in Pandas
                 addl_hints.update(pandas_compatible_addl_hints)
                 if 'AM' in datetimeformattz:
-                    # TODO: Add a GitHub issue for this
+                    # Pandas is more limited in hint support than it
+                    # should be:
+                    #
+                    # https://github.com/bluelabsio/records-mover/issues/143
+                    # TODO: Should expect failure and complain if it doesn't fail
                     logger.warning('Cannot export this dateformattz using Pandas or Redshift--'
                                    'skipping test')
                     continue
@@ -319,7 +326,11 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 # we're going to need to be sure to use hints that work in Pandas
                 addl_hints.update(pandas_compatible_addl_hints)
                 if 'AM' in timeonlyformat:
-                    # TODO: Add a GitHub issue for this
+                    # Pandas is more limited in hint support than it
+                    # should be:
+                    #
+                    # https://github.com/bluelabsio/records-mover/issues/143
+                    # TODO: Should expect failure and complain if it doesn't fail
                     logger.warning('Cannot export this dateformat using Pandas'
                                    '--skipping test')
                     continue
