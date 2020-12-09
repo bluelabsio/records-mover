@@ -125,7 +125,12 @@ class TestToCsvOptions(unittest.TestCase):
             if 'SS' in datetimeformattz:
                 self.assertEqual(output, f"{sample}.000000\n")
             else:
-                # TODO: Why is second included when hint didn't include it?
+                # Another example of having an overly simplistic
+                # implementation of to_csv_options is that seconds get
+                # appended even for time formats which don't include
+                # it.
+                #
+                # https://github.com/bluelabsio/records-mover/issues/142
                 self.assertEqual(output, f"{sample}:{SAMPLE_SECOND:02d}.000000\n")
 
     def test_datetimeformattz(self) -> None:
@@ -190,7 +195,12 @@ class TestToCsvOptions(unittest.TestCase):
                 # same way other tools do.
                 self.assertEqual(output, f"{sample}.000000\n")
             else:
-                # TODO: Why is second included when hint didn't include it?
+                # Another example of having an overly simplistic
+                # implementation of to_csv_options is that seconds get
+                # appended even for time formats which don't include
+                # it.
+                #
+                # https://github.com/bluelabsio/records-mover/issues/142
                 self.assertEqual(output, f"{sample}:{SAMPLE_SECOND:02d}.000000\n")
 
     def test_timeonlyformat(self) -> None:
