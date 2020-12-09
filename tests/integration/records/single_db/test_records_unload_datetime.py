@@ -1,9 +1,5 @@
 import logging
-import tempfile
-import pathlib
 from .base_records_test import BaseRecordsIntegrationTest
-from records_mover.records.records_directory import RecordsDirectory
-from records_mover.records.records_format import BaseRecordsFormat
 from ..records_datetime_fixture import RecordsDatetimeFixture
 from ..datetime_cases import (
     DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES, create_sample,
@@ -33,27 +29,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
     def tearDown(self):
         super().tearDown()
         self.datetime_fixture.drop_tables()
-
-    def unload(self,
-               column_name: str,
-               records_format: BaseRecordsFormat) -> str:
-        targets = self.records.targets
-        sources = self.records.sources
-        with tempfile.TemporaryDirectory() as directory_name:
-            source = sources.table(schema_name=self.schema_name,
-                                   table_name=self.table_name,
-                                   db_engine=self.engine)
-            directory_url = pathlib.Path(directory_name).as_uri() + '/'
-            target = targets.directory_from_url(output_url=directory_url,
-                                                records_format=records_format)
-            self.records.move(source, target)
-            directory_loc = self.session.directory_url(directory_url)
-            records_dir = RecordsDirectory(records_loc=directory_loc)
-            with tempfile.NamedTemporaryFile() as t:
-                output_url = pathlib.Path(t.name).as_uri()
-                output_loc = self.session.file_url(output_url)
-                records_dir.save_to_url(output_loc)
-                return output_loc.string_contents()
 
     def test_unload_date(self) -> None:
         self.datetime_fixture.createDateTable()
@@ -102,8 +77,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                            })
             expect_pandas_failure = not self.has_pandas() and uses_pandas
             try:
-                csv_text = self.unload(column_name='date',
-                                       records_format=records_format)
+                csv_text = self.unload_column_to_string(column_name='date',
+                                                        records_format=records_format)
                 self.assertEqual(csv_text, create_sample(dateformat) + "\n",
                                  f"from dateformat {dateformat} and addl_hints {addl_hints}")
             except ModuleNotFoundError as e:
@@ -177,8 +152,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                            })
             expect_pandas_failure = not self.has_pandas() and uses_pandas
             try:
-                csv_text = self.unload(column_name='timestamp',
-                                       records_format=records_format)
+                csv_text = self.unload_column_to_string(column_name='timestamp',
+                                                        records_format=records_format)
                 self.assertIn(csv_text, [create_sample(datetimeformat) + "\n",
                                          # Pandas doesn't truncate fractional seconds in the
                                          # same way other tools do.
@@ -272,8 +247,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                            })
             expect_pandas_failure = not self.has_pandas() and uses_pandas
             try:
-                csv_text = self.unload(column_name='timestamptz',
-                                       records_format=records_format)
+                csv_text = self.unload_column_to_string(column_name='timestamptz',
+                                                        records_format=records_format)
                 self.assertIn(csv_text, [create_sample(datetimeformattz) + "\n",
                                          create_sample(datetimeformattz).
                                          replace('-00', '+00') + "\n",
@@ -363,8 +338,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                            })
             expect_pandas_failure = not self.has_pandas() and uses_pandas
             try:
-                csv_text = self.unload(column_name='time',
-                                       records_format=records_format)
+                csv_text = self.unload_column_to_string(column_name='time',
+                                                        records_format=records_format)
                 allowed_items = [create_sample(timeonlyformat) + "\n"]
                 if self.engine.name == 'redshift':
                     # TODO point to issue here
