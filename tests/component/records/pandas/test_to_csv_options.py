@@ -12,11 +12,12 @@ from records_mover.records import DelimitedRecordsFormat, ProcessingInstructions
 
 class TestToCsvOptions(unittest.TestCase):
     def test_dateformat(self) -> None:
-        #
         # This behavior isn't right; to_csv_options uses
         # prep_for_csv.py to preformat date columns as strings.  See
         # https://github.com/bluelabsio/records-mover/issues/142
         #
+        # This test can be radically simplified once datetime behavior
+        # is removed entirely from to_csv_options.
         expectations = {
             'YYYY-MM-DD': '%Y-%m-%d %H:%M:%S.%f%z',
             'MM-DD-YY': '%m-%d-%y %H:%M:%S.%f%z',
@@ -56,7 +57,10 @@ class TestToCsvOptions(unittest.TestCase):
             # try to handle lone dates or times.  Instead, we use
             # prep_for_csv() to preconvert these Serieses into strings.
             sample = create_sample(dateformat)
-            # TODO: Why the extra zeros?
+            #
+            # As noted above, Pandas doesn't really have a concept of
+            # formatting just a date, so it appends the time
+            # information regardless.
             self.assertEqual(output, f"{sample} 00:00:00.000000\n")
 
     def test_datetimeformat(self) -> None:
