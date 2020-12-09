@@ -408,6 +408,17 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                         logger.warning('Cannot export this dateformat using Pandas or PostgreSQL--'
                                        'skipping test')
                         continue
+            elif self.engine.name == 'vertica':
+                # Make sure our '\n' strings below are valid when comparing output
+                addl_hints['record-terminator'] = '\n'
+                if timeonlyformat not in ['HH:MI:SS', 'HH24:MI:SS']:
+                    # We will be using pandas
+                    addl_hints.update(pandas_compatible_addl_hints)
+                    if 'AM' in timeonlyformat:
+                        # TODO: Add a GitHub issue for this
+                        logger.warning('Cannot export this dateformat using Pandas or Vertica--'
+                                       'skipping test')
+                        continue
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'timeonlyformat': timeonlyformat,
