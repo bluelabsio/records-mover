@@ -1,7 +1,5 @@
 from .base_test_redshift_db_driver import BaseTestRedshiftDBDriver
-from ...records.format_hints import (bluelabs_format_hints,
-                                     christmas_tree_format_1_hints,
-                                     christmas_tree_format_2_hints)
+from ...records.format_hints import bluelabs_format_hints
 from records_mover.records.delimited.utils import logger as driver_logger
 from records_mover.records import DelimitedRecordsFormat
 from mock import call, patch
@@ -77,89 +75,6 @@ class TestRedshiftDBDriverUnload(BaseTestRedshiftDBDriver):
             'delimiter': ',',
             'escape': True,
             'gzip': True,
-            'manifest': True,
-            'secret_access_key': 'fake_aws_secret',
-            'select': ('SELECT * FROM myschema.mytable',),
-            'session_token': 'fake_aws_token',
-            'unload_location': 's3://mybucket/myparent/mychild/'
-        }
-        mock_UnloadFromSelect.assert_called_with(**expected_args)
-        self.assertEqual(456, rows)
-
-    @patch('records_mover.db.redshift.unloader.UnloadFromSelect')
-    @patch('records_mover.db.redshift.unloader.text')
-    def test_unload_christmas_tree_unsupported_options_with_fast_warns_1(self,
-                                                                         mock_text,
-                                                                         mock_UnloadFromSelect):
-        mock_text.side_effect = fake_text
-        self.mock_directory.scheme = 's3'
-        with patch.object(driver_logger, 'warning') as mock_warning:
-            self.mock_records_unload_plan.processing_instructions.fail_if_dont_understand = False
-            self.mock_records_unload_plan.processing_instructions.fail_if_cant_handle_hint = False
-
-            self.mock_records_unload_plan.records_format =\
-                DelimitedRecordsFormat(variant='bluelabs',
-                                       hints=christmas_tree_format_1_hints)
-            self.mock_db_engine.execute.return_value.scalar.return_value = 456
-            rows = self.redshift_db_driver.unloader().\
-                unload(schema='myschema',
-                       table='mytable',
-                       unload_plan=self.mock_records_unload_plan,
-                       directory=self.mock_directory)
-            self.assertCountEqual(mock_warning.mock_calls,
-                                  [call("Ignoring hint record-terminator = '\\x02'"),
-                                   call("Ignoring hint quoting = 'nonnumeric'"),
-                                   call("Ignoring hint header-row = True"),
-                                   call("Ignoring hint compression = 'LZO'"),
-                                   call("Did not understand these hints: header-row=True")])
-
-        expected_args = {
-            'access_key_id': 'fake_aws_id',
-            'delimiter': '\x01',
-            'escape': True,
-            'manifest': True,
-            'secret_access_key': 'fake_aws_secret',
-            'select': ('SELECT * FROM myschema.mytable',),
-            'session_token': 'fake_aws_token',
-            'unload_location': 's3://mybucket/myparent/mychild/'
-        }
-        mock_UnloadFromSelect.assert_called_with(**expected_args)
-        self.assertEqual(456, rows)
-
-    @patch('records_mover.db.redshift.unloader.UnloadFromSelect')
-    @patch('records_mover.db.redshift.unloader.text')
-    def test_unload_christmas_tree_unsupported_options_with_fast_warns_2(self,
-                                                                         mock_text,
-                                                                         mock_UnloadFromSelect):
-        mock_text.side_effect = fake_text
-        self.mock_directory.scheme = 's3'
-        with patch.object(driver_logger, 'warning') as mock_warning:
-            self.mock_records_unload_plan.processing_instructions.fail_if_dont_understand = False
-            self.mock_records_unload_plan.processing_instructions.fail_if_cant_handle_hint = False
-            self.mock_records_unload_plan.records_format =\
-                DelimitedRecordsFormat(variant='bluelabs',
-                                       hints=christmas_tree_format_2_hints)
-            self.mock_db_engine.execute.return_value.scalar.return_value = 456
-            rows = self.redshift_db_driver.unloader().\
-                unload(schema='myschema',
-                       table='mytable',
-                       unload_plan=self.mock_records_unload_plan,
-                       directory=self.mock_directory)
-            self.assertListEqual(mock_warning.mock_calls,
-                                 [call("Ignoring hint escape = '@'"),
-                                  call("Ignoring hint datetimeformattz = 'HH:MI:SSOF YYYY-MM-DD'"),
-                                  call("Ignoring hint record-terminator = '\\x02'"),
-                                  call("Ignoring hint doublequote = True"),
-                                  call("Ignoring hint compression = 'BZIP'"),
-                                  call("Ignoring hint datetimeformattz = "
-                                       "'YYYY-MM-DD HH24:MI:SSOF'"),
-                                  call("Ignoring hint dateformat = 'MM-DD-YYYY'")])
-
-        expected_args = {
-            'access_key_id': 'fake_aws_id',
-            'escape': True,
-            'add_quotes': True,
-            'delimiter': '\x01',
             'manifest': True,
             'secret_access_key': 'fake_aws_secret',
             'select': ('SELECT * FROM myschema.mytable',),

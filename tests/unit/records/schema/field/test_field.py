@@ -242,3 +242,19 @@ class TestField(unittest.TestCase):
         series = pd.Series(data)
         new_series = field.cast_series_type(series)
         self.assertEqual(new_series[0], '01:23:45')
+
+    # def test_cast_series_type_time_timedelta_entries_zeroed(self):
+    #     mock_name = Mock(name='name')
+    #     mock_field_type = 'time'
+    #     mock_constraints = Mock(name='constraints')
+    #     mock_statistics = Mock(name='statistics')
+    #     mock_representations = Mock(name='representations')
+    #     field = RecordsSchemaField(name=mock_name,
+    #                                field_type=mock_field_type,
+    #                                constraints=mock_constraints,
+    #                                statistics=mock_statistics,
+    #                                representations=mock_representations)
+    #     data = np.array([pd.Timedelta(hours=0, minutes=0, seconds=0)])
+    #     series = pd.Series(data)
+    #     new_series = field.cast_series_type(series)
+    #     self.assertEqual(new_series[0], '00:00:00')
