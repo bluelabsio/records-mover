@@ -69,7 +69,12 @@ class TestToCsvOptions(unittest.TestCase):
             'YYYY-MM-DD HH:MI:SSOF': '%Y-%m-%d %H:%M:%S.%f%z',
             'YYYY-MM-DD HH:MI:SS': '%Y-%m-%d %H:%M:%S.%f',
             'YYYY-MM-DD HH24:MI:SSOF': '%Y-%m-%d %H:%M:%S.%f%z',
-            # TODO: Why are we including seconds here are at all?
+            # Another example of having an overly simplistic
+            # implementation of to_csv_options is that seconds get
+            # appended even for time formats which don't include
+            # it.
+            #
+            # https://github.com/bluelabsio/records-mover/issues/142
             'MM/DD/YY HH24:MI': '%m/%d/%y %H:%M:%S.%f',
         }
         compatible_dateformat = {
