@@ -63,31 +63,14 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
     pandas_options['header'] = hints.header_row
     quiet_remove(unhandled_hints, 'header-row')
 
+    # Note the limitation on Pandas export with BigQuery around
+    # datetimeformattz:
+    #
+    # https://github.com/bluelabsio/records-mover/issues/95
     if hints.dateformat is None:
         if hints.datetimeformattz == hints.datetimeformat:
             # TODO: This comment isn't related here and should be
             # moved and replaced with one that explains the == above
-            #
-            # BigQuery requires that timezone offsets have a colon;
-            # Python (and thus Pandas) doesn't support adding the
-            # colon with strftime.  However, we can specify things
-            # without a timezone delimiter just fine.
-            #
-            # Unfortunately Python/Pandas will drop the timezone info
-            # instead of converting the timestamp to UTC.  This
-            # corrupts the time, as BigQuery assumes what it gets in
-            # is UTC format.  Boo.
-            #
-            # $ python3
-            # >>> import pytz
-            # >>> us_eastern = pytz.timezone('US/Eastern')
-            # >>> import datetime
-            # >>> us_eastern.localize(datetime.datetime(2000, 1, 2, 12, 34, 56, 789012))
-            #        .strftime('%Y-%m-%d %H:%M:%S.%f')
-            # '2000-01-02 12:34:56.789012'
-            # >>>
-            #
-            # https://github.com/bluelabsio/records-mover/issues/95
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f'
         else:
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f%z'
