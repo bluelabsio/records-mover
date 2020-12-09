@@ -221,6 +221,12 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 else:
                     # We will be using pandas
                     addl_hints = pandas_compatible_addl_hints
+            elif self.engine.name == 'vertica':
+                # Make sure our '\n' strings below are valid when comparing output
+                addl_hints['record-terminator'] = '\n'
+                if dateformat != 'YYYY-MM-DD':
+                    # We will be using pandas
+                    addl_hints.update(pandas_compatible_addl_hints)
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'dateformat': dateformat,
