@@ -223,7 +223,9 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 addl_hints['record-terminator'] = '\n'
                 if dateformat != 'YYYY-MM-DD':
                     uses_pandas = True
-
+            elif self.engine.name == 'bigquery':
+                # All current export is via Avro
+                uses_pandas = True
             if uses_pandas:
                 # we're going to need to be sure to use hints that work in Pandas
                 addl_hints.update(pandas_compatible_addl_hints)
@@ -289,6 +291,9 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 if datetimeformat not in ['YYYY-MM-DD HH:MI:SS',
                                           'YYYY-MM-DD HH24:MI:SS']:
                     uses_pandas = True
+            elif self.engine.name == 'bigquery':
+                # All current export is via Avro
+                uses_pandas = True
             if uses_pandas:
                 # TODO: Should I verify this?
                 # We're going to need to be sure to use hints that
@@ -368,6 +373,9 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 if datetimeformattz not in ['YYYY-MM-DD HH:MI:SSOF',
                                             'YYYY-MM-DD HH24:MI:SSOF']:
                     uses_pandas = True
+            elif self.engine.name == 'bigquery':
+                # All current export is via Avro
+                uses_pandas = True
             if uses_pandas:
                 # We're going to need to be sure to use hints that
                 # work in Pandas
@@ -422,21 +430,10 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             }
             addl_hints: PartialRecordsHints = {}
             if self.engine.name == 'redshift' and not self.has_scratch_s3_bucket():
-                # Will be using Pandas
-                addl_hints = pandas_compatible_addl_hints
-                if 'AM' in timeonlyformat:
-                    # TODO: Add a GitHub issue for this
-                    logger.warning('Cannot export this dateformat using Pandas, '
-                                   'which is needed on Redshift with no S3--skipping test')
-                    continue
+                uses_pandas = True
             elif self.engine.name == 'mysql':
                 # mysql has no exporter defined, so everything is via Pandas
-                addl_hints = pandas_compatible_addl_hints
-                if 'AM' in timeonlyformat:
-                    # TODO: Add a GitHub issue for this
-                    logger.warning('Cannot export this dateformat using Pandas, '
-                                   'which is needed on MySQL--skipping test')
-                    continue
+                uses_pandas = True
             elif self.engine.name == 'postgresql':
                 if timeonlyformat in ['HH:MI:SS', 'HH24:MI:SS']:
                     # ensure we keep other areas of ISO style
@@ -446,24 +443,23 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                         'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
                     }
                 else:
-                    # We will be using pandas
-                    addl_hints = pandas_compatible_addl_hints
-                    if 'AM' in timeonlyformat:
-                        # TODO: Add a GitHub issue for this
-                        logger.warning('Cannot export this dateformat using Pandas or PostgreSQL--'
-                                       'skipping test')
-                        continue
+                    uses_pandas = True
             elif self.engine.name == 'vertica':
                 # Make sure our '\n' strings below are valid when comparing output
                 addl_hints['record-terminator'] = '\n'
                 if timeonlyformat not in ['HH:MI:SS', 'HH24:MI:SS']:
-                    # We will be using pandas
-                    addl_hints.update(pandas_compatible_addl_hints)
-                    if 'AM' in timeonlyformat:
-                        # TODO: Add a GitHub issue for this
-                        logger.warning('Cannot export this dateformat using Pandas or Vertica--'
-                                       'skipping test')
-                        continue
+                    uses_pandas = True
+            elif self.engine.name == 'bigquery':
+                # All current export is via Avro
+                uses_pandas = True
+            if uses_pandas:
+                # we're going to need to be sure to use hints that work in Pandas
+                addl_hints.update(pandas_compatible_addl_hints)
+                if 'AM' in timeonlyformat:
+                    # TODO: Add a GitHub issue for this
+                    logger.warning('Cannot export this dateformat using Pandas'
+                                   '--skipping test')
+                    continue
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'timeonlyformat': timeonlyformat,
@@ -471,20 +467,29 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'header-row': False,
                                                **addl_hints,  # type: ignore
                                            })
-            csv_text = self.unload(column_name='time',
-                                   records_format=records_format)
-            allowed_items = [create_sample(timeonlyformat) + "\n",
-                                     # create_sample(datetimeformattz).replace('-00', '+00') + "\n",
-                                     # # TODO: Should this be necessary?
-                                     # create_sample(datetimeformattz) + ".000000\n",
-                                     # # TODO: Should this be necessary?
-                                     # create_sample(datetimeformattz).replace('-00', '.000000+0000\n'),
-                                     # # TODO: Should this be necessary?
-                                     # create_sample(datetimeformattz) +
-                                     # f":{SAMPLE_SECOND:02d}.000000\n"
-                                     ]
-            if self.engine.name == 'redshift':
-                # TODO point to issue here
-                allowed_items += [f'{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}\n']
-            self.assertIn(csv_text, allowed_items,
-                          f"from timeonlyformat {timeonlyformat} and addl_hints {addl_hints}")
+            expect_pandas_failure = not self.has_pandas() and uses_pandas
+            try:
+                csv_text = self.unload(column_name='time',
+                                       records_format=records_format)
+                allowed_items = [create_sample(timeonlyformat) + "\n",
+                                 # create_sample(datetimeformattz).replace('-00', '+00') + "\n",
+                                 # # TODO: Should this be necessary?
+                                 # create_sample(datetimeformattz) + ".000000\n",
+                                 # # TODO: Should this be necessary?
+                                 # create_sample(datetimeformattz).replace('-00', '.000000+0000\n'),
+                                 # # TODO: Should this be necessary?
+                                 # create_sample(datetimeformattz) +
+                                 # f":{SAMPLE_SECOND:02d}.000000\n"
+                                 ]
+                if self.engine.name == 'redshift':
+                    # TODO point to issue here
+                    allowed_items += [f'{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}\n']
+                self.assertIn(csv_text, allowed_items,
+                              f"from timeonlyformat {timeonlyformat} and addl_hints {addl_hints}")
+            except ModuleNotFoundError as e:
+                if 'pandas' in str(e) and expect_pandas_failure:
+                    # as expected
+                    continue
+                else:
+                    raise
+            self.assertFalse(expect_pandas_failure)
