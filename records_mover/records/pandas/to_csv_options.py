@@ -67,10 +67,19 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
     # datetimeformattz:
     #
     # https://github.com/bluelabsio/records-mover/issues/95
+
+    # The current datetimefomat/datetimeformattz hint support in
+    # to_csv_options.py is limited to ISO format driven by the
+    # dateformat hint.
+    #
+    # This could be generalized to a smarter function which translates
+    # to from the Records Spec language into the
+    # Python/Pandas/strftime format, and reject fewer hints as a
+    # result.
+    #
+    # https://github.com/bluelabsio/records-mover/issues/143
     if hints.dateformat is None:
         if hints.datetimeformattz == hints.datetimeformat:
-            # TODO: This comment isn't related here and should be
-            # moved and replaced with one that explains the == above
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f'
         else:
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f%z'
