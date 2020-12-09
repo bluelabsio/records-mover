@@ -63,8 +63,6 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
     pandas_options['header'] = hints.header_row
     quiet_remove(unhandled_hints, 'header-row')
 
-    # TODO: Does it make sense to require dateformat to be consistent
-    # with datetimeformat{tz}?  Looks ike prep_for_csv now preformats that.
     if hints.dateformat is None:
         if hints.datetimeformattz == hints.datetimeformat:
             # TODO: This comment isn't related here and should be
