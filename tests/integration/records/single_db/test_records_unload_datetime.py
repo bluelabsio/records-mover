@@ -429,6 +429,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 'datetimeformattz': f'YYYY-MM-DD {timeonlyformat}',
             }
             addl_hints: PartialRecordsHints = {}
+            uses_pandas = False
             if self.engine.name == 'redshift' and not self.has_scratch_s3_bucket():
                 uses_pandas = True
             elif self.engine.name == 'mysql':
