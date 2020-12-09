@@ -261,6 +261,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     addl_hints = pandas_compatible_addl_hints
                     if 'AM' in datetimeformat:
                         # TODO: Add a GitHub issue for this
+                        # TODO: Should expect failure and complain if it doesn't fail
                         logger.warning('Cannot export this dateformat using Pandas or Redshift--'
                                        'skipping test')
                         continue
@@ -414,7 +415,15 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 'datetimeformattz': f'YYYY-MM-DD {timeonlyformat}',
             }
             addl_hints: PartialRecordsHints = {}
-            if self.engine.name == 'mysql':
+            if self.engine.name == 'redshift' and not self.has_scratch_s3_bucket():
+                # Will be using Pandas
+                addl_hints = pandas_compatible_addl_hints
+                if 'AM' in timeonlyformat:
+                    # TODO: Add a GitHub issue for this
+                    logger.warning('Cannot export this dateformat using Pandas, '
+                                   'which is needed on Redshift with no S3--skipping test')
+                    continue
+            elif self.engine.name == 'mysql':
                 # mysql has no exporter defined, so everything is via Pandas
                 addl_hints = pandas_compatible_addl_hints
                 if 'AM' in timeonlyformat:
