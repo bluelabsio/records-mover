@@ -180,9 +180,15 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 csv_text = self.unload(column_name='timestamp',
                                        records_format=records_format)
                 self.assertIn(csv_text, [create_sample(datetimeformat) + "\n",
-                                         # TODO: Should this be necessary?
+                                         # Pandas doesn't truncate fractional seconds in the
+                                         # same way other tools do.
                                          create_sample(datetimeformat) + ".000000\n",
-                                         # TODO: Should this be necessary?
+                                         # An example of having an overly simplistic
+                                         # implementation of to_csv_options is that seconds get
+                                         # appended even for time formats which don't include
+                                         # it.
+                                         #
+                                         # https://github.com/bluelabsio/records-mover/issues/142
                                          create_sample(datetimeformat) +
                                          f":{SAMPLE_SECOND:02d}.000000\n"],
                               f"from datetimeformat {datetimeformat} and addl_hints {addl_hints}")
@@ -273,12 +279,18 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                          replace('-00', '+00') + "\n",
                                          create_sample(datetimeformattz).replace('-00', '') +
                                          ".000000\n",
-                                         # TODO: Should this be necessary?
+                                         # Pandas doesn't truncate fractional seconds in the
+                                         # same way other tools do.
                                          create_sample(datetimeformattz) + ".000000\n",
                                          # TODO: Should this be necessary?
                                          create_sample(datetimeformattz).replace('-00', '') +
                                          '.000000+0000\n',
-                                         # TODO: Should this be necessary?
+                                         # An example of having an overly simplistic
+                                         # implementation of to_csv_options is that seconds get
+                                         # appended even for time formats which don't include
+                                         # it.
+                                         #
+                                         # https://github.com/bluelabsio/records-mover/issues/142
                                          create_sample(datetimeformattz) +
                                          f":{SAMPLE_SECOND:02d}.000000\n"
                                          ],
