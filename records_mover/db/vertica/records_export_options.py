@@ -44,15 +44,18 @@ def vertica_export_options(unhandled_hints: Set[str],
         cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', hints)
     quiet_remove(unhandled_hints, 'dateformat')
 
-    if hints['datetimeformattz'] != 'YYYY-MM-DD HH:MI:SSOF':
+    if hints['datetimeformattz'] not in ['YYYY-MM-DD HH:MI:SSOF',
+                                         'YYYY-MM-DD HH24:MI:SSOF']:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
     quiet_remove(unhandled_hints, 'datetimeformattz')
 
-    if hints['datetimeformat'] != 'YYYY-MM-DD HH:MI:SS':
+    if hints['datetimeformat'] not in ['YYYY-MM-DD HH:MI:SS',
+                                       'YYYY-MM-DD HH24:MI:SS']:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
     quiet_remove(unhandled_hints, 'datetimeformat')
 
-    if hints['timeonlyformat'] != 'HH24:MI:SS':
+    if hints['timeonlyformat'] not in ['HH24:MI:SS',
+                                       'HH:MI:SS']:
         cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', hints)
     quiet_remove(unhandled_hints, 'timeonlyformat')
 
