@@ -19,10 +19,11 @@ def determine_date_output_style(unhandled_hints: Set[str],
     date_order_style: Optional[DateOrderStyle] = None
 
     if (dateformat == 'YYYY-MM-DD' and
-       timeonlyformat == 'HH24:MI:SS' and
+       timeonlyformat in ['HH24:MI:SS', 'HH:MI:SS'] and
        datetimeformattz in ['YYYY-MM-DD HH:MI:SSOF',
                             'YYYY-MM-DD HH24:MI:SSOF'] and
-       datetimeformat == 'YYYY-MM-DD HH24:MI:SS'):
+       datetimeformat in ['YYYY-MM-DD HH24:MI:SS',
+                          'YYYY-MM-DD HH:MI:SS']):
         date_output_style: DateOutputStyle = 'ISO'
         # date_order_style doesn't really matter, as ISO is not ambiguous
     else:
