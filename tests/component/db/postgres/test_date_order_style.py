@@ -1,10 +1,13 @@
 import unittest
 from records_mover.records import DelimitedRecordsFormat
 from records_mover.db.postgres.copy_options.date_input_style import determine_input_date_order_style
+from ...records.datetime_cases import (
+    DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES
+)
 
 
 class TestDateOrderStyle(unittest.TestCase):
-    def test_determine_date_order_style_(self):
+    def test_determine_date_order_style(self):
         unhandled_hints = set()
         tests = [
             (
@@ -16,6 +19,109 @@ class TestDateOrderStyle(unittest.TestCase):
                     'dateformat': "YYYY-MM-DD",
                 },
                 None
+            ),
+            (
+                # No ambiguity, can handle all
+                {
+                    'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
+                    'datetimeformat': "YYYY-MM-DD HH:MI:SS",
+                    'timeonlyformat': "HH12:MI AM",
+                    'dateformat': "YYYY-MM-DD",
+                },
+                None
+            ),
+            (
+                # No ambiguity, can handle all
+                {
+                    'datetimeformattz': 'YYYY-MM-DD HH24:MI:SSOF',
+                    'datetimeformat': "YYYY-MM-DD HH24:MI:SS",
+                    'timeonlyformat': "HH24:MI",
+                    'dateformat': "YYYY-MM-DD",
+                },
+                None
+            ),
+            (
+                # No ambiguity, can handle all
+                {
+                    'datetimeformattz': 'YYYY-MM-DD HH24:MI:SSOF',
+                    'datetimeformat': "YYYY-MM-DD HH24:MI:SS",
+                    'timeonlyformat': "HH24:MI:SS",
+                    'dateformat': "YYYY-MM-DD",
+                },
+                None
+            ),
+            (
+                # No ambiguity, can handle all
+                {
+                    'datetimeformattz': 'YYYY-MM-DD HH:MI:SS',
+                    'datetimeformat': "YYYY-MM-DD HH12:MI AM",
+                    'timeonlyformat': "HH12:MI AM",
+                    'dateformat': "YYYY-MM-DD",
+                },
+                None
+            ),
+            (
+                {
+                    'datetimeformattz': 'DD-MM-YY HH:MI:SSOF',
+                    'datetimeformat': "DD-MM-YY HH12:MI AM",
+                    'timeonlyformat': "HH12:MI AM",
+                    'dateformat': "DD-MM-YY",
+                },
+                'DMY'
+            ),
+            (
+                {
+                    'datetimeformattz': 'DD/MM/YY HH:MI:SSOF',
+                    'datetimeformat': "DD/MM/YY HH12:MI AM",
+                    'timeonlyformat': "HH12:MI AM",
+                    'dateformat': "DD/MM/YY",
+                },
+                'DMY'
+            ),
+            (
+                {
+                    'datetimeformattz': 'DD-MM-YYYY HH:MI:SSOF',
+                    'datetimeformat': "DD-MM-YYYY HH12:MI AM",
+                    'timeonlyformat': "HH12:MI AM",
+                    'dateformat': "DD-MM-YYYY",
+                },
+                'DMY'
+            ),
+            (
+                {
+                    'datetimeformattz': 'MM/DD/YY HH:MI:SSOF',
+                    'datetimeformat': "MM/DD/YY HH12:MI AM",
+                    'timeonlyformat': "HH12:MI AM",
+                    'dateformat': "MM/DD/YY",
+                },
+                'MDY'
+            ),
+            (
+                {
+                    'datetimeformattz': 'MM/DD/YY HH24:MI',
+                    'datetimeformat': "MM/DD/YY HH24:MI",
+                    'timeonlyformat': "HH24:MI",
+                    'dateformat': "MM/DD/YY",
+                },
+                'MDY'
+            ),
+            (
+                {
+                    'datetimeformattz': 'MM-DD-YYYY HH:MI:SSOF',
+                    'datetimeformat': "MM-DD-YYYY HH12:MI AM",
+                    'timeonlyformat': "HH12:MI AM",
+                    'dateformat': "MM-DD-YYYY",
+                },
+                'MDY'
+            ),
+            (
+                {
+                    'datetimeformattz': 'MM-DD-YYYY HH:MI:SSOF',
+                    'datetimeformat': "MM-DD-YYYY HH:MI:SS",
+                    'timeonlyformat': "HH:MI:SS",
+                    'dateformat': "MM-DD-YYYY",
+                },
+                'MDY'
             ),
             (
                 # No ambiguity, can handle all
@@ -48,6 +154,10 @@ class TestDateOrderStyle(unittest.TestCase):
                 NotImplementedError
             ),
         ]
+        unhandled_date_cases = set(DATE_CASES)
+        unhandled_datetimeformattz_cases = set(DATETIMETZ_CASES)
+        unhandled_datetimeformat_cases = set(DATETIME_CASES)
+        unhandled_timeonly_cases = set(TIMEONLY_CASES)
         fail_if_cant_handle_hint = True
         for raw_hints, expected_result in tests:
             records_format = DelimitedRecordsFormat(hints=raw_hints)
@@ -65,3 +175,11 @@ class TestDateOrderStyle(unittest.TestCase):
                                                        validated_hints,
                                                        fail_if_cant_handle_hint)
                 self.assertEqual(out, expected_result)
+                unhandled_date_cases.discard(raw_hints['dateformat'])
+                unhandled_datetimeformattz_cases.discard(raw_hints['datetimeformattz'])
+                unhandled_datetimeformat_cases.discard(raw_hints['datetimeformat'])
+                unhandled_timeonly_cases.discard(raw_hints['timeonlyformat'])
+        self.assertFalse(unhandled_date_cases)
+        self.assertFalse(unhandled_datetimeformattz_cases)
+        self.assertFalse(unhandled_datetimeformat_cases)
+        self.assertFalse(unhandled_timeonly_cases)
