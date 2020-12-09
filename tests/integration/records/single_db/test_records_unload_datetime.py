@@ -345,16 +345,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             try:
                 csv_text = self.unload(column_name='time',
                                        records_format=records_format)
-                allowed_items = [create_sample(timeonlyformat) + "\n",
-                                 # create_sample(datetimeformattz).replace('-00', '+00') + "\n",
-                                 # # TODO: Should this be necessary?
-                                 # create_sample(datetimeformattz) + ".000000\n",
-                                 # # TODO: Should this be necessary?
-                                 # create_sample(datetimeformattz).replace('-00', '.000000+0000\n'),
-                                 # # TODO: Should this be necessary?
-                                 # create_sample(datetimeformattz) +
-                                 # f":{SAMPLE_SECOND:02d}.000000\n"
-                                 ]
+                allowed_items = [create_sample(timeonlyformat) + "\n"]
                 if self.engine.name == 'redshift':
                     # TODO point to issue here
                     allowed_items +=\
