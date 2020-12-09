@@ -2,7 +2,6 @@ import logging
 import tempfile
 import pathlib
 from .base_records_test import BaseRecordsIntegrationTest
-from records_mover.db.quoting import quote_schema_and_table
 from records_mover.records.records_directory import RecordsDirectory
 from records_mover.records.records_format import BaseRecordsFormat
 from ..records_datetime_fixture import RecordsDatetimeFixture
