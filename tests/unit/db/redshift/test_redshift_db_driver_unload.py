@@ -1,8 +1,7 @@
 from .base_test_redshift_db_driver import BaseTestRedshiftDBDriver
 from ...records.format_hints import bluelabs_format_hints
-from records_mover.records.delimited.utils import logger as driver_logger
 from records_mover.records import DelimitedRecordsFormat
-from mock import call, patch
+from mock import patch
 
 
 def fake_text(s):
