@@ -123,6 +123,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             'YYYY-MM-DD HH24:MI:SS': 'YYYY-MM-DD',
         }
         for datetimeformat in DATETIME_CASES:
+            expect_am_failure = False
             addl_hints: PartialRecordsHints = {}
             pandas_compatible_addl_hints: PartialRecordsHints = {
                 'dateformat': matching_dateformat[datetimeformat],
@@ -166,10 +167,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     # should be:
                     #
                     # https://github.com/bluelabsio/records-mover/issues/143
-                    # TODO: Should expect failure and complain if it doesn't fail
-                    logger.warning('Cannot export this dateformat using Pandas--'
-                                   'skipping test')
-                    continue
+                    expect_am_failure = True
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'datetimeformat': datetimeformat,
@@ -194,7 +192,14 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
+            except NotImplementedError as e:
+                if expect_am_failure and 'AM' in str(e):
+                    # as expected
+                    continue
+                else:
+                    raise
             self.assertFalse(expect_pandas_failure)
+            self.assertFalse(expect_am_failure)
 
     def test_unload_datetimetz(self) -> None:
         self.datetime_fixture.createDateTimeTzTable()
@@ -206,6 +211,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             'YYYY-MM-DD HH:MI:SSOF': 'YYYY-MM-DD',
         }
         for datetimeformattz in DATETIMETZ_CASES:
+            expect_am_failure = False
             addl_hints: PartialRecordsHints = {}
             pandas_compatible_addl_hints: PartialRecordsHints = {
                 'dateformat': matching_dateformat[datetimeformattz],
@@ -249,10 +255,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     # should be:
                     #
                     # https://github.com/bluelabsio/records-mover/issues/143
-                    # TODO: Should expect failure and complain if it doesn't fail
-                    logger.warning('Cannot export this dateformattz using Pandas or Redshift--'
-                                   'skipping test')
-                    continue
+                    expect_am_failure = True
 
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
@@ -287,11 +290,19 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
+            except NotImplementedError as e:
+                if expect_am_failure and 'AM' in str(e):
+                    # as expected
+                    continue
+                else:
+                    raise
             self.assertFalse(expect_pandas_failure)
+            self.assertFalse(expect_am_failure)
 
     def test_unload_timeonly(self) -> None:
         self.datetime_fixture.createTimeTable()
         for timeonlyformat in TIMEONLY_CASES:
+            expect_am_failure = False
             pandas_compatible_addl_hints: PartialRecordsHints = {
                 'dateformat': 'YYYY-MM-DD',
                 'datetimeformat': f'YYYY-MM-DD {timeonlyformat}',
@@ -330,10 +341,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     # should be:
                     #
                     # https://github.com/bluelabsio/records-mover/issues/143
-                    # TODO: Should expect failure and complain if it doesn't fail
-                    logger.warning('Cannot export this dateformat using Pandas'
-                                   '--skipping test')
-                    continue
+                    expect_am_failure = True
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'timeonlyformat': timeonlyformat,
@@ -358,4 +366,11 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
+            except NotImplementedError as e:
+                if expect_am_failure and 'AM' in str(e):
+                    # as expected
+                    continue
+                else:
+                    raise
             self.assertFalse(expect_pandas_failure)
+            self.assertFalse(expect_am_failure)
