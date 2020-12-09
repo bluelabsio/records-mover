@@ -10,4 +10,3 @@ class TestValidatedRecordsHints(unittest.TestCase):
         for variant in variants:
             records_format = DelimitedRecordsFormat(variant=variant)
             records_format.validate(fail_if_cant_handle_hint=True)
-
