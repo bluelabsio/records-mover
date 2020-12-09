@@ -1,17 +1,12 @@
 import unittest
 import pandas
 import io
-from typing import Dict, Set
-from typing_extensions import TypedDict
-from records_mover.records.delimited.types import (
-    HintDateFormat, HintDateTimeFormatTz, HintDateTimeFormat
-)
+from typing import Set
 from ..datetime_cases import (
     DATE_CASES, DATETIMETZ_CASES, DATETIME_CASES, TIMEONLY_CASES, create_sample,
     SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY, SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND
 )
 from records_mover.records.pandas.to_csv_options import pandas_to_csv_options
-from records_mover.records.schema import RecordsSchema
 from records_mover.records import DelimitedRecordsFormat, ProcessingInstructions
 
 

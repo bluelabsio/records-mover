@@ -11,6 +11,7 @@ SAMPLE_PERIOD = 'PM'
 SAMPLE_OFFSET = '-00'
 SAMPLE_LONG_TZ = 'UTC'
 
+
 def create_sample(template: str) -> str:
     return (
         template
@@ -26,6 +27,7 @@ def create_sample(template: str) -> str:
         .replace('OF', SAMPLE_OFFSET)
         .replace('AM', SAMPLE_PERIOD)
     )
+
 
 DATE_CASES = [
     'YYYY-MM-DD',
