@@ -22,8 +22,8 @@ def _convert_series_or_index(series_or_index: T,
                              records_format: DelimitedRecordsFormat,
                              processing_instructions: ProcessingInstructions) -> Optional[T]:
     if field.field_type == 'date':
-        # TODO: Simplify code below
-        if isinstance(series_or_index[0], pd.Timestamp):
+        if (isinstance(series_or_index[0], pd.Timestamp) or
+           isinstance(series_or_index[0], datetime.date)):
             logger.info(f"Converting {series_or_index.name} from np.datetime64 to "
                         "string in CSV's format")
             hint_date_format = records_format.hints['dateformat']
@@ -34,26 +34,13 @@ def _convert_series_or_index(series_or_index: T,
                                  'dateformat',
                                  records_format.hints)
                 pandas_date_format = '%Y-%m-%d'
-            if isinstance(series_or_index, pd.Series):
-                return series_or_index.dt.strftime(pandas_date_format)
+            if isinstance(series_or_index[0], pd.Timestamp):
+                if isinstance(series_or_index, pd.Series):
+                    return series_or_index.dt.strftime(pandas_date_format)
+                else:
+                    return series_or_index.strftime(pandas_date_format)
             else:
-                return series_or_index.strftime(pandas_date_format)
-        elif isinstance(series_or_index[0], datetime.date):
-            logger.info(f"Converting {series_or_index.name} from datetime.date to "
-                        "string in CSV's format")
-            hint_date_format = records_format.hints['dateformat']
-            assert isinstance(hint_date_format, str)
-            pandas_date_format = python_date_format_from_hints.get(hint_date_format)
-            if pandas_date_format is None:
-                cant_handle_hint(processing_instructions.fail_if_cant_handle_hint,
-                                 'dateformat',
-                                 records_format.hints)
-                pandas_date_format = '%Y-%m-%d'
-            return series_or_index.apply(pd.Timestamp).dt.strftime(pandas_date_format)
-        else:
-            logger.warning(f"Found {series_or_index.name} as unexpected type "
-                           f"{type(series_or_index[0])}")
-
+                return series_or_index.apply(pd.Timestamp).dt.strftime(pandas_date_format)
     elif field.field_type == 'time':
         if not isinstance(series_or_index[0], pd.Timestamp):
             logger.warning(f"Found {series_or_index.name} as unexpected "
