@@ -56,12 +56,11 @@ class TestToCsvOptions(unittest.TestCase):
             # try to handle lone dates or times.  Instead, we use
             # prep_for_csv() to preconvert these Serieses into strings.
             sample = create_sample(dateformat)
+            # TODO: Why the extra zeros?
             self.assertEqual(output, f"{sample} 00:00:00.000000\n")
 
     def test_datetimeformat(self) -> None:
         known_failures: Set[str] = set()
-        # TODO: Why are we including microsecond?  Is that in
-        # Records or Redshift specs?
         expectations = {
             'YYYY-MM-DD HH:MI:SSOF': '%Y-%m-%d %H:%M:%S.%f%z',
             'YYYY-MM-DD HH:MI:SS': '%Y-%m-%d %H:%M:%S.%f',
@@ -119,8 +118,6 @@ class TestToCsvOptions(unittest.TestCase):
             # is in our example
             datetimeformattz_minus_offset = datetimeformattz.replace('OF', '')
             sample = create_sample(datetimeformattz_minus_offset)
-            # TODO: Why are we including microsecond?  Is that in
-            # Records or Redshift specs?
             if 'SS' in datetimeformattz:
                 self.assertEqual(output, f"{sample}.000000\n")
             else:
@@ -184,9 +181,9 @@ class TestToCsvOptions(unittest.TestCase):
             # try to handle lone dates or times.  Instead, we use
             # prep_for_csv() to preconvert these Serieses into strings.
             sample = create_sample(datetimeformat)
-            # TODO: Why are we including microsecond?  Is that in
-            # Records or Redshift specs?
             if 'SS' in datetimeformat:
+                # Pandas doesn't truncate fractional seconds in the
+                # same way other tools do.
                 self.assertEqual(output, f"{sample}.000000\n")
             else:
                 # TODO: Why is second included when hint didn't include it?
