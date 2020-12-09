@@ -31,7 +31,9 @@ def vertica_import_options(unhandled_hints: Set[str],
     vertica_options['escape_as'] = hints['escape']
     quiet_remove(unhandled_hints, 'escape')
 
-    if not hints['timeonlyformat'] in ['HH24:MI:SS', 'HH12:MI AM']:
+    if not hints['timeonlyformat'] in ['HH24:MI:SS',
+                                       'HH:MI:SS',
+                                       'HH12:MI AM']:
         # Vertica seems to be able to understand these on import automatically
         cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', hints)
     quiet_remove(unhandled_hints, 'timeonlyformat')
@@ -55,7 +57,8 @@ def vertica_import_options(unhandled_hints: Set[str],
     vertica_options['delimiter'] = hints['field-delimiter']
     quiet_remove(unhandled_hints, 'field-delimiter')
 
-    if hints['datetimeformattz'] != 'YYYY-MM-DD HH:MI:SSOF':
+    if hints['datetimeformattz'] not in ['YYYY-MM-DD HH:MI:SSOF',
+                                         'YYYY-MM-DD HH24:MI:SSOF']:
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
     quiet_remove(unhandled_hints, 'datetimeformattz')
 
