@@ -23,19 +23,13 @@ HintHeaderRow = Literal[True, False]
 
 HintDoublequote = Literal[True, False]
 
-HintDateFormat = Literal['YYYY-MM-DD', 'MM-DD-YYYY', 'DD-MM-YYYY', 'MM/DD/YY']
+HintDateFormat = str
 
-HintTimeOnlyFormat = Literal["HH12:MI AM", "HH24:MI:SS"]
+HintTimeOnlyFormat = str
 
-HintDateTimeFormatTz = Literal["YYYY-MM-DD HH:MI:SSOF",
-                               "YYYY-MM-DD HH:MI:SS",
-                               "YYYY-MM-DD HH24:MI:SSOF",
-                               "MM/DD/YY HH24:MI"]
+HintDateTimeFormatTz = str
 
-HintDateTimeFormat = Literal["YYYY-MM-DD HH24:MI:SS",
-                             'YYYY-MM-DD HH:MI:SS',
-                             "YYYY-MM-DD HH12:MI AM",
-                             "MM/DD/YY HH24:MI"]
+HintDateTimeFormat = str
 
 HintFieldDelimiter = str
 
