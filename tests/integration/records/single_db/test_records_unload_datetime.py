@@ -63,7 +63,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
         elif self.engine.name == 'mysql':
             create_tables = f"""
               CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT TIMESTAMP '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}{SAMPLE_OFFSET}' AS "timestamptz";
+              SELECT TIMESTAMP '{SAMPLE_YEAR}-{SAMPLE_MONTH:02d}-{SAMPLE_DAY:02d} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}.000000{SAMPLE_OFFSET}' AS "timestamptz";
 """  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
@@ -197,15 +197,19 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
         self.createDateTable()
         for dateformat in DATE_CASES:
             addl_hints: PartialRecordsHints = {}
+            pandas_compatible_addl_hints: PartialRecordsHints = {
+                'datetimeformat': f'{dateformat} HH24:MI:SS',
+                'datetimeformattz': f'{dateformat} HH:MI:SS',
+            }
             if self.engine.name == 'redshift':
                 if dateformat != 'YYYY-MM-DD':
                     # this is the only format supported by Redshift on
                     # export, so we're going to need to be sure to use
                     # hints that work in Pandas
-                    addl_hints = {
-                        'datetimeformat': f'{dateformat} HH24:MI:SS',
-                        'datetimeformattz': f'{dateformat} HH:MI:SS',
-                    }
+                    addl_hints = pandas_compatible_addl_hints
+            elif self.engine.name == 'mysql':
+                # mysql has no exporter defined, so everything is via Pandas
+                addl_hints = pandas_compatible_addl_hints
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'dateformat': dateformat,
@@ -224,23 +228,33 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             'YYYY-MM-DD HH:MI:SS': 'YYYY-MM-DD',
             'YYYY-MM-DD HH12:MI AM': 'YYYY-MM-DD',
             'MM/DD/YY HH24:MI': 'MM/DD/YY',
+            'YYYY-MM-DD HH24:MI:SS': 'YYYY-MM-DD',
         }
         for datetimeformat in DATETIME_CASES:
             addl_hints: PartialRecordsHints = {}
+            pandas_compatible_addl_hints: PartialRecordsHints = {
+                'dateformat': matching_dateformat[datetimeformat],
+                'datetimeformattz': datetimeformat,
+            }
             if self.engine.name == 'redshift':
                 if datetimeformat != 'YYYY-MM-DD HH24:MI:SS':
                     # this is the only format supported by Redshift on
                     # export, so we're going to need to be sure to use
                     # hints that work in Pandas - i.e.,
-                    addl_hints = {
-                        'dateformat': matching_dateformat[datetimeformat],
-                        'datetimeformattz': datetimeformat,
-                    }
+                    addl_hints = pandas_compatible_addl_hints
                     if 'AM' in datetimeformat:
                         # TODO: Add a GitHub issue for this
                         logger.warning('Cannot export this dateformat using Pandas or Redshift--'
                                        'skipping test')
                         continue
+            elif self.engine.name == 'mysql':
+                # mysql has no exporter defined, so everything is via Pandas
+                addl_hints = pandas_compatible_addl_hints
+                if 'AM' in datetimeformat:
+                    # TODO: Add a GitHub issue for this
+                    logger.warning('Cannot export this dateformat using Pandas, '
+                                   'which is needed on MySQL--skipping test')
+                    continue
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'datetimeformat': datetimeformat,
@@ -265,23 +279,33 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             'YYYY-MM-DD HH12:MI AM': 'YYYY-MM-DD',
             'MM/DD/YY HH24:MI': 'MM/DD/YY',
             'YYYY-MM-DD HH24:MI:SSOF': 'YYYY-MM-DD',
+            'YYYY-MM-DD HH:MI:SSOF': 'YYYY-MM-DD',
         }
         for datetimeformattz in DATETIMETZ_CASES:
             addl_hints: PartialRecordsHints = {}
+            pandas_compatible_addl_hints: PartialRecordsHints = {
+                'dateformat': matching_dateformat[datetimeformattz],
+                'datetimeformat': datetimeformattz.replace('OF', ''),
+            }
             if self.engine.name == 'redshift':
                 if datetimeformattz != 'YYYY-MM-DD HH:MI:SSOF':
                     # this is the only format supported by Redshift on
                     # export, so we're going to need to be sure to use
                     # hints that work in Pandas - i.e.,
-                    addl_hints = {
-                        'dateformat': matching_dateformat[datetimeformattz],
-                        'datetimeformat': datetimeformattz.replace('OF', ''),
-                    }
+                    addl_hints = pandas_compatible_addl_hints
                     if 'AM' in datetimeformattz:
                         # TODO: Add a GitHub issue for this
                         logger.warning('Cannot export this dateformattz using Pandas or Redshift--'
                                        'skipping test')
                         continue
+            elif self.engine.name == 'mysql':
+                # mysql has no exporter defined, so everything is via Pandas
+                addl_hints = pandas_compatible_addl_hints
+                if 'AM' in datetimeformattz:
+                    # TODO: Add a GitHub issue for this
+                    logger.warning('Cannot export this dateformat using Pandas, '
+                                   'which is needed on MySQL--skipping test')
+                    continue
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'datetimeformattz': datetimeformattz,
@@ -293,6 +317,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                    records_format=records_format)
             self.assertIn(csv_text, [create_sample(datetimeformattz) + "\n",
                                      create_sample(datetimeformattz).replace('-00', '+00') + "\n",
+                                     create_sample(datetimeformattz).replace('-00', '') +
+                                     ".000000\n",
                                      # TODO: Should this be necessary?
                                      create_sample(datetimeformattz) + ".000000\n",
                                      # TODO: Should this be necessary?
@@ -305,28 +331,21 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
 
     def test_unload_timeonly(self) -> None:
         self.createTimeTable()
-        matching_dateformat = {
-#            'YYYY-MM-DD HH:MI:SS': 'YYYY-MM-DD',
-#            'YYYY-MM-DD HH12:MI AM': 'YYYY-MM-DD',
-#            'MM/DD/YY HH24:MI': 'MM/DD/YY',
-#            'YYYY-MM-DD HH24:MI:SSOF': 'YYYY-MM-DD',
-        }
         for timeonlyformat in TIMEONLY_CASES:
+            pandas_compatible_addl_hints: PartialRecordsHints = {
+                'dateformat': 'YYYY-MM-DD',
+                'datetimeformat': f'YYYY-MM-DD {timeonlyformat}',
+                'datetimeformattz': f'YYYY-MM-DD {timeonlyformat}',
+            }
             addl_hints: PartialRecordsHints = {}
-            # if self.engine.name == 'redshift':
-            #     if datetimeformattz != 'YYYY-MM-DD HH:MI:SSOF':
-            #         # this is the only format supported by Redshift on
-            #         # export, so we're going to need to be sure to use
-            #         # hints that work in Pandas - i.e.,
-            #         addl_hints = {
-            #             'dateformat': matching_dateformat[datetimeformattz],
-            #             'datetimeformat': datetimeformattz.replace('OF', ''),
-            #         }
-            #         if 'AM' in datetimeformattz:
-            #             # TODO: Add a GitHub issue for this
-            #             logger.warning('Cannot export this dateformattz using Pandas or Redshift--'
-            #                            'skipping test')
-            #             continue
+            if self.engine.name == 'mysql':
+                # mysql has no exporter defined, so everything is via Pandas
+                addl_hints = pandas_compatible_addl_hints
+                if 'AM' in timeonlyformat:
+                    # TODO: Add a GitHub issue for this
+                    logger.warning('Cannot export this dateformat using Pandas, '
+                                   'which is needed on MySQL--skipping test')
+                    continue
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'timeonlyformat': timeonlyformat,

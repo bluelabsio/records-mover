@@ -155,7 +155,7 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
     # TODO: Raw dates and times aren't handed to to_csv(); they'
     # pre-processed prep_for_csv.py, which will raise an error if it
     # can't handle a given hint.
-    if hints.timeonlyformat != 'HH24:MI:SS':
+    if hints.timeonlyformat not in ['HH24:MI:SS', 'HH:MI:SS']:
         cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', hints)
     quiet_remove(unhandled_hints, 'timeonlyformat')
 
