@@ -183,8 +183,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             target = targets.directory_from_url(output_url=directory_url,
                                                 records_format=records_format)
             self.records.move(source, target)
-            from records_mover.records import mover
-            mover.logger.info('Done with move')
             directory_loc = self.session.directory_url(directory_url)
             records_dir = RecordsDirectory(records_loc=directory_loc)
             with tempfile.NamedTemporaryFile() as t:
@@ -201,12 +199,12 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 'datetimeformat': f'{dateformat} HH24:MI:SS',
                 'datetimeformattz': f'{dateformat} HH:MI:SS',
             }
+            uses_pandas = False
             if self.engine.name == 'redshift':
                 if dateformat != 'YYYY-MM-DD':
                     # this is the only format supported by Redshift on
-                    # export, so we're going to need to be sure to use
-                    # hints that work in Pandas
-                    addl_hints = pandas_compatible_addl_hints
+                    # export
+                    uses_pandas = True
             elif self.engine.name == 'mysql':
                 # mysql has no exporter defined, so everything is via Pandas
                 addl_hints = pandas_compatible_addl_hints
@@ -219,14 +217,16 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                         'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
                     }
                 else:
-                    # We will be using pandas
-                    addl_hints = pandas_compatible_addl_hints
+                    uses_pandas = True
             elif self.engine.name == 'vertica':
                 # Make sure our '\n' strings below are valid when comparing output
                 addl_hints['record-terminator'] = '\n'
                 if dateformat != 'YYYY-MM-DD':
-                    # We will be using pandas
-                    addl_hints.update(pandas_compatible_addl_hints)
+                    uses_pandas = True
+
+            if uses_pandas:
+                # we're going to need to be sure to use hints that work in Pandas
+                addl_hints.update(pandas_compatible_addl_hints)
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'dateformat': dateformat,
@@ -234,10 +234,20 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'header-row': False,
                                                **addl_hints,  # type: ignore
                                            })
-            csv_text = self.unload(column_name='date',
-                                   records_format=records_format)
-            self.assertEqual(csv_text, create_sample(dateformat) + "\n",
-                             f"from dateformat {dateformat} and addl_hints {addl_hints}")
+            expect_pandas_failure = not self.has_pandas() and uses_pandas
+            try:
+                csv_text = self.unload(column_name='date',
+                                       records_format=records_format)
+                self.assertEqual(csv_text, create_sample(dateformat) + "\n",
+                                 f"from dateformat {dateformat} and addl_hints {addl_hints}")
+            except ModuleNotFoundError as e:
+                if 'pandas' in str(e) and expect_pandas_failure:
+                    # as expected
+                    continue
+                else:
+                    raise
+            self.assertFalse(expect_pandas_failure)
+
 
     def test_unload_datetime(self) -> None:
         self.createDateTimeTable()
@@ -253,26 +263,15 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 'dateformat': matching_dateformat[datetimeformat],
                 'datetimeformattz': datetimeformat,
             }
+            uses_pandas = False
             if self.engine.name == 'redshift':
                 if datetimeformat != 'YYYY-MM-DD HH24:MI:SS':
                     # this is the only format supported by Redshift on
-                    # export, so we're going to need to be sure to use
-                    # hints that work in Pandas - i.e.,
-                    addl_hints = pandas_compatible_addl_hints
-                    if 'AM' in datetimeformat:
-                        # TODO: Add a GitHub issue for this
-                        # TODO: Should expect failure and complain if it doesn't fail
-                        logger.warning('Cannot export this dateformat using Pandas or Redshift--'
-                                       'skipping test')
-                        continue
+                    # export
+                    uses_pandas = True
             elif self.engine.name == 'mysql':
                 # mysql has no exporter defined, so everything is via Pandas
-                addl_hints = pandas_compatible_addl_hints
-                if 'AM' in datetimeformat:
-                    # TODO: Add a GitHub issue for this
-                    logger.warning('Cannot export this dateformat using Pandas, '
-                                   'which is needed on MySQL--skipping test')
-                    continue
+                uses_pandas = True
             elif self.engine.name == 'postgresql':
                 if datetimeformat in ['YYYY-MM-DD HH:MI:SS',
                                       'YYYY-MM-DD HH24:MI:SS']:
@@ -283,25 +282,24 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                         'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
                     }
                 else:
-                    # We will be using pandas
-                    addl_hints = pandas_compatible_addl_hints
-                    if 'AM' in datetimeformat:
-                        # TODO: Add a GitHub issue for this
-                        logger.warning('Cannot export this dateformat using Pandas or PostgreSQL--'
-                                       'skipping test')
-                        continue
+                    uses_pandas = True
             elif self.engine.name == 'vertica':
                 # Make sure our '\n' strings below are valid when comparing output
                 addl_hints['record-terminator'] = '\n'
                 if datetimeformat not in ['YYYY-MM-DD HH:MI:SS',
                                           'YYYY-MM-DD HH24:MI:SS']:
-                    # We will be using pandas
-                    addl_hints.update(pandas_compatible_addl_hints)
-                    if 'AM' in datetimeformat:
-                        # TODO: Add a GitHub issue for this
-                        logger.warning('Cannot export this dateformat using Pandas or Vertica--'
-                                       'skipping test')
-                        continue
+                    uses_pandas = True
+            if uses_pandas:
+                # TODO: Should I verify this?
+                # We're going to need to be sure to use hints that
+                # work in Pandas
+                addl_hints.update(pandas_compatible_addl_hints)
+                if 'AM' in datetimeformat:
+                    # TODO: Add a GitHub issue for this
+                    # TODO: Should expect failure and complain if it doesn't fail
+                    logger.warning('Cannot export this dateformat using Pandas--'
+                                   'skipping test')
+                    continue
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'datetimeformat': datetimeformat,
@@ -309,15 +307,25 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'header-row': False,
                                                **addl_hints,  # type: ignore
                                            })
-            csv_text = self.unload(column_name='timestamp',
-                                   records_format=records_format)
-            self.assertIn(csv_text, [create_sample(datetimeformat) + "\n",
-                                     # TODO: Should this be necessary?
-                                     create_sample(datetimeformat) + ".000000\n",
-                                     # TODO: Should this be necessary?
-                                     create_sample(datetimeformat) +
-                                     f":{SAMPLE_SECOND:02d}.000000\n"],
-                          f"from datetimeformat {datetimeformat} and addl_hints {addl_hints}")
+            expect_pandas_failure = not self.has_pandas() and uses_pandas
+            try:
+                csv_text = self.unload(column_name='timestamp',
+                                       records_format=records_format)
+                self.assertIn(csv_text, [create_sample(datetimeformat) + "\n",
+                                         # TODO: Should this be necessary?
+                                         create_sample(datetimeformat) + ".000000\n",
+                                         # TODO: Should this be necessary?
+                                         create_sample(datetimeformat) +
+                                         f":{SAMPLE_SECOND:02d}.000000\n"],
+                              f"from datetimeformat {datetimeformat} and addl_hints {addl_hints}")
+            except ModuleNotFoundError as e:
+                if 'pandas' in str(e) and expect_pandas_failure:
+                    # as expected
+                    continue
+                else:
+                    raise
+            self.assertFalse(expect_pandas_failure)
+
 
     def test_unload_datetimetz(self) -> None:
         self.createDateTimeTzTable()
@@ -334,25 +342,15 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 'dateformat': matching_dateformat[datetimeformattz],
                 'datetimeformat': datetimeformattz.replace('OF', ''),
             }
+            uses_pandas = False
             if self.engine.name == 'redshift':
                 if datetimeformattz != 'YYYY-MM-DD HH:MI:SSOF':
                     # this is the only format supported by Redshift on
-                    # export, so we're going to need to be sure to use
-                    # hints that work in Pandas - i.e.,
-                    addl_hints = pandas_compatible_addl_hints
-                    if 'AM' in datetimeformattz:
-                        # TODO: Add a GitHub issue for this
-                        logger.warning('Cannot export this dateformattz using Pandas or Redshift--'
-                                       'skipping test')
-                        continue
+                    # export
+                    uses_pandas = True
             elif self.engine.name == 'mysql':
                 # mysql has no exporter defined, so everything is via Pandas
-                addl_hints = pandas_compatible_addl_hints
-                if 'AM' in datetimeformattz:
-                    # TODO: Add a GitHub issue for this
-                    logger.warning('Cannot export this dateformat using Pandas, '
-                                   'which is needed on MySQL--skipping test')
-                    continue
+                uses_pandas = True
             elif self.engine.name == 'postgresql':
                 if datetimeformattz in ['YYYY-MM-DD HH:MI:SSOF',
                                         'YYYY-MM-DD HH24:MI:SSOF']:
@@ -363,25 +361,23 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                         'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
                     }
                 else:
-                    # We will be using pandas
-                    addl_hints = pandas_compatible_addl_hints
-                    if 'AM' in datetimeformattz:
-                        # TODO: Add a GitHub issue for this
-                        logger.warning('Cannot export this dateformat using Pandas or PostgreSQL--'
-                                       'skipping test')
-                        continue
+                    uses_pandas = True
             elif self.engine.name == 'vertica':
                 # Make sure our '\n' strings below are valid when comparing output
                 addl_hints['record-terminator'] = '\n'
                 if datetimeformattz not in ['YYYY-MM-DD HH:MI:SSOF',
                                             'YYYY-MM-DD HH24:MI:SSOF']:
-                    # We will be using pandas
-                    addl_hints.update(pandas_compatible_addl_hints)
-                    if 'AM' in datetimeformattz:
-                        # TODO: Add a GitHub issue for this
-                        logger.warning('Cannot export this dateformat using Pandas or Vertica--'
-                                       'skipping test')
-                        continue
+                    uses_pandas = True
+            if uses_pandas:
+                # We're going to need to be sure to use hints that
+                # work in Pandas
+                addl_hints.update(pandas_compatible_addl_hints)
+                if 'AM' in datetimeformattz:
+                    # TODO: Add a GitHub issue for this
+                    logger.warning('Cannot export this dateformattz using Pandas or Redshift--'
+                                   'skipping test')
+                    continue
+
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'datetimeformattz': datetimeformattz,
@@ -389,22 +385,32 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'header-row': False,
                                                **addl_hints,  # type: ignore
                                            })
-            csv_text = self.unload(column_name='timestamptz',
-                                   records_format=records_format)
-            self.assertIn(csv_text, [create_sample(datetimeformattz) + "\n",
-                                     create_sample(datetimeformattz).replace('-00', '+00') + "\n",
-                                     create_sample(datetimeformattz).replace('-00', '') +
-                                     ".000000\n",
-                                     # TODO: Should this be necessary?
-                                     create_sample(datetimeformattz) + ".000000\n",
-                                     # TODO: Should this be necessary?
-                                     create_sample(datetimeformattz).replace('-00', '') +
-                                     '.000000+0000\n',
-                                     # TODO: Should this be necessary?
-                                     create_sample(datetimeformattz) +
-                                     f":{SAMPLE_SECOND:02d}.000000\n"
-                                     ],
-                          f"from datetimeformattz {datetimeformattz} and addl_hints {addl_hints}")
+            expect_pandas_failure = not self.has_pandas() and uses_pandas
+            try:
+                csv_text = self.unload(column_name='timestamptz',
+                                       records_format=records_format)
+                self.assertIn(csv_text, [create_sample(datetimeformattz) + "\n",
+                                         create_sample(datetimeformattz).replace('-00', '+00') + "\n",
+                                         create_sample(datetimeformattz).replace('-00', '') +
+                                         ".000000\n",
+                                         # TODO: Should this be necessary?
+                                         create_sample(datetimeformattz) + ".000000\n",
+                                         # TODO: Should this be necessary?
+                                         create_sample(datetimeformattz).replace('-00', '') +
+                                         '.000000+0000\n',
+                                         # TODO: Should this be necessary?
+                                         create_sample(datetimeformattz) +
+                                         f":{SAMPLE_SECOND:02d}.000000\n"
+                                         ],
+                              f"from datetimeformattz {datetimeformattz} and addl_hints {addl_hints}")
+            except ModuleNotFoundError as e:
+                if 'pandas' in str(e) and expect_pandas_failure:
+                    # as expected
+                    continue
+                else:
+                    raise
+            self.assertFalse(expect_pandas_failure)
+
 
     def test_unload_timeonly(self) -> None:
         self.createTimeTable()
