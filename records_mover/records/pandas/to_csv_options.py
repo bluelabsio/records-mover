@@ -63,28 +63,23 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
     pandas_options['header'] = hints.header_row
     quiet_remove(unhandled_hints, 'header-row')
 
+    # Note the limitation on Pandas export with BigQuery around
+    # datetimeformattz:
+    #
+    # https://github.com/bluelabsio/records-mover/issues/95
+
+    # The current datetimefomat/datetimeformattz hint support in
+    # to_csv_options.py is limited to ISO format driven by the
+    # dateformat hint.
+    #
+    # This could be generalized to a smarter function which translates
+    # to from the Records Spec language into the
+    # Python/Pandas/strftime format, and reject fewer hints as a
+    # result.
+    #
+    # https://github.com/bluelabsio/records-mover/issues/143
     if hints.dateformat is None:
         if hints.datetimeformattz == hints.datetimeformat:
-            # BigQuery requires that timezone offsets have a colon;
-            # Python (and thus Pandas) doesn't support adding the
-            # colon with strftime.  However, we can specify things
-            # without a timezone delimiter just fine.
-            #
-            # Unfortunately Python/Pandas will drop the timezone info
-            # instead of converting the timestamp to UTC.  This
-            # corrupts the time, as BigQuery assumes what it gets in
-            # is UTC format.  Boo.
-            #
-            # $ python3
-            # >>> import pytz
-            # >>> us_eastern = pytz.timezone('US/Eastern')
-            # >>> import datetime
-            # >>> us_eastern.localize(datetime.datetime(2000, 1, 2, 12, 34, 56, 789012))
-            #        .strftime('%Y-%m-%d %H:%M:%S.%f')
-            # '2000-01-02 12:34:56.789012'
-            # >>>
-            #
-            # https://github.com/bluelabsio/records-mover/issues/95
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f'
         else:
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f%z'
@@ -108,14 +103,22 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
             pandas_options['date_format'] = '%m/%d/%y %H:%M:%S.%f'
         else:
             pandas_options['date_format'] = '%m/%d/%y %H:%M:%S.%f%z'
+    elif hints.dateformat == 'DD/MM/YY':
+        if hints.datetimeformattz == hints.datetimeformat:
+            pandas_options['date_format'] = '%d/%m/%y %H:%M:%S.%f'
+        else:
+            pandas_options['date_format'] = '%d/%m/%y %H:%M:%S.%f%z'
+    elif hints.dateformat == 'DD-MM-YY':
+        if hints.datetimeformattz == hints.datetimeformat:
+            pandas_options['date_format'] = '%d-%m-%y %H:%M:%S.%f'
+        else:
+            pandas_options['date_format'] = '%d-%m-%y %H:%M:%S.%f%z'
     else:
         cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', hints)
     quiet_remove(unhandled_hints, 'dateformat')
 
-    # pandas can't seem to export a date and time together :(
-    #
-    # might be nice someday to only emit the errors if the actual data
-    # being moved is affected by whatever limitation...
+    # It might be nice someday to only emit the errors if the actual
+    # data being moved is affected by whatever limitation...
     if (hints.datetimeformattz not in (f"{hints.dateformat} HH24:MI:SSOF",
                                        f"{hints.dateformat} HH:MI:SSOF",
                                        f"{hints.dateformat} HH24:MI:SS",
@@ -137,7 +140,7 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
     quiet_remove(unhandled_hints, 'datetimeformat')
 
-    if hints.timeonlyformat != 'HH24:MI:SS':
+    if hints.timeonlyformat not in ['HH24:MI:SS', 'HH:MI:SS']:
         cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', hints)
     quiet_remove(unhandled_hints, 'timeonlyformat')
 

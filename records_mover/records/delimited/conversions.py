@@ -1,8 +1,7 @@
 from .types import HintCompression, HintEncoding, HintDateFormat, HintTimeOnlyFormat, HintQuoting
 import logging
 import csv
-from typing import Optional, Dict, Union
-from typing_extensions import Literal
+from typing import Optional, Dict
 
 
 logger = logging.getLogger(__name__)
@@ -39,16 +38,19 @@ python_encoding_from_hint: Dict[Optional[HintEncoding], str] = {
 # account for MM/DD time.
 #
 # https://github.com/bluelabsio/records-mover/issues/75
-#
-python_date_format_from_hints: Dict[Union[HintDateFormat, Literal['DD/MM/YY']], str] = {
+python_date_format_from_hints: Dict[HintDateFormat, str] = {
+    'DD-MM-YYYY': '%d-%m-%Y',
+    'MM-DD-YYYY': '%m-%d-%Y',
     'YYYY-MM-DD': '%Y-%m-%d',
-    'MM/DD/YY': '%m/%d/%Y',
-    'DD/MM/YY': '%d/%m/%Y',
+    'MM/DD/YY': '%m/%d/%y',
+    'DD/MM/YY': '%d/%m/%y',
+    'DD-MM-YY': '%d-%m-%y',
 }
 
 python_time_format_from_hints: Dict[HintTimeOnlyFormat, str] = {
     'HH24:MI:SS': '%H:%M:%S',
-    'HH12:MI AM': '%I:%M:%S %p',
+    'HH:MI:SS': '%H:%M:%S',
+    'HH12:MI AM': '%I:%M %p',
 }
 
 hint_encoding_from_pandas: Dict[str, HintEncoding] = {
