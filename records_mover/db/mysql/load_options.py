@@ -242,8 +242,9 @@ def mysql_load_options(unhandled_hints: Set[str],
     quiet_remove(unhandled_hints, 'compression')
 
     #
-    # Date/time parsing in MySQL has shown it to be pretty conservative.
-
+    # Testing of date/time parsing in MySQL has shown it to be pretty
+    # conservative.
+    #
     # That said, for DD/MM and MM/DD support, we may want to look into
     # "set trade_date" per
     # https://stackoverflow.com/questions/44171283/load-data-local-infile-with-sqlalchemy-and-pymysql
