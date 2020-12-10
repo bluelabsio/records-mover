@@ -464,6 +464,7 @@ workflows:
       - integration_test_with_dbs:
           name: mysql-itest
           extras: '[mysql,itest,pandas]'
+          pandas_version: ''
           python_version: "3.6"
           command: |
             . venv/bin/activate
