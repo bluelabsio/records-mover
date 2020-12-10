@@ -463,7 +463,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: mysql-itest
-          extras: '[mysql,itest]'
+          extras: '[mysql,itest,pandas]'
           python_version: "3.6"
           command: |
             . venv/bin/activate
