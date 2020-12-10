@@ -158,6 +158,10 @@ jobs:
       python_version:
         type: string
         description: "Version of python to test against"
+      pandas_version:
+        type: string
+        description: "Version of pandas to test against"
+        default: '<1'
       command:
         type: string
         description: "Command to run in records-mover venv"
@@ -189,7 +193,7 @@ jobs:
       - installvenv:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
-          pandas_version: '<1'
+          pandas_version: <<parameters.pandas_version>>
       - run:
           name: Install gcloud
           command: |
@@ -465,6 +469,11 @@ workflows:
           name: mysql-itest
           extras: '[mysql,itest]'
           python_version: "3.6"
+          # Using Pandas reproduced a bug that happened when we were
+          # relying on Pandas:
+          #
+          # See https://github.com/bluelabsio/records-mover/pull/152
+          pandas_version: ">1"
           command: |
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin

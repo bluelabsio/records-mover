@@ -185,8 +185,13 @@ class RecordsSchemaField:
                 # goofy - 1pm will come out as: "0 days 01:00:00".
                 #
                 if type(series[0]) == pd.Timedelta:
+                    # https://stackoverflow.com/questions/34501930/how-to-convert-timedelta-to-time-of-day-in-pandas
+
                     # Convert from "0 days 12:34:56.000000000" to "12:34:56"
-                    return series.astype(str).str.split().str[-1].str.split('.').str[0]
+                    def components_to_time_str(df: pd.DataFrame) -> str:
+                        return f"{df['hours']:02d}:{df['minutes']:02d}:{df['seconds']:02d}"
+                    out = series.dt.components.apply(axis=1, func=components_to_time_str)
+                    return out
 
         return series.astype(self.to_numpy_dtype())
 

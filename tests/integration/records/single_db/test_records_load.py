@@ -34,17 +34,21 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
     def test_load_csv_format(self):
         self.load_and_verify('delimited', 'csv')
 
+    # We use compression: None in bigquery and bluelabs format to
+    # ensure MySQL is exercised in them.  MySQL does not support
+    # compressed loads.
+
     def test_load_bigquery_format(self):
-        self.load_and_verify('delimited', 'bigquery')
+        self.load_and_verify('delimited', 'bigquery', {'compression': None})
 
     def test_load_bigquery_format_with_header_row(self):
-        self.load_and_verify('delimited', 'bigquery', {'header-row': True})
+        self.load_and_verify('delimited', 'bigquery', {'compression': None, 'header-row': True})
 
     def test_load_bluelabs_format(self):
-        self.load_and_verify('delimited', 'bluelabs')
+        self.load_and_verify('delimited', 'bluelabs', {'compression': None})
 
     def test_load_bluelabs_format_with_header_row(self):
-        self.load_and_verify('delimited', 'bluelabs', {'header-row': True})
+        self.load_and_verify('delimited', 'bluelabs', {'compression': None, 'header-row': True})
 
     def test_load_error(self):
         self.load_and_verify('delimited', 'bluelabs', hints={'compression': None}, broken=True)
