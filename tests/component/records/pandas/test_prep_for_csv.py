@@ -1,6 +1,7 @@
 import pandas as pd
 # import pytz
 import unittest
+import datetime
 from records_mover.records.pandas import prep_df_for_csv_output
 from records_mover.records.schema import RecordsSchema
 from records_mover.records import DelimitedRecordsFormat, ProcessingInstructions
@@ -144,18 +145,24 @@ class TestPrepForCsv(unittest.TestCase):
                                                     })
             # us_eastern = pytz.timezone('US/Eastern')
             data = {
-                'date': [
+                'date_as_timestamp': [
                     pd.Timestamp(year=SAMPLE_YEAR, month=SAMPLE_MONTH, day=SAMPLE_DAY)
                 ],
+                'date_as_date': [
+                    datetime.date(year=SAMPLE_YEAR, month=SAMPLE_MONTH, day=SAMPLE_DAY)
+                ],
             }
-            df = pd.DataFrame(data, columns=['date'])
+            df = pd.DataFrame(data,
+                              columns=['date_as_timestamp', 'date_as_date'])
 
             new_df = prep_df_for_csv_output(df=df,
                                             include_index=False,
                                             records_schema=records_schema,
                                             records_format=records_format,
                                             processing_instructions=processing_instructions)
-            self.assertEqual(new_df['date'][0],
+            self.assertEqual(new_df['date_as_timestamp'][0],
+                             create_sample(dateformat))
+            self.assertEqual(new_df['date_as_date'][0],
                              create_sample(dateformat))
             # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
             self.assertIsNotNone(new_df)
