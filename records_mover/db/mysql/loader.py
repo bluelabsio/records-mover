@@ -92,10 +92,6 @@ class MySQLLoader(LoaderFromRecordsDirectory):
                                    hints={
                                        'compression': None
                                    }),
-            DelimitedRecordsFormat(variant='csv',
-                                   hints={
-                                       'compression': None
-                                   }),
             DelimitedRecordsFormat(variant='bigquery',
                                    hints={
                                        'compression': None

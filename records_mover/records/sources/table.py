@@ -14,7 +14,7 @@ from ..schema import RecordsSchema
 from ...url.resolver import UrlResolver
 from records_mover.url.base import BaseDirectoryUrl
 import logging
-from typing import Iterator, List, TYPE_CHECKING
+from typing import Generator, Iterator, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from .dataframes import DataframesRecordsSource  # noqa
     from pandas import DataFrame  # noqa
@@ -89,13 +89,17 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         logger.info(f"Exporting in chunks of up to {chunksize} rows by {num_columns} columns")
 
         quoted_table = quote_schema_and_table(db, self.schema_name, self.table_name)
-        chunks: Iterator['DataFrame'] = \
+        chunks: Generator['DataFrame', None, None] = \
             pandas.read_sql(f"SELECT * FROM {quoted_table}",
                             con=db,
                             chunksize=chunksize)
-        yield DataframesRecordsSource(dfs=self.with_cast_dataframe_types(records_schema, chunks),
-                                      records_schema=records_schema,
-                                      processing_instructions=processing_instructions)
+        try:
+            yield DataframesRecordsSource(dfs=self.with_cast_dataframe_types(records_schema,
+                                                                             chunks),
+                                          records_schema=records_schema,
+                                          processing_instructions=processing_instructions)
+        finally:
+            chunks.close()
 
     def with_cast_dataframe_types(self,
                                   records_schema: RecordsSchema,

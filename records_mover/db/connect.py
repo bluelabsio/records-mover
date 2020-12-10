@@ -94,7 +94,7 @@ def create_bigquery_db_engine(db_facts: DBFacts) -> sa.engine.Engine:
 
 
 def create_sqlalchemy_url(db_facts: DBFacts,
-                          prefer_odbc: bool=False) -> Union[str, sa.engine.url.URL]:
+                          prefer_odbc: bool = False) -> Union[str, sa.engine.url.URL]:
     db_type = canonicalize_db_type(db_facts['type'])
     driver = db_driver_for_type.get(db_type, db_type)
     if prefer_odbc:
