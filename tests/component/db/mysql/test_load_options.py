@@ -178,7 +178,6 @@ class TestMySQLLoadOptions(unittest.TestCase):
                     raise
             self.assertNotIn(datetimeformat, expected_failures)
 
-
     def test_mysql_load_options_timeonlyformat(self) -> None:
         expected_failures: Set[str] = {
             'HH12:MI AM',
