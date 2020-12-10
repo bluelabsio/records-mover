@@ -117,7 +117,7 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
         cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', hints)
     quiet_remove(unhandled_hints, 'dateformat')
 
-    # It mmight be nice someday to only emit the errors if the actual
+    # It might be nice someday to only emit the errors if the actual
     # data being moved is affected by whatever limitation...
     if (hints.datetimeformattz not in (f"{hints.dateformat} HH24:MI:SSOF",
                                        f"{hints.dateformat} HH:MI:SSOF",

@@ -126,9 +126,10 @@ class TestMySQLLoadOptions(unittest.TestCase):
                                    fail_if_cant_handle_hint=True)
             except NotImplementedError:
                 if dateformat in expected_failures:
-                    pass
+                    continue
                 else:
                     raise
+            self.assertNotIn(dateformat, expected_failures)
 
     def test_mysql_load_options_datetimeformattz(self) -> None:
         expected_failures: Set[str] = {
@@ -148,9 +149,10 @@ class TestMySQLLoadOptions(unittest.TestCase):
                                    fail_if_cant_handle_hint=True)
             except NotImplementedError:
                 if datetimeformattz in expected_failures:
-                    pass
+                    continue
                 else:
                     raise
+            self.assertNotIn(datetimeformattz, expected_failures)
 
     def test_mysql_load_options_datetimeformat(self) -> None:
         expected_failures: Set[str] = {
@@ -171,9 +173,11 @@ class TestMySQLLoadOptions(unittest.TestCase):
                                    fail_if_cant_handle_hint=True)
             except NotImplementedError:
                 if datetimeformat in expected_failures:
-                    pass
+                    continue
                 else:
                     raise
+            self.assertNotIn(datetimeformat, expected_failures)
+
 
     def test_mysql_load_options_timeonlyformat(self) -> None:
         expected_failures: Set[str] = {
@@ -193,6 +197,7 @@ class TestMySQLLoadOptions(unittest.TestCase):
                                    fail_if_cant_handle_hint=True)
             except NotImplementedError:
                 if timeonlyformat in expected_failures:
-                    pass
+                    continue
                 else:
                     raise
+            self.assertNotIn(timeonlyformat, expected_failures)
