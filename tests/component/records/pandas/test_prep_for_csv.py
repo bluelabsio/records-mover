@@ -130,7 +130,11 @@ class TestPrepForCsv(unittest.TestCase):
         schema_data = {
             'schema': "bltypes/v1",
             'fields': {
-                "date": {
+                "date_as_timestamp": {
+                    "type": "date",
+                    "index": 1,
+                },
+                "date_as_date": {
                     "type": "date",
                     "index": 1,
                 },
@@ -164,7 +168,6 @@ class TestPrepForCsv(unittest.TestCase):
                              create_sample(dateformat))
             self.assertEqual(new_df['date_as_date'][0],
                              create_sample(dateformat))
-            # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
             self.assertIsNotNone(new_df)
 
     def test_datetimeformattz(self):
