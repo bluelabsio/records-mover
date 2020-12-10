@@ -200,7 +200,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             }
             uses_pandas = False
             if self.engine.name == 'redshift':
-                if datetimeformattz != 'YYYY-MM-DD HH:MI:SSOF':
+                if datetimeformattz not in ['YYYY-MM-DD HH:MI:SSOF',
+                                            'YYYY-MM-DD HH24:MI:SSOF']:
                     # this is the only format supported by Redshift on
                     # export
                     uses_pandas = True
