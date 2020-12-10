@@ -321,6 +321,7 @@ setup(name='records-mover',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
           'db-facts>=4,<5',
+          # ...
           'chardet',
           'tenacity>=6<7',
           # v5.0.1 resolves https://github.com/exhuma/config_resolver/issues/69
