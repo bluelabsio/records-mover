@@ -87,7 +87,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
-            self.assertFalse(expect_pandas_failure)
+            self.assertFalse(expect_pandas_failure, dateformat)
 
     def test_unload_datetime(self) -> None:
         self.datetime_fixture.createDateTimeTable()
@@ -179,8 +179,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
-            self.assertFalse(expect_pandas_failure)
-            self.assertFalse(expect_am_failure)
+            self.assertFalse(expect_pandas_failure, datetimeformat)
+            self.assertFalse(expect_am_failure, datetimeformat)
 
     def test_unload_datetimetz(self) -> None:
         self.datetime_fixture.createDateTimeTzTable()
@@ -283,8 +283,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
-            self.assertFalse(expect_pandas_failure)
-            self.assertFalse(expect_am_failure)
+            self.assertFalse(expect_pandas_failure, datetimeformattz)
+            self.assertFalse(expect_am_failure, datetimeformattz)
 
     def test_unload_timeonly(self) -> None:
         self.datetime_fixture.createTimeTable()
@@ -359,5 +359,5 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
-            self.assertFalse(expect_pandas_failure)
-            self.assertFalse(expect_am_failure)
+            self.assertFalse(expect_pandas_failure, timeonlyformat)
+            self.assertFalse(expect_am_failure, timeonlyformat)
