@@ -75,7 +75,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'header-row': False,
                                                **addl_hints,  # type: ignore
                                            })
-            expect_pandas_failure = not self.has_pandas() and uses_pandas
+            expect_pandas_failure = (not self.has_pandas()) and uses_pandas
             try:
                 csv_text = self.unload_column_to_string(column_name='date',
                                                         records_format=records_format)
@@ -150,7 +150,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'header-row': False,
                                                **addl_hints,  # type: ignore
                                            })
-            expect_pandas_failure = not self.has_pandas() and uses_pandas
+            expect_pandas_failure = (not self.has_pandas()) and uses_pandas
             try:
                 csv_text = self.unload_column_to_string(column_name='timestamp',
                                                         records_format=records_format)
@@ -245,7 +245,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'header-row': False,
                                                **addl_hints,  # type: ignore
                                            })
-            expect_pandas_failure = not self.has_pandas() and uses_pandas
+            expect_pandas_failure = (not self.has_pandas()) and uses_pandas
             try:
                 csv_text = self.unload_column_to_string(column_name='timestamptz',
                                                         records_format=records_format)
@@ -336,7 +336,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'header-row': False,
                                                **addl_hints,  # type: ignore
                                            })
-            expect_pandas_failure = not self.has_pandas() and uses_pandas
+            expect_pandas_failure = (not self.has_pandas()) and uses_pandas
             try:
                 csv_text = self.unload_column_to_string(column_name='time',
                                                         records_format=records_format)
