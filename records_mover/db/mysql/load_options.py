@@ -242,21 +242,24 @@ def mysql_load_options(unhandled_hints: Set[str],
     quiet_remove(unhandled_hints, 'compression')
 
     #
-    # Date/time parsing in MySQL seems to be permissive enough to
-    # accept all formats we've sent at it in integration tests.  That
-    # said, DD/MM support is unlikely to work if the server isn't set
-    # to a compatible locale.  This is true for a number of the
-    # database drivers; the backlog item to address is here:
-    #
-    # https://github.com/bluelabsio/records-mover/issues/75
-    #
-    # To address, we'll want to look into "set trade_date" per
+    # Date/time parsing in MySQL has shown it to be pretty conservative.
+
+    # That said, for DD/MM and MM/DD support, we may want to look into
+    # "set trade_date" per
     # https://stackoverflow.com/questions/44171283/load-data-local-infile-with-sqlalchemy-and-pymysql
     #
-    quiet_remove(unhandled_hints, 'dateformat')
-    quiet_remove(unhandled_hints, 'timeonlyformat')
+    if 'YYYY-MM-DD' not in hints.datetimeformat or 'AM' in hints.datetimeformat:
+        cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', records_format.hints)
     quiet_remove(unhandled_hints, 'datetimeformat')
+    if 'YYYY-MM-DD' not in hints.datetimeformattz or 'AM' in hints.datetimeformattz:
+        cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', records_format.hints)
     quiet_remove(unhandled_hints, 'datetimeformattz')
+    if hints.dateformat != 'YYYY-MM-DD':
+        cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', records_format.hints)
+    quiet_remove(unhandled_hints, 'dateformat')
+    if 'AM' in hints.timeonlyformat:
+        cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', records_format.hints)
+    quiet_remove(unhandled_hints, 'timeonlyformat')
 
     return MySqlLoadOptions(character_set=mysql_character_set,
                             fields_terminated_by=mysql_fields_terminator,
