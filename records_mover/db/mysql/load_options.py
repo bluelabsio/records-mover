@@ -241,7 +241,7 @@ def mysql_load_options(unhandled_hints: Set[str],
         cant_handle_hint(fail_if_cant_handle_hint, 'compression', records_format.hints)
     quiet_remove(unhandled_hints, 'compression')
 
-
+    #
     # Testing of date/time parsing in MySQL has shown it to be pretty
     # conservative.
     #
