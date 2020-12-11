@@ -1,4 +1,5 @@
 import unittest
+import datetime
 from mock import Mock, patch  # , ANY
 from records_mover.records.schema.field import RecordsSchemaField
 import numpy as np
@@ -241,7 +242,7 @@ class TestField(unittest.TestCase):
         data = np.array([pd.Timedelta(hours=1, minutes=23, seconds=45)])
         series = pd.Series(data)
         new_series = field.cast_series_type(series)
-        self.assertEqual(new_series[0], '01:23:45')
+        self.assertEqual(new_series[0], datetime.time(1, 23, 45))
 
     def test_cast_series_type_time_timedelta_entries_zeroed(self):
         mock_name = Mock(name='name')
@@ -257,4 +258,4 @@ class TestField(unittest.TestCase):
         data = np.array([pd.Timedelta(hours=0, minutes=0, seconds=0)])
         series = pd.Series(data)
         new_series = field.cast_series_type(series)
-        self.assertEqual(new_series[0], '00:00:00')
+        self.assertEqual(new_series[0], datetime.time(0, 0, 0))

@@ -68,81 +68,45 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
     #
     # https://github.com/bluelabsio/records-mover/issues/95
 
-    # The current datetimefomat/datetimeformattz hint support in
-    # to_csv_options.py is limited to ISO format driven by the
-    # dateformat hint.
-    #
-    # This could be generalized to a smarter function which translates
-    # to from the Records Spec language into the
-    # Python/Pandas/strftime format, and reject fewer hints as a
-    # result.
-    #
-    # https://github.com/bluelabsio/records-mover/issues/143
-    if hints.dateformat is None:
-        if hints.datetimeformattz == hints.datetimeformat:
-            pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f'
-        else:
-            pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f%z'
-    elif hints.dateformat == 'YYYY-MM-DD':
-        if hints.datetimeformattz == hints.datetimeformat:
-            pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f'
-        else:
-            pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f%z'
-    elif hints.dateformat == 'MM-DD-YYYY':
-        if hints.datetimeformattz == hints.datetimeformat:
-            pandas_options['date_format'] = '%m-%d-%Y %H:%M:%S.%f'
-        else:
-            pandas_options['date_format'] = '%m-%d-%Y %H:%M:%S.%f%z'
-    elif hints.dateformat == 'DD-MM-YYYY':
-        if hints.datetimeformattz == hints.datetimeformat:
-            pandas_options['date_format'] = '%d-%m-%Y %H:%M:%S.%f'
-        else:
-            pandas_options['date_format'] = '%d-%m-%Y %H:%M:%S.%f%z'
-    elif hints.dateformat == 'MM/DD/YY':
-        if hints.datetimeformattz == hints.datetimeformat:
-            pandas_options['date_format'] = '%m/%d/%y %H:%M:%S.%f'
-        else:
-            pandas_options['date_format'] = '%m/%d/%y %H:%M:%S.%f%z'
-    elif hints.dateformat == 'DD/MM/YY':
-        if hints.datetimeformattz == hints.datetimeformat:
-            pandas_options['date_format'] = '%d/%m/%y %H:%M:%S.%f'
-        else:
-            pandas_options['date_format'] = '%d/%m/%y %H:%M:%S.%f%z'
-    elif hints.dateformat == 'DD-MM-YY':
-        if hints.datetimeformattz == hints.datetimeformat:
-            pandas_options['date_format'] = '%d-%m-%y %H:%M:%S.%f'
-        else:
-            pandas_options['date_format'] = '%d-%m-%y %H:%M:%S.%f%z'
-    else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', hints)
-    quiet_remove(unhandled_hints, 'dateformat')
+    # Pandas only gives us one parameter to set for formatting of its
+    # Timestamp values, so we need the datetimeformat and
+    # datetimeformattz hints to be nearly identical, modulo the
+    # timezone at the end which will only appear if it is set in the
+    # source data anyway:
 
-    # It might be nice someday to only emit the errors if the actual
-    # data being moved is affected by whatever limitation...
-    if (hints.datetimeformattz not in (f"{hints.dateformat} HH24:MI:SSOF",
-                                       f"{hints.dateformat} HH:MI:SSOF",
-                                       f"{hints.dateformat} HH24:MI:SS",
-                                       f"{hints.dateformat} HH:MI:SS",
-                                       f"{hints.dateformat} HH:MIOF",
-                                       f"{hints.dateformat} HH:MI",
-                                       f"{hints.dateformat} HH24:MIOF",
-                                       f"{hints.dateformat} HH24:MI")):
-        cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformattz', hints)
+    canonical_datetimeformattz = hints.datetimeformattz.replace('HH24', 'HH')
+    canonical_datetimeformat = hints.datetimeformat.replace('HH24', 'HH')
+    equivalent_with_timezone = f"{canonical_datetimeformat}OF"
+
+    if (canonical_datetimeformattz not in
+       [canonical_datetimeformat, equivalent_with_timezone]):
+        cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
+
+    if 'AM' in hints.datetimeformattz:
+        hour_specifier = '%I'
+    else:
+        hour_specifier = '%H'
+
+    pandas_options['date_format'] = hints.datetimeformattz\
+        .replace('YYYY', '%Y')\
+        .replace('YY', '%y')\
+        .replace('MM', '%m')\
+        .replace('DD', '%d')\
+        .replace('HH24', '%H')\
+        .replace('HH12', '%I')\
+        .replace('HH', hour_specifier)\
+        .replace('MI', '%M')\
+        .replace('SS', '%S.%f')\
+        .replace('OF', '%z')\
+        .replace('AM', '%p')
+    quiet_remove(unhandled_hints, 'datetimeformat')
     quiet_remove(unhandled_hints, 'datetimeformattz')
 
-    valid_datetimeformat = [
-        f"{hints.dateformat} HH24:MI:SS",
-        f"{hints.dateformat} HH:MI:SS",
-        f"{hints.dateformat} HH24:MI",
-        f"{hints.dateformat} HH:MI",
-    ]
-    if (hints.datetimeformat not in valid_datetimeformat):
-        cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
-    quiet_remove(unhandled_hints, 'datetimeformat')
-
-    if hints.timeonlyformat not in ['HH24:MI:SS', 'HH:MI:SS']:
-        cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', hints)
+    # timeonlyformat and dateformat are handled in prep_for_csv.py and
+    # raw times and dates never appear in dataframes passed a
+    # .to_csv() call.
     quiet_remove(unhandled_hints, 'timeonlyformat')
+    quiet_remove(unhandled_hints, 'dateformat')
 
     pandas_options['sep'] = hints.field_delimiter
     quiet_remove(unhandled_hints, 'field-delimiter')

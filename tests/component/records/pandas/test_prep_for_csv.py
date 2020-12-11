@@ -260,9 +260,13 @@ class TestPrepForCsv(unittest.TestCase):
         schema_data = {
             'schema': "bltypes/v1",
             'fields': {
-                "datetimez": {
+                "time_as_timestamp": {
                     "type": "time",
                     "index": 1,
+                },
+                "time_as_time": {
+                    "type": "time",
+                    "index": 2,
                 },
             }
         }
@@ -271,26 +275,34 @@ class TestPrepForCsv(unittest.TestCase):
         for timeonlyformat in TIMEONLY_CASES:
             records_format = DelimitedRecordsFormat(variant='bluelabs',
                                                     hints={
-                                                        'timeonlyformat': timeonlyformat
+                                                        'timeonlyformat': timeonlyformat,
                                                     })
             # us_eastern = pytz.timezone('US/Eastern')
-            timestamp = pd.Timestamp(year=SAMPLE_YEAR, month=SAMPLE_MONTH, day=SAMPLE_DAY,
-                                     hour=SAMPLE_HOUR, minute=SAMPLE_MINUTE,
-                                     second=SAMPLE_SECOND)
-
+            time_as_timestamp = pd.Timestamp(year=SAMPLE_YEAR, month=SAMPLE_MONTH, day=SAMPLE_DAY,
+                                             hour=SAMPLE_HOUR, minute=SAMPLE_MINUTE,
+                                             second=SAMPLE_SECOND)
+            time_as_time = datetime.time(hour=SAMPLE_HOUR,
+                                         minute=SAMPLE_MINUTE,
+                                         second=SAMPLE_SECOND)
             data = {
-                'time': [
-                    timestamp
+                'time_as_timestamp': [
+                    time_as_timestamp
+                ],
+                'time_as_time': [
+                    time_as_time
                 ],
             }
-            df = pd.DataFrame(data, columns=['time'])
+            df = pd.DataFrame(data, columns=['time_as_timestamp', 'time_as_time'])
 
             new_df = prep_df_for_csv_output(df=df,
                                             include_index=False,
                                             records_schema=records_schema,
                                             records_format=records_format,
                                             processing_instructions=processing_instructions)
-            self.assertEqual(new_df['time'][0],
+            self.assertEqual(new_df['time_as_timestamp'][0],
+                             create_sample(timeonlyformat),
+                             timeonlyformat)
+            self.assertEqual(new_df['time_as_time'][0],
                              create_sample(timeonlyformat),
                              timeonlyformat)
             # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
