@@ -42,7 +42,8 @@ def _convert_series_or_index(series_or_index: T,
             else:
                 return series_or_index.apply(pd.Timestamp).dt.strftime(pandas_date_format)
     elif field.field_type == 'time':
-        if not isinstance(series_or_index[0], pd.Timestamp):
+        if (not (isinstance(series_or_index[0], pd.Timestamp) or
+                 isinstance(series_or_index[0], datetime.time))):
             logger.warning(f"Found {series_or_index.name} as unexpected "
                            f"type {type(series_or_index[0])}")
         else:
@@ -56,7 +57,10 @@ def _convert_series_or_index(series_or_index: T,
                                  'timeonlyformat',
                                  records_format.hints)
                 pandas_time_format = '%H:%M:%S'
-            if isinstance(series_or_index, pd.Series):
+
+            if isinstance(series_or_index[0], datetime.time):
+                return series_or_index.apply(lambda d: d.strftime(pandas_time_format))
+            elif isinstance(series_or_index, pd.Series):
                 return series_or_index.dt.strftime(pandas_time_format)
             else:
                 return series_or_index.strftime(pandas_time_format)
