@@ -323,7 +323,7 @@ setup(name='records-mover',
           'db-facts>=4,<5',
           # Version 4.0.0 is not yet compatible with requests, and
           # with an old pip, this resulted in runtime complaints.
-          'chardet>=3,<=4.0.0',
+          'chardet>=3,<4',
           'tenacity>=6<7',
           # v5.0.1 resolves https://github.com/exhuma/config_resolver/issues/69
           'config-resolver>=5.0.1,<6',
