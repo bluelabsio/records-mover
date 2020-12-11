@@ -105,6 +105,7 @@ class TestToCsvOptions(unittest.TestCase):
                 else:
                     raise
             self.assertEqual(options['date_format'], expectations[datetimeformattz])
+            self.assertNotIn(datetimeformattz, known_failures)
 
             fileobj = io.StringIO(create_sample(datetimeformattz))
             df = pandas.DataFrame(data={'datetime':
@@ -177,6 +178,7 @@ class TestToCsvOptions(unittest.TestCase):
                 else:
                     raise
             self.assertEqual(options['date_format'], expectations[datetimeformat])
+            self.assertNotIn(datetimeformat, known_failures)
 
             fileobj = io.StringIO(create_sample(datetimeformat))
             df = pandas.DataFrame(data={'datetime':
@@ -212,7 +214,6 @@ class TestToCsvOptions(unittest.TestCase):
         known_failures = {
             # https://github.com/bluelabsio/records-mover/issues/142
             'HH12:MI AM',
-            'HH:MI:SS',
         }
         for timeonlyformat in TIMEONLY_CASES:
             records_format = DelimitedRecordsFormat(hints={
@@ -236,6 +237,7 @@ class TestToCsvOptions(unittest.TestCase):
                     continue
                 else:
                     raise
+            self.assertNotIn(timeonlyformat, known_failures)
             fileobj = io.StringIO(create_sample(timeonlyformat))
 
             # Just make sure to_csv() doesn't reject any of the
