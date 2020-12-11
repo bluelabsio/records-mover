@@ -189,7 +189,9 @@ class RecordsSchemaField:
 
                     # Convert from "0 days 12:34:56.000000000" to "12:34:56"
                     def components_to_time_str(df: pd.DataFrame) -> str:
-                        return f"{df['hours']:02d}:{df['minutes']:02d}:{df['seconds']:02d}"
+                        return datetime.time(hour=df['hours'],
+                                             minute=df['minutes'],
+                                             second=df['seconds'])
                     out = series.dt.components.apply(axis=1, func=components_to_time_str)
                     return out
 
