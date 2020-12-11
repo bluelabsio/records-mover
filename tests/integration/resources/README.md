@@ -42,11 +42,6 @@ timezones in timestamps are expressed.
 
 * Expresses time zone as e.g., +0000 with no colons or shortening
   when zero-padded.
-* Doesn't allow specification of the format of dates or
-  times, just datetimes, so dates and times come out in
-  default Pandas __str__() format.
-
-  See details on [Pandas limitations](https://github.com/bluelabsio/records-mover/issues/83)
 
 ### utc
 

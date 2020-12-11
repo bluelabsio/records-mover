@@ -75,7 +75,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'header-row': False,
                                                **addl_hints,  # type: ignore
                                            })
-            expect_pandas_failure = not self.has_pandas() and uses_pandas
+            expect_pandas_failure = (not self.has_pandas()) and uses_pandas
             try:
                 csv_text = self.unload_column_to_string(column_name='date',
                                                         records_format=records_format)
@@ -87,7 +87,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
-            self.assertFalse(expect_pandas_failure)
+            self.assertFalse(expect_pandas_failure, dateformat)
 
     def test_unload_datetime(self) -> None:
         self.datetime_fixture.createDateTimeTable()
@@ -150,7 +150,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'header-row': False,
                                                **addl_hints,  # type: ignore
                                            })
-            expect_pandas_failure = not self.has_pandas() and uses_pandas
+            expect_pandas_failure = (not self.has_pandas()) and uses_pandas
             try:
                 csv_text = self.unload_column_to_string(column_name='timestamp',
                                                         records_format=records_format)
@@ -179,8 +179,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
-            self.assertFalse(expect_pandas_failure)
-            self.assertFalse(expect_am_failure)
+            self.assertFalse(expect_pandas_failure, datetimeformat)
+            self.assertFalse(expect_am_failure, datetimeformat)
 
     def test_unload_datetimetz(self) -> None:
         self.datetime_fixture.createDateTimeTzTable()
@@ -200,7 +200,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             }
             uses_pandas = False
             if self.engine.name == 'redshift':
-                if datetimeformattz != 'YYYY-MM-DD HH:MI:SSOF':
+                if datetimeformattz not in ['YYYY-MM-DD HH:MI:SSOF',
+                                            'YYYY-MM-DD HH24:MI:SSOF']:
                     # this is the only format supported by Redshift on
                     # export
                     uses_pandas = True
@@ -245,7 +246,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'header-row': False,
                                                **addl_hints,  # type: ignore
                                            })
-            expect_pandas_failure = not self.has_pandas() and uses_pandas
+            expect_pandas_failure = (not self.has_pandas()) and uses_pandas
             try:
                 csv_text = self.unload_column_to_string(column_name='timestamptz',
                                                         records_format=records_format)
@@ -283,8 +284,8 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
-            self.assertFalse(expect_pandas_failure)
-            self.assertFalse(expect_am_failure)
+            self.assertFalse(expect_pandas_failure, datetimeformattz)
+            self.assertFalse(expect_am_failure, datetimeformattz)
 
     def test_unload_timeonly(self) -> None:
         self.datetime_fixture.createTimeTable()
@@ -336,7 +337,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'header-row': False,
                                                **addl_hints,  # type: ignore
                                            })
-            expect_pandas_failure = not self.has_pandas() and uses_pandas
+            expect_pandas_failure = (not self.has_pandas()) and uses_pandas
             try:
                 csv_text = self.unload_column_to_string(column_name='time',
                                                         records_format=records_format)
@@ -359,5 +360,5 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
-            self.assertFalse(expect_pandas_failure)
-            self.assertFalse(expect_am_failure)
+            self.assertFalse(expect_pandas_failure, timeonlyformat)
+            self.assertFalse(expect_am_failure, timeonlyformat)
