@@ -73,8 +73,13 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
     # datetimeformattz hints to be nearly identical, modulo the
     # timezone at the end which will only appear if it is set in the
     # source data anyway:
-    if (hints.datetimeformattz not in
-       [hints.datetimeformat, f"{hints.datetimeformat}OF"]):
+
+    canonical_datetimeformattz = hints.datetimeformattz.replace('HH24', 'HH')
+    canonical_datetimeformat = hints.datetimeformat.replace('HH24', 'HH')
+    equivalent_with_timezone = f"{canonical_datetimeformat}OF"
+
+    if (canonical_datetimeformattz not in
+       [canonical_datetimeformat, equivalent_with_timezone]):
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
 
     if 'AM' in hints.datetimeformattz:
@@ -84,12 +89,18 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
 
     pandas_options['date_format'] = hints.datetimeformattz\
         .replace('YYYY', '%Y')\
+        .replace('YY', '%y')\
         .replace('MM', '%m')\
         .replace('DD', '%d')\
+        .replace('HH24', '%H')\
+        .replace('HH12', '%I')\
         .replace('HH', hour_specifier)\
+        .replace('MI', '%M')\
         .replace('SS', '%S.%f')\
         .replace('OF', '%z')\
         .replace('AM', '%p')
+    quiet_remove(unhandled_hints, 'datetimeformat')
+    quiet_remove(unhandled_hints, 'datetimeformattz')
 
     # timeonlyformat and dateformat are handled in prep_for_csv.py and
     # raw times and dates never appear in dataframes passed a

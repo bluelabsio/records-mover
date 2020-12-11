@@ -9,7 +9,7 @@ class TestPandasToCsvOptionsCsv(unittest.TestCase):
     def test_pandas_to_csv_options_csv(self):
         expected = {
             'compression': 'gzip',
-            'date_format': '%m/%d/%y %H:%M:%S.%f',
+            'date_format': '%m/%d/%y %H:%M',
             'doublequote': True,
             'encoding': 'UTF8',
             'header': True,
