@@ -42,6 +42,8 @@ timezones in timestamps are expressed.
 
 * Expresses time zone as e.g., +0000 with no colons or shortening
   when zero-padded.
+* Uses zero padded hours and minutes, as that's the
+  [only thing provided by strftime()](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes)
 
 ### utc
 
