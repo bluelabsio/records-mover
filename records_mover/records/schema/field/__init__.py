@@ -188,7 +188,7 @@ class RecordsSchemaField:
                     # https://stackoverflow.com/questions/34501930/how-to-convert-timedelta-to-time-of-day-in-pandas
 
                     # Convert from "0 days 12:34:56.000000000" to "12:34:56"
-                    def components_to_time_str(df: pd.DataFrame) -> str:
+                    def components_to_time_str(df: pd.DataFrame) -> datetime.time:
                         return datetime.time(hour=df['hours'],
                                              minute=df['minutes'],
                                              second=df['seconds'])
