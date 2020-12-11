@@ -206,7 +206,7 @@ class RecordsTableValidator:
             if load_variant is not None and self.tc.variant_uses_am_pm(load_variant):
                 assert ret['time'] == '12:00 AM', f"time was {ret['time']}"
             else:
-                assert ret['time'] == '00:00:00', f"time was {ret['time']}"
+                assert ret['time'] == '00:00:00.000000', f"time was {ret['time']}"
 
         if self.tc.raw_avro_types_written():
             assert ret['timestamp'] == '2000-01-02T12:34:56.789012'
