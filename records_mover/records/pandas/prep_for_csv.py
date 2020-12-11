@@ -5,9 +5,7 @@ from records_mover.records import ProcessingInstructions
 from records_mover.records.schema import RecordsSchema
 from records_mover.records.schema.field import RecordsSchemaField
 from records_mover.records import DelimitedRecordsFormat
-from records_mover.records.delimited import (python_date_format_from_hints,
-                                             python_time_format_from_hints,
-                                             cant_handle_hint)
+from records_mover.records.delimited import hint_to_python_strftime
 import logging
 from typing import Optional, Union, TypeVar
 
@@ -28,12 +26,7 @@ def _convert_series_or_index(series_or_index: T,
                         "string in CSV's format")
             hint_date_format = records_format.hints['dateformat']
             assert isinstance(hint_date_format, str)
-            pandas_date_format = python_date_format_from_hints.get(hint_date_format)
-            if pandas_date_format is None:
-                cant_handle_hint(processing_instructions.fail_if_cant_handle_hint,
-                                 'dateformat',
-                                 records_format.hints)
-                pandas_date_format = '%Y-%m-%d'
+            pandas_date_format = hint_to_python_strftime(hint_date_format)
             if isinstance(series_or_index[0], pd.Timestamp):
                 if isinstance(series_or_index, pd.Series):
                     return series_or_index.dt.strftime(pandas_date_format)
@@ -51,12 +44,7 @@ def _convert_series_or_index(series_or_index: T,
                         "in CSV's format")
             hint_time_format = records_format.hints['timeonlyformat']
             assert isinstance(hint_time_format, str)
-            pandas_time_format = python_time_format_from_hints.get(hint_time_format)
-            if pandas_time_format is None:
-                cant_handle_hint(processing_instructions.fail_if_cant_handle_hint,
-                                 'timeonlyformat',
-                                 records_format.hints)
-                pandas_time_format = '%H:%M:%S'
+            pandas_time_format = hint_to_python_strftime(hint_time_format)
 
             if isinstance(series_or_index[0], datetime.time):
                 return series_or_index.apply(lambda d: d.strftime(pandas_time_format))

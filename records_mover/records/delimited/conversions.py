@@ -1,7 +1,10 @@
-from .types import HintCompression, HintEncoding, HintDateFormat, HintTimeOnlyFormat, HintQuoting
+from .types import (
+    HintCompression, HintEncoding, HintDateFormat, HintTimeOnlyFormat, HintQuoting,
+    HintDateTimeFormat, HintDateTimeFormatTz
+)
 import logging
 import csv
-from typing import Optional, Dict
+from typing import Optional, Dict, Union
 
 
 logger = logging.getLogger(__name__)
@@ -34,24 +37,28 @@ python_encoding_from_hint: Dict[Optional[HintEncoding], str] = {
     'UTF16BOM': 'utf-16',
 }
 
-# This is a Union because the date formats currently don't really
-# account for MM/DD time.
-#
-# https://github.com/bluelabsio/records-mover/issues/75
-python_date_format_from_hints: Dict[HintDateFormat, str] = {
-    'DD-MM-YYYY': '%d-%m-%Y',
-    'MM-DD-YYYY': '%m-%d-%Y',
-    'YYYY-MM-DD': '%Y-%m-%d',
-    'MM/DD/YY': '%m/%d/%y',
-    'DD/MM/YY': '%d/%m/%y',
-    'DD-MM-YY': '%d-%m-%y',
-}
 
-python_time_format_from_hints: Dict[HintTimeOnlyFormat, str] = {
-    'HH24:MI:SS': '%H:%M:%S',
-    'HH:MI:SS': '%H:%M:%S',
-    'HH12:MI AM': '%I:%M %p',
-}
+def hint_to_python_strftime(hint: Union[HintDateFormat,
+                                        HintDateTimeFormat,
+                                        HintDateTimeFormatTz,
+                                        HintTimeOnlyFormat]) -> str:
+    if 'AM' in hint:
+        hour_specifier = '%I'
+    else:
+        hour_specifier = '%H'
+    return hint\
+        .replace('YYYY', '%Y')\
+        .replace('YY', '%y')\
+        .replace('MM', '%m')\
+        .replace('DD', '%d')\
+        .replace('HH24', '%H')\
+        .replace('HH12', '%I')\
+        .replace('HH', hour_specifier)\
+        .replace('MI', '%M')\
+        .replace('SS', '%S.%f')\
+        .replace('OF', '%z')\
+        .replace('AM', '%p')
+
 
 hint_encoding_from_pandas: Dict[str, HintEncoding] = {
     'utf-8': 'UTF8',

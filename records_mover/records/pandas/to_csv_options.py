@@ -1,8 +1,8 @@
 import csv
-from ...utils import quiet_remove
-from ..delimited import cant_handle_hint
-from ..processing_instructions import ProcessingInstructions
-from ..records_format import DelimitedRecordsFormat
+from records_mover.utils import quiet_remove
+from records_mover.records.delimited import cant_handle_hint, hint_to_python_strftime
+from records_mover.records.processing_instructions import ProcessingInstructions
+from records_mover.records.records_format import DelimitedRecordsFormat
 from records_mover.mover_types import _assert_never
 import logging
 from typing import Set, Dict
@@ -82,23 +82,7 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
        [canonical_datetimeformat, equivalent_with_timezone]):
         cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', hints)
 
-    if 'AM' in hints.datetimeformattz:
-        hour_specifier = '%I'
-    else:
-        hour_specifier = '%H'
-
-    pandas_options['date_format'] = hints.datetimeformattz\
-        .replace('YYYY', '%Y')\
-        .replace('YY', '%y')\
-        .replace('MM', '%m')\
-        .replace('DD', '%d')\
-        .replace('HH24', '%H')\
-        .replace('HH12', '%I')\
-        .replace('HH', hour_specifier)\
-        .replace('MI', '%M')\
-        .replace('SS', '%S.%f')\
-        .replace('OF', '%z')\
-        .replace('AM', '%p')
+    pandas_options['date_format'] = hint_to_python_strftime(hints.datetimeformattz)
     quiet_remove(unhandled_hints, 'datetimeformat')
     quiet_remove(unhandled_hints, 'datetimeformattz')
 

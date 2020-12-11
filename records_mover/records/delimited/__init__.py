@@ -17,8 +17,7 @@ __all__ = [
     'HintDoublequote',
     'sniff_hints_from_fileobjs',
     'python_encoding_from_hint',
-    'python_date_format_from_hints',
-    'python_time_format_from_hints',
+    'hint_to_python_strftime',
     'stream_csv',
 ]
 
@@ -49,5 +48,5 @@ from .types import (
 from .sniff import sniff_hints_from_fileobjs
 from .csv_streamer import stream_csv
 from .conversions import (
-    python_encoding_from_hint, python_date_format_from_hints, python_time_format_from_hints
+    python_encoding_from_hint, hint_to_python_strftime
 )

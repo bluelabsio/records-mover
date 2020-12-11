@@ -65,7 +65,7 @@ class TestPrepForCsv(unittest.TestCase):
                                         records_format=records_format,
                                         processing_instructions=processing_instructions)
         self.assertEqual(new_df['date'][0], '1970-01-01')
-        self.assertEqual(new_df['time'][0], '12:33:53')
+        self.assertEqual(new_df['time'][0], '12:33:53.001234')
         # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
         self.assertIsNotNone(new_df)
 
@@ -122,7 +122,7 @@ class TestPrepForCsv(unittest.TestCase):
                                         records_format=records_format,
                                         processing_instructions=processing_instructions)
         self.assertEqual(new_df.index[0], '1970-01-01')
-        self.assertEqual(new_df['time'][0], '12:33:53')
+        self.assertEqual(new_df['time'][0], '12:33:53.001234')
         # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
         self.assertIsNotNone(new_df)
 
@@ -299,11 +299,17 @@ class TestPrepForCsv(unittest.TestCase):
                                             records_schema=records_schema,
                                             records_format=records_format,
                                             processing_instructions=processing_instructions)
-            self.assertEqual(new_df['time_as_timestamp'][0],
-                             create_sample(timeonlyformat),
-                             timeonlyformat)
-            self.assertEqual(new_df['time_as_time'][0],
-                             create_sample(timeonlyformat),
-                             timeonlyformat)
+            self.assertIn(new_df['time_as_timestamp'][0],
+                          [
+                              create_sample(timeonlyformat),
+                              f"{create_sample(timeonlyformat)}.000000",
+                          ],
+                          timeonlyformat)
+            self.assertIn(new_df['time_as_time'][0],
+                          [
+                              create_sample(timeonlyformat),
+                              f"{create_sample(timeonlyformat)}.000000",
+                          ],
+                          timeonlyformat)
             # self.assertEqual(new_df['timetz'][0], '12:33:53-05')
             self.assertIsNotNone(new_df)
