@@ -1,13 +1,16 @@
-import sys
 import unittest
 import logging
 import time
-from records_mover import Session
+from records_mover import Session, set_stream_logging
 from sqlalchemy import MetaData
 from sqlalchemy.schema import Table
 import os
 from ..records_database_fixture import RecordsDatabaseFixture
 from ..purge_old_test_tables import purge_old_tables
+from records_mover.records.records_format import BaseRecordsFormat
+from records_mover.records.records_directory import RecordsDirectory
+import tempfile
+import pathlib
 
 
 # Note: you're gonna see some of this in the detailed test logging:
@@ -26,10 +29,7 @@ from ..purge_old_test_tables import purge_old_tables
 logger = logging.getLogger(__name__)
 
 
-stdout_handler = logging.StreamHandler(stream=sys.stdout)
-formatter = logging.Formatter('%(asctime)s - %(message)s', '%H:%M:%S')
-stdout_handler.setFormatter(formatter)
-logging.getLogger().addHandler(stdout_handler)
+set_stream_logging()
 
 
 class BaseRecordsIntegrationTest(unittest.TestCase):
@@ -96,3 +96,24 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         except ModuleNotFoundError:
             logger.info("Could not find pandas")
             return False
+
+    def unload_column_to_string(self,
+                                column_name: str,
+                                records_format: BaseRecordsFormat) -> str:
+        targets = self.records.targets
+        sources = self.records.sources
+        with tempfile.TemporaryDirectory() as directory_name:
+            source = sources.table(schema_name=self.schema_name,
+                                   table_name=self.table_name,
+                                   db_engine=self.engine)
+            directory_url = pathlib.Path(directory_name).as_uri() + '/'
+            target = targets.directory_from_url(output_url=directory_url,
+                                                records_format=records_format)
+            self.records.move(source, target)
+            directory_loc = self.session.directory_url(directory_url)
+            records_dir = RecordsDirectory(records_loc=directory_loc)
+            with tempfile.NamedTemporaryFile() as t:
+                output_url = pathlib.Path(t.name).as_uri()
+                output_loc = self.session.file_url(output_url)
+                records_dir.save_to_url(output_loc)
+                return output_loc.string_contents()
