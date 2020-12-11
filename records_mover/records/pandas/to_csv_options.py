@@ -78,12 +78,7 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
     # result.
     #
     # https://github.com/bluelabsio/records-mover/issues/143
-    if hints.dateformat is None:
-        if hints.datetimeformattz == hints.datetimeformat:
-            pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f'
-        else:
-            pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f%z'
-    elif hints.dateformat == 'YYYY-MM-DD':
+    if hints.dateformat == 'YYYY-MM-DD':
         if hints.datetimeformattz == hints.datetimeformat:
             pandas_options['date_format'] = '%Y-%m-%d %H:%M:%S.%f'
         else:
