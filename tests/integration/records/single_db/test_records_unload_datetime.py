@@ -98,7 +98,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             'YYYY-MM-DD HH24:MI:SS': 'YYYY-MM-DD',
         }
         for datetimeformat in DATETIME_CASES:
-            expect_am_failure = False
             addl_hints: PartialRecordsHints = {}
             pandas_compatible_addl_hints: PartialRecordsHints = {
                 'dateformat': matching_dateformat[datetimeformat],
@@ -137,12 +136,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 # We're going to need to be sure to use hints that
                 # work in Pandas
                 addl_hints.update(pandas_compatible_addl_hints)
-                if 'AM' in datetimeformat:
-                    # Pandas is more limited in hint support than it
-                    # should be:
-                    #
-                    # https://github.com/bluelabsio/records-mover/issues/143
-                    expect_am_failure = True
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'datetimeformat': datetimeformat,
@@ -157,15 +150,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 self.assertIn(csv_text, [create_sample(datetimeformat) + "\n",
                                          # Pandas doesn't truncate fractional seconds in the
                                          # same way other tools do.
-                                         create_sample(datetimeformat) + ".000000\n",
-                                         # An example of having an overly simplistic
-                                         # implementation of to_csv_options is that seconds get
-                                         # appended even for time formats which don't include
-                                         # it.
-                                         #
-                                         # https://github.com/bluelabsio/records-mover/issues/142
-                                         create_sample(datetimeformat) +
-                                         f":{SAMPLE_SECOND:02d}.000000\n"],
+                                         create_sample(datetimeformat) + ".000000\n"],
                               f"from datetimeformat {datetimeformat} and addl_hints {addl_hints}")
             except ModuleNotFoundError as e:
                 if 'pandas' in str(e) and expect_pandas_failure:
@@ -173,14 +158,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
-            except NotImplementedError as e:
-                if expect_am_failure and 'AM' in str(e):
-                    # as expected
-                    continue
-                else:
-                    raise
             self.assertFalse(expect_pandas_failure, datetimeformat)
-            self.assertFalse(expect_am_failure, datetimeformat)
 
     def test_unload_datetimetz(self) -> None:
         self.datetime_fixture.createDateTimeTzTable()
@@ -192,7 +170,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             'YYYY-MM-DD HH:MI:SSOF': 'YYYY-MM-DD',
         }
         for datetimeformattz in DATETIMETZ_CASES:
-            expect_am_failure = False
             addl_hints: PartialRecordsHints = {}
             pandas_compatible_addl_hints: PartialRecordsHints = {
                 'dateformat': matching_dateformat[datetimeformattz],
@@ -232,12 +209,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                 # We're going to need to be sure to use hints that
                 # work in Pandas
                 addl_hints.update(pandas_compatible_addl_hints)
-                if 'AM' in datetimeformattz:
-                    # Pandas is more limited in hint support than it
-                    # should be:
-                    #
-                    # https://github.com/bluelabsio/records-mover/issues/143
-                    expect_am_failure = True
 
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
@@ -261,14 +232,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                          # It's valid to not include an offset with no impact.
                                          create_sample(datetimeformattz).replace('-00', '') +
                                          '.000000+0000\n',
-                                         # An example of having an overly simplistic
-                                         # implementation of to_csv_options is that seconds get
-                                         # appended even for time formats which don't include
-                                         # it.
-                                         #
-                                         # https://github.com/bluelabsio/records-mover/issues/142
-                                         create_sample(datetimeformattz) +
-                                         f":{SAMPLE_SECOND:02d}.000000\n"
                                          ],
                               f"from datetimeformattz {datetimeformattz} and "
                               f"addl_hints {addl_hints}")
@@ -278,19 +241,11 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
-            except NotImplementedError as e:
-                if expect_am_failure and 'AM' in str(e):
-                    # as expected
-                    continue
-                else:
-                    raise
             self.assertFalse(expect_pandas_failure, datetimeformattz)
-            self.assertFalse(expect_am_failure, datetimeformattz)
 
     def test_unload_timeonly(self) -> None:
         self.datetime_fixture.createTimeTable()
         for timeonlyformat in TIMEONLY_CASES:
-            expect_am_failure = False
             pandas_compatible_addl_hints: PartialRecordsHints = {
                 'dateformat': 'YYYY-MM-DD',
                 'datetimeformat': f'YYYY-MM-DD {timeonlyformat}',
@@ -324,12 +279,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
             if uses_pandas:
                 # we're going to need to be sure to use hints that work in Pandas
                 addl_hints.update(pandas_compatible_addl_hints)
-                if 'AM' in timeonlyformat:
-                    # Pandas is more limited in hint support than it
-                    # should be:
-                    #
-                    # https://github.com/bluelabsio/records-mover/issues/143
-                    expect_am_failure = True
             records_format = RecordsFormat(variant=VARIANT_FOR_DB[self.engine.name],
                                            hints={
                                                'timeonlyformat': timeonlyformat,
@@ -354,11 +303,4 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     continue
                 else:
                     raise
-            except NotImplementedError as e:
-                if expect_am_failure and 'AM' in str(e):
-                    # as expected
-                    continue
-                else:
-                    raise
             self.assertFalse(expect_pandas_failure, timeonlyformat)
-            self.assertFalse(expect_am_failure, timeonlyformat)
