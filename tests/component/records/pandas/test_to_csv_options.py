@@ -211,10 +211,7 @@ class TestToCsvOptions(unittest.TestCase):
                 self.assertEqual(output, f"{sample}:{SAMPLE_SECOND:02d}.000000\n")
 
     def test_timeonlyformat(self) -> None:
-        known_failures = {
-            # https://github.com/bluelabsio/records-mover/issues/142
-            'HH12:MI AM',
-        }
+        known_failures: Set[str] = set()
         for timeonlyformat in TIMEONLY_CASES:
             records_format = DelimitedRecordsFormat(hints={
                 # Pandas doesn't consider dateformats to be separate
