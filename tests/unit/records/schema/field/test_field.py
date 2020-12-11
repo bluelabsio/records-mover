@@ -258,4 +258,4 @@ class TestField(unittest.TestCase):
         data = np.array([pd.Timedelta(hours=0, minutes=0, seconds=0)])
         series = pd.Series(data)
         new_series = field.cast_series_type(series)
-        self.assertEqual(new_series[0], '00:00:00')
+        self.assertEqual(new_series[0], datetime.time(0, 0, 0))
