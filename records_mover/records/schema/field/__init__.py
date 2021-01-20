@@ -205,9 +205,21 @@ class RecordsSchemaField:
                 cast(Optional[RecordsSchemaFieldIntegerConstraints], self.constraints)
             min_: Optional[int] = None
             max_: Optional[int] = None
+            required = False
             if int_constraints:
                 min_ = int_constraints.min_
                 max_ = int_constraints.max_
+                required = int_constraints.required
+
+            if not required:
+                import pandas as pd
+                if 'Int64Dtype' in dir(pd):
+                    logger.info(f"Dataframe field {self.name} is nullable. Ignoring size "
+                                "constraints and using pd.Int64Dtype")
+                    return pd.Int64Dtype()
+                else:
+                    logger.warning(f"Dataframe field {self.name} is nullable, but using pandas "
+                                   f"{pd.__version__} which does not support nullable integer type")
 
             if min_ is not None and max_ is not None:
                 if min_ >= INT8_MIN and max_ <= INT8_MAX:

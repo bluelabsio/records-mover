@@ -116,6 +116,31 @@ class TestField(unittest.TestCase):
             mock_constraints = Mock(name='constraints')
             mock_constraints.min_ = mock_min
             mock_constraints.max_ = mock_max
+            mock_constraints.required = True
+            field = RecordsSchemaField(name=mock_name,
+                                       field_type=mock_field_type,
+                                       constraints=mock_constraints,
+                                       statistics=mock_statistics,
+                                       representations=mock_representations)
+
+            out = field.to_numpy_dtype()
+            self.assertEqual(out, expected_pandas_type, f"min={mock_min}, max={mock_max}")
+
+    def test_to_numpy_dtype_nullable_integer(self):
+        mock_name = Mock(name='name')
+        mock_statistics = Mock(name='statistics')
+        mock_representations = Mock(name='representations')
+        mock_field_type = 'integer'
+        expectations = {
+            (-100, 100): pd.Int64Dtype(),
+            (-10000, 10000): pd.Int64Dtype(),
+            (None, None): pd.Int64Dtype()
+        }
+        for (mock_min, mock_max), expected_pandas_type in expectations.items():
+            mock_constraints = Mock(name='constraints')
+            mock_constraints.min_ = mock_min
+            mock_constraints.max_ = mock_max
+            mock_constraints.required = False
             field = RecordsSchemaField(name=mock_name,
                                        field_type=mock_field_type,
                                        constraints=mock_constraints,
