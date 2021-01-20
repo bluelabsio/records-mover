@@ -1,16 +1,7 @@
 import sqlalchemy
 import sqlalchemy.dialects.mysql
 import logging
-from ...utils.limits import (INT8_MIN, INT8_MAX,
-                             UINT8_MIN, UINT8_MAX,
-                             INT16_MIN, INT16_MAX,
-                             UINT16_MIN, UINT16_MAX,
-                             INT24_MIN, INT24_MAX,
-                             UINT24_MIN, UINT24_MAX,
-                             INT32_MIN, INT32_MAX,
-                             UINT32_MIN, UINT32_MAX,
-                             INT64_MIN, INT64_MAX,
-                             UINT64_MIN, UINT64_MAX,
+from ...utils.limits import (IntegerType,
                              FLOAT32_SIGNIFICAND_BITS,
                              FLOAT64_SIGNIFICAND_BITS,
                              num_digits)
@@ -48,29 +39,29 @@ class MySQLDBDriver(DBDriver):
             Optional[Tuple[int, int]]:
         if isinstance(type_, sqlalchemy.dialects.mysql.TINYINT):
             if type_.unsigned:
-                return (UINT8_MIN, UINT8_MAX)
+                return IntegerType.UINT8.range
             else:
-                return (INT8_MIN, INT8_MAX)
+                return IntegerType.INT8.range
         elif isinstance(type_, sqlalchemy.dialects.mysql.SMALLINT):
             if type_.unsigned:
-                return (UINT16_MIN, UINT16_MAX)
+                return IntegerType.UINT16.range
             else:
-                return (INT16_MIN, INT16_MAX)
+                return IntegerType.INT16.range
         elif isinstance(type_, sqlalchemy.dialects.mysql.MEDIUMINT):
             if type_.unsigned:
-                return (UINT24_MIN, UINT24_MAX)
+                return IntegerType.UINT24.range
             else:
-                return (INT24_MIN, INT24_MAX)
+                return IntegerType.INT24.range
         elif isinstance(type_, sqlalchemy.dialects.mysql.INTEGER):
             if type_.unsigned:
-                return (UINT32_MIN, UINT32_MAX)
+                return IntegerType.UINT32.range
             else:
-                return (INT32_MIN, INT32_MAX)
+                return IntegerType.INT32.range
         elif isinstance(type_, sqlalchemy.dialects.mysql.BIGINT):
             if type_.unsigned:
-                return (UINT64_MIN, UINT64_MAX)
+                return IntegerType.UINT64.range
             else:
-                return (INT64_MIN, INT64_MAX)
+                return IntegerType.INT64.range
         return super().integer_limits(type_)
 
     def fp_constraints(self,
@@ -88,26 +79,26 @@ class MySQLDBDriver(DBDriver):
         """Find correct integral column type to fit the given min and max integer values"""
 
         if min_value is not None and max_value is not None:
-            pass
-            if min_value >= INT8_MIN and max_value <= INT8_MAX:
+            int_type = IntegerType.smallest_cover_for(min_value, max_value)
+            if int_type == IntegerType.INT8:
                 return sqlalchemy.dialects.mysql.TINYINT()
-            elif min_value >= UINT8_MIN and max_value <= UINT8_MAX:
+            elif int_type == IntegerType.UINT8:
                 return sqlalchemy.dialects.mysql.TINYINT(unsigned=True)
-            elif min_value >= INT16_MIN and max_value <= INT16_MAX:
+            elif int_type == IntegerType.INT16:
                 return sqlalchemy.sql.sqltypes.SMALLINT()
-            elif min_value >= UINT16_MIN and max_value <= UINT16_MAX:
+            elif int_type == IntegerType.UINT16:
                 return sqlalchemy.dialects.mysql.SMALLINT(unsigned=True)
-            elif min_value >= INT24_MIN and max_value <= INT24_MAX:
+            elif int_type == IntegerType.INT24:
                 return sqlalchemy.dialects.mysql.MEDIUMINT()
-            elif min_value >= UINT24_MIN and max_value <= UINT24_MAX:
+            elif int_type == IntegerType.UINT24:
                 return sqlalchemy.dialects.mysql.MEDIUMINT(unsigned=True)
-            elif min_value >= INT32_MIN and max_value <= INT32_MAX:
+            elif int_type == IntegerType.INT32:
                 return sqlalchemy.sql.sqltypes.INTEGER()
-            elif min_value >= UINT32_MIN and max_value <= UINT32_MAX:
+            elif int_type == IntegerType.UINT32:
                 return sqlalchemy.dialects.mysql.INTEGER(unsigned=True)
-            elif min_value >= INT64_MIN and max_value <= INT64_MAX:
+            elif int_type == IntegerType.INT64:
                 return sqlalchemy.sql.sqltypes.BIGINT()
-            elif min_value >= UINT64_MIN and max_value <= UINT64_MAX:
+            elif int_type == IntegerType.UINT64:
                 return sqlalchemy.dialects.mysql.BIGINT(unsigned=True)
             else:
                 num_digits_min = num_digits(min_value)

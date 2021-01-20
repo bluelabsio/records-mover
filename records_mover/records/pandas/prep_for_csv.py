@@ -26,6 +26,8 @@ def _convert_series_or_index(series_or_index: T,
            isinstance(series_or_index[0], datetime.date)):
             logger.info(f"Converting {series_or_index.name} from np.datetime64 to "
                         "string in CSV's format")
+            logger.debug("Dtype is %s, first element type %s", series_or_index.dtype,
+                         type(series_or_index[0]))
             hint_date_format = records_format.hints['dateformat']
             assert isinstance(hint_date_format, str)
             pandas_date_format = python_date_format_from_hints.get(hint_date_format)
@@ -49,6 +51,8 @@ def _convert_series_or_index(series_or_index: T,
         else:
             logger.info(f"Converting {series_or_index.name} from np.datetime64 to string "
                         "in CSV's format")
+            logger.debug("Dtype is %s, first element type %s", series_or_index.dtype,
+                         type(series_or_index[0]))
             hint_time_format = records_format.hints['timeonlyformat']
             assert isinstance(hint_time_format, str)
             pandas_time_format = python_time_format_from_hints.get(hint_time_format)
