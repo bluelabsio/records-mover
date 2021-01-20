@@ -29,7 +29,10 @@ import pathlib
 logger = logging.getLogger(__name__)
 
 
-set_stream_logging()
+set_stream_logging(level=logging.DEBUG)
+logging.getLogger('botocore').setLevel(logging.INFO)
+logging.getLogger('boto3').setLevel(logging.INFO)
+logging.getLogger('urllib3').setLevel(logging.INFO)
 
 
 class BaseRecordsIntegrationTest(unittest.TestCase):

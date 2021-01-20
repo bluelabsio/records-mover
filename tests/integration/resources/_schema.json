@@ -7,7 +7,7 @@
     },
     "numstr": {
       "type": "string",
-      "index": 1,
+      "index": 2,
       "constraints": {
         "max_length_bytes": 3
       }
