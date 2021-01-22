@@ -134,7 +134,9 @@ itest_dependencies = [
 )
 
 airflow_dependencies = [
-    'apache-airflow>=1.10,<2'
+    # Minimum version here is needed to avoid syntax error in setup.py
+    # in 1.10.0
+    'apache-airflow>=1.10.1,<2'
 ]
 
 db_dependencies = [
@@ -326,7 +328,7 @@ setup(name='records-mover',
           # resulting in runtime complaints.  Can be removed once 20.4
           # is proven to work.
           'chardet>=3,<4',
-          'tenacity>=6<7',
+          'tenacity>=4.12.0,<7',
           # v5.0.1 resolves https://github.com/exhuma/config_resolver/issues/69
           'config-resolver>=5.0.1,<6',
           'typing_inspect',
