@@ -95,7 +95,7 @@ class TestField(unittest.TestCase):
         mock_field_to_sqlalchemy_column.assert_called_with(field, mock_driver)
         self.assertEqual(out, mock_field_to_sqlalchemy_column.return_value)
 
-    def test_to_numpy_dtype_integer(self):
+    def test_to_pandas_dtype_integer(self):
         mock_name = Mock(name='name')
         mock_statistics = Mock(name='statistics')
         mock_representations = Mock(name='representations')
@@ -123,10 +123,10 @@ class TestField(unittest.TestCase):
                                        statistics=mock_statistics,
                                        representations=mock_representations)
 
-            out = field.to_numpy_dtype()
+            out = field.to_pandas_dtype()
             self.assertEqual(out, expected_pandas_type, f"min={mock_min}, max={mock_max}")
 
-    def test_to_numpy_dtype_nullable_integer(self):
+    def test_to_pandas_dtype_nullable_integer(self):
         mock_name = Mock(name='name')
         mock_statistics = Mock(name='statistics')
         mock_representations = Mock(name='representations')
@@ -147,10 +147,10 @@ class TestField(unittest.TestCase):
                                        statistics=mock_statistics,
                                        representations=mock_representations)
 
-            out = field.to_numpy_dtype()
+            out = field.to_pandas_dtype()
             self.assertEqual(out, expected_pandas_type, f"min={mock_min}, max={mock_max}")
 
-    def test_to_numpy_dtype_decimal_float(self):
+    def test_to_pandas_dtype_decimal_float(self):
         mock_name = Mock(name='name')
         mock_statistics = Mock(name='statistics')
         mock_representations = Mock(name='representations')
@@ -175,10 +175,10 @@ class TestField(unittest.TestCase):
                                        statistics=mock_statistics,
                                        representations=mock_representations)
 
-            out = field.to_numpy_dtype()
+            out = field.to_pandas_dtype()
             self.assertEqual(out, expected_pandas_type)
 
-    def test_to_numpy_dtype_decimal_no_constraints(self):
+    def test_to_pandas_dtype_decimal_no_constraints(self):
         mock_name = Mock(name='name')
         mock_statistics = Mock(name='statistics')
         mock_representations = Mock(name='representations')
@@ -189,10 +189,10 @@ class TestField(unittest.TestCase):
                                    statistics=mock_statistics,
                                    representations=mock_representations)
 
-        out = field.to_numpy_dtype()
+        out = field.to_pandas_dtype()
         self.assertEqual(out, np.float64)
 
-    def test_to_numpy_dtype_fixed_precision_(self):
+    def test_to_pandas_dtype_fixed_precision_(self):
         mock_name = Mock(name='name')
         mock_statistics = Mock(name='statistics')
         mock_representations = Mock(name='representations')
@@ -206,10 +206,10 @@ class TestField(unittest.TestCase):
                                    statistics=mock_statistics,
                                    representations=mock_representations)
 
-        out = field.to_numpy_dtype()
+        out = field.to_pandas_dtype()
         self.assertEqual(out, np.float64)
 
-    def test_to_numpy_dtype_misc(self):
+    def test_to_pandas_dtype_misc(self):
         mock_name = Mock(name='name')
         mock_constraints = Mock(name='constraints')
         mock_statistics = Mock(name='statistics')
@@ -229,7 +229,7 @@ class TestField(unittest.TestCase):
                                        statistics=mock_statistics,
                                        representations=mock_representations)
 
-            out = field.to_numpy_dtype()
+            out = field.to_pandas_dtype()
             self.assertEqual(out, expected_pandas_type)
 
     def test_python_type_to_field_type(self):

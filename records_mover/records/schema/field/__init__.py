@@ -192,12 +192,15 @@ class RecordsSchemaField:
                         return datetime.time(hour=df['hours'],
                                              minute=df['minutes'],
                                              second=df['seconds'])
+                    logger.debug("Applying pd.Timedelta logic on series for %s", self.name)
                     out = series.dt.components.apply(axis=1, func=components_to_time_str)
                     return out
 
-        return series.astype(self.to_numpy_dtype())
+        target_type = self.to_pandas_dtype()
+        logger.debug("Casting field %s from type %r to type %s", self.name, series.dtype, target_type)
+        return series.astype(target_type)
 
-    def to_numpy_dtype(self) -> Union[Type[Any], str]:
+    def to_pandas_dtype(self) -> Union[Type[Any], str]:
         import numpy as np
         import pandas as pd
 
