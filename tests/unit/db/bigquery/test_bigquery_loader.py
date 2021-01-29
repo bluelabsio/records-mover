@@ -133,10 +133,9 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_client.get_table.return_value.location = 'some-location'
 
         with self.assertRaises(Exception):
-            out = big_query_loader.load(schema=mock_schema, table=mock_table,
-                                        load_plan=mock_load_plan,
-                                        directory=mock_directory)
-
+            big_query_loader.load(schema=mock_schema, table=mock_table,
+                                  load_plan=mock_load_plan,
+                                  directory=mock_directory)
 
     @patch('records_mover.db.bigquery.loader.load_job_config')
     def test_load_no_table(self, mock_load_job_config):
@@ -161,9 +160,9 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_client = mock_connection._client
         mock_client.get_table.side_effect = NotFound('missing table')
         with self.assertRaises(NotFound):
-            out = big_query_loader.load(schema=mock_schema, table=mock_table,
-                                        load_plan=mock_load_plan,
-                                        directory=mock_directory)
+            big_query_loader.load(schema=mock_schema, table=mock_table,
+                                  load_plan=mock_load_plan,
+                                  directory=mock_directory)
 
     @patch('records_mover.db.bigquery.loader.load_job_config')
     def test_load_from_fileobj_true(self, mock_load_job_config):
