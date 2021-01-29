@@ -54,3 +54,12 @@ class Client:
                       timeout: Optional[float] = None,
                       source_type: Optional[str] = None) -> google.cloud.bigquery.job.ExtractJob:
         ...
+
+    def get_table(self,
+                  table: Union[google.cloud.bigquery.table.Table,
+                               google.cloud.bigquery.table.TableReference,
+                               str],
+                  retry: Optional[google.api_core.retry.Retry] = None,
+                  timeout: Optional[float] = None) -> google.cloud.bigquery.table.Table:
+        ...
+

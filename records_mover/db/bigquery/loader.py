@@ -122,8 +122,7 @@ class BigQueryLoader(LoaderFromFileobj):
 
         logger.info("Loading from records directory into BigQuery")
         # https://googleapis.github.io/google-cloud-python/latest/bigquery/usage/tables.html#creating-a-table
-        connection: Connection =\
-            self.db.engine.raw_connection().connection
+        connection: Connection = self.db.engine.raw_connection().connection
         # https://google-cloud.readthedocs.io/en/latest/bigquery/generated/google.cloud.bigquery.client.Client.html
         client: Client = connection._client
         project_id, dataset_id = self._parse_bigquery_schema_name(schema)

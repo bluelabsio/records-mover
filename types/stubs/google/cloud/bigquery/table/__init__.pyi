@@ -1,4 +1,9 @@
+from typing import Optional
+
+
 class Table:
+    location: Optional[str]
+
     ...
 
 

@@ -1,5 +1,6 @@
 import unittest
 
+from google.cloud.exceptions import NotFound
 from records_mover.db.bigquery.loader import BigQueryLoader
 from records_mover.records.records_format import (
     DelimitedRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
@@ -104,6 +105,65 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_job.result.assert_called_with()
 
         self.assertEqual(out, mock_job.output_rows)
+
+    @patch('records_mover.db.bigquery.loader.load_job_config')
+    def test_load_with_job_failure(self, mock_load_job_config):
+        mock_db = Mock(name='mock_db')
+        mock_url_resolver = MagicMock(name='mock_url_resolver')
+        mock_gcs_temp_base_loc = None
+        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        mock_schema = 'my_project.my_dataset'
+        mock_table = 'mytable'
+        mock_load_plan = Mock(name='mock_load_plan')
+        mock_load_plan.records_format = Mock(name='records_format', spec=DelimitedRecordsFormat)
+        mock_target_records_format = mock_load_plan.records_format
+        mock_target_records_format.format_type = 'delimited'
+        mock_target_records_format.hints = {}
+        mock_directory = Mock(name='mock_directory')
+        mock_directory.scheme = 'gs'
+        mock_url = Mock(name='mock_url')
+        mock_directory.manifest_entry_urls.return_value = [mock_url]
+
+        mock_connection = mock_db.engine.raw_connection.return_value.connection
+        mock_client = mock_connection._client
+        mock_job = mock_client.load_table_from_uri.return_value
+        mock_job.result.side_effect = Exception('some errors')
+
+        mock_client.get_table.return_value.location = 'some-location'
+
+        with self.assertRaises(Exception):
+            out = big_query_loader.load(schema=mock_schema, table=mock_table,
+                                        load_plan=mock_load_plan,
+                                        directory=mock_directory)
+
+
+    @patch('records_mover.db.bigquery.loader.load_job_config')
+    def test_load_no_table(self, mock_load_job_config):
+        mock_db = Mock(name='mock_db')
+        mock_url_resolver = MagicMock(name='mock_url_resolver')
+        mock_gcs_temp_base_loc = None
+        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        mock_schema = 'my_project.my_dataset'
+        mock_table = 'mytable'
+        mock_load_plan = Mock(name='mock_load_plan')
+        mock_load_plan.records_format = Mock(name='records_format', spec=DelimitedRecordsFormat)
+        mock_target_records_format = mock_load_plan.records_format
+        mock_target_records_format.format_type = 'delimited'
+        mock_target_records_format.hints = {}
+        mock_directory = Mock(name='mock_directory')
+        mock_directory.scheme = 'gs'
+        mock_url = Mock(name='mock_url')
+        mock_directory.manifest_entry_urls.return_value = [mock_url]
+
+        mock_connection = mock_db.engine.raw_connection.return_value.connection
+        mock_client = mock_connection._client
+        mock_client.get_table.side_effect = NotFound('missing table')
+        with self.assertRaises(NotFound):
+            out = big_query_loader.load(schema=mock_schema, table=mock_table,
+                                        load_plan=mock_load_plan,
+                                        directory=mock_directory)
 
     @patch('records_mover.db.bigquery.loader.load_job_config')
     def test_load_from_fileobj_true(self, mock_load_job_config):
