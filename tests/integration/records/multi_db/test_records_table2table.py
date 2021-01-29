@@ -103,7 +103,10 @@ def create_test_func(source_name, target_name):
 
 
 if __name__ == '__main__':
-    set_stream_logging()
+    set_stream_logging(level=logging.DEBUG)
+    logging.getLogger('botocore').setLevel(logging.INFO)
+    logging.getLogger('boto3').setLevel(logging.INFO)
+    logging.getLogger('urllib3').setLevel(logging.INFO)
 
     for source in DB_TYPES:
         for target in DB_TYPES:
