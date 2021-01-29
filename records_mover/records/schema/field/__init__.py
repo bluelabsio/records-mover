@@ -199,6 +199,9 @@ class RecordsSchemaField:
 
     def to_numpy_dtype(self) -> Union[Type[Any], str]:
         import numpy as np
+        import pandas as pd
+
+        has_extension_types = 'Int64Dtype' in dir(pd)
 
         if self.field_type == 'integer':
             int_constraints =\
@@ -211,33 +214,51 @@ class RecordsSchemaField:
                 max_ = int_constraints.max_
                 required = int_constraints.required
 
-            if not required:
-                import pandas as pd
-                if 'Int64Dtype' in dir(pd):
-                    logger.info(f"Dataframe field {self.name} is nullable. Ignoring size "
-                                "constraints and using pd.Int64Dtype")
-                    return pd.Int64Dtype()
-                else:
-                    logger.warning(f"Dataframe field {self.name} is nullable, but using pandas "
-                                   f"{pd.__version__} which does not support nullable integer type")
+            if not required and not has_extension_types:
+                logger.warning(f"Dataframe field {self.name} is nullable, but using pandas "
+                                f"{pd.__version__} which does not support nullable integer type")
 
             if min_ is not None and max_ is not None:
                 if min_ >= INT8_MIN and max_ <= INT8_MAX:
-                    return np.int8
+                    if has_extension_types:
+                        return pd.Int8Dtype()
+                    else:
+                        return np.int8
                 elif min_ >= UINT8_MIN and max_ <= UINT8_MAX:
-                    return np.uint8
+                    if has_extension_types:
+                        return pd.UInt8Dtype()
+                    else:
+                        return np.uint8
                 elif min_ >= INT16_MIN and max_ <= INT16_MAX:
-                    return np.int16
+                    if has_extension_types:
+                        return pd.Int16DType()
+                    else:
+                        return np.int16
                 elif min_ >= UINT16_MIN and max_ <= UINT16_MAX:
-                    return np.uint16
+                    if has_extension_types:
+                        return pd.UInt16Dtype()
+                    else:
+                        return np.uint16
                 elif min_ >= INT32_MIN and max_ <= INT32_MAX:
-                    return np.int32
+                    if has_extension_types:
+                        return pd.Int32Dtype()
+                    else:
+                        return np.int32
                 elif min_ >= UINT32_MIN and max_ <= UINT32_MAX:
-                    return np.uint32
+                    if has_extension_types:
+                        return pd.UInt32Dtype()
+                    else:
+                        return np.uint32
                 elif min_ >= INT64_MIN and max_ <= INT64_MAX:
-                    return np.int64
+                    if has_extension_types:
+                        return pd.Int64Dtype()
+                    else:
+                        return np.int64
                 elif min_ >= UINT64_MIN and max_ <= UINT64_MAX:
-                    return np.uint64
+                    if has_extension_types:
+                        return pd.UInt64Dtype()
+                    else:
+                        return np.uint64
                 else:
                     logger.warning("Asked for a type larger than int64 in dataframe "
                                    f"field '{self.name}' - providing float128, but "
@@ -247,7 +268,10 @@ class RecordsSchemaField:
             else:
                 logger.warning(f"No integer constraints provided for field '{self.name}'; "
                                "using int64")
-                return np.int64
+                if has_extension_types:
+                    return pd.UInt64Dtype()
+                else:
+                    return np.int64
             # return driver.type_for_integer(min_=min_, max_=max_)
         elif self.field_type == 'decimal':
             decimal_constraints =\
