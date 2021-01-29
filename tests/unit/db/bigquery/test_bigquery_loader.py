@@ -53,15 +53,17 @@ class TestBigQueryLoader(unittest.TestCase):
 
         mock_connection = mock_db.engine.raw_connection.return_value.connection
         mock_client = mock_connection._client
+        mock_client.get_table.return_value.location = 'some-location'
         mock_job = mock_client.load_table_from_uri.return_value
         mock_job.output_rows = 42
         out = big_query_loader.load(schema=mock_schema, table=mock_table,
                                     load_plan=mock_load_plan,
                                     directory=mock_directory)
+        mock_client.get_table.assert_called_with('my_dataset.my_table')
         mock_client.load_table_from_uri.\
             assert_called_with([mock_url],
                                'my_dataset.my_table',
-                               location="US",
+                               location='some-location',
                                job_config=mock_load_job_config.return_value)
         mock_job.result.assert_called_with()
 
@@ -90,13 +92,14 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_client = mock_connection._client
         mock_job = mock_client.load_table_from_uri.return_value
         mock_job.output_rows = 42
+        mock_client.get_table.return_value.location = 'some-location'
         out = big_query_loader.load(schema=mock_schema, table=mock_table,
                                     load_plan=mock_load_plan,
                                     directory=mock_directory)
         mock_client.load_table_from_uri.\
             assert_called_with([mock_url],
                                'my_project.my_dataset.mytable',
-                               location="US",
+                               location='some-location',
                                job_config=mock_load_job_config.return_value)
         mock_job.result.assert_called_with()
 

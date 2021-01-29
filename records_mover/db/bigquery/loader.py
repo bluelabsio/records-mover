@@ -128,12 +128,18 @@ class BigQueryLoader(LoaderFromFileobj):
         project_id, dataset_id = self._parse_bigquery_schema_name(schema)
         job_config = self._load_job_config(load_plan)
 
+        try:
+            table_obj = client.get_table(f"{schema}.{table}")
+        except NotFound:
+            logger.error("BigQuery table %s.%s not found", schema, table)
+            raise
+
         all_urls = directory.manifest_entry_urls()
 
         job = client.load_table_from_uri(all_urls,
                                          f"{schema}.{table}",
                                          # Must match the destination dataset location.
-                                         location="US",
+                                         location=table_obj.location,
                                          job_config=job_config)
         try:
             job.result()  # Waits for table load to complete.
