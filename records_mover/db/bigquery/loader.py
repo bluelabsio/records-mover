@@ -14,6 +14,7 @@ from ...url.resolver import UrlResolver
 from google.cloud.bigquery.dbapi.connection import Connection
 from google.cloud.bigquery.client import Client
 from google.cloud.bigquery.job import LoadJobConfig
+from google.cloud.exceptions import NotFound
 from .load_job_config_options import load_job_config
 import logging
 from ..loader import LoaderFromFileobj
