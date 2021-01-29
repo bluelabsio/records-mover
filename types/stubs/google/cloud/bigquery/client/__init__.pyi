@@ -62,4 +62,3 @@ class Client:
                   retry: Optional[google.api_core.retry.Retry] = None,
                   timeout: Optional[float] = None) -> google.cloud.bigquery.table.Table:
         ...
-
