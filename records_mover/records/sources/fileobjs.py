@@ -155,10 +155,11 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
                 chunksize = int(entries_per_chunk / num_fields)
 
             try:
-                dfs = pd.read_csv(filepath_or_buffer=target_fileobj,
+                raw_dfs = pd.read_csv(filepath_or_buffer=target_fileobj,
                                   iterator=True,
                                   chunksize=chunksize,
                                   **options)
+                dfs = (self.records_schema.cast_dataframe_types(df) for df in raw_dfs)
             except pd.errors.EmptyDataError:
                 dfs = [self.records_schema.to_empty_dataframe()]
             yield DataframesRecordsSource(dfs=dfs, records_schema=self.records_schema)
