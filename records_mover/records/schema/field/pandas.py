@@ -1,3 +1,4 @@
+import pandas as pd
 from pandas import Series, Index
 from typing import Any, Type, TYPE_CHECKING
 from .statistics import RecordsSchemaFieldStringStatistics
@@ -8,6 +9,11 @@ import numpy as np
 if TYPE_CHECKING:
     from ..field import RecordsSchemaField  # noqa
     from ..schema import RecordsSchema  # noqa
+
+
+def supports_nullable_ints() -> bool:
+    """Detects if this version of pandas supports nullable int extension types."""
+    return 'Int64Dtype' in dir(pd)
 
 
 def field_from_index(index: Index,

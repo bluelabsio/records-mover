@@ -203,8 +203,9 @@ class RecordsSchemaField:
     def to_pandas_dtype(self) -> Union[Type[Any], str]:
         import numpy as np
         import pandas as pd
+        from .pandas import supports_nullable_ints
 
-        has_extension_types = 'Int64Dtype' in dir(pd)
+        has_extension_types = supports_nullable_ints()
 
         if self.field_type == 'integer':
             int_constraints =\
@@ -234,7 +235,7 @@ class RecordsSchemaField:
                         return np.uint8
                 elif min_ >= INT16_MIN and max_ <= INT16_MAX:
                     if has_extension_types:
-                        return pd.Int16DType()
+                        return pd.Int16Dtype()
                     else:
                         return np.int16
                 elif min_ >= UINT16_MIN and max_ <= UINT16_MAX:
@@ -272,7 +273,7 @@ class RecordsSchemaField:
                 logger.warning(f"No integer constraints provided for field '{self.name}'; "
                                "using int64")
                 if has_extension_types:
-                    return pd.UInt64Dtype()
+                    return pd.Int64Dtype()
                 else:
                     return np.int64
             # return driver.type_for_integer(min_=min_, max_=max_)

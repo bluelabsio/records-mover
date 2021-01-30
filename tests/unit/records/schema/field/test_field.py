@@ -95,7 +95,8 @@ class TestField(unittest.TestCase):
         mock_field_to_sqlalchemy_column.assert_called_with(field, mock_driver)
         self.assertEqual(out, mock_field_to_sqlalchemy_column.return_value)
 
-    def test_to_pandas_dtype_integer(self):
+    @patch('records_mover.records.schema.field.pandas.supports_nullable_ints', return_value=False)
+    def test_to_pandas_dtype_integer(self, mock_supports):
         mock_name = Mock(name='name')
         mock_statistics = Mock(name='statistics')
         mock_representations = Mock(name='representations')
@@ -126,14 +127,15 @@ class TestField(unittest.TestCase):
             out = field.to_pandas_dtype()
             self.assertEqual(out, expected_pandas_type, f"min={mock_min}, max={mock_max}")
 
-    def test_to_pandas_dtype_nullable_integer(self):
+    @patch('records_mover.records.schema.field.pandas.supports_nullable_ints', return_value=True)
+    def test_to_pandas_dtype_nullable_integer(self, mock_supports):
         mock_name = Mock(name='name')
         mock_statistics = Mock(name='statistics')
         mock_representations = Mock(name='representations')
         mock_field_type = 'integer'
         expectations = {
-            (-100, 100): pd.Int64Dtype(),
-            (-10000, 10000): pd.Int64Dtype(),
+            (-100, 100): pd.Int8Dtype(),
+            (-10000, 10000): pd.Int16Dtype(),
             (None, None): pd.Int64Dtype()
         }
         for (mock_min, mock_max), expected_pandas_type in expectations.items():
