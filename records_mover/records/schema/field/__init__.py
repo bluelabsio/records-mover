@@ -1,16 +1,8 @@
 import datetime
 from ...processing_instructions import ProcessingInstructions
 import logging
-from typing import Optional, Dict, Any, Type, cast, Union, TYPE_CHECKING
-from ....utils.limits import (INT8_MIN, INT8_MAX,
-                              UINT8_MIN, UINT8_MAX,
-                              INT16_MIN, INT16_MAX,
-                              UINT16_MIN, UINT16_MAX,
-                              INT32_MIN, INT32_MAX,
-                              UINT32_MIN, UINT32_MAX,
-                              INT64_MIN, INT64_MAX,
-                              UINT64_MIN, UINT64_MAX,
-                              FLOAT16_SIGNIFICAND_BITS,
+from typing import Optional, Dict, Any, Type, cast, TYPE_CHECKING
+from ....utils.limits import (FLOAT16_SIGNIFICAND_BITS,
                               FLOAT32_SIGNIFICAND_BITS,
                               FLOAT64_SIGNIFICAND_BITS,
                               FLOAT80_SIGNIFICAND_BITS)
@@ -26,6 +18,7 @@ if TYPE_CHECKING:
     from sqlalchemy.types import TypeEngine
     from records_mover.db import DBDriver  # noqa
     from .field_types import FieldType
+    from .pandas import Dtype
 
     from mypy_extensions import TypedDict
 
@@ -192,40 +185,41 @@ class RecordsSchemaField:
                         return datetime.time(hour=df['hours'],
                                              minute=df['minutes'],
                                              second=df['seconds'])
+                    logger.debug("Applying pd.Timedelta logic on series for %s", self.name)
                     out = series.dt.components.apply(axis=1, func=components_to_time_str)
                     return out
 
-        return series.astype(self.to_numpy_dtype())
+        target_type = self.to_pandas_dtype()
+        logger.debug("Casting field %s from type %r to type %s", self.name, series.dtype,
+                     target_type)
+        return series.astype(target_type)
 
-    def to_numpy_dtype(self) -> Union[Type[Any], str]:
+    def to_pandas_dtype(self) -> 'Dtype':
         import numpy as np
+        import pandas as pd
+        from .pandas import supports_nullable_ints, integer_type_for_range
+
+        has_extension_types = supports_nullable_ints()
 
         if self.field_type == 'integer':
             int_constraints =\
                 cast(Optional[RecordsSchemaFieldIntegerConstraints], self.constraints)
             min_: Optional[int] = None
             max_: Optional[int] = None
+            required = False
             if int_constraints:
                 min_ = int_constraints.min_
                 max_ = int_constraints.max_
+                required = int_constraints.required
+
+            if not required and not has_extension_types:
+                logger.warning(f"Dataframe field {self.name} is nullable, but using pandas "
+                               f"{pd.__version__} which does not support nullable integer type")
 
             if min_ is not None and max_ is not None:
-                if min_ >= INT8_MIN and max_ <= INT8_MAX:
-                    return np.int8
-                elif min_ >= UINT8_MIN and max_ <= UINT8_MAX:
-                    return np.uint8
-                elif min_ >= INT16_MIN and max_ <= INT16_MAX:
-                    return np.int16
-                elif min_ >= UINT16_MIN and max_ <= UINT16_MAX:
-                    return np.uint16
-                elif min_ >= INT32_MIN and max_ <= INT32_MAX:
-                    return np.int32
-                elif min_ >= UINT32_MIN and max_ <= UINT32_MAX:
-                    return np.uint32
-                elif min_ >= INT64_MIN and max_ <= INT64_MAX:
-                    return np.int64
-                elif min_ >= UINT64_MIN and max_ <= UINT64_MAX:
-                    return np.uint64
+                dtype = integer_type_for_range(min_, max_, has_extension_types)
+                if dtype:
+                    return dtype
                 else:
                     logger.warning("Asked for a type larger than int64 in dataframe "
                                    f"field '{self.name}' - providing float128, but "
@@ -235,8 +229,10 @@ class RecordsSchemaField:
             else:
                 logger.warning(f"No integer constraints provided for field '{self.name}'; "
                                "using int64")
-                return np.int64
-            # return driver.type_for_integer(min_=min_, max_=max_)
+                if has_extension_types:
+                    return pd.Int64Dtype()
+                else:
+                    return np.int64
         elif self.field_type == 'decimal':
             decimal_constraints =\
                 cast(Optional[RecordsSchemaFieldDecimalConstraints], self.constraints)

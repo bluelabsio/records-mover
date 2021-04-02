@@ -1,13 +1,64 @@
+import pandas as pd
 from pandas import Series, Index
-from typing import Any, Type, TYPE_CHECKING
+from typing import Any, Type, TYPE_CHECKING, Optional, Mapping, Union
 from .statistics import RecordsSchemaFieldStringStatistics
 from ...processing_instructions import ProcessingInstructions
 from .representation import RecordsSchemaFieldRepresentation
+from ....utils.limits import IntegerType
 from .numpy import details_from_numpy_dtype
 import numpy as np
 if TYPE_CHECKING:
     from ..field import RecordsSchemaField  # noqa
     from ..schema import RecordsSchema  # noqa
+    from pandas.core.dtypes.dtypes import ExtensionDtype # noqa
+
+# Cribbed from non-public https://github.com/pandas-dev/pandas/blob/v1.2.1/pandas/_typing.py
+Dtype = Union[
+    "ExtensionDtype", str, np.dtype, Type[Union[str, float, int, complex, bool, object]]
+]
+DtypeObj = Union[np.dtype, "ExtensionDtype"]
+
+
+def supports_nullable_ints() -> bool:
+    """Detects if this version of pandas supports nullable int extension types."""
+    return 'Int64Dtype' in dir(pd)
+
+
+def integer_type_mapping(use_extension_types: bool) -> Mapping[IntegerType, DtypeObj]:
+    if use_extension_types:
+        return {
+            IntegerType.INT8: pd.Int8Dtype(),
+            IntegerType.UINT8: pd.UInt8Dtype(),
+            IntegerType.INT16: pd.Int16Dtype(),
+            IntegerType.UINT16: pd.UInt16Dtype(),
+            IntegerType.INT24: pd.Int32Dtype(),
+            IntegerType.UINT24: pd.Int32Dtype(),
+            IntegerType.INT32: pd.Int32Dtype(),
+            IntegerType.UINT32: pd.UInt32Dtype(),
+            IntegerType.INT64: pd.Int64Dtype(),
+            IntegerType.UINT64: pd.UInt64Dtype(),
+        }
+    else:
+        return {
+            IntegerType.INT8: np.int8,
+            IntegerType.UINT8: np.uint8,
+            IntegerType.INT16: np.int16,
+            IntegerType.UINT16: np.uint16,
+            IntegerType.INT24: np.int32,
+            IntegerType.UINT24: np.uint32,
+            IntegerType.INT32: np.int32,
+            IntegerType.UINT32: np.uint32,
+            IntegerType.INT64: np.int64,
+            IntegerType.UINT64: np.uint64,
+        }
+
+
+def integer_type_for_range(min_: int, max_: int, has_extension_types: bool) -> Optional[DtypeObj]:
+    int_type = IntegerType.smallest_cover_for(min_, max_)
+    if int_type:
+        return integer_type_mapping(has_extension_types).get(int_type)
+    else:
+        return None
 
 
 def field_from_index(index: Index,
