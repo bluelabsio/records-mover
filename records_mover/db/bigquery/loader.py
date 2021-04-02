@@ -14,6 +14,7 @@ from ...url.resolver import UrlResolver
 from google.cloud.bigquery.dbapi.connection import Connection
 from google.cloud.bigquery.client import Client
 from google.cloud.bigquery.job import LoadJobConfig
+from google.cloud.exceptions import NotFound
 from .load_job_config_options import load_job_config
 import logging
 from ..loader import LoaderFromFileobj
@@ -121,19 +122,24 @@ class BigQueryLoader(LoaderFromFileobj):
 
         logger.info("Loading from records directory into BigQuery")
         # https://googleapis.github.io/google-cloud-python/latest/bigquery/usage/tables.html#creating-a-table
-        connection: Connection =\
-            self.db.engine.raw_connection().connection
+        connection: Connection = self.db.engine.raw_connection().connection
         # https://google-cloud.readthedocs.io/en/latest/bigquery/generated/google.cloud.bigquery.client.Client.html
         client: Client = connection._client
         project_id, dataset_id = self._parse_bigquery_schema_name(schema)
         job_config = self._load_job_config(load_plan)
+
+        try:
+            table_obj = client.get_table(f"{schema}.{table}")
+        except NotFound:
+            logger.error("BigQuery table %s.%s not found", schema, table)
+            raise
 
         all_urls = directory.manifest_entry_urls()
 
         job = client.load_table_from_uri(all_urls,
                                          f"{schema}.{table}",
                                          # Must match the destination dataset location.
-                                         location="US",
+                                         location=table_obj.location,
                                          job_config=job_config)
         try:
             job.result()  # Waits for table load to complete.
