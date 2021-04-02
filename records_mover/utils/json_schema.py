@@ -4,7 +4,7 @@ import enum
 import inspect
 import typing
 from typing_inspect import get_origin, is_callable_type, get_args, is_union_type
-import collections
+import collections.abc
 import logging
 from collections import OrderedDict
 from ..mover_types import JsonSchema
@@ -21,9 +21,7 @@ PythonType = Any
 
 def is_iterable_type(python_type: PythonType) -> bool:
     return get_origin(python_type) in [
-        # mypy reports error: Module has no attribute "abc", which is not true:
-        # https://docs.python.org/3/library/collections.abc.html
-        collections.abc.Iterable,  # type: ignore
+        collections.abc.Iterable,
         typing.Iterable,
         typing.List,
         list
