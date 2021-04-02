@@ -140,14 +140,14 @@ airflow_dependencies = [
 ]
 
 db_dependencies = [
-    # Without this, pip 2.20.4 with "--use-feature=2020-resolver" will
-    # try to install every version of SQLAlchemy while trying to solve a
-    # dependency conflict.
+    # Lower bound (>=1.3.18) is to improve package resolution performance
     #
-    # Also, pipgrip (used to make Python formulas in Homebrew) takes
-    # somewhere between much longer and forever to provide its output
-    # without this line.
-    'sqlalchemy>=1.3.18',
+    # Upper bound (<1.4) is to avoid 1.4 which has breaking changes and is
+    # incompatible with python-bigquery-sqlalchemy per
+    # https://github.com/googleapis/python-bigquery-sqlalchemy/issues/83
+    # Can lift this once records-mover itself is compatible and
+    # other packages have appropriate restrictions in place.
+    'sqlalchemy>=1.3.18,<1.4',
 ]
 
 smart_open_dependencies = [
