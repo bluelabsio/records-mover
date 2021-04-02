@@ -319,7 +319,7 @@ setup(name='records-mover',
           # what we support
           #
           # https://github.com/aws/aws-cli/blob/develop/setup.py
-          'PyYAML>=3.10,<5.4',
+          'PyYAML>=3.10,<5.5',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
           'db-facts>=4,<5',
