@@ -163,11 +163,11 @@ smart_open_dependencies = [
     # somewhere between much longer and forever to provide its output
     # without this line.
     #
-    'rsa>=3.1.4,<=4.5.0',
+    #'rsa>=3.1.4,<=4.5.0',
     # we rely on exception types from smart_open,
     # which seem to change in feature releases
     # without a major version bump
-    'smart_open>=2,<2.1',
+    'smart_open>=2',
 ]
 
 gcs_dependencies = [

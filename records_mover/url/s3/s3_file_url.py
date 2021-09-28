@@ -1,4 +1,6 @@
 import logging
+
+import smart_open
 from .s3_base_url import S3BaseUrl
 from ..base import BaseDirectoryUrl, BaseFileUrl
 from typing import IO, List, Optional
@@ -6,7 +8,10 @@ import threading
 from time import sleep
 from s3_concat import S3Concat
 from smart_open.s3 import open as s3_open
+import packaging.version
 
+SMART_OPEN_VERSION = packaging.version.parse(smart_open.__version__)
+SMART_OPEN_USE_SESSION = SMART_OPEN_VERSION < packaging.version.parse("5.0.0")
 
 logger = logging.getLogger(__name__)
 
@@ -51,10 +56,16 @@ class S3FileUrl(S3BaseUrl, BaseFileUrl):
 
     def open(self, mode: str = "rb") -> IO[bytes]:
         try:
-            return s3_open(bucket_id=self.bucket,
-                           key_id=self.key,
-                           mode=mode,
-                           session=self._boto3_session)
+            if SMART_OPEN_USE_SESSION:
+                return s3_open(bucket_id=self.bucket,
+                                key_id=self.key,
+                                mode=mode,
+                                session=self._boto3_session)
+            else:
+                return s3_open(bucket_id=self.bucket,
+                                key_id=self.key,
+                                mode=mode,
+                                client=self._boto3_session.client('s3'))
         except ValueError as e:
             # Example: ValueError: 'b0KD9AkG7XA/_manifest' does not
             #  exist in the bucket 'vince-scratch', or is forbidden
