@@ -58,14 +58,14 @@ class S3FileUrl(S3BaseUrl, BaseFileUrl):
         try:
             if SMART_OPEN_USE_SESSION:
                 return s3_open(bucket_id=self.bucket,
-                                key_id=self.key,
-                                mode=mode,
-                                session=self._boto3_session)
+                               key_id=self.key,
+                               mode=mode,
+                               session=self._boto3_session)
             else:
                 return s3_open(bucket_id=self.bucket,
-                                key_id=self.key,
-                                mode=mode,
-                                client=self._boto3_session.client('s3'))
+                               key_id=self.key,
+                               mode=mode,
+                               client=self._boto3_session.client('s3'))
         except ValueError as e:
             # Example: ValueError: 'b0KD9AkG7XA/_manifest' does not
             #  exist in the bucket 'vince-scratch', or is forbidden
