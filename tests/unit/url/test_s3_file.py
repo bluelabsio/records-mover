@@ -8,14 +8,14 @@ class TestS3FileUrl(unittest.TestCase):
         self.mock_S3Url = Mock(name='S3Url')
         self.mock_boto3_session = Mock(name='boto3_session')
         self.s3_file_url = S3FileUrl('s3://bucket/topdir/bottomdir/file',
-                                    S3Url=self.mock_S3Url,
-                                    boto3_session=self.mock_boto3_session)
+                                     S3Url=self.mock_S3Url,
+                                     boto3_session=self.mock_boto3_session)
         self.mock_s3_resource = self.mock_boto3_session.resource.return_value
         self.mock_s3_client = self.mock_boto3_session.client.return_value
         if SMART_OPEN_USE_SESSION:
-            self.open_boto_args = { "session": self.mock_boto3_session }
+            self.open_boto_args = {"session": self.mock_boto3_session}
         else:
-            self.open_boto_args = { "client": self.mock_s3_client }
+            self.open_boto_args = {"client": self.mock_s3_client}
 
     def test_aws_creds(self):
         self.assertEqual(self.s3_file_url.aws_creds(),
