@@ -183,7 +183,7 @@ bigquery_dependencies = [
     # https://github.com/jmcarp/sqlalchemy-postgres-copy/pull/14
     #
     # 'sqlalchemy-postgres-copy>=0.5,<0.6',
-    'pybigquery',
+    'sqlalchemy-bigquery',
 ] + gcs_dependencies + db_dependencies
 
 
