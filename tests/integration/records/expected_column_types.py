@@ -17,13 +17,8 @@ expected_single_database_column_types = {
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
     'bigquery': [
-        "<class 'sqlalchemy.sql.sqltypes.Integer'>",
-        'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
-        'VARCHAR(3)', 'VARCHAR(111)',
-        "<class 'sqlalchemy.sql.sqltypes.DATE'>",
-        "<class 'sqlalchemy.sql.sqltypes.TIME'>",
-        "<class 'sqlalchemy.sql.sqltypes.DATETIME'>",
-        "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>"
+        'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
+        'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME', 'TIMESTAMP'
     ],
     'mysql': [
         'INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
