@@ -81,14 +81,16 @@ class BigQueryDBDriver(DBDriver):
     def type_for_fixed_point(self,
                              precision: int,
                              scale: int) -> sqlalchemy.sql.sqltypes.Numeric:
-        # BigQuery NUMERIC() type takes no arguments and supports 38
-        # digits of precision, of which 9 digits are scale.
-        #
         # BigQuery now supports precision/scale args and higher precision/scale in the BIGNUMERIC:
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#parameterized_decimal_type
         #
         # sqlalchemy-bigquery uses the Numeric sqlalchemy type and chooses NUMERIC/BIGNUMERIC
         # as needed.
+        if scale > 38 or precision > 76:
+            logger.warning('Using BigQuery FLOAT64 type to represent '
+                           f'NUMERIC({precision},{scale}))')
+            return sqlalchemy.types.Float()
+
         return sqlalchemy.sql.sqltypes.Numeric(precision, scale)
 
     def type_for_integer(self,
