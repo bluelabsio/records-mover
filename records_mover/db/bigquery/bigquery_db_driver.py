@@ -72,8 +72,16 @@ class BigQueryDBDriver(DBDriver):
     def fixed_point_constraints(self,
                                 type_: sqlalchemy.types.Numeric) ->\
             Optional[Tuple[int, int]]:
-        if isinstance(type_, sqlalchemy.sql.sqltypes.DECIMAL):
+        from sqlalchemy_bigquery import BIGNUMERIC
+        base_type = super().fixed_point_constraints(type_)
+        if base_type:
+            return base_type
+        elif isinstance(type_, sqlalchemy.sql.sqltypes.DECIMAL):
             return (38, 9)
+        elif isinstance(type_, sqlalchemy.sql.sqltypes.NUMERIC):
+            return (38, 9)
+        elif isinstance(type_, BIGNUMERIC):
+            return (76, 38)
         else:
             logger.warning(f"Don't know how to handle unexpected BigQuery type {type(type_)}")
             return None
