@@ -81,7 +81,7 @@ class TestBigQueryDBDriver(unittest.TestCase):
 
     def test_type_for_fixed_point_big(self):
         type_ = self.bigquery_db_driver.type_for_fixed_point(123, 45)
-        self.assertEqual(type(type_), sqlalchemy.types.Numeric)
+        self.assertEqual(type(type_), sqlalchemy.types.Float)
 
     def test_type_for_fixed_point_small(self):
         type_ = self.bigquery_db_driver.type_for_fixed_point(12, 3)
