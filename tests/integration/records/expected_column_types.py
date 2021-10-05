@@ -46,6 +46,11 @@ expected_df_loaded_database_column_types = {
         'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
+    'bigquery': [
+        'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
+        'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'TIME',
+        'DATETIME', 'TIMESTAMP'
+    ]
 }
 
 expected_table2table_column_types = {
