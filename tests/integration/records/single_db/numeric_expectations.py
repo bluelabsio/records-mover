@@ -155,7 +155,7 @@ expected_column_types = {
         'uint32': 'INTEGER',
         # Numeric has 29=38-9 digits of integer precision, and
         # uint64 has fewer.
-        'uint64': 'NUMERIC(38, 9)',
+        'uint64': 'NUMERIC(20)',
         'float16': 'FLOAT',
         'float32': 'FLOAT',
         'float64': 'FLOAT',
