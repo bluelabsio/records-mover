@@ -145,28 +145,28 @@ expected_column_types = {
         'fixed_100_4': 'NUMERIC(100, 4)'  # Vertica supports precision <= 1024
     },
     'bigquery': {
-        'int8': "<class 'sqlalchemy.sql.sqltypes.Integer'>",
-        'int16': "<class 'sqlalchemy.sql.sqltypes.Integer'>",
-        'int32': "<class 'sqlalchemy.sql.sqltypes.Integer'>",
-        'int64': "<class 'sqlalchemy.sql.sqltypes.Integer'>",
-        'ubyte': "<class 'sqlalchemy.sql.sqltypes.Integer'>",
-        'uint8': "<class 'sqlalchemy.sql.sqltypes.Integer'>",
-        'uint16': "<class 'sqlalchemy.sql.sqltypes.Integer'>",
-        'uint32': "<class 'sqlalchemy.sql.sqltypes.Integer'>",
+        'int8': 'INTEGER',
+        'int16': 'INTEGER',
+        'int32': 'INTEGER',
+        'int64': 'INTEGER',
+        'ubyte': 'INTEGER',
+        'uint8': 'INTEGER',
+        'uint16': 'INTEGER',
+        'uint32': 'INTEGER',
         # Numeric has 29=38-9 digits of integer precision, and
         # uint64 has fewer.
-        'uint64': "<class 'sqlalchemy.sql.sqltypes.DECIMAL'>",
-        'float16': "<class 'sqlalchemy.sql.sqltypes.Float'>",
-        'float32': "<class 'sqlalchemy.sql.sqltypes.Float'>",
-        'float64': "<class 'sqlalchemy.sql.sqltypes.Float'>",
+        'uint64': 'NUMERIC(38, 9)',
+        'float16': 'FLOAT',
+        'float32': 'FLOAT',
+        'float64': 'FLOAT',
         # BigQuery doesn't support >float64
-        'float128': "<class 'sqlalchemy.sql.sqltypes.Float'>",
+        'float128': 'FLOAT',
         # NUMERIC is precision=38, scale=9, so it fits
-        'fixed_6_2': "<class 'sqlalchemy.sql.sqltypes.DECIMAL'>",
+        'fixed_6_2': 'NUMERIC(6, 2)',
         # NUMERIC is precision=38, scale=9, so it fits
-        'fixed_38_9': "<class 'sqlalchemy.sql.sqltypes.DECIMAL'>",
+        'fixed_38_9': 'NUMERIC(38, 9)',
         # Escape to floating point, as this is larger than NUMERIC
-        'fixed_100_4': "<class 'sqlalchemy.sql.sqltypes.Float'>"
+        'fixed_100_4': 'FLOAT',
     },
     'postgresql': {
         'int8': 'SMALLINT',

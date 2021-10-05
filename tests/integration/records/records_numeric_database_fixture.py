@@ -39,7 +39,7 @@ class RecordsNumericDatabaseFixture:
             create_tables = [f"""
               CREATE TABLE {self.schema_name}.{self.table_name} AS
               SELECT CAST(9223372036854775807 AS INT64) AS int64,
-                     CAST(1234.56 AS NUMERIC) AS fixed_38_9,
+                     CAST(1234.56 AS NUMERIC(6, 2)) AS fixed_6_2,
                      CAST(19223372036854775807.78 AS FLOAT64) AS float64;
 """  # noqa
             ]

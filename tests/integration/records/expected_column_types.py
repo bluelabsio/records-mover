@@ -140,12 +140,8 @@ expected_table2table_column_types = {
         'VARCHAR(256)', 'VARCHAR(256)'
     ],
     ('bigquery', 'bigquery'): [
-        "<class 'sqlalchemy.sql.sqltypes.Integer'>", 'VARCHAR(256)', 'VARCHAR(256)',
-        'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
-        "<class 'sqlalchemy.sql.sqltypes.DATE'>",
-        "<class 'sqlalchemy.sql.sqltypes.TIME'>",
-        'VARCHAR(256)',
-        "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>"
+        'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
+        'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME', 'VARCHAR(256)', 'TIMESTAMP'
     ],
     ('bigquery', 'postgresql'): [
         'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
@@ -157,20 +153,12 @@ expected_table2table_column_types = {
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME', 'TIMESTAMP', 'TIMESTAMP'
     ],
     ('redshift', 'bigquery'): [
-        "<class 'sqlalchemy.sql.sqltypes.Integer'>",
-        'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)', 'VARCHAR(111)',
-        "<class 'sqlalchemy.sql.sqltypes.DATE'>",
-        'VARCHAR(8)',
-        "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>",
-        "<class 'sqlalchemy.sql.sqltypes.TIMESTAMP'>",
+        'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
+        'VARCHAR(111)', 'DATE', 'VARCHAR(8)', 'TIMESTAMP', 'TIMESTAMP',
     ],
     ('mysql', 'bigquery'): [
-        "<class 'sqlalchemy.sql.sqltypes.Integer'>",
-        'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)', 'VARCHAR(444)',
-        "<class 'sqlalchemy.sql.sqltypes.DATE'>",
-        "<class 'sqlalchemy.sql.sqltypes.TIME'>",
-        "<class 'sqlalchemy.sql.sqltypes.DATETIME'>",
-        "<class 'sqlalchemy.sql.sqltypes.DATETIME'>"
+        'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)',
+        'VARCHAR(444)', 'DATE', 'TIME', 'DATETIME', 'DATETIME',
     ],
     ('redshift', 'mysql'): [
         'INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
