@@ -13,6 +13,7 @@ def open(bucket_id: str,
          buffer_size: int = DEFAULT_BUFFER_SIZE,
          min_part_size: int = DEFAULT_MIN_PART_SIZE,
          session: Optional[boto3.session.Session] = None,
+         client: Optional[boto3.client] = None,
          resource_kwargs: Optional[dict] = None,
          multipart_upload_kwargs: Optional[Dict] = None) -> IO[bytes]:
     ...

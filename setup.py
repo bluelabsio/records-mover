@@ -151,23 +151,7 @@ db_dependencies = [
 ]
 
 smart_open_dependencies = [
-    # smart_open requires rsa>=3.1.4, which causes pip 20.2.4 in
-    # default mode to install rsa 4.6.
-    #
-    # That then results in this error from pip at install-time:
-    #
-    # awscli 1.18.178 requires rsa<=4.5.0,>=3.1.2; python_version !=
-    # "3.4", but you'll have rsa 4.6 which is incompatible.
-    #
-    # Also, pipgrip (used to make Python formulas in Homebrew) takes
-    # somewhere between much longer and forever to provide its output
-    # without this line.
-    #
-    'rsa>=3.1.4,<=4.5.0',
-    # we rely on exception types from smart_open,
-    # which seem to change in feature releases
-    # without a major version bump
-    'smart_open>=2,<2.1',
+    'smart_open>=2',
 ]
 
 gcs_dependencies = [
