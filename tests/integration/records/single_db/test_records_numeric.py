@@ -18,7 +18,7 @@ with open(f"{dir_path}/../records_schema_v1_schema.json") as records_schema_sche
     records_schema_schema = json.load(records_schema_schema_data)
 
 with open(f"{dir_path}/../../resources/example_numeric_records_schema.json")\
-     as example_numeric_records_schema_file:
+        as example_numeric_records_schema_file:
     example_numeric_records_schema = json.load(example_numeric_records_schema_file)
 
 
@@ -74,12 +74,10 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
         actual_column_types = {
             column['name']: str(column['type']) for column in columns
         }
-        for colname in actual_column_types:
-            assert actual_column_types[colname] ==\
-                expected_column_types[self.engine.name][colname],\
-                f"For {colname} on {self.engine.name}, " \
-                f"expected {expected_column_types[self.engine.name][colname]}, "\
-                f"got {actual_column_types[colname]}"
+        assert actual_column_types ==\
+            expected_column_types[self.engine.name],\
+            f'Could not find column types filed under {self.engine.name}: ' +\
+            f'{actual_column_types}'
 
     def test_numeric_database_columns_created(self):
         records_schema = RecordsSchema.from_data(example_numeric_records_schema)

@@ -5,6 +5,8 @@ from records_mover.records.records_format import DelimitedRecordsFormat
 from mock import MagicMock, Mock, patch
 import sqlalchemy
 
+from sqlalchemy_bigquery import BIGNUMERIC
+
 
 class TestBigQueryDBDriver(unittest.TestCase):
     @patch('records_mover.db.bigquery.bigquery_db_driver.BigQueryLoader')
@@ -72,11 +74,17 @@ class TestBigQueryDBDriver(unittest.TestCase):
                          (64, 53))
 
     def test_fixed_point_constraints(self):
-        constraints = self.bigquery_db_driver.fixed_point_constraints(sqlalchemy.types.DECIMAL())
-        self.assertEqual(constraints, (38, 9))
+        constraints = self.bigquery_db_driver.fixed_point_constraints(
+            sqlalchemy.types.Numeric(6, 2))
+        self.assertEqual(constraints, (6, 2))
+
+    def test_fixed_point_constraints_bignumeric_bare(self):
+        constraints = self.bigquery_db_driver.fixed_point_constraints(BIGNUMERIC())
+        self.assertEqual(constraints, (76, 38))
 
     def test_fixed_point_constraints_new_type(self):
-        constraints = self.bigquery_db_driver.fixed_point_constraints(Mock())
+        constraints = self.bigquery_db_driver.fixed_point_constraints(
+            Mock(precision=None, scale=None))
         self.assertIsNone(constraints, None)
 
     def test_type_for_fixed_point_big(self):

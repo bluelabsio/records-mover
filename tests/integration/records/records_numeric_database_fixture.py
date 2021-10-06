@@ -7,6 +7,7 @@ class RecordsNumericDatabaseFixture:
     representing their constraints so we can validate behavior against
     them later on.
     """
+
     def __init__(self, db_engine, schema_name, table_name):
         self.engine = db_engine
         self.schema_name = schema_name
@@ -37,11 +38,15 @@ class RecordsNumericDatabaseFixture:
         elif self.engine.name == 'bigquery':
             # BigQuery only supports a few large numeric types
             create_tables = [f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
-              SELECT CAST(9223372036854775807 AS INT64) AS int64,
-                     CAST(1234.56 AS NUMERIC) AS fixed_38_9,
-                     CAST(19223372036854775807.78 AS FLOAT64) AS float64;
-"""  # noqa
+              CREATE TABLE {self.schema_name}.{self.table_name} (
+                     `int64` INT64,
+                     `fixed_6_2` NUMERIC(6, 2),
+                     `float64` FLOAT64);
+""",  # noqa
+              f"""
+              INSERT INTO {self.schema_name}.{self.table_name} (`int64`, `fixed_6_2`, `float64`)
+              VALUES (9223372036854775807, 1234.56, 19223372036854775807.78);
+""",  # noqa
             ]
         elif self.engine.name == 'postgresql':
             # Postgres supports a number of different numeric types
