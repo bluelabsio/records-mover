@@ -13,7 +13,7 @@ clean: coverageclean typecoverageclean
 	FILES=$$(find . -name \*.pyc); for f in $${FILES}; do rm $$f; done
 
 typecheck:
-	mypy --cobertura-xml-report typecover --html-report typecover .
+	mypy --cobertura-xml-report typecover --html-report typecover records_mover
 	mypy tests
 
 typecoverage:
