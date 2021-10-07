@@ -198,8 +198,7 @@ mysql_dependencies = [
 ] + db_dependencies
 
 redshift_dependencies_base = [
-    # sqlalchemy-redshift 0.7.7 introduced support for Parquet
-    # in UNLOAD
+    # sqlalchemy-redshift 0.7.7 introduced support for Parquet in UNLOAD
     'sqlalchemy-redshift>=0.7.7',
 ] + aws_dependencies + db_dependencies
 
@@ -362,4 +361,5 @@ setup(name='records-mover',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',
+          'Programming Language :: Python :: 3.9',
       ])
