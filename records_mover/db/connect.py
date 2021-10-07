@@ -101,7 +101,7 @@ def create_sqlalchemy_url(db_facts: DBFacts,
         driver = odbc_driver_for_type.get(db_type, driver)
     # 'user' is the preferred key, but handle legacy code as well
     # still using 'username'
-    username = db_facts.get('username', db_facts.get('user'))  # type: ignore
+    username = db_facts.get('username', db_facts.get('user'))
     if driver == 'vertica+pyodbc':
         return create_vertica_odbc_sqlalchemy_url(db_facts)
     elif driver == 'bigquery':
