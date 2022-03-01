@@ -1,6 +1,12 @@
 import sqlalchemy as sa
 from records_mover.db import create_sqlalchemy_url
-from airflow.hooks import BaseHook
+
+try:
+    # Works with Airflow 1
+    from airflow.hooks import BaseHook
+except ImportError:
+    # Required for Airflow 2.0
+    from airflow.hooks.base_hook import BaseHook
 
 
 class SqlAlchemyDbHook(BaseHook):

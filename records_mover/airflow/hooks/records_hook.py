@@ -5,10 +5,17 @@ from records_mover.records.records import Records
 from records_mover.db.factory import db_driver
 from records_mover.db import DBDriver
 from records_mover.url.resolver import UrlResolver
-from airflow.hooks import BaseHook
 from airflow.contrib.hooks.aws_hook import AwsHook
 from typing import Optional, Union, List, TYPE_CHECKING
 import sqlalchemy
+
+try:
+    # Works with Airflow 1
+    from airflow.hooks import BaseHook
+except ImportError:
+    # Required for Airflow 2.0
+    from airflow.hooks.base_hook import BaseHook
+
 if TYPE_CHECKING:
     from boto3.session import ListObjectsResponseContentType, S3ClientTypeStub  # noqa
 
