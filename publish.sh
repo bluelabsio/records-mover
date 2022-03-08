@@ -8,7 +8,7 @@ then
   exit 1
 fi
 
-CIRCLE_TAG="v${version}" python setup.py verify
+CIRCLE_TAG="v${version}" python3 setup.py verify
 
 git tag -m "Tag v${version:?}" -a "v${version}" "$(git rev-parse HEAD)"
 git push --follow-tags
