@@ -5,6 +5,8 @@ twine
 flake8
 # https://github.com/pallets/markupsafe/issues/284
 markupsafe==2.0.1
+# https://github.com/pandas-dev/pandas/pull/45749
+pandas==1.3.5
 
 # this is pre-release, but seems to work!  Let's keep it pinned to a
 # commit until they make a release, just in case they break
