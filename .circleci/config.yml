@@ -402,7 +402,7 @@ workflows:
           name: test-3.7
           extras: '[unittest,typecheck]'
           python_version: "3.7"
-          pandas_version: ">=1"
+          pandas_version: "1.3.5"
           requires:
             - redshift-s3-itest
           filters:
@@ -412,7 +412,7 @@ workflows:
           name: test-3.8
           extras: '[unittest,typecheck]'
           python_version: "3.8"
-          pandas_version: ">=1"
+          pandas_version: "1.3.5"
           requires:
             - redshift-s3-itest
           filters:
@@ -422,7 +422,7 @@ workflows:
           name: test-3.9
           extras: '[unittest,typecheck]'
           python_version: "3.9"
-          pandas_version: ">=1"
+          pandas_version: "1.3.5"
           coverage: true
           filters:
             tags:
@@ -474,7 +474,7 @@ workflows:
           # relying on Pandas:
           #
           # See https://github.com/bluelabsio/records-mover/pull/152
-          pandas_version: ">1"
+          pandas_version: "1.3.5"
           command: |
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
