@@ -50,7 +50,7 @@ class RedshiftDBDriver(DBDriver):
     # if this timeout goes off (at least for Redshift), it's probably
     # because memory is filling because sqlalchemy's cache of all
     # tables and columns filled up memory in the job.
-    @timeout_decorator.timeout(80)
+    @timeout_decorator.timeout(300)
     def table(self, schema: str, table: str) -> Table:
         with self.db.engine.connect() as conn:
             with conn.begin():
