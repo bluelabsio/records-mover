@@ -3,7 +3,7 @@ setuptools<58
 wheel
 twine
 flake8
-nose-progressive==1.4
+nose-progressive==1.0
 
 # this is pre-release, but seems to work!  Let's keep it pinned to a
 # commit until they make a release, just in case they break
