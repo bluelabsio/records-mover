@@ -1,5 +1,5 @@
 # https://github.com/googleapis/google-cloud-python/issues/2990
-setuptools>34.3.0
+setuptools<58
 wheel
 twine
 flake8
