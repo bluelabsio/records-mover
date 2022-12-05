@@ -19,8 +19,6 @@ def _assert_never(x: NoReturn, errmsg: Optional[str] = None) -> NoReturn:
     assert False, errmsg
 
 
-
-
 # mypy-friendly way of doing a singleton object:
 #
 # https://github.com/python/typing/issues/236
