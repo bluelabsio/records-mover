@@ -24,7 +24,7 @@ def _assert_never(x: NoReturn, errmsg: Optional[str] = None) -> NoReturn:
 #
 # https://github.com/python/mypy/issues/6366#issuecomment-560369716
 def _ensure_all_cases_covered(x: NoReturn) -> NoReturn:
-    return None
+    pass
 
 
 # mypy-friendly way of doing a singleton object:
