@@ -136,11 +136,11 @@ jobs:
 #            then
 #              make citypecoverage
 #            fi
-      - run:
-          when: always
-          name: Archive type coverage report
-          command: |
-            tar -czvf typecover.tar.gz typecover
+#      - run:
+#          when: always
+#          name: Archive type coverage report
+#          command: |
+#            tar -czvf typecover.tar.gz typecover
       - store_test_results:
           path: test-reports
       - store_artifacts:
