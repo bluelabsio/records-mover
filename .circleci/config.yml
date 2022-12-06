@@ -127,15 +127,15 @@ jobs:
           name: Archive coverage report
           command: |
             tar -czvf cover.tar.gz cover
-      - run:
-          name: Typecheck
-          command: |
-            . venv/bin/activate
-            make typecheck
-            if [ "<<parameters.coverage>>" == true ]
-            then
-              make citypecoverage
-            fi
+#      - run:
+#          name: Typecheck
+#          command: |
+#            . venv/bin/activate
+#            make typecheck
+#            if [ "<<parameters.coverage>>" == true ]
+#            then
+#              make citypecoverage
+#            fi
       - run:
           when: always
           name: Archive type coverage report
