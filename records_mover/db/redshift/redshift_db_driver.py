@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 class RedshiftDBDriver(DBDriver):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
-                 s3_temp_base_loc: Optional[BaseDirectoryUrl] = None,
+                 s3_temp_base_loc: Optional[BaseDirectoryUrl]=None,
                  **kwargs) -> None:
         super().__init__(db)
         self.s3_temp_base_loc = s3_temp_base_loc

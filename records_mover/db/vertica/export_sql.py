@@ -13,7 +13,7 @@ def vertica_export_sql(db_engine: Engine,
                        record_terminator: str,
                        to_charset: str,
                        # keep these things halfway digestible in memory
-                       chunksize: int = 5 * GIG_IN_BYTES) -> str:
+                       chunksize: int=5 * GIG_IN_BYTES) -> str:
     # https://my.vertica.com/docs/8.1.x/HTML/index.htm#Authoring/SQLReferenceManual/Functions/VerticaFunctions/s3export.htm
     template = """
         SELECT S3EXPORT( * USING PARAMETERS {params})

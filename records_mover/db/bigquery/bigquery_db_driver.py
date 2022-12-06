@@ -42,7 +42,7 @@ class BigQueryDBDriver(DBDriver):
     def unloader(self) -> Unloader:
         return self._bigquery_unloader
 
-    def type_for_date_plus_time(self, has_tz: bool = False) -> sqlalchemy.sql.sqltypes.DateTime:
+    def type_for_date_plus_time(self, has_tz: bool=False) -> sqlalchemy.sql.sqltypes.DateTime:
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types
         if has_tz:
             # pybigquery doesn't set the timezone flag :(

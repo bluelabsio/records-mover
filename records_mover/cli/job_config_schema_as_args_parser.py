@@ -59,7 +59,7 @@ class JobConfigSchemaAsArgsParser():
     def configure_from_properties(self,
                                   properties: JsonSchema,
                                   required_keys: Iterable[str],
-                                  prefix: str = '') -> None:
+                                  prefix: str='') -> None:
         for naked_key, raw_value in properties.items():
             if not isinstance(raw_value, dict):
                 raise TypeError(f"Did not understand [{raw_value}] in [{properties}]")

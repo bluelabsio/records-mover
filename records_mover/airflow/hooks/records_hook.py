@@ -69,7 +69,7 @@ class RecordsHook(BaseHook):
     # non-Airflow-specific API.
     def validate_and_prepare_target_directory(self,
                                               target_url: str,
-                                              allow_overwrite: bool = False) -> None:
+                                              allow_overwrite: bool=False) -> None:
         parsed_target = urlparse(target_url)
         if parsed_target.scheme != 's3':
             raise AirflowException(

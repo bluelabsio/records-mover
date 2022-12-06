@@ -14,7 +14,6 @@ from sqlalchemy.dialects import postgresql
 
 __version__ = '0.5.0'
 
-
 def copy_to(source, dest, engine_or_conn, **flags):
     """Export a query or select to a file. For flags, see the PostgreSQL
     documentation at http://www.postgresql.org/docs/9.5/static/sql-copy.html.
@@ -47,7 +46,6 @@ def copy_to(source, dest, engine_or_conn, **flags):
     cursor.copy_expert(copy, dest)
     if autoclose:
         conn.close()
-
 
 def copy_from(source, dest, engine_or_conn, columns=(), **flags):
     """Import a table from a file. For flags, see the PostgreSQL documentation
@@ -89,7 +87,6 @@ def copy_from(source, dest, engine_or_conn, columns=(), **flags):
         conn.commit()
         conn.close()
 
-
 def raw_connection_from(engine_or_conn):
     """Extract a raw_connection and determine if it should be automatically closed.
 
@@ -101,13 +98,11 @@ def raw_connection_from(engine_or_conn):
         return engine_or_conn.connection, False
     return engine_or_conn.raw_connection(), True
 
-
 def format_flags(flags):
     return ', '.join(
         '{} {}'.format(key.upper(), format_flag(value))
         for key, value in flags.items()
     )
-
 
 def format_flag(value):
     return (
@@ -115,7 +110,6 @@ def format_flag(value):
         if isinstance(value, bool)
         else repr(value)
     )
-
 
 def relabel_query(query):
     """Relabel query entities according to mappings defined in the SQLAlchemy
@@ -127,13 +121,11 @@ def relabel_query(query):
     """
     return query.with_entities(*query_entities(query))
 
-
 def query_entities(query):
     return sum(
         [desc_entities(desc) for desc in query.column_descriptions],
         []
     )
-
 
 def desc_entities(desc):
     expr, name = desc['expr'], desc['name']
@@ -146,14 +138,12 @@ def desc_entities(desc):
     else:
         raise ValueError('Unrecognized query entity {!r}'.format(expr))
 
-
 def mapper_entities(mapper):
     model = mapper.class_
     return [
         getattr(model, prop.key).label(prop.key)
         for prop in mapper.column_attrs
     ]
-
 
 def is_model(class_):
     try:
