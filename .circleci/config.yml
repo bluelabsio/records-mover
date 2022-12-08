@@ -454,7 +454,7 @@ workflows:
       - integration_test_with_dbs:
           name: postgres-itest
           extras: '[postgres-binary,itest]'
-          python_version: "3.6"
+          python_version: "3.9"
           command: |
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
