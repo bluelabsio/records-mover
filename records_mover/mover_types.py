@@ -30,7 +30,6 @@ class PleaseInfer(Enum):
 # version allows poorly typed things to pass through at runtime.
 #
 # https://github.com/python/mypy/issues/6366#issuecomment-560369716
-# type: ignore
 def _ensure_all_cases_covered(x: NoReturn) -> NoReturn:
-    pass
+    pass # type: ignore
 
