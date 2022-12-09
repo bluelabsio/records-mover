@@ -31,5 +31,5 @@ class PleaseInfer(Enum):
 #
 # https://github.com/python/mypy/issues/6366#issuecomment-560369716
 def _ensure_all_cases_covered(x: NoReturn) -> NoReturn:
-    pass # type: ignore
+    pass  # type: ignore
 
