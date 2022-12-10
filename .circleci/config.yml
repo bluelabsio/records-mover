@@ -391,18 +391,8 @@ workflows:
       #
       # https://app.asana.com/0/1128138765527694/1161072974798065
       - test:
-          name: test-3.6
-          extras: '[unittest,typecheck]'
-          python_version: "3.6"
-          pandas_version: "<1"
-          requires:
-            - redshift-s3-itest
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - test:
           name: test-3.7
-          extras: '[unittest,typecheck]'
+          extras: '[unittest]'
           python_version: "3.7"
           pandas_version: "==1.1.5"
           requires:
@@ -429,68 +419,68 @@ workflows:
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - integration_test_with_dbs:
-          name: vertica-no-s3-itest
-          extras: '[vertica,itest]'
-          python_version: "3.6"
-          command: |
-            . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export RECORDS_MOVER_SESSION_TYPE=env
-            mkdir -p test-reports/itest
-            cd tests/integration/records/single_db
-            #
-            # This is a no-s3 test, so let's disable AWS creds and
-            # scratch bucket config.
-            #
-            unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
-            with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
-          requires:
-            - redshift-s3-itest
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - integration_test_with_dbs:
-          name: postgres-itest
-          extras: '[postgres-binary,itest]'
-          python_version: "3.9"
-          pandas_version: '==1.3.5'
-          command: |
-            . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export RECORDS_MOVER_SESSION_TYPE=env
-            mkdir -p test-reports/itest
-            cd tests/integration/records/single_db
-            with-db dockerized-postgres nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
-          requires:
-            - redshift-s3-itest
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - integration_test_with_dbs:
-          name: mysql-itest
-          extras: '[mysql,itest]'
-          python_version: "3.6"
-          # Using Pandas reproduced a bug that happened when we were
-          # relying on Pandas:
-          #
-          # See https://github.com/bluelabsio/records-mover/pull/152
-          pandas_version: "==1.1.5"
-          command: |
-            . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export RECORDS_MOVER_SESSION_TYPE=env
-            mkdir -p test-reports/itest
-            cd tests/integration/records/single_db
-            with-db dockerized-mysql nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
-          requires:
-            - redshift-s3-itest
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      # - integration_test_with_dbs:
+      #     name: vertica-no-s3-itest
+      #     extras: '[vertica,itest]'
+      #     python_version: "3.6"
+      #     command: |
+      #       . venv/bin/activate
+      #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+      #       export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+      #       export RECORDS_MOVER_SESSION_TYPE=env
+      #       mkdir -p test-reports/itest
+      #       cd tests/integration/records/single_db
+      #       #
+      #       # This is a no-s3 test, so let's disable AWS creds and
+      #       # scratch bucket config.
+      #       #
+      #       unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
+      #       with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+      #     requires:
+      #       - redshift-s3-itest
+      #     filters:
+      #       tags:
+      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      # - integration_test_with_dbs:
+      #     name: postgres-itest
+      #     extras: '[postgres-binary,itest]'
+      #     python_version: "3.9"
+      #     pandas_version: '==1.3.5'
+      #     command: |
+      #       . venv/bin/activate
+      #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+      #       export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+      #       export RECORDS_MOVER_SESSION_TYPE=env
+      #       mkdir -p test-reports/itest
+      #       cd tests/integration/records/single_db
+      #       with-db dockerized-postgres nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+      #     requires:
+      #       - redshift-s3-itest
+      #     filters:
+      #       tags:
+      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      # - integration_test_with_dbs:
+      #     name: mysql-itest
+      #     extras: '[mysql,itest]'
+      #     python_version: "3.6"
+      #     # Using Pandas reproduced a bug that happened when we were
+      #     # relying on Pandas:
+      #     #
+      #     # See https://github.com/bluelabsio/records-mover/pull/152
+      #     pandas_version: "==1.1.5"
+      #     command: |
+      #       . venv/bin/activate
+      #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+      #       export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+      #       export RECORDS_MOVER_SESSION_TYPE=env
+      #       mkdir -p test-reports/itest
+      #       cd tests/integration/records/single_db
+      #       with-db dockerized-mysql nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+      #     requires:
+      #       - redshift-s3-itest
+      #     filters:
+      #       tags:
+      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: vertica-s3-itest
           extras: '[vertica,aws,itest]'
@@ -602,44 +592,44 @@ workflows:
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - integration_test:
-          name: bigquery-no-gcs-itest
-          extras: '[bigquery,itest]'
-          python_version: "3.6"
-          db_name: bltoolsdevbq-bq_itest
-          include_gcs_scratch_bucket: false
-          requires:
-            - redshift-s3-itest
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - integration_test:
-          name: bigquery-gcs-itest
-          extras: '[bigquery,itest]'
-          python_version: "3.6"
-          db_name: bltoolsdevbq-bq_itest
-          requires:
-            - redshift-s3-itest
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - integration_test_with_dbs:
-          name: tbl2tbl-itest
-          extras: '[literally_every_single_database_binary,itest]'
-          python_version: "3.6"
-          command: |
-            . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export RECORDS_MOVER_SESSION_TYPE=env
-            mkdir -p test-reports/itest
-            cd tests/integration
-            python3 -m records.multi_db.test_records_table2table
-          requires:
-            - redshift-s3-itest
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      # - integration_test:
+      #     name: bigquery-no-gcs-itest
+      #     extras: '[bigquery,itest]'
+      #     python_version: "3.6"
+      #     db_name: bltoolsdevbq-bq_itest
+      #     include_gcs_scratch_bucket: false
+      #     requires:
+      #       - redshift-s3-itest
+      #     filters:
+      #       tags:
+      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      # - integration_test:
+      #     name: bigquery-gcs-itest
+      #     extras: '[bigquery,itest]'
+      #     python_version: "3.6"
+      #     db_name: bltoolsdevbq-bq_itest
+      #     requires:
+      #       - redshift-s3-itest
+      #     filters:
+      #       tags:
+      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      # - integration_test_with_dbs:
+      #     name: tbl2tbl-itest
+      #     extras: '[literally_every_single_database_binary,itest]'
+      #     python_version: "3.6"
+      #     command: |
+      #       . venv/bin/activate
+      #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+      #       export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+      #       export RECORDS_MOVER_SESSION_TYPE=env
+      #       mkdir -p test-reports/itest
+      #       cd tests/integration
+      #       python3 -m records.multi_db.test_records_table2table
+      #     requires:
+      #       - redshift-s3-itest
+      #     filters:
+      #       tags:
+      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - cli-extra-test:
           name: cli-extra-test
           requires:
@@ -647,25 +637,25 @@ workflows:
       - deploy:
           context: PyPI
           requires:
-            - test-3.6
+            # - test-3.6
             - test-3.7
             - test-3.8
             - test-3.9
             - cli-extra-test
-            - tbl2tbl-itest
-            - bigquery-no-gcs-itest
-            - bigquery-gcs-itest
+            # - tbl2tbl-itest
+            # - bigquery-no-gcs-itest
+            # - bigquery-gcs-itest
             - redshift-no-s3-itest
             - redshift-s3-itest
             - redshift-s3-itest-old-pandas
             - redshift-s3-itest-no-pandas
-            - postgres-itest
-            - mysql-itest
+            # - postgres-itest
+            # - mysql-itest
             - cli-1-itest
             - cli-2-itest
             - cli-3-itest
-            - vertica-s3-itest
-            - vertica-no-s3-itest
+            # - vertica-s3-itest
+            # - vertica-no-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
