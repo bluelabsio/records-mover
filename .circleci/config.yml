@@ -131,11 +131,7 @@ jobs:
           name: Typecheck
           command: |
             . venv/bin/activate
-            PKG_OK=$(pip list | grep typecheck)
-            if ["" != "$PKG_OK"]
-            then
-              make typecheck
-            fi
+            make typecheck
             if [ "<<parameters.coverage>>" == true ]
             then
               make citypecoverage
