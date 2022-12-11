@@ -131,7 +131,7 @@ jobs:
           name: Typecheck
           command: |
             . venv/bin/activate
-            PKG_OK=$(pip list | grep "mypy ")
+            PKG_OK=$(pip list | grep mypy)
             if [[ "" != "$PKG_OK" ]]
             then
               make typecheck
