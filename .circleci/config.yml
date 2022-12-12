@@ -611,23 +611,23 @@ workflows:
       #     filters:
       #       tags:
       #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      # - integration_test_with_dbs:
-      #     name: tbl2tbl-itest
-      #     extras: '[literally_every_single_database_binary,itest]'
-      #     python_version: "3.6"
-      #     command: |
-      #       . venv/bin/activate
-      #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-      #       export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-      #       export RECORDS_MOVER_SESSION_TYPE=env
-      #       mkdir -p test-reports/itest
-      #       cd tests/integration
-      #       python3 -m records.multi_db.test_records_table2table
-      #     requires:
-      #       - redshift-s3-itest
-      #     filters:
-      #       tags:
-      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: tbl2tbl-itest
+          extras: '[literally_every_single_database_binary,itest]'
+          python_version: "3.6"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export RECORDS_MOVER_SESSION_TYPE=env
+            mkdir -p test-reports/itest
+            cd tests/integration
+            python3 -m records.multi_db.test_records_table2table
+          requires:
+            - redshift-s3-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - cli-extra-test:
           name: cli-extra-test
           requires:
@@ -640,7 +640,7 @@ workflows:
             - test-3.8
             - test-3.9
             - cli-extra-test
-            # - tbl2tbl-itest
+            - tbl2tbl-itest
             # - bigquery-no-gcs-itest
             # - bigquery-gcs-itest
             - redshift-no-s3-itest
@@ -659,3 +659,5 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
             branches:
               ignore: /.*/
+
+# VS Code Extension Version: 1.4.0
