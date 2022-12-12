@@ -417,28 +417,28 @@ workflows:
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      # - integration_test_with_dbs:
-      #     name: vertica-no-s3-itest
-      #     extras: '[vertica,itest]'
-      #     python_version: "3.6"
-      #     command: |
-      #       . venv/bin/activate
-      #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-      #       export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-      #       export RECORDS_MOVER_SESSION_TYPE=env
-      #       mkdir -p test-reports/itest
-      #       cd tests/integration/records/single_db
-      #       #
-      #       # This is a no-s3 test, so let's disable AWS creds and
-      #       # scratch bucket config.
-      #       #
-      #       unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
-      #       with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
-      #     requires:
-      #       - redshift-s3-itest
-      #     filters:
-      #       tags:
-      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: vertica-no-s3-itest
+          extras: '[vertica,itest]'
+          python_version: "3.6"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export RECORDS_MOVER_SESSION_TYPE=env
+            mkdir -p test-reports/itest
+            cd tests/integration/records/single_db
+            #
+            # This is a no-s3 test, so let's disable AWS creds and
+            # scratch bucket config.
+            #
+            unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
+            with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+          requires:
+            - redshift-s3-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
       # - integration_test_with_dbs:
       #     name: postgres-itest
       #     extras: '[postgres-binary,itest]'
@@ -653,7 +653,7 @@ workflows:
             - cli-2-itest
             - cli-3-itest
             # - vertica-s3-itest
-            # - vertica-no-s3-itest
+            - vertica-no-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
