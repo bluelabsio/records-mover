@@ -112,7 +112,7 @@ class S3ClientTypeStub:
     def put_object(self,
                    Bucket: str,
                    Key: str,
-                   Body: Any = None,
+                   Body: Optional[Any] = None,
                    ACL: Optional[str] = None) -> dict: ...
 
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.get_object
@@ -122,7 +122,7 @@ class S3ClientTypeStub:
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.upload_fileobj
     def upload_fileobj(self,
                        Fileobj: IO[bytes], Bucket: str, Key: str, ExtraArgs=None,
-                       Callback: Callable[[int], None] = None, Config=None) -> None: ...
+                       Callback: Optional[Callable[[int], None]] = None, Config=None) -> None: ...
 
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.download_fileobj
     def download_fileobj(self,

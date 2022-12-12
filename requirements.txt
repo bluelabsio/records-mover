@@ -3,8 +3,14 @@ setuptools>34.3.0
 wheel
 twine
 flake8
-nose-progressive
+# https://github.com/pallets/markupsafe/issues/284
+markupsafe==2.0.1
+# https://github.com/pandas-dev/pandas/pull/45749
+pandas==1.1.5
+google-cloud-storage
+boto3
 
+# updating this line to see if this changes checksum
 # this is pre-release, but seems to work!  Let's keep it pinned to a
 # commit until they make a release, just in case they break
 # compatibility.  Feel free to try to update!
