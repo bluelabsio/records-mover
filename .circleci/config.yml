@@ -457,28 +457,28 @@ workflows:
       #     filters:
       #       tags:
       #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      # - integration_test_with_dbs:
-      #     name: mysql-itest
-      #     extras: '[mysql,itest]'
-      #     python_version: "3.6"
-      #     # Using Pandas reproduced a bug that happened when we were
-      #     # relying on Pandas:
-      #     #
-      #     # See https://github.com/bluelabsio/records-mover/pull/152
-      #     pandas_version: "==1.1.5"
-      #     command: |
-      #       . venv/bin/activate
-      #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-      #       export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-      #       export RECORDS_MOVER_SESSION_TYPE=env
-      #       mkdir -p test-reports/itest
-      #       cd tests/integration/records/single_db
-      #       with-db dockerized-mysql nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
-      #     requires:
-      #       - redshift-s3-itest
-      #     filters:
-      #       tags:
-      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: mysql-itest
+          extras: '[mysql,itest]'
+          python_version: "3.6"
+          # Using Pandas reproduced a bug that happened when we were
+          # relying on Pandas:
+          #
+          # See https://github.com/bluelabsio/records-mover/pull/152
+          pandas_version: "==1.1.5"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export RECORDS_MOVER_SESSION_TYPE=env
+            mkdir -p test-reports/itest
+            cd tests/integration/records/single_db
+            with-db dockerized-mysql nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+          requires:
+            - redshift-s3-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: vertica-s3-itest
           extras: '[vertica,aws,itest]'
@@ -648,7 +648,7 @@ workflows:
             - redshift-s3-itest-old-pandas
             - redshift-s3-itest-no-pandas
             # - postgres-itest
-            # - mysql-itest
+            - mysql-itest
             - cli-1-itest
             - cli-2-itest
             - cli-3-itest
