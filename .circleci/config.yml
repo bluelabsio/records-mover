@@ -279,7 +279,6 @@ jobs:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
-          include_dev_dependencies: true
       - run:
           name: Run tests
           command: |
