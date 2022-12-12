@@ -606,8 +606,8 @@ workflows:
       #     extras: '[bigquery,itest]'
       #     python_version: "3.6"
       #     db_name: bltoolsdevbq-bq_itest
-      #     requires:
-      #       - redshift-s3-itest
+      #     # requires:
+      #     #   - redshift-s3-itest
       #     filters:
       #       tags:
       #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -642,7 +642,7 @@ workflows:
             - cli-extra-test
             # - tbl2tbl-itest
             # - bigquery-no-gcs-itest
-            # - bigquery-gcs-itest
+            - bigquery-gcs-itest
             - redshift-no-s3-itest
             - redshift-s3-itest
             - redshift-s3-itest-old-pandas
