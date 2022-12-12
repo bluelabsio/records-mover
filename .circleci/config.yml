@@ -100,6 +100,7 @@ jobs:
         description: "Enforce coverage not slipping"
     docker:
       - image: circleci/python:<<parameters.python_version>>
+    resource_class: large
     steps:
       - checkout
       - add_ssh_keys:
@@ -185,6 +186,7 @@ jobs:
           MYSQL_DATABASE: 'mysqlitest'
           MYSQL_USER: mysqluser
           MYSQL_PASSWORD: 'hunter2'
+    resource_class: large
     steps:
       - checkout
       - add_ssh_keys:
@@ -269,6 +271,7 @@ jobs:
 
     docker:
       - image: circleci/python:<<parameters.python_version>>
+    resource_class: large
     steps:
       - checkout
       - add_ssh_keys:
@@ -316,6 +319,7 @@ jobs:
         default: '3.6'
     docker:
       - image: circleci/python:<<parameters.python_version>>
+    resource_class: large
     steps:
       - checkout
       - installvenv:
@@ -354,6 +358,7 @@ jobs:
   cli-extra-test:
     docker:
       - image: circleci/python:3.6
+    resource_class: large
     steps:
       - checkout
       - installvenv:
