@@ -117,7 +117,7 @@ class RecordsSchemaField:
         except AttributeError:
             # np.float128 is not available on some machines
             pass
-  
+
         if specific_type not in type_mapping:
             logger.warning(f"Please teach me how to map {specific_type} into records "
                            "schema field types")
