@@ -33,6 +33,8 @@ query_for_type = {
         # Please see SECURITY.md for security implications!
         "local_infile": True
     },
+    # keepalives prevent timeout errors
+    'redshift': {'keepalives': '1', 'keepalives_idle': '30'},
 }
 
 
