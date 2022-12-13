@@ -35,6 +35,8 @@ class TestSQLAlchemyDriverPicking(unittest.TestCase):
                 'port': 123,
                 'database': 'analyticsdb'
             }
+            if human_style_db == 'redshift':
+                db_facts['query'] = {'keepalives': '1','keepalives_idle': '30'})
             actual_url = connect.create_sqlalchemy_url(db_facts)
             assert str(actual_url) == expected_url
 
