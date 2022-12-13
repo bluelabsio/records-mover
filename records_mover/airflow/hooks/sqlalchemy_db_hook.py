@@ -6,7 +6,7 @@ try:
     from airflow.hooks import BaseHook
 except ImportError:
     # Required for Airflow 2.0
-    from airflow.hooks.base_hook import BaseHook
+    from airflow.hooks.base_hook import BaseHook  # type: ignore
 
 
 class SqlAlchemyDbHook(BaseHook):

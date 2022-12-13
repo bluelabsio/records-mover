@@ -24,5 +24,5 @@ class TargetTableDetails(metaclass=ABCMeta):
     #
     # https://github.com/python/mypy/issues/5485
     # @abstractmethod
-    def db_driver(self, db: Union[Engine, Connection]) -> DBDriver:
+    def db_driver(self, db: Union[Engine, Connection]) -> DBDriver:  # type: ignore
         ...

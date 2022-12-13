@@ -73,7 +73,7 @@ which records can be copied, of type :class:`records_mover.records.targets.Recor
                 db_driver = session.db_driver
             if url_resolver is PleaseInfer.token:
                 url_resolver = session.url_resolver
-        self.move = move  # type: ignore
+        self.move = move
         self.sources = RecordsSources(db_driver=db_driver,
                                       url_resolver=url_resolver)
         self.targets = RecordsTargets(url_resolver=url_resolver,

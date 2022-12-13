@@ -103,7 +103,8 @@ class GoogleSheetsRecordsTarget(SupportsMoveFromDataframes):
 
     def as_json_serializable(self, cell: Any) -> Any:
         if isinstance(cell, np.generic):
-            native = np.asscalar(cell)
+            # MyPy complains that this method does not exist
+            native = np.asscalar(cell)  # type: ignore
         else:
             native = cell
         if isinstance(cell, float) and math.isnan(native):

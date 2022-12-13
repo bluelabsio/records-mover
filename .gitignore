@@ -70,3 +70,6 @@ target/
 # Build package cache
 .mypy_cache
 *.bak
+
+# PyCharm
+.idea/
