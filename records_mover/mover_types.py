@@ -19,16 +19,16 @@ def _assert_never(x: NoReturn, errmsg: Optional[str] = None) -> NoReturn:
     assert False, errmsg
 
 
-# mypy way of validating we're covering all cases of an enum.  This
-# version allows poorly typed things to pass through at runtime.
-#
-# https://github.com/python/mypy/issues/6366#issuecomment-560369716
-def _ensure_all_cases_covered(x: NoReturn) -> NoReturn:
-    pass
-
-
 # mypy-friendly way of doing a singleton object:
 #
 # https://github.com/python/typing/issues/236
 class PleaseInfer(Enum):
     token = 1
+
+
+# mypy way of validating we're covering all cases of an enum.  This
+# version allows poorly typed things to pass through at runtime.
+#
+# https://github.com/python/mypy/issues/6366#issuecomment-560369716
+def _ensure_all_cases_covered(x: NoReturn) -> NoReturn:  # type: ignore
+    pass
