@@ -39,8 +39,8 @@ class TestSQLAlchemyDriverPicking(unittest.TestCase):
                 db_facts['query'] = {'keepalives': '1', 'keepalives_idle': '30'}
             actual_url = connect.create_sqlalchemy_url(db_facts)
             actual_url_str = str(actual_url)
-            self.assertEqual(actual_url_str,expected_url,"{}!={}".format(actual_url_str,
-                                                                         expected_url))
+            self.assertEqual(actual_url_str, expected_url, "{}!={}".format(actual_url_str,
+                                                                           expected_url))
 
     @patch('records_mover.db.connect.db_facts_from_lpass')
     @patch('records_mover.db.connect.sa.create_engine')
