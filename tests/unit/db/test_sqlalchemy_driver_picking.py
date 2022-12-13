@@ -11,10 +11,10 @@ class TestSQLAlchemyDriverPicking(unittest.TestCase):
                                    mock_db_facts_from_lpass):
         expected_mappings = {
             'psql (redshift)':
-            'redshift://myuser:hunter1@myhost:123/analyticsdb',
+            'redshift://myuser:hunter1@myhost:123/analyticsdb?keepalives=1&keepalives_idle=30',
 
             'redshift':
-            'redshift://myuser:hunter1@myhost:123/analyticsdb',
+            'redshift://myuser:hunter1@myhost:123/analyticsdb?keepalives=1&keepalives_idle=30',
 
             'vertica':
             'vertica+vertica_python://myuser:hunter1@myhost:123/analyticsdb',
@@ -35,10 +35,11 @@ class TestSQLAlchemyDriverPicking(unittest.TestCase):
                 'port': 123,
                 'database': 'analyticsdb'
             }
-            if human_style_db == 'redshift':
-                db_facts['query'] = {'keepalives': '1','keepalives_idle': '30'})
+            if human_style_db_type in ['redshift','psql (redshift)']:
+                db_facts['query'] = {'keepalives': '1','keepalives_idle': '30'}
             actual_url = connect.create_sqlalchemy_url(db_facts)
-            assert str(actual_url) == expected_url
+            actual_url_str = str(actual_url)
+            self.assertEqual(actual_url_str,expected_url,"{}!={}".format(actual_url_str,expected_url))
 
     @patch('records_mover.db.connect.db_facts_from_lpass')
     @patch('records_mover.db.connect.sa.create_engine')
@@ -47,10 +48,10 @@ class TestSQLAlchemyDriverPicking(unittest.TestCase):
                                                   mock_db_facts_from_lpass):
         expected_mappings = {
             'psql (redshift)':
-            'redshift://myuser:hunter1@myhost:123/analyticsdb',
+            'redshift://myuser:hunter1@myhost:123/analyticsdb?keepalives=1&keepalives_idle=30',
 
             'redshift':
-            'redshift://myuser:hunter1@myhost:123/analyticsdb',
+            'redshift://myuser:hunter1@myhost:123/analyticsdb?keepalives=1&keepalives_idle=30',
 
             'vertica':
             'vertica+pyodbc:///?odbc_connect=Driver'
@@ -73,5 +74,7 @@ class TestSQLAlchemyDriverPicking(unittest.TestCase):
                 'port': 123,
                 'database': 'analyticsdb'
             }
+            if human_style_db_type == 'redshift':
+                db_facts['query'] = {'keepalives': '1','keepalives_idle': '30'}
             actual_url = connect.create_sqlalchemy_url(db_facts, prefer_odbc=True)
             assert str(actual_url) == expected_url
