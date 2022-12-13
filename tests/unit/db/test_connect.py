@@ -27,7 +27,8 @@ class TestConnect(unittest.TestCase):
                                     password='hunter1',
                                     port=123,
                                     username='myuser',
-                                    query=None)
+                                    query={'keepalives': '1',
+                                           'keepalives_idle': '30'})
         mock_create_engine.\
             assert_called_with(mock_url.return_value)
         assert engine == mock_create_engine.return_value
