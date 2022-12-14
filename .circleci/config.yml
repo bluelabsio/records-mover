@@ -162,7 +162,7 @@ jobs:
       pandas_version:
         type: string
         description: "Version of pandas to test against"
-        default: '<1'
+        default: '==1.3.5'
       command:
         type: string
         description: "Command to run in records-mover venv"
@@ -254,7 +254,7 @@ jobs:
         description: "Version of Python to test against"
       pandas_version:
         type: string
-        default: '>=1'
+        default: '==1.3.5'
       db_name:
         type: string
         description: "Database to run inside"
@@ -321,7 +321,7 @@ jobs:
       - installvenv:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
-          pandas_version: '<1'
+          pandas_version: '==1.3.5'
           # requirements.txt includes twine and other release packages
           include_dev_dependencies: true
       - run:
