@@ -313,7 +313,7 @@ jobs:
       python_version:
         type: string
         description: "Version of python to test against"
-        default: '3.6'
+        default: '3.9'
     docker:
       - image: circleci/python:<<parameters.python_version>>
     steps:
@@ -353,12 +353,12 @@ jobs:
             twine upload -r pypi dist/*
   cli-extra-test:
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.9
     steps:
       - checkout
       - installvenv:
           extras: '[cli]'
-          python_version: '3.6'
+          python_version: '3.9'
           pandas_version: ''
           # we want this just like a user would install it, not with
           # dev tools installed
@@ -383,9 +383,6 @@ workflows:
       #
       # https://devguide.python.org/devcycle/#end-of-life-branches
       #
-      # That said, Python 3.5 and before don't support type
-      # annotations on variables, which we use, so right now Python
-      # 3.6 is the current minimum version tested against.
       #
       # https://app.asana.com/0/1128138765527694/1161072974798065
       # - test:
@@ -420,7 +417,7 @@ workflows:
       # - integration_test_with_dbs:
       #     name: vertica-no-s3-itest
       #     extras: '[vertica,itest]'
-      #     python_version: "3.6"
+      #     python_version: "3.9"
       #     command: |
       #       . venv/bin/activate
       #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
@@ -460,7 +457,7 @@ workflows:
       # - integration_test_with_dbs:
       #     name: mysql-itest
       #     extras: '[mysql,itest]'
-      #     python_version: "3.6"
+      #     python_version: "3.9"
       #     # Using Pandas reproduced a bug that happened when we were
       #     # relying on Pandas:
       #     #
@@ -482,7 +479,7 @@ workflows:
       - integration_test_with_dbs:
           name: vertica-s3-itest
           extras: '[vertica,aws,itest]'
-          python_version: "3.6"
+          python_version: "3.9"
           command: |
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
@@ -499,7 +496,7 @@ workflows:
       - integration_test_with_dbs:
           name: cli-1-itest
           extras: '[cli,gsheets,vertica]'
-          python_version: "3.6"
+          python_version: "3.9"
           command: |
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
@@ -516,7 +513,7 @@ workflows:
       - integration_test_with_dbs:
           name: cli-2-itest
           extras: '[cli,gsheets,vertica]'
-          python_version: "3.6"
+          python_version: "3.9"
           command: |
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
@@ -533,7 +530,7 @@ workflows:
       - integration_test_with_dbs:
           name: cli-3-itest
           extras: '[cli,gsheets,vertica]'
-          python_version: "3.6"
+          python_version: "3.9"
           command: |
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
@@ -550,7 +547,7 @@ workflows:
       - integration_test:
           name: redshift-s3-itest
           extras: '[redshift-binary,itest]'
-          python_version: "3.6"
+          python_version: "3.9"
           db_name: demo-itest
           requires:
             - test-3.9
@@ -560,7 +557,7 @@ workflows:
       - integration_test:
           name: redshift-no-s3-itest
           extras: '[redshift-binary,itest]'
-          python_version: "3.6"
+          python_version: "3.9"
           db_name: demo-itest
           include_s3_scratch_bucket: false
           requires:
@@ -571,7 +568,7 @@ workflows:
       - integration_test:
           name: redshift-s3-itest-old-pandas
           extras: '[redshift-binary,itest]'
-          python_version: "3.6"
+          python_version: "3.9"
           pandas_version: "<1"
           db_name: demo-itest
           requires:
@@ -582,7 +579,7 @@ workflows:
       - integration_test:
           name: redshift-s3-itest-no-pandas
           extras: '[redshift-binary,itest]'
-          python_version: "3.6"
+          python_version: "3.9"
           pandas_version: ""
           db_name: demo-itest
           requires:
@@ -593,7 +590,7 @@ workflows:
       # - integration_test:
       #     name: bigquery-no-gcs-itest
       #     extras: '[bigquery,itest]'
-      #     python_version: "3.6"
+      #     python_version: "3.9"
       #     db_name: bltoolsdevbq-bq_itest
       #     include_gcs_scratch_bucket: false
       #     requires:
@@ -604,7 +601,7 @@ workflows:
       # - integration_test:
       #     name: bigquery-gcs-itest
       #     extras: '[bigquery,itest]'
-      #     python_version: "3.6"
+      #     python_version: "3.9"
       #     db_name: bltoolsdevbq-bq_itest
       #     requires:
       #       - redshift-s3-itest
@@ -614,7 +611,7 @@ workflows:
       # - integration_test_with_dbs:
       #     name: tbl2tbl-itest
       #     extras: '[literally_every_single_database_binary,itest]'
-      #     python_version: "3.6"
+      #     python_version: "3.9"
       #     command: |
       #       . venv/bin/activate
       #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
@@ -635,7 +632,6 @@ workflows:
       - deploy:
           context: PyPI
           requires:
-            # - test-3.6
             # - test-3.7
             - test-3.8
             - test-3.9
