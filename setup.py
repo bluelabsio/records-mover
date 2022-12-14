@@ -127,6 +127,7 @@ nose_dependencies = [
 itest_dependencies = [
     'jsonschema',  # needed for directory_validator.py
     'pytz',
+    'wheel', # needed to support legacy 'setup.py install'
 ] + (
     nose_dependencies +
     # needed for records_database_fixture retrying drop/creates on
