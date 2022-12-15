@@ -34,7 +34,7 @@ class TestGoogleSheets(unittest.TestCase):
         out = self.google_sheets.move_from_dataframes_source(mock_dfs_source,
                                                              mock_processing_instructions)
         mock_df.to_records.assert_called_with(index=mock_dfs_source.include_index)
-        mock_json_encodable_datum = mock_np.item().return_value
+        mock_json_encodable_datum = 1
         mock_http = mock_httplib2.Http.return_value
         mock_authed_http = mock_google_auth_httplib2.AuthorizedHttp.return_value
         mock_google_auth_httplib2.AuthorizedHttp.\
@@ -82,7 +82,7 @@ class TestGoogleSheets(unittest.TestCase):
         out = self.google_sheets.move_from_dataframes_source(mock_dfs_source,
                                                              mock_processing_instructions)
         mock_df.to_records.assert_called_with(index=mock_dfs_source.include_index)
-        mock_json_encodable_datum = mock_np.item().return_value
+        mock_json_encodable_datum = 1
         mock_http = mock_httplib2.Http.return_value
         mock_authed_http = mock_google_auth_httplib2.AuthorizedHttp.return_value
         mock_google_auth_httplib2.AuthorizedHttp.\
