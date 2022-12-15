@@ -104,7 +104,7 @@ class GoogleSheetsRecordsTarget(SupportsMoveFromDataframes):
     def as_json_serializable(self, cell: Any) -> Any:
         if isinstance(cell, np.generic):
             # MyPy complains that this method does not exist
-            native = cell.item()  # type: ignore
+            native = cell.item()  
         else:
             native = cell
         if isinstance(cell, float) and math.isnan(native):
