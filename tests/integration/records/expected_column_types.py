@@ -14,7 +14,7 @@ expected_single_database_column_types = {
     'postgresql': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME WITHOUT TIME ZONE',
-        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMPTZ'
+        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
     'bigquery': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
@@ -30,7 +30,7 @@ expected_df_loaded_database_column_types = {
     'postgresql': [
         'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
         'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'TIME WITHOUT TIME ZONE',
-        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMPTZ'
+        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
     'mysql': [
         'BIGINT(20)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
