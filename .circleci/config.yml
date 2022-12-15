@@ -568,7 +568,7 @@ workflows:
       - integration_test:
           name: redshift-s3-itest-old-pandas
           extras: '[redshift-binary,itest]'
-          python_version: "3.9"
+          python_version: "3.8"
           pandas_version: "<1"
           db_name: demo-itest
           requires:
