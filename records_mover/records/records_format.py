@@ -67,10 +67,11 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
     the default hints for the variant and any hint overrides provided
     in the constructor"""
 
-    def __init__(self,
-                 variant: str = 'bluelabs',
-                 hints: PartialRecordsHints = {},
-                 processing_instructions: ProcessingInstructions = ProcessingInstructions()) -> None:
+    def __init__(
+            self,
+            variant: str = 'bluelabs',
+            hints: PartialRecordsHints = {},
+            processing_instructions: ProcessingInstructions = ProcessingInstructions()) -> None:
         """See the `records format documentation
         <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#hints>`_
         for full details on parameters.
