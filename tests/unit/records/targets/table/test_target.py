@@ -31,7 +31,8 @@ class TestTarget(unittest.TestCase):
                                add_user_perms_for=self.mock_add_user_perms_for,
                                add_group_perms_for=self.mock_add_group_perms_for,
                                existing_table_handling=self.mock_existing_table_handling,
-                               drop_and_recreate_on_load_error=self.mock_drop_and_recreate_on_load_error)
+                               drop_and_recreate_on_load_error=
+                                self.mock_drop_and_recreate_on_load_error)
 
     def test_can_move_from_fileobjs_source_yes(self):
         self.assertTrue(self.target.can_move_from_fileobjs_source())
