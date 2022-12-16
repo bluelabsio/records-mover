@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 def field_from_sqlalchemy_column(column: Column,
                                  driver: 'DBDriver',
                                  rep_type: str)\
-            -> 'RecordsSchemaField':
+        -> 'RecordsSchemaField':
     from ..field import RecordsSchemaField  # noqa
     name = column.name
     type_: Union[Type[sqlalchemy.types.TypeEngine],

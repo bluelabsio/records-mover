@@ -8,11 +8,11 @@ DEFAULT_MAX_SAMPLE_SIZE = 1000000
 
 class ProcessingInstructions:
     def __init__(self,
-                 fail_if_dont_understand: bool=True,
-                 fail_if_cant_handle_hint: bool=True,
-                 fail_if_row_invalid: bool=True,
-                 max_inference_rows: Optional[int]=DEFAULT_MAX_SAMPLE_SIZE,
-                 max_failure_rows: Optional[int]=None) -> None:
+                 fail_if_dont_understand: bool = True,
+                 fail_if_cant_handle_hint: bool = True,
+                 fail_if_row_invalid: bool = True,
+                 max_inference_rows: Optional[int] = DEFAULT_MAX_SAMPLE_SIZE,
+                 max_failure_rows: Optional[int] = None) -> None:
         """Directives on how to handle different situations when processing
         records.  Note that not all vendor mechanisms support this
         level of configurability; when choosing between optimizing for

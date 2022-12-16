@@ -10,10 +10,10 @@ class RecordsSchemaFieldDecimalConstraints(RecordsSchemaFieldConstraints):
     def __init__(self,
                  required: bool,
                  unique: Optional[bool],
-                 fixed_precision: Optional[int]=None,
-                 fixed_scale: Optional[int]=None,
-                 fp_total_bits: Optional[int]=None,
-                 fp_significand_bits: Optional[int]=None):
+                 fixed_precision: Optional[int] = None,
+                 fixed_scale: Optional[int] = None,
+                 fp_total_bits: Optional[int] = None,
+                 fp_significand_bits: Optional[int] = None):
         super().__init__(required=required, unique=unique)
         self.fixed_precision = fixed_precision
         self.fixed_scale = fixed_scale

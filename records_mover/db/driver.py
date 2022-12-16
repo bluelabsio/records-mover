@@ -83,7 +83,7 @@ class DBDriver(metaclass=ABCMeta):
     def supports_time_type(self) -> bool:
         return True
 
-    def type_for_date_plus_time(self, has_tz: bool=False) -> sqlalchemy.sql.sqltypes.DateTime:
+    def type_for_date_plus_time(self, has_tz: bool = False) -> sqlalchemy.sql.sqltypes.DateTime:
         """Different DB vendors have different names for a date, a time, and
         an optional timezone"""
         return sqlalchemy.sql.sqltypes.DateTime(timezone=has_tz)

@@ -68,9 +68,9 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
     in the constructor"""
 
     def __init__(self,
-                 variant: str='bluelabs',
-                 hints: PartialRecordsHints={},
-                 processing_instructions: ProcessingInstructions=ProcessingInstructions()) -> None:
+                 variant: str = 'bluelabs',
+                 hints: PartialRecordsHints = {},
+                 processing_instructions: ProcessingInstructions = ProcessingInstructions()) -> None:
         """See the `records format documentation
         <https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md#hints>`_
         for full details on parameters.
@@ -229,11 +229,11 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
 
 
 def RecordsFormat(format_type: 'RecordsFormatType' = 'delimited',
-                  variant: str='bluelabs',
-                  hints: PartialRecordsHints={},
+                  variant: str = 'bluelabs',
+                  hints: PartialRecordsHints = {},
                   processing_instructions:
-                  ProcessingInstructions=ProcessingInstructions()) ->\
-            'BaseRecordsFormat':
+                  ProcessingInstructions = ProcessingInstructions()) ->\
+        'BaseRecordsFormat':
     if format_type == 'delimited':
         return DelimitedRecordsFormat(variant=variant,
                                       hints=hints,

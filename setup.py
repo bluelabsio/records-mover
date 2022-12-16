@@ -127,7 +127,7 @@ nose_dependencies = [
 itest_dependencies = [
     'jsonschema',  # needed for directory_validator.py
     'pytz',
-    'wheel', # needed to support legacy 'setup.py install'
+    'wheel',  # needed to support legacy 'setup.py install'
 ] + (
     nose_dependencies +
     # needed for records_database_fixture retrying drop/creates on
@@ -286,7 +286,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='records-mover',
-      version=__version__, # read right above  # noqa
+      version=__version__,  # read right above  # noqa
       description=('Library and CLI to move relational data from one place to another - '
                    'DBs/CSV/gsheets/dataframes/...'),
       long_description=long_description,
