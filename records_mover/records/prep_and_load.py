@@ -15,7 +15,7 @@ def prep_and_load(tbl: TargetTableDetails,
                   load: Callable[[DBDriver], Optional[int]],
                   load_exception_type: Type[Exception],
                   reset_before_reload: Callable[[], None] = lambda: None) -> MoveResult:
-    logger.info(f"Connecting to database...")
+    logger.info("Connecting to database...")
     with tbl.db_engine.begin() as db:
         driver = tbl.db_driver(db)
         prep.prep(schema_sql=schema_sql, driver=driver)
