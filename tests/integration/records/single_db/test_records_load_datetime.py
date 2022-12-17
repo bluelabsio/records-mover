@@ -45,12 +45,12 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                            'compression': None,
                                            'header-row': False,
                                            **addl_hints,
-                                       })
+        })
         source = sources.fileobjs(target_names_to_input_fileobjs={
-                                    'test': fileobj
-                                  },
-                                  records_schema=records_schema,
-                                  records_format=records_format)
+            'test': fileobj
+        },
+            records_schema=records_schema,
+            records_format=records_format)
         target = targets.table(schema_name=self.schema_name,
                                table_name=self.table_name,
                                db_engine=self.engine)

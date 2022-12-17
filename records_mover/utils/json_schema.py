@@ -60,7 +60,7 @@ def parse_python_parameter_type(name: str,
                                 description: Optional[str],
                                 optional: bool,
                                 default: DefaultValue) ->\
-                Optional[JsonParameter]:
+        Optional[JsonParameter]:
     if python_type == str:
         return JsonParameter(name, JsonSchemaDocument(json_type='string',
                                                       default=default,

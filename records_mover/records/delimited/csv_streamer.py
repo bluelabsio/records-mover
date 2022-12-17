@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 @contextmanager
 def stream_csv(filepath_or_buffer: Union[str, IO[bytes]],
                hints: PartialRecordsHints)\
-               -> Iterator['TextFileReader']:
+        -> Iterator['TextFileReader']:
     """Returns a context manager that can be used to generate a full or
     partial dataframe from a CSV.  If partial, it will not read the
     entire CSV file into memory."""

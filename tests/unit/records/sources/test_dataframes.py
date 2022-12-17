@@ -83,8 +83,8 @@ class TestDataframesRecordsSource(unittest.TestCase):
                     "data001.csv": mock_data_fileobj_1,
                     "data002.csv": mock_data_fileobj_2,
                 },
-                                   records_schema=mock_target_records_schema,
-                                   records_format=mock_target_records_format)
+                    records_schema=mock_target_records_schema,
+                    records_format=mock_target_records_format)
             self.assertEqual(fileobjs, mock_FileobjsSource.return_value)
             mock_data_fileobj_1.close.assert_not_called()
             mock_data_fileobj_2.close.assert_not_called()
@@ -155,8 +155,8 @@ class TestDataframesRecordsSource(unittest.TestCase):
                     "data001.parquet": mock_data_fileobj_1,
                     "data002.parquet": mock_data_fileobj_2,
                 },
-                                   records_schema=mock_target_records_schema,
-                                   records_format=mock_target_records_format)
+                    records_schema=mock_target_records_schema,
+                    records_format=mock_target_records_format)
             self.assertEqual(fileobjs, mock_FileobjsSource.return_value)
             mock_data_fileobj_1.close.assert_not_called()
             mock_data_fileobj_2.close.assert_not_called()
