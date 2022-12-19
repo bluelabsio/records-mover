@@ -138,6 +138,11 @@ expected_table2table_column_types = {
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
         'TIMESTAMP', 'TIMESTAMP'
     ],
+    ('redshift', 'postgresql'): [
+        'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
+        'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
+        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
+    ],
     ('bigquery', 'redshift'): [
         'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'INTEGER', 'INTEGER',
