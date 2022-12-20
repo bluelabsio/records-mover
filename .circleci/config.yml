@@ -27,7 +27,10 @@ commands:
           key: deps-v2-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
+          environment:
+              PYENV_VERSION: <<parameters.python_version>>
           command: |
+            echo "installing under venv using python $PYENV_VERSION"
             if [ -f venv/bin/activate ]
             then
               . venv/bin/activate
@@ -99,56 +102,56 @@ jobs:
         default: false
         description: "Enforce coverage not slipping"
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints:
             # Bluelabs Butler Key
             - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
-      # - installvenv:
-      #     extras: <<parameters.extras>>
-      #     python_version: <<parameters.python_version>>
-      #     pandas_version: <<parameters.pandas_version>>
-      #     # includes numpy-stubs - should be obsolete and unneeded
-      #     # starting with numpy 1.20
-      #     include_dev_dependencies: true
-      # - run:
-      #     name: Run tests
-      #     command: |
-      #       . venv/bin/activate
-      #       make citest
-      #       if [ "<<parameters.coverage>>" == true ]
-      #       then
-      #         make cicoverage
-      #       fi
-      # - run:
-      #     when: always
-      #     name: Archive coverage report
-      #     command: |
-      #       tar -czvf cover.tar.gz cover
-      # - run:
-      #     name: Typecheck
-      #     command: |
-      #       . venv/bin/activate
-      #       make typecheck
-      #       if [ "<<parameters.coverage>>" == true ]
-      #       then
-      #         make citypecoverage
-      #       fi
-      # - run:
-      #     when: always
-      #     name: Archive type coverage report
-      #     command: |
-      #       tar -czvf typecover.tar.gz typecover
-      # - store_test_results:
-      #     path: test-reports
-      # - store_artifacts:
-      #     path: test-reports
-      # - store_artifacts:
-      #     path: cover.tar.gz
-      # - store_artifacts:
-      #     path: typecover.tar.gz
+      - installvenv:
+          extras: <<parameters.extras>>
+          python_version: <<parameters.python_version>>
+          pandas_version: <<parameters.pandas_version>>
+          # includes numpy-stubs - should be obsolete and unneeded
+          # starting with numpy 1.20
+          include_dev_dependencies: true
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            make citest
+            if [ "<<parameters.coverage>>" == true ]
+            then
+              make cicoverage
+            fi
+      - run:
+          when: always
+          name: Archive coverage report
+          command: |
+            tar -czvf cover.tar.gz cover
+      - run:
+          name: Typecheck
+          command: |
+            . venv/bin/activate
+            make typecheck
+            if [ "<<parameters.coverage>>" == true ]
+            then
+              make citypecoverage
+            fi
+      - run:
+          when: always
+          name: Archive type coverage report
+          command: |
+            tar -czvf typecover.tar.gz typecover
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
+      - store_artifacts:
+          path: cover.tar.gz
+      - store_artifacts:
+          path: typecover.tar.gz
 
   integration_test_with_dbs:
     parameters:
@@ -167,7 +170,7 @@ jobs:
         type: string
         description: "Command to run in records-mover venv"
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
       - image: jbfavre/vertica:8.1.1-16_centos-7
         environment:
           DATABASE_NAME: docker
@@ -268,7 +271,7 @@ jobs:
         default: true
 
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
     steps:
       - checkout
       - add_ssh_keys:
@@ -315,7 +318,7 @@ jobs:
         description: "Version of python to test against"
         default: '3.9'
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
     steps:
       - checkout
       - installvenv:
@@ -353,7 +356,7 @@ jobs:
             twine upload -r pypi dist/*
   cli-extra-test:
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     steps:
       - checkout
       - installvenv:
