@@ -106,49 +106,49 @@ jobs:
           fingerprints:
             # Bluelabs Butler Key
             - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
-      - installvenv:
-          extras: <<parameters.extras>>
-          python_version: <<parameters.python_version>>
-          pandas_version: <<parameters.pandas_version>>
-          # includes numpy-stubs - should be obsolete and unneeded
-          # starting with numpy 1.20
-          include_dev_dependencies: true
-      - run:
-          name: Run tests
-          command: |
-            . venv/bin/activate
-            make citest
-            if [ "<<parameters.coverage>>" == true ]
-            then
-              make cicoverage
-            fi
-      - run:
-          when: always
-          name: Archive coverage report
-          command: |
-            tar -czvf cover.tar.gz cover
-      - run:
-          name: Typecheck
-          command: |
-            . venv/bin/activate
-            make typecheck
-            if [ "<<parameters.coverage>>" == true ]
-            then
-              make citypecoverage
-            fi
-      - run:
-          when: always
-          name: Archive type coverage report
-          command: |
-            tar -czvf typecover.tar.gz typecover
-      - store_test_results:
-          path: test-reports
-      - store_artifacts:
-          path: test-reports
-      - store_artifacts:
-          path: cover.tar.gz
-      - store_artifacts:
-          path: typecover.tar.gz
+      # - installvenv:
+      #     extras: <<parameters.extras>>
+      #     python_version: <<parameters.python_version>>
+      #     pandas_version: <<parameters.pandas_version>>
+      #     # includes numpy-stubs - should be obsolete and unneeded
+      #     # starting with numpy 1.20
+      #     include_dev_dependencies: true
+      # - run:
+      #     name: Run tests
+      #     command: |
+      #       . venv/bin/activate
+      #       make citest
+      #       if [ "<<parameters.coverage>>" == true ]
+      #       then
+      #         make cicoverage
+      #       fi
+      # - run:
+      #     when: always
+      #     name: Archive coverage report
+      #     command: |
+      #       tar -czvf cover.tar.gz cover
+      # - run:
+      #     name: Typecheck
+      #     command: |
+      #       . venv/bin/activate
+      #       make typecheck
+      #       if [ "<<parameters.coverage>>" == true ]
+      #       then
+      #         make citypecoverage
+      #       fi
+      # - run:
+      #     when: always
+      #     name: Archive type coverage report
+      #     command: |
+      #       tar -czvf typecover.tar.gz typecover
+      # - store_test_results:
+      #     path: test-reports
+      # - store_artifacts:
+      #     path: test-reports
+      # - store_artifacts:
+      #     path: cover.tar.gz
+      # - store_artifacts:
+      #     path: typecover.tar.gz
 
   integration_test_with_dbs:
     parameters:
