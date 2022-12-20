@@ -99,7 +99,7 @@ jobs:
         default: false
         description: "Enforce coverage not slipping"
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
     steps:
       - checkout
       - add_ssh_keys:
@@ -167,7 +167,7 @@ jobs:
         type: string
         description: "Command to run in records-mover venv"
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
       - image: jbfavre/vertica:8.1.1-16_centos-7
         environment:
           DATABASE_NAME: docker
@@ -268,7 +268,7 @@ jobs:
         default: true
 
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
     steps:
       - checkout
       - add_ssh_keys:
@@ -315,7 +315,7 @@ jobs:
         description: "Version of python to test against"
         default: '3.9'
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
     steps:
       - checkout
       - installvenv:
@@ -353,7 +353,7 @@ jobs:
             twine upload -r pypi dist/*
   cli-extra-test:
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     steps:
       - checkout
       - installvenv:
