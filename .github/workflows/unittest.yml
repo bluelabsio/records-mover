@@ -28,9 +28,7 @@ jobs:
         run: |
           . venv/bin/activate
           make typecheck
-          make citypecoverage
       - name: Run unit tests
         run: |
           . venv/bin/activate
           make citest
-          make cicoverage
