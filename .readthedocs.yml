@@ -8,10 +8,8 @@ version: 2
 python:
   version: 3.9
   install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - docs
+    - requirements: docs/source/requirements.txt
 
 sphinx:
   fail_on_warning: false
+  configuration: docs/source/conf.py
