@@ -291,6 +291,7 @@ jobs:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
+          numpy_version: <<parameters.numpy_version>>
       - run:
           name: Run tests
           command: |
