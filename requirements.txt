@@ -6,7 +6,7 @@ flake8
 # https://github.com/pallets/markupsafe/issues/284
 markupsafe==2.0.1
 # https://github.com/pandas-dev/pandas/pull/45749
-pandas
+# pandas
 google-cloud-storage
 boto3
 
