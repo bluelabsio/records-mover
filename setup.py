@@ -121,7 +121,8 @@ google_api_client_dependencies = [
 ]
 
 pytest_dependencies = [
-    'pytest'
+    'pytest',
+    'pytest-cov'
 ]
 
 itest_dependencies = [
