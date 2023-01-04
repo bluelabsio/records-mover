@@ -32,6 +32,8 @@ commands:
           key: deps-v6-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
+          environment:
+            PYENV_VERSION: <<parameters.python_version>>
           command: |
             if [ -f venv/bin/activate ]
             then
