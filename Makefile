@@ -25,11 +25,11 @@ citypecoverage: typecoverage
 	@test -z "$$(git status --porcelain metrics/mypy_high_water_mark)"
 
 unit:
-	ENV=test pytest --cover-package=records_mover --cover-erase --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive tests/unit
+	ENV=test pytest --cov=records_mover tests/unit
 	mv .coverage .coverage-unit
 
 component:
-	ENV=test pytest --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive tests/component
+	ENV=test pytest --cov=records_mover tests/component
 	mv .coverage .coverage-component
 
 test: unit component
@@ -38,11 +38,11 @@ test: unit component
 	coverage xml
 
 ciunit:
-	ENV=test pytest --cover-package=records_mover --cover-erase --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml tests/unit
+	ENV=test pytest --cov=records_mover tests/unit
 	mv .coverage .coverage-unit
 
 cicomponent:
-	ENV=test pytest --cover-package=records_mover --with-coverage --with-xunit --cover-html --cover-xml --cover-inclusive --xunit-file=test-reports/junit.xml tests/component
+	ENV=test pytest --cov=records_mover tests/component
 	mv .coverage .coverage-component
 
 citest: test-reports ciunit cicomponent
