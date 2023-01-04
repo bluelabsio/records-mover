@@ -192,7 +192,7 @@ parquet_dependencies = [
 ]
 
 pandas_dependencies = [
-    'pandas==1.1.5',
+    'pandas',
 ]
 
 mysql_dependencies = [
