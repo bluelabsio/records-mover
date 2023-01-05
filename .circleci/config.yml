@@ -313,7 +313,7 @@ jobs:
               # This is set by default in the CircleCI environment
               unset SCRATCH_GCS_URL
             fi
-            with-db <<parameters.db_name>> pytest --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+            with-db <<parameters.db_name>> pytest
       - store_test_results:
           path: test-reports
       - store_artifacts:
@@ -445,7 +445,7 @@ workflows:
       #       # scratch bucket config.
       #       #
       #       unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
-      #       with-db dockerized-vertica pytest --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+      #       with-db dockerized-vertica pytest
       #     requires:
       #       - redshift-s3-itest
       #     filters:
@@ -463,7 +463,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            with-db dockerized-postgres pytest --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+            with-db dockerized-postgres pytest
           requires:
             - redshift-s3-itest
           filters:
@@ -485,7 +485,7 @@ workflows:
       #       export RECORDS_MOVER_SESSION_TYPE=env
       #       mkdir -p test-reports/itest
       #       cd tests/integration/records/single_db
-      #       with-db dockerized-mysql pytest --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+      #       with-db dockerized-mysql pytest
       #     requires:
       #       - redshift-s3-itest
       #     filters:
@@ -502,7 +502,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            with-db dockerized-vertica pytest --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+            with-db dockerized-vertica pytest
           requires:
             - redshift-s3-itest
           filters:
