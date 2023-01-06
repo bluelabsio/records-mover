@@ -671,5 +671,3 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
             branches:
               ignore: /.*/
-
-# VS Code Extension Version: 1.5.1
