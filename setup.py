@@ -139,7 +139,7 @@ itest_dependencies = [
 airflow_dependencies = [
     # Minimum version here is needed to avoid syntax error in setup.py
     # in 1.10.0
-    'apache-airflow>=1.10.1,<2'
+    'apache-airflow>=2'
 ]
 
 db_dependencies = [
