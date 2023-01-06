@@ -1,4 +1,3 @@
-from nose.tools import assert_equal
 from mock import patch
 from records_mover.records.schema.field import RecordsSchemaField
 from records_mover.records.schema.field.constraints import (
@@ -29,7 +28,7 @@ def check_dtype(field_type, constraints, expectation):
         representations=None,
     )
     out = field.cast_series_type(pd.Series(1, dtype=np.int8))
-    assert_equal(out.dtype, expectation)
+    assert out.dtype == expectation
 
 
 def test_to_pandas_dtype_integer_no_nullable():

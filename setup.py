@@ -120,8 +120,9 @@ google_api_client_dependencies = [
     'grpcio<2.0dev,>=1.29.0',
 ]
 
-nose_dependencies = [
-    'nose'
+pytest_dependencies = [
+    'pytest',
+    'pytest-cov'
 ]
 
 itest_dependencies = [
@@ -129,7 +130,7 @@ itest_dependencies = [
     'pytz',
     'wheel',  # needed to support legacy 'setup.py install'
 ] + (
-    nose_dependencies +
+    pytest_dependencies +
     # needed for records_database_fixture retrying drop/creates on
     # BigQuery
     google_api_client_dependencies
@@ -255,7 +256,7 @@ unittest_dependencies = [
     'coverage',
     'mock',
 ] + (
-    nose_dependencies +
+    pytest_dependencies +
     cli_dependencies_base +
     airflow_dependencies +
     gsheet_dependencies +

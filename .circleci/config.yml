@@ -29,9 +29,11 @@ commands:
         default: ""
     steps:
       - restore_cache:
-          key: deps-v5-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v6-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
+          environment:
+            PYENV_VERSION: <<parameters.python_version>>
           command: |
             if [ -f venv/bin/activate ]
             then
@@ -60,7 +62,7 @@ commands:
               fi
             fi
       - save_cache:
-          key: deps-v5-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v6-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
   wait_for_db:
@@ -108,7 +110,7 @@ jobs:
         default: false
         description: "Enforce coverage not slipping"
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
     steps:
       - checkout
       - add_ssh_keys:
@@ -176,7 +178,7 @@ jobs:
         type: string
         description: "Command to run in records-mover venv"
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
       - image: jbfavre/vertica:8.1.1-16_centos-7
         environment:
           DATABASE_NAME: docker
@@ -280,7 +282,7 @@ jobs:
         default: true
 
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
     steps:
       - checkout
       - add_ssh_keys:
@@ -311,7 +313,7 @@ jobs:
               # This is set by default in the CircleCI environment
               unset SCRATCH_GCS_URL
             fi
-            with-db <<parameters.db_name>> nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+            with-db <<parameters.db_name>> pytest
       - store_test_results:
           path: test-reports
       - store_artifacts:
@@ -328,7 +330,7 @@ jobs:
         description: "Version of python to test against"
         default: '3.9'
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
     steps:
       - checkout
       - installvenv:
@@ -366,7 +368,7 @@ jobs:
             twine upload -r pypi dist/*
   cli-extra-test:
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     steps:
       - checkout
       - installvenv:
@@ -443,7 +445,7 @@ workflows:
       #       # scratch bucket config.
       #       #
       #       unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
-      #       with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+      #       with-db dockerized-vertica pytest
       #     requires:
       #       - redshift-s3-itest
       #     filters:
@@ -461,7 +463,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            with-db dockerized-postgres nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+            with-db dockerized-postgres pytest
           requires:
             - redshift-s3-itest
           filters:
@@ -483,7 +485,7 @@ workflows:
       #       export RECORDS_MOVER_SESSION_TYPE=env
       #       mkdir -p test-reports/itest
       #       cd tests/integration/records/single_db
-      #       with-db dockerized-mysql nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+      #       with-db dockerized-mysql pytest
       #     requires:
       #       - redshift-s3-itest
       #     filters:
@@ -500,7 +502,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+            with-db dockerized-vertica pytest
           requires:
             - redshift-s3-itest
           filters:
