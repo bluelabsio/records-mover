@@ -6,6 +6,7 @@ from records_mover.records.schema.field.constraints import (
 )
 import numpy as np
 import pandas as pd
+import pytest
 
 
 def with_nullable(nullable: bool, fn):
@@ -30,8 +31,7 @@ def check_dtype(field_type, constraints, expectation):
     out = field.cast_series_type(pd.Series(1, dtype=np.int8))
     assert out.dtype == expectation
 
-
-def test_to_pandas_dtype_integer_no_nullable():
+class Test_to_pandas_dtype_integer_no_nullable:
     expectations = {
         (-100, 100): np.int8,
         (0, 240): np.uint8,
@@ -44,13 +44,35 @@ def test_to_pandas_dtype_integer_no_nullable():
         (25, 1000000000000000000000000000): np.float128,
         (None, None): np.int64,
     }
-    for (min_, max_), expected_pandas_type in expectations.items():
+    @pytest.mark.parameterize("expectation", expectations.items())
+    def test_to_pandas_dtype_integer_no_nullable(self, expectation):
+        (min_,max_),expected_pandas_type = expectation
         constraints = RecordsSchemaFieldIntegerConstraints(
             required=True, unique=None, min_=min_, max_=max_
         )
-        yield with_nullable(
-            False, check_dtype
-        ), "integer", constraints, expected_pandas_type
+        with_nullable(False, check_dtype("integer", constraints, expected_pandas_type))
+
+# def test_to_pandas_dtype_integer_no_nullable():
+#     expectations = {
+#         (-100, 100): np.int8,
+#         (0, 240): np.uint8,
+#         (-10000, 10000): np.int16,
+#         (500, 40000): np.uint16,
+#         (-200000000, 200000000): np.int32,
+#         (25, 4000000000): np.uint32,
+#         (-9000000000000000000, 2000000000): np.int64,
+#         (25, 10000000000000000000): np.uint64,
+#         (25, 1000000000000000000000000000): np.float128,
+#         (None, None): np.int64,
+#     }
+#     @pytest.mark.parameterize("expectation",expectations.items())
+#     for (min_, max_), expected_pandas_type in expectations.items():
+#         constraints = RecordsSchemaFieldIntegerConstraints(
+#             required=True, unique=None, min_=min_, max_=max_
+#         )
+#         yield with_nullable(
+#             False, check_dtype
+#         ), "integer", constraints, expected_pandas_type
 
 
 def test_to_pandas_dtype_integer_nullable():
