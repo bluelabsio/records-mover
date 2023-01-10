@@ -11,12 +11,12 @@ class TestCredsViaAirflow(unittest.TestCase):
                                                  default_aws_creds_name=None,
                                                  default_gcp_creds_name=None)
 
-    @patch('airflow.contrib.hooks.aws_hook.AwsHook')
-    def test_boto3_session(self, mock_AwsHook):
+    @patch('airflow.contrib.hooks.aws_hook.base_aws')
+    def test_boto3_session(self, mock_base_aws):
         mock_aws_creds_name = Mock(name='aws_creds_name')
         out = self.creds_via_airflow.boto3_session(mock_aws_creds_name)
-        mock_AwsHook.assert_called_with(mock_aws_creds_name)
-        self.assertEqual(mock_AwsHook.return_value.get_session.return_value, out)
+        mock_base_aws.assert_called_with(mock_aws_creds_name)
+        self.assertEqual(mock_base_aws.return_value.get_session.return_value, out)
 
     @patch('airflow.hooks.BaseHook')
     def test_db_facts_normcoredb(self, mock_BaseHook):

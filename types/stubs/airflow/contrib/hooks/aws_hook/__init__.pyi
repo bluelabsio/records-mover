@@ -4,7 +4,7 @@ from airflow.hooks import BaseHook
 
 
 # https://github.com/apache/airflow/blob/master/airflow/contrib/hooks/aws_hook.py
-class AwsHook(BaseHook):
+class base_aws(BaseHook):
     def __init__(self, conn_id: str):
         ...
 
