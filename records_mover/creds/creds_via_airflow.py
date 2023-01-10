@@ -19,7 +19,7 @@ class CredsViaAirflow(BaseCreds):
         return aws_hook.get_session()
 
     def db_facts(self, db_creds_name: str) -> DBFacts:
-        from airflow.hooks import BaseHook
+        from airflow.hooks.base import BaseHook
         conn = BaseHook.get_connection(db_creds_name)
         out: DBFacts = {}
 
