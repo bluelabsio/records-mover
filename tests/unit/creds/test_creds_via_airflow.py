@@ -18,7 +18,7 @@ class TestCredsViaAirflow(unittest.TestCase):
         mock_base_aws.assert_called_with(mock_aws_creds_name)
         self.assertEqual(mock_base_aws.return_value.get_session.return_value, out)
 
-    @patch('airflow.hooks.BaseHook')
+    @patch('airflow.hooks.base.BaseHook')
     def test_db_facts_normcoredb(self, mock_BaseHook):
         mock_db_creds_name = Mock(name='db_creds_name')
         mock_conn = mock_BaseHook.get_connection.return_value
@@ -37,7 +37,7 @@ class TestCredsViaAirflow(unittest.TestCase):
         }
         self.assertEqual(expected_db_facts, out)
 
-    @patch('airflow.hooks.BaseHook')
+    @patch('airflow.hooks.base.BaseHook')
     def test_db_facts_bigquery_serviceaccount(self, mock_BaseHook):
         mock_db_creds_name = Mock(name='db_creds_name')
         mock_conn = mock_BaseHook.get_connection.return_value
