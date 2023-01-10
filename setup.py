@@ -137,21 +137,11 @@ itest_dependencies = [
 )
 
 airflow_dependencies = [
-    # Minimum version here is needed to avoid syntax error in setup.py
-    # in 1.10.0
     'apache-airflow>=2',
-    'apache-airflow-backport-providers-amazon'
 ]
 
 db_dependencies = [
-    # Lower bound (>=1.3.18) is to improve package resolution performance
-    #
-    # Upper bound (<1.4) is to avoid 1.4 which has breaking changes and is
-    # incompatible with python-bigquery-sqlalchemy per
-    # https://github.com/googleapis/python-bigquery-sqlalchemy/issues/83
-    # Can lift this once records-mover itself is compatible and
-    # other packages have appropriate restrictions in place.
-    'sqlalchemy>=1.3.18,<1.4',
+    'sqlalchemy',
 ]
 
 smart_open_dependencies = [
