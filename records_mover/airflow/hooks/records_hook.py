@@ -14,7 +14,7 @@ try:
     from airflow.hooks import BaseHook
 except ImportError:
     # Required for Airflow 2.0
-    from airflow.hooks.base_hook import BaseHook  # type: ignore
+    from airflow.hooks.base import BaseHook  # type: ignore
 
 if TYPE_CHECKING:
     from boto3.session import ListObjectsResponseContentType, S3ClientTypeStub  # noqa
