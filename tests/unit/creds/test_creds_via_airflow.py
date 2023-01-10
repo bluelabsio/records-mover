@@ -11,7 +11,7 @@ class TestCredsViaAirflow(unittest.TestCase):
                                                  default_aws_creds_name=None,
                                                  default_gcp_creds_name=None)
 
-    @patch('airflow.contrib.hooks.aws_hook.base_aws')
+    @patch('airflow.providers.amazon.aws.hooks.base_aws')
     def test_boto3_session(self, mock_base_aws):
         mock_aws_creds_name = Mock(name='aws_creds_name')
         out = self.creds_via_airflow.boto3_session(mock_aws_creds_name)
