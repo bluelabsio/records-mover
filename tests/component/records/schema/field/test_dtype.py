@@ -44,7 +44,7 @@ class Test_to_pandas_dtype_integer_no_nullable:
         (25, 1000000000000000000000000000): np.float128,
         (None, None): np.int64,
     }
-    @pytest.mark.parameterize("expectation", expectations.items())
+    @pytest.mark.parametrize("expectation", expectations.items())
     def test_to_pandas_dtype_integer_no_nullable(self, expectation):
         (min_,max_),expected_pandas_type = expectation
         constraints = RecordsSchemaFieldIntegerConstraints(
@@ -65,7 +65,7 @@ class Test_to_pandas_dtype_integer_no_nullable:
 #         (25, 1000000000000000000000000000): np.float128,
 #         (None, None): np.int64,
 #     }
-#     @pytest.mark.parameterize("expectation",expectations.items())
+#     @pytest.mark.parametrize("expectation",expectations.items())
 #     for (min_, max_), expected_pandas_type in expectations.items():
 #         constraints = RecordsSchemaFieldIntegerConstraints(
 #             required=True, unique=None, min_=min_, max_=max_
