@@ -138,6 +138,7 @@ itest_dependencies = [
 
 airflow_dependencies = [
     'apache-airflow>=2',
+    'apache-airflow-providers-amazon',
 ]
 
 db_dependencies = [
