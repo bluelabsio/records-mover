@@ -96,7 +96,7 @@ class Test_to_pandas_dtype_integer_nullable:
         with_nullable(True, check_dtype("integer", constraints, expected_pandas_type))
 
 
-def test_to_pandas_dtype_decimal_float():
+class Test_to_pandas_dtype_decimal_float():
     expectations = {
         (8, 4): np.float16,
         (20, 10): np.float32,
@@ -105,10 +105,9 @@ def test_to_pandas_dtype_decimal_float():
         (500, 250): np.float128,
         (None, None): np.float64,
     }
-    for (
-        fp_total_bits,
-        fp_significand_bits,
-    ), expected_pandas_type in expectations.items():
+    @pytest.mark.parametrize("expectation", expectations.items())
+    def test_to_pandas_dtype_Tdecimal_float(self, expectation):
+        (fp_total_bits,fp_significand_bits), expected_pandas_type = expectation
         constraints = RecordsSchemaFieldDecimalConstraints(
             required=False,
             unique=None,
@@ -117,7 +116,7 @@ def test_to_pandas_dtype_decimal_float():
             fp_total_bits=fp_total_bits,
             fp_significand_bits=fp_significand_bits,
         )
-        yield check_dtype, "decimal", constraints, expected_pandas_type
+        check_dtype("decimal", constraints, expected_pandas_type)
 
 
 def test_to_pandas_dtype_misc():
