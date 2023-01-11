@@ -31,6 +31,7 @@ def check_dtype(field_type, constraints, expectation):
     out = field.cast_series_type(pd.Series(1, dtype=np.int8))
     assert out.dtype == expectation
 
+
 class Test_to_pandas_dtype_integer_no_nullable:
     expectations = {
         (-100, 100): pd.Int8Dtype(),
@@ -44,9 +45,10 @@ class Test_to_pandas_dtype_integer_no_nullable:
         (25, 1000000000000000000000000000): np.float128,
         (None, None): pd.Int64Dtype(),
     }
+
     @pytest.mark.parametrize("expectation", expectations.items())
     def test_to_pandas_dtype_integer_no_nullable(self, expectation):
-        (min_,max_),expected_pandas_type = expectation
+        (min_, max_), expected_pandas_type = expectation
         constraints = RecordsSchemaFieldIntegerConstraints(
             required=True, unique=None, min_=min_, max_=max_
         )
@@ -66,9 +68,10 @@ class Test_to_pandas_dtype_integer_nullable:
         (25, 1000000000000000000000000000): np.float128,
         (None, None): pd.Int64Dtype(),
     }
+
     @pytest.mark.parametrize("expectation", expectations.items())
     def test_to_pandas_dtype_integer_nullable(self, expectation):
-        (min_,max_),expected_pandas_type = expectation
+        (min_, max_), expected_pandas_type = expectation
         constraints = RecordsSchemaFieldIntegerConstraints(
             required=True, unique=None, min_=min_, max_=max_
         )
@@ -84,9 +87,10 @@ class Test_to_pandas_dtype_decimal_float():
         (500, 250): np.float128,
         (None, None): np.float64,
     }
+
     @pytest.mark.parametrize("expectation", expectations.items())
     def test_to_pandas_dtype_Tdecimal_float(self, expectation):
-        (fp_total_bits,fp_significand_bits), expected_pandas_type = expectation
+        (fp_total_bits, fp_significand_bits), expected_pandas_type = expectation
         constraints = RecordsSchemaFieldDecimalConstraints(
             required=False,
             unique=None,
@@ -107,6 +111,7 @@ class Test_to_pandas_dtype_misc():
         "datetimetz": "datetime64[ns, UTC]",
         "time": np.object_,
     }
+
     @pytest.mark.parametrize("expectation", expectations.items())
     def test_to_pandas_dtype_misc(self, expectation):
         field_type, expected_pandas_type = expectation
