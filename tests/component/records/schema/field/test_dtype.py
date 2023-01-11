@@ -52,27 +52,6 @@ class Test_to_pandas_dtype_integer_no_nullable:
         )
         with_nullable(False, check_dtype("integer", constraints, expected_pandas_type))
 
-# def test_to_pandas_dtype_integer_no_nullable():
-#     expectations = {
-#         (-100, 100): np.int8,
-#         (0, 240): np.uint8,
-#         (-10000, 10000): np.int16,
-#         (500, 40000): np.uint16,
-#         (-200000000, 200000000): np.int32,
-#         (25, 4000000000): np.uint32,
-#         (-9000000000000000000, 2000000000): np.int64,
-#         (25, 10000000000000000000): np.uint64,
-#         (25, 1000000000000000000000000000): np.float128,
-#         (None, None): np.int64,
-#     }
-#     @pytest.mark.parametrize("expectation",expectations.items())
-#     for (min_, max_), expected_pandas_type in expectations.items():
-#         constraints = RecordsSchemaFieldIntegerConstraints(
-#             required=True, unique=None, min_=min_, max_=max_
-#         )
-#         yield with_nullable(
-#             False, check_dtype
-#         ), "integer", constraints, expected_pandas_type
 
 class Test_to_pandas_dtype_integer_nullable:
     expectations = {
