@@ -119,7 +119,7 @@ class Test_to_pandas_dtype_decimal_float():
         check_dtype("decimal", constraints, expected_pandas_type)
 
 
-def test_to_pandas_dtype_misc():
+class Test_to_pandas_dtype_misc():
     expectations = {
         "boolean": np.bool_,
         "string": np.object_,
@@ -128,8 +128,10 @@ def test_to_pandas_dtype_misc():
         "datetimetz": "datetime64[ns, UTC]",
         "time": np.object_,
     }
-    for field_type, expected_pandas_type in expectations.items():
-        yield check_dtype, field_type, None, expected_pandas_type
+    @pytest.mark.parametrize("expectation", expectations.items())
+    def test_to_pandas_dtype_misc(self, expectation):
+        field_type, expected_pandas_type = expectation
+        check_dtype(field_type, None, expected_pandas_type)
 
 
 def test_to_pandas_dtype_fixed_precision_():
