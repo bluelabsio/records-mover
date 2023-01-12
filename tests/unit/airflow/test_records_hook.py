@@ -4,7 +4,7 @@ import unittest
 
 
 class TestRecordsHook(unittest.TestCase):
-    @patch('records_mover.airflow.providers.amazon.aws.hooks.base_aws.AwsBaseHook')
+    @patch('records_mover.airflow.hooks.records_hook.AwsBaseHook')
     def test_validate_and_prepare_target_directory(self,
                                                    mock_AwsBaseHook):
         target_url = 's3://bluelabs-fake-bucket'

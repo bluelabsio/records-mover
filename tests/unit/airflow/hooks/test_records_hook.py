@@ -12,7 +12,7 @@ class TestRecordsHook(unittest.TestCase):
 
     @patch('records_mover.airflow.hooks.records_hook.UrlResolver')
     @patch('records_mover.airflow.hooks.records_hook.Records')
-    @patch('records_mover.airflow.providers.amazon.aws.hooks.base_aws.AwsBaseHook')
+    @patch('records_mover.airflow.hooks.records_hook.AwsBaseHook')
     def test_get_conn(self,
                       mock_AwsBaseHook,
                       mock_Records,
@@ -24,7 +24,7 @@ class TestRecordsHook(unittest.TestCase):
 
     @patch('records_mover.airflow.hooks.records_hook.UrlResolver')
     @patch('records_mover.airflow.hooks.records_hook.Records')
-    @patch('records_mover.airflow.providers.amazon.aws.hooks.base_aws.AwsBaseHook')
+    @patch('records_mover.airflow.hooks.records_hook.AwsBaseHook')
     @patch('records_mover.airflow.hooks.records_hook.db_driver')
     def test_get_conn_invalid_s3_url(self,
                                      mock_db_driver,
