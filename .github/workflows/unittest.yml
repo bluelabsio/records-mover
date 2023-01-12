@@ -23,12 +23,11 @@ jobs:
           pip install --upgrade pip
           pip install -e '.[unittest,typecheck]'
           pip install --progress-bar=off -r requirements.txt
-          pip install --upgrade --progress-bar=off 'pandas==1.1.5'
       - name: Typecheck
         run: |
           . venv/bin/activate
           make typecheck
-      - name: Run nosetests
+      - name: Run unit tests
         run: |
           . venv/bin/activate
           make citest
