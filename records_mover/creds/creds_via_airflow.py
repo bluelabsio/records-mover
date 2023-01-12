@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 class CredsViaAirflow(BaseCreds):
     def boto3_session(self, aws_creds_name: str) -> 'boto3.session.Session':
-        from airflow.providers.amazon.aws.hooks import base_aws
-        aws_hook = base_aws(aws_creds_name)
+        from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
+        aws_hook = AwsBaseHook(aws_creds_name)
         return aws_hook.get_session()
 
     def db_facts(self, db_creds_name: str) -> DBFacts:

@@ -5,7 +5,7 @@ from records_mover.records.records import Records
 from records_mover.db.factory import db_driver
 from records_mover.db import DBDriver
 from records_mover.url.resolver import UrlResolver
-from airflow.providers.amazon.aws.hooks import base_aws
+from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from typing import Optional, Union, List, TYPE_CHECKING
 import sqlalchemy
 
@@ -41,7 +41,7 @@ class RecordsHook(BaseHook):
 
     def _get_boto3_session(self) -> boto3.session.Session:
         if not self._boto3_session:
-            self._boto3_session = base_aws(self.aws_conn_id).get_session()
+            self._boto3_session = AwsBaseHook(self.aws_conn_id).get_session()
         return self._boto3_session
 
     @property
