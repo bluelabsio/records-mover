@@ -18,16 +18,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          python -m venv venv
-          . venv/bin/activate
           pip install --upgrade pip
           pip install -e '.[unittest,typecheck]'
           pip install --progress-bar=off -r requirements.txt
       - name: Typecheck
         run: |
-          . venv/bin/activate
           make typecheck
       - name: Run unit tests
         run: |
-          . venv/bin/activate
           make citest
