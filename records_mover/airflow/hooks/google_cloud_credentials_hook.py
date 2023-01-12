@@ -9,7 +9,7 @@ class GoogleCloudCredentialsHook(GoogleBaseHook):
     def get_conn(self) -> 'google.auth.credentials.Credentials':
         return self._get_credentials()
 
-    def scopes(self) -> Iterable[str]:
+    def scopes(self) -> Iterable[str]: # type: ignore
         scope: Optional[str] = self._get_field('scope', None)
         scopes: Iterable[str]
         if scope is not None:
