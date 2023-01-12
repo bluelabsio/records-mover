@@ -7,6 +7,7 @@ jobs:
   unit-tests:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: true
       matrix:
         python-version: ["3.8", "3.9"]
 
