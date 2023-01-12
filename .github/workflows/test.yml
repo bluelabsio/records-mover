@@ -1,10 +1,10 @@
-name: Unit Test
+name: Test
 
-run-name: Run unit tests
+run-name: Tests
 on: [push]
 
 jobs:
-  run-unit-tests:
+  unit-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -24,6 +24,6 @@ jobs:
       - name: Typecheck
         run: |
           make typecheck
-      - name: Run unit tests
+      - name: Unit tests
         run: |
           make citest
