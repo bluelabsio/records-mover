@@ -28,7 +28,7 @@ class ConvertingDict(dict, ConvertingMixin):
 
 class ConvertingList(list, ConvertingMixin):
     def __getitem__(self, key: Any): ...
-    def pop(self, idx: int = ...): ...
+    def pop(self, idx: int = ...): ... # type: ignore[override]
 
 
 class ConvertingTuple(tuple, ConvertingMixin):
