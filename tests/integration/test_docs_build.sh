@@ -12,7 +12,7 @@ pyenv virtualenv-delete -f ${TEST_VENV_NAME}
 pyenv virtualenv ${TEST_VENV_NAME}
 . ${PYENV_ROOT}/versions/${TEST_VENV_NAME}/bin/activate
 
-pip install -r ${DOCS_DIR}/source/requirements.txt
+pip install -r ${DOCS_DIR}/source/sphinx_requirements.txt
 
 cd ${DOCS_DIR}
 make clean
