@@ -2,35 +2,26 @@
 
 # These are the dependencies necessary to IMPORT the records-mover submodules
 # which sphinx examines to generate the documentation. If you sphinx-build and
-# get an import error, you should add the package here.
+# get an import error, you should add the package here, then verify it works
+# by running tests/integration/test_docs_build.sh
 #
 # Why does this file exist, when there is already a separate requirements.txt?
-# Well, at this time, this project's dependencies aren't completely expressed
-# in requirements.txt - some remain only in setup.py. Also, readthedocs only
-# supports python3.8, while this project uses python3.9.
-#
-# To test changes to this file, first create a new empty virtualenv (using python
-# 3.8), install these requirements, then build the docs:
-#
-# pyenv virtualenv records-mover-docs-build
-# pyenv virtualenv activate
-# pip install -r docs/source/requiremnts.txt
-# cd docs/ && make html
-#
-# TODO: try to replace this file in favor of ONE requirements.txt
-# TODO: add a test to validate docs build that can run locally and in CI
-
-# see records_mover/requirements.txt
-markupsafe==2.0.1
+# Well, they're different sets of dependencies, and though we could use one
+# single large set of dependencies for both, it causes some issues.
+# Problematically, readthedocs only supports python3.8, while this project
+# mostly uses python3.9, leading to difficulty finding compatible versions
+# of every package.
 
 apache-airflow==1.10.15
-sqlalchemy<2.0
-db-facts==4.0.0
-config-resolver==5.1.0
-chardet
-typing_inspect
-docutils<2.0
 boto3
+chardet
+config-resolver==5.1.0
+db-facts==4.0.0
+docutils<2.0
+markupsafe==2.0.1
+sqlalchemy<2.0
+typing_inspect
+
 sphinx==4.1
 sphinx-rtd-theme==1.1.1
 readthedocs-sphinx-ext==2.1.4
