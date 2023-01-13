@@ -9,7 +9,7 @@ expected_single_database_column_types = {
     'redshift': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMPTZ'
+        'TIMESTAMP', 'TIMESTAMPTZ'
     ],
     'postgresql': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
