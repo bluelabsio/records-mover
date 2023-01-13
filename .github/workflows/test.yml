@@ -37,15 +37,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.8
-
-      # Technically since automated builds run in fresh containers, there really
-      # isn't a need to install deps in a virtualenv, but we do it for the sake
-      # of consistency with running this test locally, where a venv is very much
-      # necessary.
-      - name: Install dependencies
-        run: |
-          curl https://pyenv.run | bash
-          export PATH=$(pyenv root)/shims:$PATH
       - name: Test docs build
         run: |
-          tests/integration/test_docs_build.sh
+          tests/integration/test_docs_build.sh --no-pyenv
