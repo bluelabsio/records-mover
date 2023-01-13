@@ -44,7 +44,7 @@ expected_df_loaded_database_column_types = {
     'redshift': [
         'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
         'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMPTZ'
+        'TIMESTAMP', 'TIMESTAMPTZ'
     ],
     'bigquery': [
         'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
