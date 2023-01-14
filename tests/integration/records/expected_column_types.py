@@ -12,9 +12,7 @@ expected_single_database_column_types = {
         'TIMESTAMP', 'TIMESTAMPTZ'
     ],
     'postgresql': [
-        'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
-        'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME WITHOUT TIME ZONE',
-        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
+        'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME', 'TIMESTAMP', 'TIMESTAMP'
     ],
     'bigquery': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
