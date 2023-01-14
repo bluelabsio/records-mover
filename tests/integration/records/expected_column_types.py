@@ -12,7 +12,7 @@ expected_single_database_column_types = {
         'TIMESTAMP', 'TIMESTAMPTZ'
     ],
     'postgresql': [
-        'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 
+        'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME', 'TIMESTAMP', 'TIMESTAMP'
     ],
     'bigquery': [
@@ -27,7 +27,7 @@ expected_single_database_column_types = {
 
 expected_df_loaded_database_column_types = {
     'postgresql': [
-        'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)', 
+        'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)',
         'VARCHAR(444)', 'DATE', 'TIME', 'TIMESTAMP', 'TIMESTAMP'
     ],
     'mysql': [
