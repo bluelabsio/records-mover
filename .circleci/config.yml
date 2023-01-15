@@ -433,7 +433,6 @@ workflows:
           name: test-3.10
           extras: '[unittest,typecheck]'
           python_version: "3.10"
-          pandas_version: "==1.5.2"
           coverage: true
           filters:
             tags:
