@@ -49,7 +49,7 @@ class RecordsSchemaKnownRepresentation(metaclass=ABCMeta):
             'RecordsSchemaKnownRepresentation':
         dtypes_dict = df.dtypes.to_dict()
         dtypes_data = {}
-        for k,v in dtypes_dict.items():
+        for k, v in dtypes_dict.items():
             dtypes_data[k] = {
                 'alignment': v.alignment,
                 'byteorder': v.byteorder,
