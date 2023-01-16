@@ -22,7 +22,7 @@ class TestRecordsSchemaKnownRepresentation(unittest.TestCase):
         data = [
             {'Country': 'Belgium', 'Capital': 'Brussels', 'Population': 11190846},
             {'Country': 'India', 'Capital': 'New Delhi', 'Population': 1303171035},
-            {'Country': 'Brazil', 'Capital': 'Brasília', 'Population': 207847528},
+            {'Country': 'Brazil', 'Capital': 'Brasilia', 'Population': 207847528},
         ]
         df = DataFrame.from_dict(data)
 
@@ -33,7 +33,7 @@ class TestRecordsSchemaKnownRepresentation(unittest.TestCase):
                 'Capital': {
                     'alignment': 8,
                     'byteorder': '|',
-                    'descr': [['', '|O']],
+                    'descr': [('', '|O')],
                     'flags': 63,
                     'isalignedstruct': False,
                     'isnative': True,
@@ -46,7 +46,7 @@ class TestRecordsSchemaKnownRepresentation(unittest.TestCase):
                 'Country': {
                     'alignment': 8,
                     'byteorder': '|',
-                    'descr': [['', '|O']],
+                    'descr': [('', '|O')],
                     'flags': 63,
                     'isalignedstruct': False,
                     'isnative': True,
@@ -58,7 +58,7 @@ class TestRecordsSchemaKnownRepresentation(unittest.TestCase):
                 'Population': {
                     'alignment': 8,
                     'byteorder': '=',
-                    'descr': [['', '<i8']],
+                    'descr': [('', '<i8')],
                     'flags': 0,
                     'isalignedstruct': False,
                     'isnative': True,
