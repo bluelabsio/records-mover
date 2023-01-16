@@ -56,7 +56,7 @@ class RecordsSchemaFieldRepresentation(metaclass=ABCMeta):
     def from_series(series: 'pandas.Series') -> 'RecordsSchemaFieldRepresentation':
         import pandas
 
-        dtype_json_str = pandas.io.json.dumps(series.dtype)
+        dtype_json_str = pandas.io.json.dumps(series.dtype,default_handler=str)
         dtype_numpy_rep = json.loads(dtype_json_str)
         ftype = getattr(series, 'ftype', None)
         return RecordsSchemaPandasFieldRepresentation(pd_df_coltype='series',
