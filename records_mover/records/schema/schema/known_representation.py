@@ -92,7 +92,7 @@ class RecordsSchemaPandasDataframeKnownRepresentation(RecordsSchemaKnownRepresen
     def to_data(self) -> 'PandasDataframeKnownRepresentationDict':
         out: 'PandasDataframeKnownRepresentationDict' = {
             'type': 'dataframe/pandas',
-            'pd_df_dtypes': self.pd_df_dtypes.to_dict(),
+            'pd_df_dtypes': dict(self.pd_df_dtypes),
         }
         for k, v in out['pd_df_dtypes'].items():
             out['pd_df_dtypes'][k] = {
