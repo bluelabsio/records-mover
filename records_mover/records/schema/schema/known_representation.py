@@ -47,7 +47,8 @@ class RecordsSchemaKnownRepresentation(metaclass=ABCMeta):
     def from_dataframe(df: 'DataFrame',
                        processing_instructions: ProcessingInstructions) ->\
             'RecordsSchemaKnownRepresentation':
-        dtypes_data = df.dtypes
+        dtypes_json = df.dtypes.to_json(default_handler=str)
+        dtypes_data = json.loads(dtypes_json)
         ftypes_data = None
         if getattr(df, 'ftypes', None) is not None:
             ftypes_json = df.ftypes.to_json()
@@ -92,22 +93,8 @@ class RecordsSchemaPandasDataframeKnownRepresentation(RecordsSchemaKnownRepresen
     def to_data(self) -> 'PandasDataframeKnownRepresentationDict':
         out: 'PandasDataframeKnownRepresentationDict' = {
             'type': 'dataframe/pandas',
-            'pd_df_dtypes': dict(self.pd_df_dtypes),
+            'pd_df_dtypes': self.pd_df_dtypes,
         }
-        for k, v in out['pd_df_dtypes'].items():
-            out['pd_df_dtypes'][k] = {
-                'alignment': v.alignment,
-                'byteorder': v.byteorder,
-                'descr': v.descr,
-                'flags': v.flags,
-                'isalignedstruct': v.isalignedstruct,
-                'isnative': v.isnative,
-                'kind': v.kind,
-                'name': v.name,
-                'ndim': v.ndim,
-                'num': v.num,
-                'str': v.str,
-            }
         if self.pd_df_ftypes is not None:
             out['pd_df_ftypes'] = self.pd_df_ftypes
         return out
