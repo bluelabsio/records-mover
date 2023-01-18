@@ -609,8 +609,6 @@ workflows:
           python_version: "3.9"
           db_name: bltoolsdevbq-bq_itest
           include_gcs_scratch_bucket: false
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -619,8 +617,6 @@ workflows:
           extras: '[bigquery,itest]'
           python_version: "3.9"
           db_name: bltoolsdevbq-bq_itest
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
