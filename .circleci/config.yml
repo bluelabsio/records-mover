@@ -603,17 +603,17 @@ workflows:
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      # - integration_test:
-      #     name: bigquery-no-gcs-itest
-      #     extras: '[bigquery,itest]'
-      #     python_version: "3.9"
-      #     db_name: bltoolsdevbq-bq_itest
-      #     include_gcs_scratch_bucket: false
-      #     requires:
-      #       - redshift-s3-itest
-      #     filters:
-      #       tags:
-      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test:
+           name: bigquery-no-gcs-itest
+           extras: '[bigquery,itest]'
+           python_version: "3.9"
+           db_name: bltoolsdevbq-bq_itest
+           include_gcs_scratch_bucket: false
+           requires:
+             - redshift-s3-itest
+           filters:
+             tags:
+               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       # - integration_test:
       #     name: bigquery-gcs-itest
       #     extras: '[bigquery,itest]'
