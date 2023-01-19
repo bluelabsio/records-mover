@@ -2,6 +2,7 @@ import sqlalchemy as sa
 from records_mover.db import create_sqlalchemy_url
 from airflow.hooks.base import BaseHook
 
+
 class SqlAlchemyDbHook(BaseHook):
     "Airflow hook to provide a SQLAlchemy engine from an Airflow database connection ID"
 
