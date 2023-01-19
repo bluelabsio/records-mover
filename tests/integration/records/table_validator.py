@@ -100,10 +100,10 @@ class RecordsTableValidator:
                      expected_single_database_column_types[self.source_db_engine.name],
                      expected_single_database_column_types[self.target_db_engine.name],
                      expected_df_loaded_database_column_types.get(self.target_db_engine.name))),\
-                     f'Could not find column types filed under '\
-                     f"{(self.source_db_engine.name, self.target_db_engine.name)} "\
-                     'or either individually: '\
-                     f'{actual_column_types}'
+                f'Could not find column types filed under '\
+                f"{(self.source_db_engine.name, self.target_db_engine.name)} "\
+                'or either individually: '\
+                f'{actual_column_types}'
 
     def validate_data_values(self,
                              schema_name: str,

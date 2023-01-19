@@ -9,11 +9,11 @@ import json
 class TestRecordsDirectory(unittest.TestCase):
     def setUp(self):
         with patch('records_mover.records.records_directory.RecordsFormatFile') as\
-             mock_RecordsFormatFile, \
-             patch('records_mover.records.records_directory.RecordsSchemaSqlFile') as\
-             mock_RecordsSchemaSqlFile, \
-             patch('records_mover.records.records_directory.RecordsSchemaJsonFile') as\
-             mock_RecordsSchemaJsonFile:
+                mock_RecordsFormatFile, \
+                patch('records_mover.records.records_directory.RecordsSchemaSqlFile') as\
+                mock_RecordsSchemaSqlFile, \
+                patch('records_mover.records.records_directory.RecordsSchemaJsonFile') as\
+                mock_RecordsSchemaJsonFile:
             self.mock_record_format_file = mock_RecordsFormatFile.return_value
             self.mock_schema_sql_file = mock_RecordsSchemaSqlFile.return_value
             self.mock_schema_json_file = mock_RecordsSchemaJsonFile.return_value

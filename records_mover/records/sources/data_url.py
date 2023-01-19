@@ -18,9 +18,9 @@ class DataUrlRecordsSource(SupportsToFileobjsSource):
     def __init__(self,
                  input_url: str,
                  url_resolver: UrlResolver,
-                 records_format: Optional[BaseRecordsFormat]=None,
-                 records_schema: Optional[RecordsSchema]=None,
-                 initial_hints: Optional[PartialRecordsHints]=None) -> None:
+                 records_format: Optional[BaseRecordsFormat] = None,
+                 records_schema: Optional[RecordsSchema] = None,
+                 initial_hints: Optional[PartialRecordsHints] = None) -> None:
         self.input_url = input_url
         self.url_resolver = url_resolver
         self.records_format = records_format
@@ -36,7 +36,7 @@ class DataUrlRecordsSource(SupportsToFileobjsSource):
     @contextmanager
     def to_fileobjs_source(self,
                            processing_instructions: ProcessingInstructions,
-                           records_format_if_possible: Optional[BaseRecordsFormat]=None)\
+                           records_format_if_possible: Optional[BaseRecordsFormat] = None)\
             -> Iterator['FileobjsSource']:
         """Convert current source to a FileObjsSource and present it in a context manager"""
         with self.url_resolver.file_url(self.input_url).open() as fileobj:

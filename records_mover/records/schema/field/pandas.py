@@ -10,7 +10,7 @@ import numpy as np
 if TYPE_CHECKING:
     from ..field import RecordsSchemaField  # noqa
     from ..schema import RecordsSchema  # noqa
-    from pandas.core.dtypes.dtypes import ExtensionDtype # noqa
+    from pandas.core.dtypes.dtypes import ExtensionDtype  # noqa
 
 # Cribbed from non-public https://github.com/pandas-dev/pandas/blob/v1.2.1/pandas/_typing.py
 Dtype = Union[
