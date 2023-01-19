@@ -22,9 +22,9 @@ logger = logging.getLogger(__name__)
 class DataframesRecordsSource(SupportsToFileobjsSource):
     def __init__(self,
                  dfs: Iterable['DataFrame'],
-                 processing_instructions: ProcessingInstructions=ProcessingInstructions(),
-                 records_schema: Optional[RecordsSchema]=None,
-                 include_index: bool=False) -> None:
+                 processing_instructions: ProcessingInstructions = ProcessingInstructions(),
+                 records_schema: Optional[RecordsSchema] = None,
+                 include_index: bool = False) -> None:
         self.dfs = dfs
         self.processing_instructions = processing_instructions
         self.records_schema = records_schema
@@ -120,7 +120,7 @@ class DataframesRecordsSource(SupportsToFileobjsSource):
     @contextmanager
     def to_fileobjs_source(self,
                            processing_instructions: ProcessingInstructions,
-                           records_format_if_possible: Optional[BaseRecordsFormat]=
+                           records_format_if_possible: Optional[BaseRecordsFormat] =
                            None) -> Iterator[FileobjsSource]:
         records_format = self.pick_best_records_format(records_format_if_possible)
         records_schema = self.initial_records_schema(processing_instructions)

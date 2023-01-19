@@ -120,14 +120,17 @@ google_api_client_dependencies = [
     'grpcio<2.0dev,>=1.29.0',
 ]
 
-nose_dependencies = [
-    'nose'
+pytest_dependencies = [
+    'pytest',
+    'pytest-cov'
 ]
 
 itest_dependencies = [
     'jsonschema',  # needed for directory_validator.py
+    'pytz',
+    'wheel',  # needed to support legacy 'setup.py install'
 ] + (
-    nose_dependencies +
+    pytest_dependencies +
     # needed for records_database_fixture retrying drop/creates on
     # BigQuery
     google_api_client_dependencies
@@ -253,7 +256,7 @@ unittest_dependencies = [
     'coverage',
     'mock',
 ] + (
-    nose_dependencies +
+    pytest_dependencies +
     cli_dependencies_base +
     airflow_dependencies +
     gsheet_dependencies +
@@ -284,7 +287,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='records-mover',
-      version=__version__, # read right above  # noqa
+      version=__version__,  # read right above  # noqa
       description=('Library and CLI to move relational data from one place to another - '
                    'DBs/CSV/gsheets/dataframes/...'),
       long_description=long_description,

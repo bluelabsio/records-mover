@@ -40,6 +40,7 @@ class RecordsTargets(object):
        results = records.move(source, target)
 
     """
+
     def __init__(self,
                  url_resolver: UrlResolver,
                  db_driver: Callable[[Union['Engine', 'Connection']], 'DBDriver']) -> None:
@@ -49,7 +50,7 @@ class RecordsTargets(object):
     def directory_from_url(self,
                            output_url: str,
                            records_format:
-                           Optional[BaseRecordsFormat]=None) ->\
+                           Optional[BaseRecordsFormat] = None) ->\
             'DirectoryFromUrlRecordsTarget':
         """Represents a Records Directory pointed to by a URL as a target.
 
@@ -68,11 +69,11 @@ class RecordsTargets(object):
               db_engine: 'Engine',
               schema_name: str,
               table_name: str,
-              existing_table_handling: ExistingTableHandling=
+              existing_table_handling: ExistingTableHandling =
               ExistingTableHandling.DELETE_AND_OVERWRITE,
-              drop_and_recreate_on_load_error: bool=False,
-              add_user_perms_for: Optional[Dict[str, List[str]]]=None,
-              add_group_perms_for: Optional[Dict[str, List[str]]]=None) -> \
+              drop_and_recreate_on_load_error: bool = False,
+              add_user_perms_for: Optional[Dict[str, List[str]]] = None,
+              add_group_perms_for: Optional[Dict[str, List[str]]] = None) -> \
             'TableRecordsTarget':
         """Represents a SQLALchemy-accessible database table as as a target.
 
@@ -142,7 +143,7 @@ class RecordsTargets(object):
 
     def data_url(self,
                  output_url: str,
-                 records_format: Optional[BaseRecordsFormat]=None) -> DataUrlTarget:
+                 records_format: Optional[BaseRecordsFormat] = None) -> DataUrlTarget:
         """Represents a URL pointer to a data file as a target.
 
         :param output_url: Location of the data file to write.  Must be a URL format understood by
@@ -157,7 +158,7 @@ class RecordsTargets(object):
 
     def local_file(self,
                    filename: str,
-                   records_format: Optional[BaseRecordsFormat]=None) ->\
+                   records_format: Optional[BaseRecordsFormat] = None) ->\
             'DataUrlTarget':
         """Represents a data file on the local filesystem as a target.
 
@@ -172,9 +173,9 @@ class RecordsTargets(object):
                  schema_name: str,
                  table_name: str,
                  db_engine: 'Engine',
-                 spectrum_base_url: Optional[str]=None,
-                 spectrum_rdir_url: Optional[str]=None,
-                 existing_table_handling: ExistingTableHandling=
+                 spectrum_base_url: Optional[str] = None,
+                 spectrum_rdir_url: Optional[str] = None,
+                 existing_table_handling: ExistingTableHandling =
                  ExistingTableHandling.TRUNCATE_AND_OVERWRITE) ->\
             'SpectrumRecordsTarget':
         """

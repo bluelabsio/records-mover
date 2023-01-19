@@ -130,7 +130,7 @@ class SupportsToFileobjsSource(RecordsSource, metaclass=ABCMeta):
     @contextmanager
     def to_fileobjs_source(self,
                            processing_instructions: ProcessingInstructions,
-                           records_format_if_possible: Optional[BaseRecordsFormat]=None)\
+                           records_format_if_possible: Optional[BaseRecordsFormat] = None)\
             -> Iterator['FileobjsSource']:
         """Convert current source to a FileObjsSource and present it in a context manager.
         If there's no native records format, prefer 'records_format_if_possible' if provided

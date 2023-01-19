@@ -33,6 +33,8 @@ query_for_type = {
         # Please see SECURITY.md for security implications!
         "local_infile": True
     },
+    # keepalives prevent timeout errors
+    'redshift': {'keepalives': '1', 'keepalives_idle': '30'},
 }
 
 
@@ -58,11 +60,11 @@ def create_vertica_odbc_sqlalchemy_url(db_facts: DBFacts) -> str:
               "UID={user};"
               "PWD={password};"
               "CHARSET=UTF8;").\
-              format(host=db_facts['host'],
-                     database=db_facts['database'],
-                     port=db_facts['port'],
-                     user=db_facts['user'],
-                     password=db_facts['password'])
+        format(host=db_facts['host'],
+               database=db_facts['database'],
+               port=db_facts['port'],
+               user=db_facts['user'],
+               password=db_facts['password'])
     db_url = quote_plus(db_url)
     return "vertica+pyodbc:///?odbc_connect={}".format(db_url)
 

@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 class UninferredFileobjsRecordsSource(SupportsToFileobjsSource):
     def __init__(self,
                  target_names_to_input_fileobjs: Mapping[str, IO[bytes]],
-                 records_format: Optional[BaseRecordsFormat]=None,
-                 records_schema: Optional[RecordsSchema]=None,
-                 initial_hints: Optional[UntypedRecordsHints]=None) -> None:
+                 records_format: Optional[BaseRecordsFormat] = None,
+                 records_schema: Optional[RecordsSchema] = None,
+                 initial_hints: Optional[UntypedRecordsHints] = None) -> None:
         self.target_names_to_input_fileobjs = target_names_to_input_fileobjs
         self.records_format = records_format
         self.records_schema = records_schema
@@ -29,7 +29,7 @@ class UninferredFileobjsRecordsSource(SupportsToFileobjsSource):
     @contextmanager
     def to_fileobjs_source(self,
                            processing_instructions: ProcessingInstructions,
-                           records_format_if_possible: Optional[BaseRecordsFormat]=None)\
+                           records_format_if_possible: Optional[BaseRecordsFormat] = None)\
             -> Iterator['FileobjsSource']:
         """Convert current source to a FileObjsSource and present it in a context manager"""
         typed_hints = None

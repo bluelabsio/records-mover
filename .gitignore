@@ -39,7 +39,7 @@ htmlcov/
 .tox/
 .coverage*
 .cache
-nosetests.xml
+pytest.xml
 coverage.xml
 *,cover
 /test-reports/
@@ -57,12 +57,12 @@ docs/_build/
 # PyBuilder
 target/
 
-# nosetest
+# pytesttest
 /cover
 /typecover
 /.coverage
 /coverage.xml
-/nosetests.xml
+/pytest.xml
 /test-reports
 
 .DS_Store

@@ -18,8 +18,8 @@ class GoogleSheetsRecordsSource(SupportsToDataframesSource):
                  spreadsheet_id: str,
                  sheet_name_or_range: str,
                  google_cloud_creds: google.auth.credentials.Credentials,
-                 out_of_band_column_headers: Optional[Iterable[str]]=None,
-                 header_translator: Optional[Callable[[str], str]]=None) -> None:
+                 out_of_band_column_headers: Optional[Iterable[str]] = None,
+                 header_translator: Optional[Callable[[str], str]] = None) -> None:
         self.spreadsheet_id = spreadsheet_id
         self.sheet_name_or_range = sheet_name_or_range
         self.google_cloud_creds = google_cloud_creds
