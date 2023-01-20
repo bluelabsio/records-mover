@@ -5,7 +5,7 @@ from records_mover.records.records import Records
 from records_mover.db.factory import db_driver
 from records_mover.db import DBDriver
 from records_mover.url.resolver import UrlResolver
-from airflow.contrib.hooks.aws_hook import AwsHook
+from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from typing import Optional, Union, List, TYPE_CHECKING
 import sqlalchemy
 
@@ -14,7 +14,7 @@ try:
     from airflow.hooks import BaseHook
 except ImportError:
     # Required for Airflow 2.0
-    from airflow.hooks.base_hook import BaseHook  # type: ignore
+    from airflow.hooks.base import BaseHook  # type: ignore
 
 if TYPE_CHECKING:
     from boto3.session import ListObjectsResponseContentType, S3ClientTypeStub  # noqa
@@ -41,7 +41,7 @@ class RecordsHook(BaseHook):
 
     def _get_boto3_session(self) -> boto3.session.Session:
         if not self._boto3_session:
-            self._boto3_session = AwsHook(self.aws_conn_id).get_session()
+            self._boto3_session = AwsBaseHook(self.aws_conn_id).get_session()
         return self._boto3_session
 
     @property

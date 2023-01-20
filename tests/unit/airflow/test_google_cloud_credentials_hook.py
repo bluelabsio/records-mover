@@ -1,4 +1,4 @@
-from airflow.contrib.hooks.gcp_api_base_hook import GoogleCloudBaseHook
+from airflow.providers.google.common.hooks.base_google import GoogleBaseHook
 from records_mover.airflow.hooks.google_cloud_credentials_hook import GoogleCloudCredentialsHook
 from mock import Mock
 import unittest
@@ -7,7 +7,7 @@ import unittest
 class TestGoogleCloudCredentialsHook(unittest.TestCase):
     def test_get_conn(self):
         mock_init = Mock('__init__')
-        GoogleCloudBaseHook.__init__ = mock_init
+        GoogleBaseHook.__init__ = mock_init
         mock_init.return_value = None
         hook = GoogleCloudCredentialsHook()
         mock_get_credentials = Mock('get_credentials')

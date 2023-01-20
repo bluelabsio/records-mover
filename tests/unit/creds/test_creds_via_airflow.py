@@ -11,14 +11,14 @@ class TestCredsViaAirflow(unittest.TestCase):
                                                  default_aws_creds_name=None,
                                                  default_gcp_creds_name=None)
 
-    @patch('airflow.contrib.hooks.aws_hook.AwsHook')
-    def test_boto3_session(self, mock_AwsHook):
+    @patch('airflow.providers.amazon.aws.hooks.base_aws.AwsBaseHook')
+    def test_boto3_session(self, mock_AwsBaseHook):
         mock_aws_creds_name = Mock(name='aws_creds_name')
         out = self.creds_via_airflow.boto3_session(mock_aws_creds_name)
-        mock_AwsHook.assert_called_with(mock_aws_creds_name)
-        self.assertEqual(mock_AwsHook.return_value.get_session.return_value, out)
+        mock_AwsBaseHook.assert_called_with(mock_aws_creds_name)
+        self.assertEqual(mock_AwsBaseHook.return_value.get_session.return_value, out)
 
-    @patch('airflow.hooks.BaseHook')
+    @patch('airflow.hooks.base.BaseHook')
     def test_db_facts_normcoredb(self, mock_BaseHook):
         mock_db_creds_name = Mock(name='db_creds_name')
         mock_conn = mock_BaseHook.get_connection.return_value
@@ -37,7 +37,7 @@ class TestCredsViaAirflow(unittest.TestCase):
         }
         self.assertEqual(expected_db_facts, out)
 
-    @patch('airflow.hooks.BaseHook')
+    @patch('airflow.hooks.base.BaseHook')
     def test_db_facts_bigquery_serviceaccount(self, mock_BaseHook):
         mock_db_creds_name = Mock(name='db_creds_name')
         mock_conn = mock_BaseHook.get_connection.return_value
