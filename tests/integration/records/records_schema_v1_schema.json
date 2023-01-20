@@ -1,294 +1,58 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "definitions": {
-    "statistics": {
-      "string": {
-        "type": "object",
-        "properties": {
-          "max_length_bytes": {"type": "integer"},
-          "max_length_chars": {"type": "integer"},
-          "rows_sampled": {"type": "integer"},
-          "total_rows": {"type": "integer"}
-        },
-        "required": ["rows_sampled", "total_rows"]
-      },
-      "number": {
-        "type": "object",
-        "properties": {
-          "min": {"type": "string"},
-          "max": {"type": "string"},
-          "rows_sampled": {"type": "integer"},
-          "total_rows": {"type": "integer"}
-        },
-        "required": ["rows_sampled", "total_rows"]
-      }
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+        "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true,
+        "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+        "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+        "https://json-schema.org/draft/2020-12/vocab/content": true
     },
-    "representations": {
-      "anyOf": [
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "rep_type": {
-              "type": "string",
-              "pattern": "^sql/.*$"
-            },
-            "col_ddl": {
-              "type": "string"
-            },
-            "col_type": {
-              "type": "string"
-            },
-            "col_modifiers": {
-              "type": "string"
-            }
-          },
-          "required": ["col_ddl", "rep_type"]
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "rep_type": {
-              "type": "string",
-              "pattern": "^dataframe/pandas$"
-            },
-            "pd_df_dtype": {
-              "type": "object"
-            },
-            "pd_df_ftype": {
-              "type": "string"
-            },
-            "pd_df_coltype": {
-              "type": "string",
-              "enum": ["index", "series"]
-            }
-          },
-          "required": ["pd_df_dtype", "rep_type", "pd_df_coltype"]
-        }
-      ]
-    },
-    "string_field": {
-      "type": "object",
-      "required": ["index", "type"],
-      "additionalProperties": false,
-      "properties": {
-        "index": {
-          "type": "integer"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "string"
-          ]
-        },
-        "constraints": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "required": {
-              "type": "boolean",
-              "default": false
-            },
-            "unique": {
-              "type": "boolean"
-            },
-            "max_length_bytes": {"type": "integer"},
-            "max_length_chars": {"type": "integer"}
-          }
-        },
-        "statistics": { "$ref": "#/definitions/statistics/string" },
-        "representations": {
-          "type": "object",
-          "additionalProperties": { "$ref": "#/definitions/representations" }
-        }
-      }
-    },
-    "decimal_field": {
-      "type": "object",
-      "required": ["index", "type"],
-      "additionalProperties": false,
-      "properties": {
-        "index": {
-          "type": "integer"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "decimal"
-          ]
-        },
-        "constraints": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "required": {
-              "type": "boolean",
-              "default": false
-            },
-            "unique": {
-              "type": "boolean"
-            },
-            "fp_total_bits": {
-              "type": "integer"
-            },
-            "fp_significand_bits": {
-              "type": "integer"
-            },
-            "fixed_precision": {
-              "type": "integer"
-            },
-            "fixed_scale": {
-              "type": "integer"
-            }
-          }
-        },
-        "representations": {
-          "type": "object",
-          "additionalProperties": { "$ref": "#/definitions/representations" }
-        },
-        "statistics": { "$ref": "#/definitions/statistics/number" }
-      }
-    },
-    "integer_field": {
-      "type": "object",
-      "required": ["index", "type"],
-      "additionalProperties": false,
-      "properties": {
-        "index": {
-          "type": "integer"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "integer"
-          ]
-        },
-        "constraints": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "required": {
-              "type": "boolean",
-              "default": false
-            },
-            "unique": {
-              "type": "boolean"
-            },
-            "min": {
-              "type": "string"
-            },
-            "max": {
-              "type": "string"
-            }
-          }
-        },
-        "representations": {
-          "type": "object",
-          "additionalProperties": { "$ref": "#/definitions/representations" }
-        },
-        "statistics": { "$ref": "#/definitions/statistics/number" }
-      }
-    },
-    "other_field": {
-      "type": "object",
-      "required": ["index", "type"],
-      "additionalProperties": false,
-      "properties": {
-        "index": {
-          "type": "integer"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "boolean",
-            "date",
-            "time",
-            "timetz",
-            "datetime",
-            "datetimetz"
-          ]
-        },
-        "constraints": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "required": {
-              "type": "boolean",
-              "default": false
-            },
-            "unique": {
-              "type": "boolean"
-            }
-          }
-        },
-        "representations": {
-          "type": "object",
-          "additionalProperties": { "$ref": "#/definitions/representations" }
-        }
-      }
-    }
-  },
-  "type": "object",
-  "additionalProperties": false,
-  "properties": {
-    "schema": {
-      "type": "string",
-      "enum": ["bltypes/v1"],
-      "description": "Maps to version of the records schema schema.  v1 is found at https://github.com/bluelabsio/records-mover/blob/master/docs/RECORDS_SPEC.md"
-    },
-    "fields": {
-      "type": "object",
-      "additionalProperties": {
-        "oneOf": [
-          { "$ref": "#/definitions/string_field" },
-          { "$ref": "#/definitions/integer_field" },
-          { "$ref": "#/definitions/decimal_field" },
-          { "$ref": "#/definitions/other_field" }
-        ]
-      }
-    },
-    "known_representations": {
-      "type": "object",
-      "additionalProperties": {
-        "anyOf": [
-          {
+    "$dynamicAnchor": "meta",
+
+    "title": "Core and Validation specifications meta-schema",
+    "allOf": [
+        {"$ref": "meta/core"},
+        {"$ref": "meta/applicator"},
+        {"$ref": "meta/unevaluated"},
+        {"$ref": "meta/validation"},
+        {"$ref": "meta/meta-data"},
+        {"$ref": "meta/format-annotation"},
+        {"$ref": "meta/content"}
+    ],
+    "type": ["object", "boolean"],
+    "$comment": "This meta-schema also defines keywords that have appeared in previous drafts in order to prevent incompatible extensions as they remain in common use.",
+    "properties": {
+        "definitions": {
+            "$comment": "\"definitions\" has been replaced by \"$defs\".",
             "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "pattern": "^sql/.*$"
-              },
-              "table_ddl": {
-                "type": "string"
-              }
-            },
-            "required": ["type"],
-            "additionalProperties": false
-          },
-          {
+            "additionalProperties": { "$dynamicRef": "#meta" },
+            "deprecated": true,
+            "default": {}
+        },
+        "dependencies": {
+            "$comment": "\"dependencies\" has been split and replaced by \"dependentSchemas\" and \"dependentRequired\" in order to serve their differing semantics.",
             "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "pattern": "^dataframe/pandas$"
-              },
-              "pd_df_dtypes": {
-                "type": "object"
-              },
-              "pd_df_ftypes": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "string"
-                }
-              }
+            "additionalProperties": {
+                "anyOf": [
+                    { "$dynamicRef": "#meta" },
+                    { "$ref": "meta/validation#/$defs/stringArray" }
+                ]
             },
-            "required": ["type"],
-            "additionalProperties": false
-          }
-        ]
-      }
+            "deprecated": true,
+            "default": {}
+        },
+        "$recursiveAnchor": {
+            "$comment": "\"$recursiveAnchor\" has been replaced by \"$dynamicAnchor\".",
+            "$ref": "meta/core#/$defs/anchorString",
+            "deprecated": true
+        },
+        "$recursiveRef": {
+            "$comment": "\"$recursiveRef\" has been replaced by \"$dynamicRef\".",
+            "$ref": "meta/core#/$defs/uriReferenceString",
+            "deprecated": true
+        }
     }
-  },
-  "required": ["known_representations", "fields", "schema"]
 }
