@@ -612,27 +612,27 @@ workflows:
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      # - integration_test:
-      #     name: bigquery-no-gcs-itest
-      #     extras: '[bigquery,itest]'
-      #     python_version: "3.9"
-      #     db_name: bltoolsdevbq-bq_itest
-      #     include_gcs_scratch_bucket: false
-      #     requires:
-      #       - redshift-s3-itest
-      #     filters:
-      #       tags:
-      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      # - integration_test:
-      #     name: bigquery-gcs-itest
-      #     extras: '[bigquery,itest]'
-      #     python_version: "3.9"
-      #     db_name: bltoolsdevbq-bq_itest
-      #     requires:
-      #       - redshift-s3-itest
-      #     filters:
-      #       tags:
-      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test:
+          name: bigquery-no-gcs-itest
+          extras: '[bigquery,itest]'
+          python_version: "3.9"
+          db_name: bltoolsdevbq-bq_itest
+          requires:
+            - redshift-s3-itest
+          include_gcs_scratch_bucket: false
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test:
+          name: bigquery-gcs-itest
+          extras: '[bigquery,itest]'
+          python_version: "3.9"
+          db_name: bltoolsdevbq-bq_itest
+          requires:
+            - redshift-s3-itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
       # - integration_test_with_dbs:
       #     name: tbl2tbl-itest
       #     extras: '[literally_every_single_database_binary,itest]'
@@ -663,7 +663,7 @@ workflows:
             - cli-extra-test
             # - tbl2tbl-itest
             # - bigquery-no-gcs-itest
-            # - bigquery-gcs-itest
+            - bigquery-gcs-itest
             - redshift-no-s3-itest
             - redshift-s3-itest
             - redshift-s3-itest-old-pandas
