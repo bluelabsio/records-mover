@@ -615,6 +615,7 @@ workflows:
           name: tbl2tbl-itest
           extras: '[literally_every_single_database_binary,itest]'
           python_version: "3.9"
+          pandas_version: "==1.1.5"
           command: |
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
