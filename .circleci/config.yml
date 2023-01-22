@@ -445,8 +445,8 @@ workflows:
           extras: '[unittest,typecheck]'
           python_version: "3.10"
           pandas_version: "==1.5.2"
-          # requires:
-          #   - redshift-s3-itest
+          requires:
+            - redshift-s3-itest
           coverage: true
           filters:
             tags:
