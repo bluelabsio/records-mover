@@ -440,6 +440,17 @@ workflows:
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.11
+          extras: '[unittest,typecheck]'
+          python_version: "3.10"
+          pandas_version: "==1.5.2"
+          # requires:
+          #   - redshift-s3-itest
+          coverage: true
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
       # - integration_test_with_dbs:
       #     name: vertica-no-s3-itest
       #     extras: '[vertica,itest]'
