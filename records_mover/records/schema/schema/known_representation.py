@@ -47,7 +47,7 @@ class RecordsSchemaKnownRepresentation(metaclass=ABCMeta):
     def from_dataframe(df: 'DataFrame',
                        processing_instructions: ProcessingInstructions) ->\
             'RecordsSchemaKnownRepresentation':
-        dtypes_json = df.dtypes.to_json()
+        dtypes_json = df.dtypes.to_json(default_handler=str)
         dtypes_data = json.loads(dtypes_json)
         ftypes_data = None
         if getattr(df, 'ftypes', None) is not None:

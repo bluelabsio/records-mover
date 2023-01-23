@@ -29,46 +29,7 @@ class TestRecordsSchemaKnownRepresentation(unittest.TestCase):
         processing_instructions = Mock(name='processing_instructions')
 
         expected_data = {
-            'pd_df_dtypes': {
-                'Capital': {
-                    'alignment': 8,
-                    'byteorder': '|',
-                    'descr': [['', '|O']],
-                    'flags': 63,
-                    'isalignedstruct': False,
-                    'isnative': True,
-                    'kind': 'O',
-                    'name': 'object',
-                    'ndim': 0,
-                    'num': 17,
-                    'str': '|O'
-                },
-                'Country': {
-                    'alignment': 8,
-                    'byteorder': '|',
-                    'descr': [['', '|O']],
-                    'flags': 63,
-                    'isalignedstruct': False,
-                    'isnative': True,
-                    'kind': 'O',
-                    'name': 'object',
-                    'ndim': 0,
-                    'num': 17,
-                    'str': '|O'},
-                'Population': {
-                    'alignment': 8,
-                    'byteorder': '=',
-                    'descr': [['', '<i8']],
-                    'flags': 0,
-                    'isalignedstruct': False,
-                    'isnative': True,
-                    'kind': 'i',
-                    'name': 'int64',
-                    'ndim': 0,
-                    'num': 7,
-                    'str': '<i8'
-                }
-            },
+            'pd_df_dtypes': {'Country': 'object', 'Capital': 'object', 'Population': 'int64'},
             'type': 'dataframe/pandas'
         }
 
