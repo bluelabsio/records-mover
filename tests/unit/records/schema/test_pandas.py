@@ -82,8 +82,6 @@ class TestPandas(unittest.TestCase):
             ('float16', np.float16),
             ('float32', np.float32),
             ('float64', np.float64),
-            # 'float96', np.float96), # not supported by numpy on macOS on amd64, apparantly
-            # ('float128', np.float128),
         ])
         data = np.empty(0, dtype=dtypes)
         df = pd.DataFrame(data)
