@@ -6,6 +6,7 @@ from .json_schema_document import JsonSchemaDocument, DefaultValue
 
 class JsonSchemaArrayDocument(JsonSchemaDocument):
     """Represents a JSON Schema array type"""
+
     def __init__(self,
                  json_type: str,
                  items: JsonSchemaDocument,

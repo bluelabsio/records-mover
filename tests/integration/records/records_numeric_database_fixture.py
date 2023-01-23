@@ -25,7 +25,7 @@ class RecordsNumericDatabaseFixture:
                      12147483647.78::REAL AS float32,
                      19223372036854775807.78::FLOAT AS float64;
 """  # noqa
-            ]
+                             ]
         elif self.engine.name == 'vertica':
             # Vertica only supports a few large numeric types
             create_tables = [f"""
@@ -34,7 +34,7 @@ class RecordsNumericDatabaseFixture:
                      1234.56::NUMERIC(6, 2) AS fixed_6_2,
                      19223372036854775807.78::FLOAT AS float64;
 """  # noqa
-            ]
+                             ]
         elif self.engine.name == 'bigquery':
             # BigQuery only supports a few large numeric types
             create_tables = [f"""
@@ -47,7 +47,7 @@ class RecordsNumericDatabaseFixture:
               INSERT INTO {self.schema_name}.{self.table_name} (`int64`, `fixed_6_2`, `float64`)
               VALUES (9223372036854775807, 1234.56, 19223372036854775807.78);
 """,  # noqa
-            ]
+                             ]
         elif self.engine.name == 'postgresql':
             # Postgres supports a number of different numeric types
             create_tables = [f"""
@@ -59,7 +59,7 @@ class RecordsNumericDatabaseFixture:
                      12147483647.78::REAL AS float32,
                      19223372036854775807.78::FLOAT8 AS float64;
 """  # noqa
-            ]
+                             ]
         elif self.engine.name == 'mysql':
             # MySQL supports a number of different numeric types
             # https://dev.mysql.com/doc/refman/8.0/en/numeric-types.html
@@ -121,7 +121,7 @@ f"""
                   19223372036854775807.78
               );
 """  # noqa
-            ]
+                             ]
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
         print(f"Creating: {create_tables}")

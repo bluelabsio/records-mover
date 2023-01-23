@@ -59,7 +59,7 @@ class DoMoveFromRecordsDirectory(BaseTableMoveAlgorithm):
                            load_plan=plan, directory=self.directory)
 
     def move(self) -> MoveResult:
-        logger.info(f"Connecting to database...")
+        logger.info("Connecting to database...")
 
         with self.tbl.db_engine.begin() as db:
             driver = self.tbl.db_driver(db)

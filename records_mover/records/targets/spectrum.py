@@ -25,7 +25,7 @@ class SpectrumRecordsTarget(SupportsRecordsDirectory):
                  url_resolver: UrlResolver,
                  spectrum_base_url: Optional[str],
                  spectrum_rdir_url: Optional[str],
-                 existing_table_handling: ExistingTableHandling=
+                 existing_table_handling: ExistingTableHandling =
                  ExistingTableHandling.TRUNCATE_AND_OVERWRITE) -> None:
         self.db = db_engine
         self.driver = db_driver(db_engine)

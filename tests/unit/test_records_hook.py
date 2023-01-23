@@ -12,9 +12,9 @@ class TestRecordsHook(unittest.TestCase):
     @patch('records_mover.airflow.hooks.records_hook.Records')
     @patch('records_mover.airflow.hooks.records_hook.db_driver')
     @patch('records_mover.airflow.hooks.records_hook.UrlResolver')
-    @patch('records_mover.airflow.hooks.records_hook.AwsHook')
+    @patch('records_mover.airflow.hooks.records_hook.AwsBaseHook')
     def test_get_conn(self,
-                      mock_AwsHook,
+                      mock_AwsBaseHook,
                       mock_UrlResolver,
                       mock_db_driver,
                       mock_Records):

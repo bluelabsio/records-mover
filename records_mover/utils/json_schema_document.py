@@ -11,6 +11,7 @@ A = TypeVar('A')
 
 class JsonSchemaDocument:
     """Represents JSON Schema"""
+
     def __init__(self,
                  json_type: Union[str, List[str]],
                  default: DefaultValue = inspect.Parameter.empty,
