@@ -17,7 +17,7 @@ class RecordsDirectoryRecordsSource(SupportsRecordsDirectory,
                  directory: RecordsDirectory,
                  fail_if_dont_understand: bool,
                  url_resolver: UrlResolver,
-                 override_hints: PartialRecordsHints={}) -> None:
+                 override_hints: PartialRecordsHints = {}) -> None:
         self.records_format = directory.load_format(fail_if_dont_understand=fail_if_dont_understand)
         if isinstance(self.records_format, DelimitedRecordsFormat):
             self.records_format = self.records_format.alter_hints(override_hints)
@@ -30,7 +30,7 @@ class RecordsDirectoryRecordsSource(SupportsRecordsDirectory,
     @contextmanager
     def to_fileobjs_source(self,
                            processing_instructions: ProcessingInstructions,
-                           records_format_if_possible: Optional[BaseRecordsFormat]=None)\
+                           records_format_if_possible: Optional[BaseRecordsFormat] = None)\
             -> Iterator[FileobjsSource]:
 
         all_urls = self.directory.manifest_entry_urls()

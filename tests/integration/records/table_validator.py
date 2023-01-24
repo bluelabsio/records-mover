@@ -114,27 +114,16 @@ class RecordsTableValidator:
                     f'{self.target_db_engine.name}: ' \
                     f'{actual_expected_str}'
         else:
-            expected_table_types = expected_table2table_column_types.get(
-                (self.source_db_engine.name, self.target_db_engine.name))
-            expected_source_single_types = \
-                expected_single_database_column_types.get(
-                    self.source_db_engine.name)
-
-            actual_expected_str = format_actual_expected_column_types(
-                 expected_table_types,
-                 expected_source_single_types,
-                 expected_target_single_types,
-                 expected_target_df_types)
-
-            assert \
-                actual_column_types in (
-                    expected_table_types,
-                    expected_source_single_types,
-                    expected_target_single_types,
-                    expected_target_df_types), \
-                f'Could not find column types filed under ' \
-                f"{(self.source_db_engine.name, self.target_db_engine.name)} " \
-                f'or either individually: {actual_expected_str}'
+            assert (actual_column_types in
+                    (expected_table2table_column_types.get((self.source_db_engine.name,
+                                                            self.target_db_engine.name)),
+                     expected_single_database_column_types[self.source_db_engine.name],
+                     expected_single_database_column_types[self.target_db_engine.name],
+                     expected_df_loaded_database_column_types.get(self.target_db_engine.name))),\
+                f'Could not find column types filed under '\
+                f"{(self.source_db_engine.name, self.target_db_engine.name)} "\
+                'or either individually: '\
+                f'{actual_column_types}'
 
     def validate_data_values(self,
                              schema_name: str,

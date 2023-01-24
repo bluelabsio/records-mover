@@ -6,6 +6,6 @@ class RecordsUnloadPlan:
     def __init__(self,
                  records_format: BaseRecordsFormat = DelimitedRecordsFormat(),
                  processing_instructions: ProcessingInstructions = ProcessingInstructions()) -> \
-                 None:
+            None:
         self.records_format = records_format
         self.processing_instructions = processing_instructions

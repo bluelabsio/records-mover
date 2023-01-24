@@ -82,11 +82,11 @@ class TestFileobjsSource(unittest.TestCase):
         mock_processing_instructions = Mock(name='processing_instructions')
         with self.assertRaises(TypeError):
             with FileobjsSource.\
-                 infer_if_needed(target_names_to_input_fileobjs=mock_target_names_to_input_fileobjs,
-                                 processing_instructions=mock_processing_instructions,
-                                 records_schema=mock_records_schema,
-                                 records_format=None,
-                                 initial_hints={}):
+                infer_if_needed(target_names_to_input_fileobjs=mock_target_names_to_input_fileobjs,
+                                processing_instructions=mock_processing_instructions,
+                                records_schema=mock_records_schema,
+                                records_format=None,
+                                initial_hints={}):
                 pass
 
     def test_known_supported_records_formats(self):
