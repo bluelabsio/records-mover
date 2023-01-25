@@ -31,7 +31,7 @@ odbc_driver_for_type = {
 query_for_type = {
     'mysql': {
         # Please see SECURITY.md for security implications!
-        'local_infile': '1'
+        "local_infile": "1"
     },
     # keepalives prevent timeout errors
     'redshift': {'keepalives': '1', 'keepalives_idle': '30'},
