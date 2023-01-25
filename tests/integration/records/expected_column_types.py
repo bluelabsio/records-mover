@@ -116,8 +116,8 @@ expected_table2table_column_types = {
     # date/time/timestamp/timestamptz all get turned into strings.
     ('postgresql', 'postgresql'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
-        'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME',
-        'TIMESTAMP', 'TIMESTAMP'
+        'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME WITHOUT TIME ZONE',
+        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
     ('postgresql', 'vertica'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
@@ -127,7 +127,7 @@ expected_table2table_column_types = {
     ('postgresql', 'redshift'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP', 'TIMESTAMPTZ'
+        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMPTZ'
     ],
     ('postgresql', 'bigquery'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
@@ -141,7 +141,7 @@ expected_table2table_column_types = {
     ('redshift', 'postgresql'): [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP', 'TIMESTAMP'
+        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
     ('bigquery', 'redshift'): [
         'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
@@ -154,8 +154,8 @@ expected_table2table_column_types = {
     ],
     ('bigquery', 'postgresql'): [
         'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
-        'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME',
-        'TIMESTAMP', 'TIMESTAMP'
+        'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME WITHOUT TIME ZONE',
+        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
     ('bigquery', 'vertica'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
@@ -195,12 +195,12 @@ expected_table2table_column_types = {
     ],
     ('vertica', 'postgresql'): [
         'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
-        'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME',
-        'TIMESTAMP', 'TIMESTAMP'
+        'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME WITHOUT TIME ZONE',
+        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMP WITH TIME ZONE'
     ],
     ('vertica', 'redshift'): [
         'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP', 'TIMESTAMPTZ'
+        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMPTZ'
     ],
 }
