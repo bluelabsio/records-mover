@@ -28,3 +28,15 @@ jobs:
       - name: Unit tests
         run: |
           make citest
+
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Test docs build
+        run: |
+          tests/integration/test_docs_build.sh --no-pyenv
