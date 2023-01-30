@@ -79,20 +79,40 @@ class RecordsTableValidator:
             return str(column['type']) + suffix
 
         actual_column_types = [format_type(column) for column in columns]
+
+        def format_actual_expected_column_types(*expected):
+            expected_str = '\nOR: '.join([str(x) for x in expected])
+            return (f'\nACTUAL: {actual_column_types}\n'
+                    f'EXPECTED: {expected_str}')
+
+        expected_target_df_types = expected_df_loaded_database_column_types.get(
+            self.target_db_engine.name)
+        expected_target_single_types = \
+            expected_single_database_column_types.get(
+                self.target_db_engine.name)
+
         if self.source_db_engine is None:
             if self.file_variant is None:
-                assert actual_column_types in\
-                    (expected_df_loaded_database_column_types.get(self.target_db_engine.name),
-                     expected_single_database_column_types[self.target_db_engine.name]),\
+                actual_expected_str = format_actual_expected_column_types(
+                    expected_target_df_types,
+                    expected_target_single_types)
+
+                assert \
+                    actual_column_types in (
+                        expected_target_df_types,
+                        expected_target_single_types), \
                     f'Could not find column types filed under ' \
                     f"{('df', self.target_db_engine.name)} or : " \
-                    f"{self.target_db_engine.name}: " \
-                    f'{actual_column_types}'
+                    f'{self.target_db_engine.name}: ' \
+                    f'{actual_expected_str}'
             else:
-                assert actual_column_types ==\
-                    expected_single_database_column_types[self.target_db_engine.name],\
-                    f'Could not find column types filed under {self.target_db_engine.name}: ' +\
-                    f'{actual_column_types}'
+                actual_expected_str = format_actual_expected_column_types(
+                    expected_target_single_types)
+
+                assert actual_column_types == expected_target_single_types, \
+                    f'Could not find column types filed under ' \
+                    f'{self.target_db_engine.name}: ' \
+                    f'{actual_expected_str}'
         else:
             assert (actual_column_types in
                     (expected_table2table_column_types.get((self.source_db_engine.name,
