@@ -415,8 +415,6 @@ workflows:
           extras: '[unittest,typecheck]'
           python_version: "3.8"
           pandas_version: "==1.1.5"
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -434,8 +432,6 @@ workflows:
           extras: '[unittest,typecheck]'
           python_version: "3.10"
           pandas_version: "==1.5.2"
-          requires:
-            - redshift-s3-itest
           coverage: true
           filters:
             tags:
@@ -445,8 +441,6 @@ workflows:
           extras: '[unittest,typecheck]'
           python_version: "3.10"
           pandas_version: "==1.5.2"
-          requires:
-            - redshift-s3-itest
           coverage: true
           filters:
             tags:
@@ -486,8 +480,6 @@ workflows:
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
             with-db dockerized-postgres pytest
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -508,8 +500,6 @@ workflows:
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
             with-db dockerized-mysql pytest
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -525,8 +515,6 @@ workflows:
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
             with-db dockerized-vertica pytest
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -542,8 +530,6 @@ workflows:
             mkdir -p test-reports/itest
             cd tests/integration/cli
             ./cli-tests.sh ci_1
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -559,8 +545,6 @@ workflows:
             mkdir -p test-reports/itest
             cd tests/integration/cli
             ./cli-tests.sh ci_2
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -576,8 +560,6 @@ workflows:
             mkdir -p test-reports/itest
             cd tests/integration/cli
             ./cli-tests.sh ci_3
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -586,8 +568,6 @@ workflows:
           extras: '[redshift-binary,itest]'
           python_version: "3.9"
           db_name: demo-itest
-          requires:
-            - test-3.9
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -597,8 +577,6 @@ workflows:
           python_version: "3.9"
           db_name: demo-itest
           include_s3_scratch_bucket: false
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -609,8 +587,6 @@ workflows:
           pandas_version: "<1"
           numpy_version: "<1.24"
           db_name: demo-itest
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -620,8 +596,6 @@ workflows:
           python_version: "3.9"
           pandas_version: ""
           db_name: demo-itest
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -643,8 +617,6 @@ workflows:
           extras: '[bigquery,itest]'
           python_version: "3.9"
           db_name: bltoolsdevbq-bq_itest
-          requires:
-            - redshift-s3-itest
           include_gcs_scratch_bucket: false
           filters:
             tags:
@@ -654,15 +626,11 @@ workflows:
           extras: '[bigquery,itest]'
           python_version: "3.9"
           db_name: bltoolsdevbq-bq_itest
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - cli-extra-test:
           name: cli-extra-test
-          requires:
-            - redshift-s3-itest
       - deploy:
           context: PyPI
           requires:
