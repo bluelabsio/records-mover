@@ -1,15 +1,15 @@
-from airflow.contrib.hooks.gcp_api_base_hook import GoogleCloudBaseHook
+from airflow.providers.google.common.hooks.base_google import GoogleBaseHook
 from typing import Iterable, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
     import google.auth.credentials  # noqa
 
 
-class GoogleCloudCredentialsHook(GoogleCloudBaseHook):
+class GoogleCloudCredentialsHook(GoogleBaseHook):
     def get_conn(self) -> 'google.auth.credentials.Credentials':
         return self._get_credentials()
 
-    def scopes(self) -> Iterable[str]:
+    def scopes(self) -> Iterable[str]:  # type: ignore
         scope: Optional[str] = self._get_field('scope', None)
         scopes: Iterable[str]
         if scope is not None:

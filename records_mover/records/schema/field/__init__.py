@@ -95,7 +95,6 @@ class RecordsSchemaField:
             np.float16: 'decimal',
             np.float32: 'decimal',
             np.float64: 'decimal',
-            np.float128: 'decimal',
             float: 'decimal',
 
             str: 'string',
@@ -113,6 +112,12 @@ class RecordsSchemaField:
 
             pd.Timestamp: 'datetime',
         }
+        try:
+            type_mapping[np.float128] = 'decimal'
+        except AttributeError:
+            # np.float128 is not available on some machines
+            pass
+
         if specific_type not in type_mapping:
             logger.warning(f"Please teach me how to map {specific_type} into records "
                            "schema field types")

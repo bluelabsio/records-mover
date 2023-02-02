@@ -120,33 +120,29 @@ google_api_client_dependencies = [
     'grpcio<2.0dev,>=1.29.0',
 ]
 
-nose_dependencies = [
-    'nose'
+pytest_dependencies = [
+    'pytest',
+    'pytest-cov'
 ]
 
 itest_dependencies = [
     'jsonschema',  # needed for directory_validator.py
+    'pytz',
+    'wheel',  # needed to support legacy 'setup.py install'
 ] + (
-    nose_dependencies +
+    pytest_dependencies +
     # needed for records_database_fixture retrying drop/creates on
     # BigQuery
     google_api_client_dependencies
 )
 
 airflow_dependencies = [
-    # Minimum version here is needed to avoid syntax error in setup.py
-    # in 1.10.0
-    'apache-airflow>=1.10.1,<2'
+    'apache-airflow>=2',
+    'apache-airflow-providers-amazon',
+    'apache-airflow-providers-google',
 ]
 
 db_dependencies = [
-    # Lower bound (>=1.3.18) is to improve package resolution performance
-    #
-    # Upper bound (<1.4) is to avoid 1.4 which has breaking changes and is
-    # incompatible with python-bigquery-sqlalchemy per
-    # https://github.com/googleapis/python-bigquery-sqlalchemy/issues/83
-    # Can lift this once records-mover itself is compatible and
-    # other packages have appropriate restrictions in place.
     'sqlalchemy>=1.3.18,<1.4',
 ]
 
@@ -190,7 +186,7 @@ parquet_dependencies = [
 ]
 
 pandas_dependencies = [
-    'pandas==1.1.5',
+    'pandas>=1.1.5',
 ]
 
 mysql_dependencies = [
@@ -253,7 +249,7 @@ unittest_dependencies = [
     'coverage',
     'mock',
 ] + (
-    nose_dependencies +
+    pytest_dependencies +
     cli_dependencies_base +
     airflow_dependencies +
     gsheet_dependencies +
@@ -284,7 +280,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='records-mover',
-      version=__version__, # read right above  # noqa
+      version=__version__,  # read right above  # noqa
       description=('Library and CLI to move relational data from one place to another - '
                    'DBs/CSV/gsheets/dataframes/...'),
       long_description=long_description,

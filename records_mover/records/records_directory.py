@@ -48,8 +48,8 @@ class RecordsDirectory:
 
     def save_fileobjs(self,
                       fileobjs_by_target_names: Mapping[str, IO[bytes]],
-                      records_schema: Optional[RecordsSchema]=None,
-                      records_format: Optional[BaseRecordsFormat]=None) \
+                      records_schema: Optional[RecordsSchema] = None,
+                      records_format: Optional[BaseRecordsFormat] = None) \
             -> UrlDetails:
         """Write out a full records directory from file objects."""
         url_details: UrlDetails = self.save_data_from_fileobjs(fileobjs_by_target_names)
@@ -94,7 +94,7 @@ class RecordsDirectory:
             ]
         }
 
-    def save_preliminary_manifest(self, url_details: Optional[UrlDetails]=None) -> None:
+    def save_preliminary_manifest(self, url_details: Optional[UrlDetails] = None) -> None:
         """Save manifest file to records directory.
 
          :param urls_for_manifest: list of URLs that should be

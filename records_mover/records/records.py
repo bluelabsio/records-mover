@@ -6,8 +6,8 @@ from .mover import move
 from enum import Enum
 from typing import Callable, Union, TYPE_CHECKING
 if TYPE_CHECKING:
-    from sqlalchemy.engine import Engine, Connection # noqa
-    from ..db import DBDriver # noqa
+    from sqlalchemy.engine import Engine, Connection  # noqa
+    from ..db import DBDriver  # noqa
 
     from records_mover import Session  # noqa
 

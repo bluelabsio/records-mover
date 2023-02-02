@@ -22,11 +22,18 @@ commands:
       pandas_version:
         type: string
         description: "Version of pandas to test against, or empty string for none"
+      numpy_version:
+        # only needed for old-pandas itest
+        type: string
+        description: "Version of numpy to test against, if specific version required"
+        default: ""
     steps:
       - restore_cache:
-          key: deps-v2-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v6-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
+          environment:
+            PYENV_VERSION: <<parameters.python_version>>
           command: |
             if [ -f venv/bin/activate ]
             then
@@ -38,6 +45,10 @@ commands:
               python -m venv venv
               . venv/bin/activate
               pip install --upgrade pip
+              if [ '<<parameters.numpy_version>>' != '' ]
+              then
+                pip install --progress-bar=off 'numpy<<parameters.numpy_version>>'
+              fi
               if [ '<<parameters.include_dev_dependencies>>' == 'true' ]
               then
                 pip install --progress-bar=off -r requirements.txt
@@ -51,7 +62,7 @@ commands:
               fi
             fi
       - save_cache:
-          key: deps-v2-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v6-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
   wait_for_db:
@@ -99,7 +110,7 @@ jobs:
         default: false
         description: "Enforce coverage not slipping"
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
     steps:
       - checkout
       - add_ssh_keys:
@@ -162,12 +173,12 @@ jobs:
       pandas_version:
         type: string
         description: "Version of pandas to test against"
-        default: '<1'
+        default: '==1.3.5'
       command:
         type: string
         description: "Command to run in records-mover venv"
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
       - image: jbfavre/vertica:8.1.1-16_centos-7
         environment:
           DATABASE_NAME: docker
@@ -254,7 +265,10 @@ jobs:
         description: "Version of Python to test against"
       pandas_version:
         type: string
-        default: '>=1'
+        default: '==1.3.5'
+      numpy_version:
+        type: string
+        default: ""
       db_name:
         type: string
         description: "Database to run inside"
@@ -268,7 +282,7 @@ jobs:
         default: true
 
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
     steps:
       - checkout
       - add_ssh_keys:
@@ -279,6 +293,7 @@ jobs:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
+          numpy_version: <<parameters.numpy_version>>
       - run:
           name: Run tests
           command: |
@@ -298,7 +313,7 @@ jobs:
               # This is set by default in the CircleCI environment
               unset SCRATCH_GCS_URL
             fi
-            with-db <<parameters.db_name>> nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+            with-db <<parameters.db_name>> pytest
       - store_test_results:
           path: test-reports
       - store_artifacts:
@@ -313,15 +328,15 @@ jobs:
       python_version:
         type: string
         description: "Version of python to test against"
-        default: '3.6'
+        default: '3.9'
     docker:
-      - image: circleci/python:<<parameters.python_version>>
+      - image: cimg/python:<<parameters.python_version>>
     steps:
       - checkout
       - installvenv:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
-          pandas_version: '<1'
+          pandas_version: '==1.3.5'
           # requirements.txt includes twine and other release packages
           include_dev_dependencies: true
       - run:
@@ -353,12 +368,12 @@ jobs:
             twine upload -r pypi dist/*
   cli-extra-test:
     docker:
-      - image: circleci/python:3.6
+      - image: cimg/python:3.9
     steps:
       - checkout
       - installvenv:
           extras: '[cli]'
-          python_version: '3.6'
+          python_version: '3.9'
           pandas_version: ''
           # we want this just like a user would install it, not with
           # dev tools installed
@@ -383,9 +398,6 @@ workflows:
       #
       # https://devguide.python.org/devcycle/#end-of-life-branches
       #
-      # That said, Python 3.5 and before don't support type
-      # annotations on variables, which we use, so right now Python
-      # 3.6 is the current minimum version tested against.
       #
       # https://app.asana.com/0/1128138765527694/1161072974798065
       # - test:
@@ -403,8 +415,6 @@ workflows:
           extras: '[unittest,typecheck]'
           python_version: "3.8"
           pandas_version: "==1.1.5"
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -417,10 +427,28 @@ workflows:
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.10
+          extras: '[unittest,typecheck]'
+          python_version: "3.10"
+          pandas_version: "==1.5.2"
+          coverage: true
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.11
+          extras: '[unittest,typecheck]'
+          python_version: "3.10"
+          pandas_version: "==1.5.2"
+          coverage: true
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
       # - integration_test_with_dbs:
       #     name: vertica-no-s3-itest
       #     extras: '[vertica,itest]'
-      #     python_version: "3.6"
+      #     python_version: "3.9"
       #     command: |
       #       . venv/bin/activate
       #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
@@ -433,56 +461,17 @@ workflows:
       #       # scratch bucket config.
       #       #
       #       unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
-      #       with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
-      #     requires:
-      #       - redshift-s3-itest
-      #     filters:
-      #       tags:
-      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      # - integration_test_with_dbs:
-      #     name: postgres-itest
-      #     extras: '[postgres-binary,itest]'
-      #     python_version: "3.9"
-      #     pandas_version: '==1.3.5'
-      #     command: |
-      #       . venv/bin/activate
-      #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-      #       export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-      #       export RECORDS_MOVER_SESSION_TYPE=env
-      #       mkdir -p test-reports/itest
-      #       cd tests/integration/records/single_db
-      #       with-db dockerized-postgres nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
-      #     requires:
-      #       - redshift-s3-itest
-      #     filters:
-      #       tags:
-      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      # - integration_test_with_dbs:
-      #     name: mysql-itest
-      #     extras: '[mysql,itest]'
-      #     python_version: "3.6"
-      #     # Using Pandas reproduced a bug that happened when we were
-      #     # relying on Pandas:
-      #     #
-      #     # See https://github.com/bluelabsio/records-mover/pull/152
-      #     pandas_version: "==1.1.5"
-      #     command: |
-      #       . venv/bin/activate
-      #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-      #       export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-      #       export RECORDS_MOVER_SESSION_TYPE=env
-      #       mkdir -p test-reports/itest
-      #       cd tests/integration/records/single_db
-      #       with-db dockerized-mysql nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
+      #       with-db dockerized-vertica pytest
       #     requires:
       #       - redshift-s3-itest
       #     filters:
       #       tags:
       #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
-          name: vertica-s3-itest
-          extras: '[vertica,aws,itest]'
-          python_version: "3.6"
+          name: postgres-itest
+          extras: '[postgres-binary,itest]'
+          python_version: "3.9"
+          pandas_version: '==1.3.5'
           command: |
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
@@ -490,16 +479,49 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            with-db dockerized-vertica nosetests --with-xunit --xunit-file=../../../../test-reports/itest/junit.xml .
-          requires:
-            - redshift-s3-itest
+            with-db dockerized-postgres pytest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: mysql-itest
+          extras: '[mysql,itest]'
+          python_version: "3.9"
+          # Using Pandas reproduced a bug that happened when we were
+          # relying on Pandas:
+          #
+          # See https://github.com/bluelabsio/records-mover/pull/152
+          pandas_version: "==1.1.5"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export RECORDS_MOVER_SESSION_TYPE=env
+            mkdir -p test-reports/itest
+            cd tests/integration/records/single_db
+            with-db dockerized-mysql pytest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: vertica-s3-itest
+          extras: '[vertica,aws,itest]'
+          python_version: "3.9"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export RECORDS_MOVER_SESSION_TYPE=env
+            mkdir -p test-reports/itest
+            cd tests/integration/records/single_db
+            with-db dockerized-vertica pytest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-1-itest
           extras: '[cli,gsheets,vertica]'
-          python_version: "3.6"
+          python_version: "3.9"
           command: |
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
@@ -508,15 +530,13 @@ workflows:
             mkdir -p test-reports/itest
             cd tests/integration/cli
             ./cli-tests.sh ci_1
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-2-itest
           extras: '[cli,gsheets,vertica]'
-          python_version: "3.6"
+          python_version: "3.9"
           command: |
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
@@ -525,15 +545,13 @@ workflows:
             mkdir -p test-reports/itest
             cd tests/integration/cli
             ./cli-tests.sh ci_2
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-3-itest
           extras: '[cli,gsheets,vertica]'
-          python_version: "3.6"
+          python_version: "3.9"
           command: |
             . venv/bin/activate
             export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
@@ -542,112 +560,92 @@ workflows:
             mkdir -p test-reports/itest
             cd tests/integration/cli
             ./cli-tests.sh ci_3
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-s3-itest
           extras: '[redshift-binary,itest]'
-          python_version: "3.6"
+          python_version: "3.9"
           db_name: demo-itest
-          requires:
-            - test-3.9
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-no-s3-itest
           extras: '[redshift-binary,itest]'
-          python_version: "3.6"
+          python_version: "3.9"
           db_name: demo-itest
           include_s3_scratch_bucket: false
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-s3-itest-old-pandas
           extras: '[redshift-binary,itest]'
-          python_version: "3.6"
+          python_version: "3.8"
           pandas_version: "<1"
+          numpy_version: "<1.24"
           db_name: demo-itest
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test:
           name: redshift-s3-itest-no-pandas
           extras: '[redshift-binary,itest]'
-          python_version: "3.6"
+          python_version: "3.9"
           pandas_version: ""
           db_name: demo-itest
-          requires:
-            - redshift-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      # - integration_test:
-      #     name: bigquery-no-gcs-itest
-      #     extras: '[bigquery,itest]'
-      #     python_version: "3.6"
-      #     db_name: bltoolsdevbq-bq_itest
-      #     include_gcs_scratch_bucket: false
-      #     requires:
-      #       - redshift-s3-itest
-      #     filters:
-      #       tags:
-      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      # - integration_test:
-      #     name: bigquery-gcs-itest
-      #     extras: '[bigquery,itest]'
-      #     python_version: "3.6"
-      #     db_name: bltoolsdevbq-bq_itest
-      #     requires:
-      #       - redshift-s3-itest
-      #     filters:
-      #       tags:
-      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      # - integration_test_with_dbs:
-      #     name: tbl2tbl-itest
-      #     extras: '[literally_every_single_database_binary,itest]'
-      #     python_version: "3.6"
-      #     command: |
-      #       . venv/bin/activate
-      #       export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-      #       export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-      #       export RECORDS_MOVER_SESSION_TYPE=env
-      #       mkdir -p test-reports/itest
-      #       cd tests/integration
-      #       python3 -m records.multi_db.test_records_table2table
-      #     requires:
-      #       - redshift-s3-itest
-      #     filters:
-      #       tags:
-      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test_with_dbs:
+          name: tbl2tbl-itest
+          extras: '[literally_every_single_database_binary,itest]'
+          python_version: "3.9"
+          pandas_version: "==1.1.5"
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export RECORDS_MOVER_SESSION_TYPE=env
+            mkdir -p test-reports/itest
+            cd tests/integration
+            python3 -m records.multi_db.test_records_table2table
+      - integration_test:
+          name: bigquery-no-gcs-itest
+          extras: '[bigquery,itest]'
+          python_version: "3.9"
+          db_name: bltoolsdevbq-bq_itest
+          include_gcs_scratch_bucket: false
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - integration_test:
+          name: bigquery-gcs-itest
+          extras: '[bigquery,itest]'
+          python_version: "3.9"
+          db_name: bltoolsdevbq-bq_itest
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - cli-extra-test:
           name: cli-extra-test
-          requires:
-            - redshift-s3-itest
       - deploy:
           context: PyPI
           requires:
-            # - test-3.6
             # - test-3.7
             - test-3.8
             - test-3.9
             - cli-extra-test
-            # - tbl2tbl-itest
+            - tbl2tbl-itest
             # - bigquery-no-gcs-itest
-            # - bigquery-gcs-itest
+            - bigquery-gcs-itest
             - redshift-no-s3-itest
             - redshift-s3-itest
             - redshift-s3-itest-old-pandas
             - redshift-s3-itest-no-pandas
-            # - postgres-itest
+            - postgres-itest
             # - mysql-itest
             - cli-1-itest
             - cli-2-itest
@@ -659,3 +657,5 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
             branches:
               ignore: /.*/
+
+# VS Code Extension Version: 1.4.0

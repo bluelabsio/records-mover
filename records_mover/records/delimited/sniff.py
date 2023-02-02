@@ -169,7 +169,7 @@ def csv_hints_from_pandas(fileobj: IO[bytes],
 
 
 def sniff_compression_hint(fileobj: IO[bytes]) -> HintCompression:
-    print(f'Sniffing compression')
+    print('Sniffing compression')
     with rewound_fileobj(fileobj) as fileobj_rewound:
         # https://stackoverflow.com/a/13044946/9795956
         magic_dict: Dict[bytes, HintCompression] = {

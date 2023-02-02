@@ -22,7 +22,7 @@ class TestDatabase(unittest.TestCase):
             "port": "5433",
             "database": "analytics",
             "type": "vertica"
-            }
+        }
 
         actual_db_facts = db_facts_from_env()
         self.assertEqual(expected_db_facts, actual_db_facts)

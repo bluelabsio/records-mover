@@ -94,9 +94,8 @@ class SupportsMoveFromRecordsDirectory(NegotiatesRecordsFormat, metaclass=ABCMet
     def move_from_records_directory(self,
                                     directory: RecordsDirectory,
                                     processing_instructions: ProcessingInstructions,
-                                    override_records_format: Optional[BaseRecordsFormat]=None)\
+                                    override_records_format: Optional[BaseRecordsFormat] = None)\
             -> MoveResult:
-
         """Given a RecordsDirectory object, load the data inside
         per the ProcessingInstructions and any hint overrides provided."""
         pass
@@ -142,7 +141,6 @@ class MightSupportMoveFromTempLocAfterFillingIt(NegotiatesRecordsFormat, metacla
                                             SupportsMoveToRecordsDirectory,
                                             processing_instructions:
                                             ProcessingInstructions) -> MoveResult:
-
         """Create a temporary location for a RecordsDirectory to live,
         call records_source.move_to_records_directory()
         with it, and then move in the records from the temporary

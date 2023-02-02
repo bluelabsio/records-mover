@@ -48,6 +48,7 @@ class RecordsSources(object):
        results = records.move(source, target)
 
     """
+
     def __init__(self,
                  db_driver: Callable[['Engine'], 'DBDriver'],
                  url_resolver: UrlResolver) -> None:
@@ -56,10 +57,10 @@ class RecordsSources(object):
 
     def dataframe(self,
                   df: 'DataFrame',
-                  processing_instructions: ProcessingInstructions=
+                  processing_instructions: ProcessingInstructions =
                   ProcessingInstructions(),
-                  records_schema: Optional[RecordsSchema]=None,
-                  include_index: bool=False) -> 'DataframesRecordsSource':
+                  records_schema: Optional[RecordsSchema] = None,
+                  include_index: bool = False) -> 'DataframesRecordsSource':
         """
         Represents a single dataframe source.
 
@@ -79,10 +80,10 @@ class RecordsSources(object):
 
     def dataframes(self,
                    dfs: Iterable['DataFrame'],
-                   processing_instructions: ProcessingInstructions=
+                   processing_instructions: ProcessingInstructions =
                    ProcessingInstructions(),
-                   records_schema: Optional[RecordsSchema]=None,
-                   include_index: bool=False) -> 'DataframesRecordsSource':
+                   records_schema: Optional[RecordsSchema] = None,
+                   include_index: bool = False) -> 'DataframesRecordsSource':
         """Represents multiple dataframes as a source.  Note that this accepts
         an iterable, meaning that the dataframes in question can be
         generated dynamically in chunks.
@@ -103,9 +104,9 @@ class RecordsSources(object):
 
     def fileobjs(self,
                  target_names_to_input_fileobjs: Mapping[str, IO[bytes]],
-                 records_format: Optional[BaseRecordsFormat]=None,
-                 initial_hints: Optional[PartialRecordsHints]=None,
-                 records_schema: Optional[RecordsSchema]=None)\
+                 records_format: Optional[BaseRecordsFormat] = None,
+                 initial_hints: Optional[PartialRecordsHints] = None,
+                 records_schema: Optional[RecordsSchema] = None)\
             -> Union[UninferredFileobjsRecordsSource, FileobjsSource]:
         """Represents one or more streams of data files as a source.
 
@@ -132,9 +133,9 @@ class RecordsSources(object):
 
     def data_url(self,
                  input_url: str,
-                 records_format: Optional[BaseRecordsFormat]=None,
-                 initial_hints: Optional[PartialRecordsHints]=None,
-                 records_schema: Optional[RecordsSchema]=None)\
+                 records_format: Optional[BaseRecordsFormat] = None,
+                 initial_hints: Optional[PartialRecordsHints] = None,
+                 records_schema: Optional[RecordsSchema] = None)\
             -> DataUrlRecordsSource:
         """Represents a URL pointer to a data file as a source.
 
@@ -172,8 +173,8 @@ class RecordsSources(object):
 
     def directory_from_url(self,
                            url: str,
-                           hints: PartialRecordsHints={},
-                           fail_if_dont_understand: bool=True)\
+                           hints: PartialRecordsHints = {},
+                           fail_if_dont_understand: bool = True)\
             -> RecordsDirectoryRecordsSource:
         """Represents a Records Directory pointed to by a URL as a source.
 
@@ -195,9 +196,9 @@ class RecordsSources(object):
 
     def local_file(self,
                    filename: str,
-                   records_format: Optional[BaseRecordsFormat]=None,
-                   initial_hints: Optional[PartialRecordsHints]=None,
-                   records_schema: Optional[RecordsSchema]=None)\
+                   records_format: Optional[BaseRecordsFormat] = None,
+                   initial_hints: Optional[PartialRecordsHints] = None,
+                   records_schema: Optional[RecordsSchema] = None)\
             -> DataUrlRecordsSource:
         """Represents a data file on the local filesystem as a source.
 
@@ -220,8 +221,8 @@ class RecordsSources(object):
                      sheet_name_or_range: str,
                      google_cloud_creds:
                      'google.auth.credentials.Credentials',
-                     out_of_band_column_headers: Optional[Iterable[str]]=None,
-                     header_translator: Optional[Callable[[str], str]]=None) ->\
+                     out_of_band_column_headers: Optional[Iterable[str]] = None,
+                     header_translator: Optional[Callable[[str], str]] = None) ->\
             'GoogleSheetsRecordsSource':
         """Represents a sheet or range in a Google Sheets spreadsheet as a
         source, via the Google Sheets API.

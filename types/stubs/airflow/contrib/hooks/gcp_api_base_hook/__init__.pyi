@@ -4,7 +4,7 @@ if TYPE_CHECKING:
     import google.auth.credentials  # noqa
 
 
-class GoogleCloudBaseHook:
+class GoogleBaseHook:
     def __init__(self, gcp_conn_id: str):
         ...
 

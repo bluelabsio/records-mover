@@ -115,9 +115,9 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
                                   records_directory: RecordsDirectory,
                                   records_format: BaseRecordsFormat,
                                   processing_instructions: ProcessingInstructions,
-                                  schema_name: Optional[str]=None,
-                                  table_name: Optional[str]=None,
-                                  engine: Optional[Engine]=None) -> MoveResult:
+                                  schema_name: Optional[str] = None,
+                                  table_name: Optional[str] = None,
+                                  engine: Optional[Engine] = None) -> MoveResult:
         unload_plan = RecordsUnloadPlan(records_format=records_format,
                                         processing_instructions=processing_instructions)
         unloader = self.driver.unloader()

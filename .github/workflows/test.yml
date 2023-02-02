@@ -1,0 +1,42 @@
+name: Test
+
+run-name: Tests
+on: [pull_request]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: ["3.8", "3.9"]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e '.[unittest,typecheck]'
+          pip install --progress-bar=off -r requirements.txt
+      - name: Typecheck
+        run: |
+          make typecheck
+      - name: Unit tests
+        run: |
+          make citest
+
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Test docs build
+        run: |
+          tests/integration/test_docs_build.sh --no-pyenv
