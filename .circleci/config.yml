@@ -397,19 +397,14 @@ workflows:
       # We try to test against all non-end-of-life Python versions:
       #
       # https://devguide.python.org/devcycle/#end-of-life-branches
-      #
-      #
-      # https://app.asana.com/0/1128138765527694/1161072974798065
-      # - test:
-      #     name: test-3.7
-      #     extras: '[unittest,typecheck]'
-      #     python_version: "3.7"
-      #     pandas_version: "==1.1.5"
-      #     requires:
-      #       - redshift-s3-itest
-      #     filters:
-      #       tags:
-      #         only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.7
+          extras: '[unittest,typecheck]'
+          python_version: "3.7"
+          pandas_version: "==1.1.5"
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - test:
           name: test-3.8
           extras: '[unittest,typecheck]'

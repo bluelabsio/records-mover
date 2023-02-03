@@ -117,8 +117,7 @@ def move(records_source: RecordsSource,
     elif isinstance(records_source, SupportsToFileobjsSource):
         # Incompatible types in assignment (expression has type "Optional[Any]",
         #     variable has type "BaseRecordsFormat")
-        target_records_format: BaseRecordsFormat = getattr(records_target,
-                                                           "records_format", None)  # type: ignore
+        target_records_format: BaseRecordsFormat = getattr(records_target, "records_format", None)  # type: ignore
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     f"by first writing {records_source} to {target_records_format} "
                     "records format (if easy to rewrite)...")
