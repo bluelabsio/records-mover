@@ -309,7 +309,7 @@ setup(name='records-mover',
           # resulting in runtime complaints.  Can be removed once 20.4
           # is proven to work.
           'chardet>=3,<4',
-          'tenacity>=4.12.0,<7',
+          'tenacity>=8.0.1',
           # v5.0.1 resolves https://github.com/exhuma/config_resolver/issues/69
           'config-resolver>=5.0.1,<6',
           'typing_inspect',
