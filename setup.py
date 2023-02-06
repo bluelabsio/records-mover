@@ -143,7 +143,7 @@ airflow_dependencies = [
 ]
 
 db_dependencies = [
-    'sqlalchemy>=1.3.18,<1.4',
+    'sqlalchemy>=1.4',
 ]
 
 smart_open_dependencies = [
