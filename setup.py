@@ -137,7 +137,7 @@ itest_dependencies = [
 )
 
 airflow_dependencies = [
-    'apache-airflow>=2',
+    'apache-airflow==2.2.2',
     'apache-airflow-providers-amazon',
     'apache-airflow-providers-google',
 ]
