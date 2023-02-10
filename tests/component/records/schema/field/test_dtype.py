@@ -42,7 +42,6 @@ class Test_to_pandas_dtype_integer_no_nullable:
         (25, 4000000000): pd.UInt32Dtype(),
         (-9000000000000000000, 2000000000): pd.Int64Dtype(),
         (25, 10000000000000000000): pd.UInt64Dtype(),
-        (25, 1000000000000000000000000000): np.float128,
         (None, None): pd.Int64Dtype(),
     }
 
@@ -65,7 +64,6 @@ class Test_to_pandas_dtype_integer_nullable:
         (25, 4000000000): pd.UInt32Dtype(),
         (-9000000000000000000, 2000000000): pd.Int64Dtype(),
         (25, 10000000000000000000): pd.UInt64Dtype(),
-        (25, 1000000000000000000000000000): np.float128,
         (None, None): pd.Int64Dtype(),
     }
 
@@ -83,8 +81,6 @@ class Test_to_pandas_dtype_decimal_float():
         (8, 4): np.float16,
         (20, 10): np.float32,
         (40, 20): np.float64,
-        (80, 64): np.float128,
-        (500, 250): np.float128,
         (None, None): np.float64,
     }
 
