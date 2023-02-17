@@ -267,7 +267,7 @@ vertica-python==1.2.0
 virtualenv==20.17.1
 watchtower==2.0.1
 webencodings==0.5.1
-Werkzeug==2.2.2
+Werkzeug==2.2.3
 wrapt==1.14.1
 WTForms==3.0.1
 zipp==3.11.0
