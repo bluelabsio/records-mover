@@ -29,7 +29,7 @@ commands:
         default: ""
     steps:
       - restore_cache:
-          key: deps-v6-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v7-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           environment:

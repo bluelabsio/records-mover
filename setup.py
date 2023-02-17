@@ -8,6 +8,7 @@ from decimal import Decimal
 from distutils.cmd import Command
 import os.path
 import sys
+import warnings
 
 __version__: Optional[str] = None
 # Read in and set version variable without the overhead/requirements
@@ -66,9 +67,9 @@ class CoverageRatchetCommand(Command):
                 f"{self.type_of_coverage} coverage used to be {high_water_mark}; "
                 f"down to {new_coverage}%.  Fix by viewing '{self.coverage_url}'")
         elif new_coverage > high_water_mark:
-            with open(self.coverage_file, 'w') as f:
-                f.write(str(new_coverage))
-            print(f"Just ratcheted coverage up to {new_coverage}%")
+            warnings.warn(
+                f"WARNING: Your current coverage is higher than current high watermark.\n"
+                f"Consider increasing high watermark in {self.coverage_file} to {new_coverage}.")
         else:
             print(f"Code coverage steady at {new_coverage}%")
 
@@ -309,7 +310,7 @@ setup(name='records-mover',
           # resulting in runtime complaints.  Can be removed once 20.4
           # is proven to work.
           'chardet>=3,<4',
-          'tenacity>=4.12.0,<7',
+          'tenacity>=8.0.1',
           # v5.0.1 resolves https://github.com/exhuma/config_resolver/issues/69
           'config-resolver>=5.0.1,<6',
           'typing_inspect',
