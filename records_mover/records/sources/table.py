@@ -77,9 +77,15 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         db = self.driver.db
         records_schema = self.pull_records_schema()
 
-        columns = db.dialect.get_columns(db,
-                                         self.table_name,
-                                         schema=self.schema_name)
+        if db.driver == 'pymysql':
+            conn = db.connect()
+            columns = db.dialect.get_columns(conn,
+                                             self.table_name,
+                                             schema=self.schema_name)
+        else:
+            columns = db.dialect.get_columns(db,
+                                             self.table_name,
+                                             schema=self.schema_name)
 
         num_columns = len(columns)
         if num_columns == 0:
