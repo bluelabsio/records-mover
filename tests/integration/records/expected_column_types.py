@@ -33,8 +33,8 @@ expected_df_loaded_database_column_types = {
         'TIMESTAMP', 'TIMESTAMP'
     ],
     'mysql': [
-        'BIGINT(20)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
-        'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
+        'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
+        'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME', 'DATETIME'
     ],
     'vertica': [
         'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
