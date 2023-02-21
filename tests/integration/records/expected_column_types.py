@@ -9,7 +9,7 @@ expected_single_database_column_types = {
     'redshift': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMPTZ'
+        'TIMESTAMP', 'TIMESTAMPTZ'
     ],
     'postgresql': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
@@ -44,7 +44,7 @@ expected_df_loaded_database_column_types = {
     'redshift': [
         'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
         'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMPTZ'
+        'TIMESTAMP', 'TIMESTAMPTZ'
     ],
     'bigquery': [
         'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
@@ -127,7 +127,7 @@ expected_table2table_column_types = {
     ('postgresql', 'redshift'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMPTZ'
+        'TIMESTAMP', 'TIMESTAMPTZ'
     ],
     ('postgresql', 'bigquery'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
@@ -190,8 +190,8 @@ expected_table2table_column_types = {
     ],
     ('mysql', 'redshift'): [
         'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)',
-        'VARCHAR(444)', 'DATE', 'VARCHAR(8)', 'TIMESTAMP WITHOUT TIME ZONE',
-        'TIMESTAMP WITHOUT TIME ZONE'
+        'VARCHAR(444)', 'DATE', 'VARCHAR(8)', 'TIMESTAMP',
+        'TIMESTAMP'
     ],
     ('vertica', 'postgresql'): [
         'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
@@ -201,6 +201,6 @@ expected_table2table_column_types = {
     ('vertica', 'redshift'): [
         'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP WITHOUT TIME ZONE', 'TIMESTAMPTZ'
+        'TIMESTAMP', 'TIMESTAMPTZ'
     ],
 }
