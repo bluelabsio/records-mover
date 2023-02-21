@@ -110,7 +110,8 @@ investigate the following:
 * Enabling SSL on your MySQL server.
 * Using the 'REQUIRE SSL' clause in the 'GRANT ALL
   PRIVILEGES' statement used to create users.
-
+* Using pymysql's syntax to point to the correct CA cert for
+  the MySQL server and require validation.
 
 PRs to make this configuration easier to use with Records Mover are
 very welcome.
