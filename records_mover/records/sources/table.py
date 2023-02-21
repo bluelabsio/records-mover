@@ -77,7 +77,7 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         db = self.driver.db
         records_schema = self.pull_records_schema()
 
-        if db.driver == 'pymysql':
+        if isinstance(db, Engine) db.driver == 'pymysql':
             conn = db.connect()
             columns = db.dialect.get_columns(conn,
                                              self.table_name,
