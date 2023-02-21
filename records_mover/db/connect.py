@@ -14,10 +14,7 @@ logger = logging.getLogger(__name__)
 # cred-service/LastPass/etc) into which driver to use.
 db_driver_for_type = {
     'postgres': 'postgresql',
-    # pymysql is pure Python and is known to work correctly with LOAD
-    # DATA LOCAL INFILE in SQLAlchemy, which mysqlclient did not as of
-    # 2020-04.
-    'mysql': 'mysql+pymysql',
+    'mysql': 'mysql+mysqldb',
     # vertica_python has the advantage of being pure Python and an
     # offering directly from Vertica:
     # https://github.com/vertica/vertica-python
