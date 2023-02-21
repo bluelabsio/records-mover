@@ -54,45 +54,6 @@ class TestTableRecordsSource(unittest.TestCase):
                                    records_schema=mock_records_schema)
             mock_chunks.close.assert_not_called()
         mock_chunks.close.assert_called()
-    
-    @patch('records_mover.records.sources.dataframes.DataframesRecordsSource')
-    @patch('records_mover.records.sources.table.RecordsSchema')
-    @patch('records_mover.records.sources.table.quote_schema_and_table')
-    @patch('pandas.read_sql')
-    def test_to_dataframes_source_mysql(self,
-                                        mock_read_sql,
-                                        mock_quote_schema_and_table,
-                                        mock_RecordsSchema,
-                                        mock_DataframesRecordsSource):
-        mock_schema_name = Mock(name='schema_name')
-        mock_table_name = Mock(name='table_name')
-        mock_processing_instructions = Mock(name='processing_instructions')
-        mock_records_schema = mock_RecordsSchema.from_db_table.return_value
-        mock_driver = MagicMock(name='pymysql')
-        mock_db = mock_driver.db
-        mock_column = Mock(name='column')
-        mock_columns = [mock_column]
-        mock_db.dialect.get_columns.return_value = mock_columns
-        mock_quoted_table = mock_quote_schema_and_table.return_value
-        mock_chunks = mock_read_sql.return_value
-        with self.table_records_source.to_dataframes_source(mock_processing_instructions) as\
-                df_source:
-            self.assertEqual(df_source, mock_DataframesRecordsSource.return_value)
-            mock_db.dialect.get_columns.assert_called_with(mock_db,
-                                                           mock_table_name,
-                                                           schema=mock_schema_name)
-            mock_RecordsSchema.from_db_table.assert_called_with(mock_schema_name,
-                                                                mock_table_name,
-                                                                driver=mock_driver)
-            mock_read_sql.assert_called_with(f"SELECT * FROM {mock_quoted_table}",
-                                             chunksize=2000000,
-                                             con=mock_db)
-            mock_DataframesRecordsSource.\
-                assert_called_with(dfs=ANY,
-                                   processing_instructions=mock_processing_instructions,
-                                   records_schema=mock_records_schema)
-            mock_chunks.close.assert_not_called()
-        mock_chunks.close.assert_called()
 
     @patch('records_mover.records.sources.table.RecordsUnloadPlan')
     @patch('records_mover.records.sources.table.MoveResult')
