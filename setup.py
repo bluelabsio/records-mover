@@ -191,7 +191,7 @@ pandas_dependencies = [
 ]
 
 mysql_dependencies = [
-    'mysqlclient'
+    'pymysql'
 ] + db_dependencies
 
 redshift_dependencies_base = [
