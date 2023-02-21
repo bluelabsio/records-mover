@@ -64,6 +64,8 @@ class TestTableRecordsSource(unittest.TestCase):
                                         mock_quote_schema_and_table,
                                         mock_RecordsSchema,
                                         mock_DataframesRecordsSource):
+        mock_schema_name = Mock(name='schema_name')
+        mock_table_name = Mock(name='table_name')
         mock_processing_instructions = Mock(name='processing_instructions')
         mock_records_schema = mock_RecordsSchema.from_db_table.return_value
         mock_driver = MagicMock(name='pymysql')
@@ -77,11 +79,11 @@ class TestTableRecordsSource(unittest.TestCase):
                 df_source:
             self.assertEqual(df_source, mock_DataframesRecordsSource.return_value)
             mock_db.dialect.get_columns.assert_called_with(mock_db,
-                                                           self.mock_table_name,
-                                                           schema=self.mock_schema_name)
-            mock_RecordsSchema.from_db_table.assert_called_with(self.mock_schema_name,
-                                                                self.mock_table_name,
-                                                                driver=self.mock_driver)
+                                                           mock_table_name,
+                                                           schema=mock_schema_name)
+            mock_RecordsSchema.from_db_table.assert_called_with(mock_schema_name,
+                                                                mock_table_name,
+                                                                driver=mock_driver)
             mock_read_sql.assert_called_with(f"SELECT * FROM {mock_quoted_table}",
                                              chunksize=2000000,
                                              con=mock_db)
