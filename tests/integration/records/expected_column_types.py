@@ -117,7 +117,7 @@ expected_table2table_column_types = {
     ('postgresql', 'postgresql'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME',
-        'TIMESTAMP WITHOUT', 'TIMESTAMP'
+        'TIMESTAMP', 'TIMESTAMP'
     ],
     ('postgresql', 'vertica'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
