@@ -21,8 +21,8 @@ expected_single_database_column_types = {
         'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME', 'TIMESTAMP'
     ],
     'mysql': [
-        'INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
-        'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
+        'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
+        'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME', 'DATETIME'
     ],
 }
 
@@ -170,18 +170,18 @@ expected_table2table_column_types = {
         'VARCHAR(444)', 'DATE', 'TIME', 'DATETIME', 'DATETIME',
     ],
     ('redshift', 'mysql'): [
-        'INTEGER(11)', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
-        'VARCHAR(111)', 'DATE', 'VARCHAR(8)', 'DATETIME(6)', 'DATETIME(6)'
+        'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
+        'VARCHAR(111)', 'DATE', 'VARCHAR(8)', 'DATETIME', 'DATETIME'
     ],
     ('postgresql', 'mysql'): [
-        'INTEGER(11)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
+        'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)',
-        'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
+        'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME', 'DATETIME'
     ],
     ('bigquery', 'mysql'): [
-        'BIGINT(20)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
+        'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)',
-        'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME(6)', 'DATETIME(6)'
+        'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME', 'DATETIME'
     ],
     ('mysql', 'postgresql'): [
         'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)',
