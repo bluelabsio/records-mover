@@ -70,7 +70,7 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
     @contextmanager
     def to_dataframes_source(self,
                              processing_instructions: ProcessingInstructions) -> \
-            Iterator['DataframesRecordsSource']:  # type: ignore
+            Iterator['DataframesRecordsSource']:
         from .dataframes import DataframesRecordsSource  # noqa
         import pandas
 
