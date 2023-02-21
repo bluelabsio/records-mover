@@ -54,6 +54,11 @@ class TestTableRecordsSource(unittest.TestCase):
                                    records_schema=mock_records_schema)
             mock_chunks.close.assert_not_called()
         mock_chunks.close.assert_called()
+    
+    @patch('records_mover.records.sources.dataframes.DataframesRecordsSource')
+    @patch('records_mover.records.sources.table.RecordsSchema')
+    @patch('records_mover.records.sources.table.quote_schema_and_table')
+    @patch('pandas.read_sql')
     def test_to_dataframes_source_mysql(self,
                                         mock_read_sql,
                                         mock_quote_schema_and_table,
