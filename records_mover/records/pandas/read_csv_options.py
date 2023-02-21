@@ -10,7 +10,7 @@ from typing import Set, Dict, Any
 
 logger = logging.getLogger(__name__)
 
-
+# flake8: noqa: C901
 def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
                             records_schema: RecordsSchema,
                             unhandled_hints: Set[str],
