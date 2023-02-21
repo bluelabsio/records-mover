@@ -62,9 +62,15 @@ class RecordsTableValidator:
         self.validate_data_values(schema_name, table_name)
 
     def validate_data_types(self, schema_name: str, table_name: str) -> None:
-        columns = self.target_db_engine.dialect.get_columns(self.target_db_engine,
-                                                            table_name,
-                                                            schema=schema_name)
+        if self.target_db_engine.driver == 'pymysql':
+            conn = self.target_db_engine.connect()
+            columns = self.target_db_engine.dialect.get_columns(conn,
+                                                                table_name,
+                                                                schema=schema_name)
+        else:
+            columns = self.target_db_engine.dialect.get_columns(self.target_db_engine,
+                                                                table_name,
+                                                                schema=schema_name)
         expected_column_names = [
             'num', 'numstr', 'str', 'comma', 'doublequote', 'quotecommaquote',
             'newlinestr', 'date', 'time', 'timestamp', 'timestamptz'
