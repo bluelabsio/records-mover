@@ -70,14 +70,14 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
     @contextmanager
     def to_dataframes_source(self,
                              processing_instructions: ProcessingInstructions) -> \
-            Iterator['DataframesRecordsSource']:
+            Iterator['DataframesRecordsSource']:  # type: ignore
         from .dataframes import DataframesRecordsSource  # noqa
         import pandas
 
         db = self.driver.db
         records_schema = self.pull_records_schema()
 
-        if isinstance(db, Engine) db.driver == 'pymysql':
+        if isinstance(db, Engine) and db.driver == 'pymysql':
             conn = db.connect()
             columns = db.dialect.get_columns(conn,
                                              self.table_name,
