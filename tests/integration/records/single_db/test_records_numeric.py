@@ -69,11 +69,11 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
     def validate_table(self):
         if self.target_db_engine.driver == 'pymysql':
             conn = self.target_db_engine.connect()
-            columns = self.target_db_engine.dialect.get_columns(conn,
+            columns = self.engine.dialect.get_columns(conn,
                                                                 table_name,
                                                                 schema=schema_name)
         else:
-            columns = self.target_db_engine.dialect.get_columns(self.target_db_engine,
+            columns = self.engine.dialect.get_columns(self.target_db_engine,
                                                                 table_name,
                                                                 schema=schema_name)
         # Note that Redshift doesn't support TIME type:
