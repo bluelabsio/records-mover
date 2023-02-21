@@ -67,8 +67,8 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
             self.validate_records_schema(tempdir)
 
     def validate_table(self):
-        if self.target_db_engine.driver == 'pymysql':
-            conn = self.target_db_engine.connect()
+        if self.engine.driver == 'pymysql':
+            conn = self.engine.connect()
             columns = self.engine.dialect.get_columns(conn,
                                                                 table_name,
                                                                 schema=schema_name)
