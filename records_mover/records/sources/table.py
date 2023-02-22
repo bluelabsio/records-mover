@@ -79,9 +79,10 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
 
         if isinstance(db, Engine):
             connection = db.connect()
+            columns = db.dialect.get_columns(connection, self.table_name, schema=self.schema_name)
+            connection.close()
         else:
-            connection = db
-        columns = db.dialect.get_columns(connection, self.table_name, schema=self.schema_name)
+            columns = db.dialect.get_columns(db, self.table_name, schema=self.schema_name)
 
         num_columns = len(columns)
         if num_columns == 0:
