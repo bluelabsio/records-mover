@@ -78,7 +78,7 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
             columns = self.engine.dialect.get_columns(self.engine,
                                                       self.table_name,
                                                       schema=self.schema_name)
-        
+
         # Note that Redshift doesn't support TIME type:
         # https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
         actual_column_types = {
