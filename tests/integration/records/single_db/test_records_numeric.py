@@ -10,6 +10,7 @@ from records_mover.records import (
     RecordsSchema, DelimitedRecordsFormat, ProcessingInstructions
 )
 from ..records_numeric_database_fixture import RecordsNumericDatabaseFixture
+from sqlalchemy.engine import Engine
 
 logger = logging.getLogger(__name__)
 
@@ -67,15 +68,13 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
             self.validate_records_schema(tempdir)
 
     def validate_table(self):
-        if self.engine.driver == 'pymysql':
-            conn = self.engine.connect()
-            columns = self.engine.dialect.get_columns(conn,
-                                                      self.table_name,
-                                                      schema=self.schema_name)
+        if isinstance(self.engine, Engine):
+            connection = self.engine.connect()
         else:
-            columns = self.engine.dialect.get_columns(self.engine,
-                                                      self.table_name,
-                                                      schema=self.schema_name)
+            connection = self.engine
+        columns = self.engine.dialect.get_columns(connection,
+                                                  self.table_name,
+                                                  schema=self.schema_name)
         # Note that Redshift doesn't support TIME type:
         # https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
         actual_column_types = {
