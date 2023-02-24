@@ -73,3 +73,6 @@ target/
 
 # PyCharm
 .idea/
+
+# VSCode
+.vscode/settings.json

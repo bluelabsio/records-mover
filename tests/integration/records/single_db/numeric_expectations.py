@@ -120,11 +120,11 @@ expected_column_types = {
         'uint64': 'NUMERIC(20, 0)',
         'float16': 'REAL',
         'float32': 'REAL',
-        'float64': 'DOUBLE PRECISION',
-        'float128': 'DOUBLE PRECISION',  # Redshift doesn't support >float64
+        'float64': 'DOUBLE_PRECISION',
+        'float128': 'DOUBLE_PRECISION',  # Redshift doesn't support >float64
         'fixed_6_2': 'NUMERIC(6, 2)',
         'fixed_38_9': 'NUMERIC(38, 9)',
-        'fixed_100_4': 'DOUBLE PRECISION'  # Redshift doesn't support fixed precision > 38
+        'fixed_100_4': 'DOUBLE_PRECISION'  # Redshift doesn't support fixed precision > 38
     },
     'vertica': {
         'int8': 'INTEGER',
@@ -180,8 +180,8 @@ expected_column_types = {
         'uint64': 'NUMERIC(20, 0)',
         'float16': 'REAL',
         'float32': 'REAL',
-        'float64': 'DOUBLE PRECISION',
-        'float128': 'DOUBLE PRECISION',  # Postgres doesn't support >float64
+        'float64': 'DOUBLE_PRECISION',
+        'float128': 'DOUBLE_PRECISION',  # Postgres doesn't support >float64
         'fixed_6_2': 'NUMERIC(6, 2)',
         'fixed_38_9': 'NUMERIC(38, 9)',
         'fixed_100_4': 'NUMERIC(100, 4)',
@@ -191,15 +191,15 @@ expected_column_types = {
     # relevant and records-mover just uses the defaults which end up
     # as the below.
     'mysql': {
-        'int8': 'TINYINT(4)',
-        'int16': 'SMALLINT(6)',
-        'int32': 'INTEGER(11)',
-        'int64': 'BIGINT(20)',
-        'ubyte': 'TINYINT(3) UNSIGNED',
-        'uint8': 'TINYINT(3) UNSIGNED',
-        'uint16': 'SMALLINT(5) UNSIGNED',
-        'uint32': 'INTEGER(10) UNSIGNED',
-        'uint64': 'BIGINT(20) UNSIGNED',
+        'int8': 'TINYINT',
+        'int16': 'SMALLINT',
+        'int32': 'INTEGER',
+        'int64': 'BIGINT',
+        'ubyte': 'TINYINT',
+        'uint8': 'TINYINT',
+        'uint16': 'SMALLINT',
+        'uint32': 'INTEGER',
+        'uint64': 'BIGINT',
         'float16': 'FLOAT',
         'float32': 'FLOAT',
         'float64': 'DOUBLE',
