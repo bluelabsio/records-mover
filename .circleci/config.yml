@@ -627,24 +627,24 @@ workflows:
       - deploy:
           context: PyPI
           requires:
-            # - test-3.7
+            - test-3.7
             - test-3.8
             - test-3.9
             - cli-extra-test
             - tbl2tbl-itest
-            # - bigquery-no-gcs-itest
+            - bigquery-no-gcs-itest
             - bigquery-gcs-itest
             - redshift-no-s3-itest
             - redshift-s3-itest
             - redshift-s3-itest-old-pandas
             - redshift-s3-itest-no-pandas
             - postgres-itest
-            # - mysql-itest
+            - mysql-itest
             - cli-1-itest
             - cli-2-itest
             - cli-3-itest
-            # - vertica-s3-itest
-            # - vertica-no-s3-itest
+            - vertica-s3-itest
+            - vertica-no-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
