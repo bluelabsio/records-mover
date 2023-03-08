@@ -167,30 +167,24 @@ def field_to_sqlalchemy_type(field: 'RecordsSchemaField',
     field_to_func_map = {
         'integer': get_integer_type,
         'decimal': get_decimal_type,
-        'boolean': cast(Callable[['RecordsSchemaField', 'DBDriver'], sqlalchemy.types.TypeEngine],
-                        lambda field, driver: sqlalchemy.sql.sqltypes.BOOLEAN()),
+        'boolean': lambda field, driver: sqlalchemy.sql.sqltypes.BOOLEAN(),
         'string': get_string_type,
-        'date': cast(Callable[['RecordsSchemaField', 'DBDriver'], sqlalchemy.types.TypeEngine],
-                     lambda field, driver: sqlalchemy.sql.sqltypes.DATE()),
-        'datetime': cast(Callable[['RecordsSchemaField', 'DBDriver'], sqlalchemy.types.TypeEngine],
-                         lambda field, driver: driver.type_for_date_plus_time(has_tz=False)),
-        'datetimetz': cast(
-                      Callable[['RecordsSchemaField', 'DBDriver'], sqlalchemy.types.TypeEngine],
-                      lambda field, driver: driver.type_for_date_plus_time(has_tz=True)),
-        'time': cast(Callable[['RecordsSchemaField', 'DBDriver'], sqlalchemy.types.TypeEngine],
-                     lambda field, driver: sqlalchemy.sql.sqltypes.TIME(timezone=False)
-                     if driver.supports_time_type()
-                     else sqlalchemy.sql.sqltypes.VARCHAR(8)),
-        'timetz': cast(Callable[['RecordsSchemaField', 'DBDriver'], sqlalchemy.types.TypeEngine],
-                       lambda field, driver: sqlalchemy.sql.sqltypes.TIME(timezone=True)
-                       if driver.supports_time_type()
-                       else sqlalchemy.sql.sqltypes.VARCHAR(8))
+        'date': lambda field, driver: sqlalchemy.sql.sqltypes.DATE(),
+        'datetime': lambda field, driver: driver.type_for_date_plus_time(has_tz=False),
+        'datetimetz': lambda field, driver: driver.type_for_date_plus_time(has_tz=True),
+        'time': lambda field, driver: sqlalchemy.sql.sqltypes.TIME(timezone=False)
+                if driver.supports_time_type()
+                else sqlalchemy.sql.sqltypes.VARCHAR(8),
+        'timetz': lambda field, driver: sqlalchemy.sql.sqltypes.TIME(timezone=True)
+                  if driver.supports_time_type()
+                  else sqlalchemy.sql.sqltypes.VARCHAR(8)
     }
 
     func = field_to_func_map.get(field.field_type, None)
     if not func:
         raise NotImplementedError(f"Teach me how to handle records schema type {field.field_type}")
-    return func(field, driver)
+    typed_func = cast(Callable[['RecordsSchemaField', 'DBDriver'], sqlalchemy.types.TypeEngine], func)
+    return typed_func(field, driver)
 
 
 def field_to_sqlalchemy_column(field: 'RecordsSchemaField', driver: 'DBDriver') -> Column:
