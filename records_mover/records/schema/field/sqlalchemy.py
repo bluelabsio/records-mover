@@ -173,17 +173,16 @@ def field_to_sqlalchemy_type(field: 'RecordsSchemaField',
         'datetime': lambda field, driver: driver.type_for_date_plus_time(has_tz=False),
         'datetimetz': lambda field, driver: driver.type_for_date_plus_time(has_tz=True),
         'time': lambda field, driver: sqlalchemy.sql.sqltypes.TIME(timezone=False)
-                if driver.supports_time_type()
-                else sqlalchemy.sql.sqltypes.VARCHAR(8),
+        if driver.supports_time_type() else sqlalchemy.sql.sqltypes.VARCHAR(8),
         'timetz': lambda field, driver: sqlalchemy.sql.sqltypes.TIME(timezone=True)
-                  if driver.supports_time_type()
-                  else sqlalchemy.sql.sqltypes.VARCHAR(8)
+        if driver.supports_time_type() else sqlalchemy.sql.sqltypes.VARCHAR(8)
     }
 
     func = field_to_func_map.get(field.field_type, None)
     if not func:
         raise NotImplementedError(f"Teach me how to handle records schema type {field.field_type}")
-    typed_func = cast(Callable[['RecordsSchemaField', 'DBDriver'], sqlalchemy.types.TypeEngine], func)
+    typed_func = cast(Callable[['RecordsSchemaField', 'DBDriver'], sqlalchemy.types.TypeEngine],
+                      func)
     return typed_func(field, driver)
 
 
