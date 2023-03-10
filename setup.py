@@ -264,7 +264,7 @@ docs_dependencies = [
     'sphinx>=5',  # used to generate and upload docs -
                   # need 5.0 or later for compatibility with other packages
     'sphinx-rtd-theme>=1',  # used to style docs for readthedocs.io
-    'readthedocs-sphinx-ext>=2'  # also used by readthedocs
+    'readthedocs-sphinx-ext>=2',  # also used by readthedocs
     'recommonmark',  # used to be able to use sphinx with markdown
 ] + (
     # needed for readthedocs.io to be able to evaluate modules with
