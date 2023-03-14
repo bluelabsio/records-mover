@@ -1,7 +1,7 @@
 import logging
 from sqlalchemy import Column
 import sqlalchemy
-from typing import cast, Union, Optional, Type, TYPE_CHECKING
+from typing import cast, Callable, Union, Optional, Type, TYPE_CHECKING
 from .constraints import (RecordsSchemaFieldConstraints,
                           RecordsSchemaFieldIntegerConstraints,
                           RecordsSchemaFieldDecimalConstraints,
@@ -77,7 +77,7 @@ def field_from_sqlalchemy_column(column: Column,
         # Redshift and Vertica use DateTime for both with the
         # 'timezone' variable set appropriately.
         #
-        if type(date_plus_time_with_timezone) != type(date_plus_time_no_timezone):
+        if not isinstance(date_plus_time_with_timezone, type(date_plus_time_no_timezone)):
             if isinstance(type_, type(date_plus_time_with_timezone)):
                 field_type = 'datetimetz'
             elif isinstance(type_, type(date_plus_time_no_timezone)):
@@ -124,75 +124,70 @@ def field_from_sqlalchemy_column(column: Column,
                               representations=representations)
 
 
+def get_integer_type(field: 'RecordsSchemaField',
+                     driver: 'DBDriver') -> sqlalchemy.types.TypeEngine:
+    int_constraints = cast(Optional[RecordsSchemaFieldIntegerConstraints], field.constraints)
+    min_ = getattr(int_constraints, 'min_', None)
+    max_ = getattr(int_constraints, 'max_', None)
+    if field.constraints and not isinstance(field.constraints,
+                                            RecordsSchemaFieldIntegerConstraints):
+        raise ValueError(f"Incorrect constraint type in {field.name}: {field.constraints}")
+    return driver.type_for_integer(min_value=min_, max_value=max_)
+
+
+def get_decimal_type(field: 'RecordsSchemaField',
+                     driver: 'DBDriver') -> sqlalchemy.types.TypeEngine:
+    decimal_constraints = cast(Optional[RecordsSchemaFieldDecimalConstraints],
+                               field.constraints)
+    fixed_precision = getattr(decimal_constraints, 'fixed_precision', None)
+    fixed_scale = getattr(decimal_constraints, 'fixed_scale', None)
+    fp_total_bits = getattr(decimal_constraints, 'fp_total_bits', None)
+    fp_significand_bits = getattr(decimal_constraints, 'fp_significand_bits', None)
+    if (fixed_precision and fixed_scale):
+        return driver.type_for_fixed_point(precision=fixed_precision, scale=fixed_scale)
+    elif (fp_total_bits and fp_significand_bits):
+        return driver.type_for_floating_point(fp_total_bits=fp_total_bits,
+                                              fp_significand_bits=fp_significand_bits)
+    return driver.type_for_floating_point(fp_total_bits=64, fp_significand_bits=53)
+
+
+def get_string_type(field: 'RecordsSchemaField', driver: 'DBDriver') -> sqlalchemy.types.TypeEngine:
+    if field.constraints and not isinstance(field.constraints, RecordsSchemaFieldStringConstraints):
+        raise ValueError(f"Incorrect constraint type in {field.name}: {field.constraints}")
+    elif field.statistics and not isinstance(field.statistics, RecordsSchemaFieldStringStatistics):
+        raise ValueError(f"Incorrect statistics type in {field.name}: {field.statistics}")
+    return sqlalchemy.sql.sqltypes.String(generate_string_length(
+        cast(Optional[RecordsSchemaFieldStringConstraints], field.constraints),
+        cast(Optional[RecordsSchemaFieldStringStatistics], field.statistics),
+        driver))
+
+
 def field_to_sqlalchemy_type(field: 'RecordsSchemaField',
                              driver: 'DBDriver') -> sqlalchemy.types.TypeEngine:
-    if field.field_type == 'integer':
-        if field.constraints and\
-           not isinstance(field.constraints, RecordsSchemaFieldIntegerConstraints):
-            raise ValueError(f"Incorrect constraint type in {field.name}: {field.constraints}")
+    field_to_func_map = {
+        'integer': get_integer_type,
+        'decimal': get_decimal_type,
+        'boolean': lambda field, driver: sqlalchemy.sql.sqltypes.BOOLEAN(),
+        'string': get_string_type,
+        'date': lambda field, driver: sqlalchemy.sql.sqltypes.DATE(),
+        'datetime': lambda field, driver: driver.type_for_date_plus_time(has_tz=False),
+        'datetimetz': lambda field, driver: driver.type_for_date_plus_time(has_tz=True),
+        'time': lambda field, driver: (
+            sqlalchemy.sql.sqltypes.TIME(timezone=False)
+            if driver.supports_time_type()
+            else sqlalchemy.sql.sqltypes.VARCHAR(8)),
+        'timetz': lambda field, driver: (
+            sqlalchemy.sql.sqltypes.TIME(timezone=True)
+            if driver.supports_time_type()
+            else sqlalchemy.sql.sqltypes.VARCHAR(8))
+    }
 
-        int_constraints =\
-            cast(Optional[RecordsSchemaFieldIntegerConstraints], field.constraints)
-        min_: Optional[int] = None
-        max_: Optional[int] = None
-        if int_constraints:
-            min_ = int_constraints.min_
-            max_ = int_constraints.max_
-        return driver.type_for_integer(min_value=min_, max_value=max_)
-    elif field.field_type == 'decimal':
-        decimal_constraints =\
-            cast(Optional[RecordsSchemaFieldDecimalConstraints], field.constraints)
-        if decimal_constraints:
-            if (decimal_constraints.fixed_precision is not None and
-               decimal_constraints.fixed_scale is not None):
-                return driver.type_for_fixed_point(precision=decimal_constraints.fixed_precision,
-                                                   scale=decimal_constraints.fixed_scale)
-
-            if (decimal_constraints.fp_total_bits is not None and
-               decimal_constraints.fp_significand_bits is not None):
-                return driver.\
-                    type_for_floating_point(fp_total_bits=decimal_constraints.fp_total_bits,
-                                            fp_significand_bits=decimal_constraints.
-                                            fp_significand_bits)
-
-        # default to an IEEE double absent more information:
-        #
-        # https://en.wikipedia.org/wiki/Double-precision_floating-point_format
-        return driver.type_for_floating_point(fp_total_bits=64,
-                                              fp_significand_bits=53)
-
-    elif field.field_type == 'boolean':
-        return sqlalchemy.sql.sqltypes.BOOLEAN()
-    elif field.field_type == 'string':
-        if field.constraints and\
-           not isinstance(field.constraints, RecordsSchemaFieldStringConstraints):
-            raise ValueError(f"Incorrect constraint type in {field.name}: {field.constraints}")
-
-        if field.statistics and\
-           not isinstance(field.statistics, RecordsSchemaFieldStringStatistics):
-            raise ValueError(f"Incorrect statistics type in {field.name}: {field.statistics}")
-
-        string_constraints =\
-            cast(Optional[RecordsSchemaFieldStringConstraints], field.constraints)
-        string_statistics =\
-            cast(Optional[RecordsSchemaFieldStringStatistics], field.statistics)
-        n = generate_string_length(string_constraints, string_statistics, driver)
-        return sqlalchemy.sql.sqltypes.String(n)
-    elif field.field_type == 'date':
-        return sqlalchemy.sql.sqltypes.DATE()
-    elif field.field_type == 'datetime' or field.field_type == 'datetimetz':
-        has_tz = field.field_type == 'datetimetz'
-        return driver.type_for_date_plus_time(has_tz=has_tz)
-    elif field.field_type == 'time' or field.field_type == 'timetz':
-        if driver.supports_time_type():
-            has_tz = field.field_type == 'timetz'
-            return sqlalchemy.sql.sqltypes.TIME(timezone=has_tz)
-        else:
-            # HH:MM AM; should be same in bytes as chars at least in UTF-8
-            return sqlalchemy.sql.sqltypes.VARCHAR(8)
-    else:
-        raise NotImplementedError("Teach me how to handle records schema "
-                                  f"type {field.field_type}")
+    func = field_to_func_map.get(field.field_type, None)
+    if not func:
+        raise NotImplementedError(f"Teach me how to handle records schema type {field.field_type}")
+    typed_func = cast(Callable[['RecordsSchemaField', 'DBDriver'], sqlalchemy.types.TypeEngine],
+                      func)
+    return typed_func(field, driver)
 
 
 def field_to_sqlalchemy_column(field: 'RecordsSchemaField', driver: 'DBDriver') -> Column:
