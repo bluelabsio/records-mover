@@ -10,6 +10,27 @@ from ...records.records_format import (
 RedshiftUnloadOptions = Dict[str, Any]
 
 
+def process_quotechars(hints,
+                       unhandled_hints: Set[str],
+                       fail_if_cant_handle_hint: bool,
+                       redshift_options: RedshiftUnloadOptions
+                       ) -> RedshiftUnloadOptions:
+    if hints.quoting == 'all':
+        if hints.doublequote is not False:
+            cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
+        if hints.quotechar != '"':
+            cant_handle_hint(fail_if_cant_handle_hint, 'quotechar', hints)
+        redshift_options['add_quotes'] = True
+    elif hints.quoting is None:
+        redshift_options['add_quotes'] = False
+    else:
+        cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
+    quiet_remove(unhandled_hints, 'quoting')
+    quiet_remove(unhandled_hints, 'doublequote')
+    quiet_remove(unhandled_hints, 'quotechar')
+    return redshift_options
+
+
 # https://docs.aws.amazon.com/redshift/latest/dg/r_UNLOAD.html
 #
 def redshift_unload_options(unhandled_hints: Set[str],
@@ -27,32 +48,20 @@ def redshift_unload_options(unhandled_hints: Set[str],
         validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
     if hints.escape == '\\':
         redshift_options['escape'] = True
-    elif hints.escape is None:
-        pass
-    else:
+    elif hints.escape is not None:
         _assert_never(hints.escape)
     quiet_remove(unhandled_hints, 'escape')
     redshift_options['delimiter'] = hints.field_delimiter
     quiet_remove(unhandled_hints, 'field-delimiter')
-    if hints.record_terminator == "\n":
-        # This is Redshift's one and only export format
-        pass
-    else:
+    if hints.record_terminator != "\n":
         cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
     quiet_remove(unhandled_hints, 'record-terminator')
-    if hints.quoting == 'all':
-        if hints.doublequote is not False:
-            cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', hints)
-        if hints.quotechar != '"':
-            cant_handle_hint(fail_if_cant_handle_hint, 'quotechar', hints)
-        redshift_options['add_quotes'] = True
-    elif hints.quoting is None:
-        redshift_options['add_quotes'] = False
-    else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'quoting', hints)
-    quiet_remove(unhandled_hints, 'quoting')
-    quiet_remove(unhandled_hints, 'doublequote')
-    quiet_remove(unhandled_hints, 'quotechar')
+
+    redshift_options = process_quotechars(hints,
+                                          unhandled_hints,
+                                          fail_if_cant_handle_hint,
+                                          redshift_options)
+
     if hints.compression == 'GZIP':
         redshift_options['gzip'] = True
     elif hints.compression is None:
