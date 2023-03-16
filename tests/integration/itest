@@ -166,108 +166,114 @@ def docker_compose_start() -> None:
     print("Verified MySQL is up and listening", file=sys.stderr)
 
 
-def run_test(args, target, parser):
-    print(f"Executing {target} test", file=sys.stderr)
+def run_test_build(args):
+    if (args.docker):
+        docker_build()
+    else:
+        print(f"Nothing to build (did you intend to use --docker?)", file=sys.stderr)
 
-    if (target == 'build'):
-        if (args.docker):
-            docker_build()
-        else:
-            print(f"Nothing to build (did you intend to use --docker?)", file=sys.stderr)
-    elif (target == 'up'):
-        if (args.docker):
-            docker_compose(["up", "--no-start"])
-        else:
-            print(f"Nothing to bring up (did you intend to use --docker?)", file=sys.stderr)
-    elif (target == 'down'):
-        if (args.docker):
-            docker_compose(["down"])
-        else:
-            print(f"Nothing to bring down (did you intend to use --docker?)", file=sys.stderr)
-    elif (target == 'ps'):
-        if (args.docker):
-            docker_compose(["ps"])
-        else:
-            print(f"Nothing to list (did you intend to use --docker?)", file=sys.stderr)
-    elif (target == 'shell'):
-        if (args.docker):
-            docker_compose_shell()
-        else:
-            with dockerized_dbs(), local_dockerized_dbfacts():
-                subprocess.check_call(["/bin/bash"])
-    elif (target == 'cli'):
-        with dockerized_dbs(), set_s3_scratch_bucket(), set_gcs_scratch_bucket():
-            if (args.docker):
-                docker_compose_run(["./cli-tests.sh"],
-                                   prefixes=["with-aws-creds", "circleci"],
-                                   cwd="/usr/src/app/tests/integration/cli")
-            else:
-                with local_dockerized_dbfacts():
-                    subprocess.check_call(["with-aws-creds", "circleci",
-                                           "./cli-tests.sh"],
-                                          cwd="cli")
-    elif (target == 'vertica-no-s3'):
-        with dockerized_dbs():
-            if (args.docker):
-                docker_compose_run(['with-db', 'dockerized-vertica',
-                                    'pytest', '--xunit-file=pytest.xml', '.'],
-                                   cwd="/usr/src/app/tests/integration/records/single_db")
 
-            else:
-                with local_dockerized_dbfacts():
-                    subprocess.check_call(['with-db', 'dockerized-vertica',
-                                           'pytest', '--xunit-file=pytest.xml', '.'],
-                                          cwd=f"{script_dir}/records/single_db")
-    elif (target == 'vertica-s3'):
-        with dockerized_dbs(), set_s3_scratch_bucket():
-            if (args.docker):
-                docker_compose_run(['with-db', 'dockerized-vertica',
-                                    'pytest', '--xunit-file=pytest.xml', '.'],
-                                   prefixes=["with-aws-creds", "circleci"],
-                                   cwd="/usr/src/app/tests/integration/records/single_db")
-            else:
-                with local_dockerized_dbfacts():
-                    subprocess.check_call(["with-db", "dockerized-vertica",
-                                           "with-aws-creds", "circleci",
-                                           "pytest", "--xunit-file=pytest.xml", "."],
-                                          cwd=f"{script_dir}/records/single_db")
-    elif (target == 'mysql'):
-        with dockerized_dbs():
-            if (args.docker):
-                docker_compose_run(['with-db', 'dockerized-mysql',
-                                    'pytest', '--xunit-file=pytest.xml', '.'],
-                                   prefixes=["with-aws-creds", "circleci"],
-                                   cwd="/usr/src/app/tests/integration/records/single_db")
-            else:
-                with local_dockerized_dbfacts():
-                    subprocess.check_call(["with-db", "dockerized-mysql",
-                                           "pytest", "--xunit-file=pytest.xml", "."],
-                                          cwd=f"{script_dir}/records/single_db")
-    elif (target == 'postgres'):
-        with dockerized_dbs():
-            if (args.docker):
-                docker_compose_run(['with-db', 'dockerized-postgres',
-                                    'pytest', '--xunit-file=pytest.xml', '.'],
-                                   prefixes=["with-aws-creds", "circleci"],
-                                   cwd="/usr/src/app/tests/integration/records/single_db")
-            else:
-                with local_dockerized_dbfacts():
-                    subprocess.check_call(["with-db", "dockerized-postgres",
-                                           "pytest", "--xunit-file=pytest.xml", "."],
-                                          cwd=f"{script_dir}/records/single_db")
-    elif (target == 'redshift-s3'):
-        with set_s3_scratch_bucket():
-            if (args.docker):
-                docker_compose_run(['with-db', 'demo-itest',
-                                    'pytest', '--xunit-file=pytest.xml', '.'],
-                                   prefixes=["with-aws-creds", "circleci"],
-                                   cwd="/usr/src/app/tests/integration/records/single_db")
-            else:
-                subprocess.check_call(['with-db', 'demo-itest',
-                                       "with-aws-creds", "circleci",
+def run_test_up(args):
+    if (args.docker):
+        docker_compose(["up", "--no-start"])
+    else:
+        print(f"Nothing to bring up (did you intend to use --docker?)", file=sys.stderr)
+
+
+def run_test_down(args):
+    if (args.docker):
+        docker_compose(["down"])
+    else:
+        print(f"Nothing to bring down (did you intend to use --docker?)", file=sys.stderr)
+
+
+def run_test_ps(args):
+    if (args.docker):
+        docker_compose(["ps"])
+    else:
+        print(f"Nothing to list (did you intend to use --docker?)", file=sys.stderr)
+
+
+def run_test_shell(args):
+    if (args.docker):
+        docker_compose_shell()
+    else:
+        with dockerized_dbs(), local_dockerized_dbfacts():
+            subprocess.check_call(["/bin/bash"])
+
+
+def run_test_cli(args):
+    with dockerized_dbs(), set_s3_scratch_bucket(), set_gcs_scratch_bucket():
+        if (args.docker):
+            docker_compose_run(["./cli-tests.sh"],
+                               prefixes=["with-aws-creds", "circleci"],
+                               cwd="/usr/src/app/tests/integration/cli")
+        else:
+            with local_dockerized_dbfacts():
+                subprocess.check_call(["with-aws-creds", "circleci",
+                                       "./cli-tests.sh"],
+                                      cwd="cli")
+
+
+def run_test_vertica_no_s3(args):
+    with dockerized_dbs():
+        if (args.docker):
+            docker_compose_run(['with-db', 'dockerized-vertica',
+                                'pytest', '--xunit-file=pytest.xml', '.'],
+                               cwd="/usr/src/app/tests/integration/records/single_db")
+
+        else:
+            with local_dockerized_dbfacts():
+                subprocess.check_call(['with-db', 'dockerized-vertica',
                                        'pytest', '--xunit-file=pytest.xml', '.'],
                                       cwd=f"{script_dir}/records/single_db")
-    elif (target == 'redshift-no-s3'):
+
+
+def run_test_vertica_s3(args):
+    with dockerized_dbs(), set_s3_scratch_bucket():
+        if (args.docker):
+            docker_compose_run(['with-db', 'dockerized-vertica',
+                                'pytest', '--xunit-file=pytest.xml', '.'],
+                               prefixes=["with-aws-creds", "circleci"],
+                               cwd="/usr/src/app/tests/integration/records/single_db")
+        else:
+            with local_dockerized_dbfacts():
+                subprocess.check_call(["with-db", "dockerized-vertica",
+                                       "with-aws-creds", "circleci",
+                                       "pytest", "--xunit-file=pytest.xml", "."],
+                                      cwd=f"{script_dir}/records/single_db")
+
+
+def run_test_mysql(args):
+    with dockerized_dbs():
+        if (args.docker):
+            docker_compose_run(['with-db', 'dockerized-mysql',
+                                'pytest', '--xunit-file=pytest.xml', '.'],
+                               prefixes=["with-aws-creds", "circleci"],
+                               cwd="/usr/src/app/tests/integration/records/single_db")
+        else:
+            with local_dockerized_dbfacts():
+                subprocess.check_call(["with-db", "dockerized-mysql",
+                                       "pytest", "--xunit-file=pytest.xml", "."],
+                                      cwd=f"{script_dir}/records/single_db")
+
+
+def run_test_postgres(args):
+    with dockerized_dbs():
+        if (args.docker):
+            docker_compose_run(['with-db', 'dockerized-postgres',
+                                'pytest', '--xunit-file=pytest.xml', '.'],
+                               prefixes=["with-aws-creds", "circleci"],
+                               cwd="/usr/src/app/tests/integration/records/single_db")
+        else:
+            with local_dockerized_dbfacts():
+                subprocess.check_call(["with-db", "dockerized-postgres",
+                                       "pytest", "--xunit-file=pytest.xml", "."],
+                                      cwd=f"{script_dir}/records/single_db")
+
+
+def run_test_redshift_s3(args):
+    with set_s3_scratch_bucket():
         if (args.docker):
             docker_compose_run(['with-db', 'demo-itest',
                                 'pytest', '--xunit-file=pytest.xml', '.'],
@@ -275,9 +281,36 @@ def run_test(args, target, parser):
                                cwd="/usr/src/app/tests/integration/records/single_db")
         else:
             subprocess.check_call(['with-db', 'demo-itest',
+                                   "with-aws-creds", "circleci",
                                    'pytest', '--xunit-file=pytest.xml', '.'],
                                   cwd=f"{script_dir}/records/single_db")
-    elif (target == 'bigquery-no-gcs'):
+
+
+def run_test_redshift_no_s3(args):
+    if (args.docker):
+        docker_compose_run(['with-db', 'demo-itest',
+                            'pytest', '--xunit-file=pytest.xml', '.'],
+                           prefixes=["with-aws-creds", "circleci"],
+                           cwd="/usr/src/app/tests/integration/records/single_db")
+    else:
+        subprocess.check_call(['with-db', 'demo-itest',
+                               'pytest', '--xunit-file=pytest.xml', '.'],
+                              cwd=f"{script_dir}/records/single_db")
+
+
+def run_test_bigquery_no_gcs(args):
+    if (args.docker):
+        docker_compose_run(['with-db', 'bltoolsdevbq-bq_itest',
+                            'pytest', '--xunit-file=pytest.xml', '.'],
+                           cwd="/usr/src/app/tests/integration/records/single_db")
+    else:
+        subprocess.check_call(['with-db', 'bltoolsdevbq-bq_itest',
+                               'pytest', '--xunit-file=pytest.xml', '.'],
+                              cwd=f"{script_dir}/records/single_db")
+
+
+def run_test_bigquery_gcs(args):
+    with set_gcs_scratch_bucket():
         if (args.docker):
             docker_compose_run(['with-db', 'bltoolsdevbq-bq_itest',
                                 'pytest', '--xunit-file=pytest.xml', '.'],
@@ -286,29 +319,47 @@ def run_test(args, target, parser):
             subprocess.check_call(['with-db', 'bltoolsdevbq-bq_itest',
                                    'pytest', '--xunit-file=pytest.xml', '.'],
                                   cwd=f"{script_dir}/records/single_db")
-    elif (target == 'bigquery-gcs'):
-        with set_gcs_scratch_bucket():
-            if (args.docker):
-                docker_compose_run(['with-db', 'bltoolsdevbq-bq_itest',
-                                    'pytest', '--xunit-file=pytest.xml', '.'],
-                                   cwd="/usr/src/app/tests/integration/records/single_db")
-            else:
-                subprocess.check_call(['with-db', 'bltoolsdevbq-bq_itest',
-                                       'pytest', '--xunit-file=pytest.xml', '.'],
-                                      cwd=f"{script_dir}/records/single_db")
-    elif (target == 'table2table'):
-        with set_s3_scratch_bucket(), set_gcs_scratch_bucket(), dockerized_dbs():
-            if (args.docker):
-                docker_compose_run(['python3', '-m',
-                                    'records.multi_db.test_records_table2table'],
-                                   prefixes=["with-aws-creds", "circleci"],
-                                   cwd="/usr/src/app/tests/integration")
-            else:
-                with local_dockerized_dbfacts():
-                    subprocess.check_call(["with-aws-creds", "circleci",
-                                           'python3', '-m',
-                                           'records.multi_db.test_records_table2table'],
-                                          cwd=".")
+
+
+def run_test_table2table(args):
+    with set_s3_scratch_bucket(), set_gcs_scratch_bucket(), dockerized_dbs():
+        if (args.docker):
+            docker_compose_run(['python3', '-m',
+                                'records.multi_db.test_records_table2table'],
+                               prefixes=["with-aws-creds", "circleci"],
+                               cwd="/usr/src/app/tests/integration")
+        else:
+            with local_dockerized_dbfacts():
+                subprocess.check_call(["with-aws-creds", "circleci",
+                                       'python3', '-m',
+                                       'records.multi_db.test_records_table2table'],
+                                      cwd=".")
+
+
+def run_test(args, target, parser):
+    print(f"Executing {target} test", file=sys.stderr)
+
+    run_test_target_to_func = {
+        'build': run_test_build,
+        'up': run_test_up,
+        'down': run_test_down,
+        'ps': run_test_ps,
+        'shell': run_test_shell,
+        'cli': run_test_cli,
+        'vertica-no-s3': run_test_vertica_no_s3,
+        'vertica-s3': run_test_vertica_s3,
+        'mysql': run_test_mysql,
+        'postgres': run_test_postgres,
+        'redshift-s3': run_test_redshift_s3,
+        'redshift-no-s3': run_test_redshift_no_s3,
+        'bigquery-no-gcs': run_test_bigquery_no_gcs,
+        'bigquery-gcs': run_test_bigquery_gcs,
+        'table2table': run_test_table2table,
+    }
+
+    func = run_test_target_to_func.get(target)
+    if func is not None:
+        func(args)
     else:
         parser.print_help()
         sys.exit(1)
