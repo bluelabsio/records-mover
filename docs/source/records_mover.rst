@@ -24,3 +24,10 @@ Module contents
       :undoc-members:
       :show-inheritance:
       :special-members: __init__
+
+mvrec CLI options
+-----------------
+.. argparse::
+   :module: records_mover.records.cli
+   :func: build_parser
+   :prog: mvrec
