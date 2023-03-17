@@ -49,12 +49,7 @@ def make_job_fn(source_method_name: str,
     return job_fn
 
 
-def main() -> None:
-    # https://github.com/googleapis/google-auth-library-python/issues/271
-    import warnings
-    warnings.filterwarnings("ignore",
-                            "Your application has authenticated using end user credentials")
-
+def build_parser() -> argparse.ArgumentParser:
     # skip in-memory sources/targets like dataframes that don't make
     # sense from the command-line
     source_method_name_by_cli_name = {
@@ -105,6 +100,17 @@ def main() -> None:
                                                      target_method_name=target_method_name,
                                                      name=name,
                                                      job_config_schema=job_config_schema))
+
+    return parser
+
+
+def main() -> None:
+    # https://github.com/googleapis/google-auth-library-python/issues/271
+    import warnings
+    warnings.filterwarnings("ignore",
+                            "Your application has authenticated using end user credentials")
+
+    parser = build_parser()
     args = parser.parse_args()
     raw_config = vars(args)
     func = getattr(args, 'func', None)

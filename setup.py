@@ -261,10 +261,11 @@ unittest_dependencies = [
 )
 
 docs_dependencies = [
-    'sphinx>=3',  # used to generate and upload docs -
-                  # sphinx-autodoc-typehints requires 3 or better per
-                  # https://github.com/agronholm/sphinx-autodoc-typehints/pull/138
-    'sphinx-rtd-theme',  # used to style docs for readthedocs.io
+    'sphinx>=5',  # used to generate and upload docs -
+                  # need 5.0 or later for compatibility with other packages
+    'sphinx-rtd-theme>=1',  # used to style docs for readthedocs.io
+    'sphinx-argparse',  # used to generate documentation of CLI options
+    'readthedocs-sphinx-ext>=2',  # also used by readthedocs
     'recommonmark',  # used to be able to use sphinx with markdown
 ] + (
     # needed for readthedocs.io to be able to evaluate modules with
@@ -273,7 +274,9 @@ docs_dependencies = [
     # Same with Airflow
     airflow_dependencies +
     # Also boto
-    aws_dependencies
+    aws_dependencies +
+    # Needed to generate docs for CLI options
+    cli_dependencies_base
 )
 
 this_directory = os.path.abspath(os.path.dirname(__file__))

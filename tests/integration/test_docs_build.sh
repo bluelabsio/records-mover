@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 if [[ $1 == "--help" ]]
 then
@@ -9,7 +9,7 @@ then
 elif [[ $1 != "--no-pyenv" ]]
 then
     echo "Creating virtualenv..."
-    export PYENV_VERSION=3.8.16
+    export PYENV_VERSION=3.9.1
 
     TEST_VENV_NAME=test-docs-sphinx-build
 
@@ -20,11 +20,15 @@ then
     . ${PYENV_ROOT}/versions/${TEST_VENV_NAME}/bin/activate
 fi
 
-echo "Installing sphinx dependencies..."
-SCRIPT_DIR=$(dirname $0)
-DOCS_DIR=${SCRIPT_DIR}/../../docs
+echo "Upgrading pip..."
+pip install --upgrade pip
 
-pip install -r ${DOCS_DIR}/source/sphinx_requirements.txt
+echo "Installing sphinx dependencies..."
+SCRIPT_DIR="$(dirname $0)"
+ROOT_DIR="${SCRIPT_DIR}/../.."
+DOCS_DIR="${ROOT_DIR}/docs"
+
+pip install .[docs]
 
 cd ${DOCS_DIR}
 make clean
