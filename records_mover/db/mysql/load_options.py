@@ -9,7 +9,9 @@ from records_mover.records.delimited import (
     HintHeaderRow, HintCompression,
     HintDoublequote,
 )
-from typing import Optional, Set, Dict, NamedTuple, NoReturn, TYPE_CHECKING
+from ...records.delimited.validated_records_hints import ValidatedRecordsHints
+from typing import (Optional, Set, Dict, NamedTuple,
+                    NoReturn, Tuple, TYPE_CHECKING)
 if TYPE_CHECKING:
     from typing_extensions import Literal
     # http://dev.mysql.com/doc/refman/8.0/en/charset-mysql.html
@@ -110,12 +112,20 @@ IGNORE :ignore_n_lines LINES
         return clause
 
 
-def mysql_load_options(unhandled_hints: Set[str],
-                       records_format: DelimitedRecordsFormat,
-                       fail_if_cant_handle_hint: bool) -> MySqlLoadOptions:
-    hints = records_format.validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
+class MysqlLoadParameters:
+    def __init__(self,
+                 fail_if_cant_handle_hint: bool,
+                 records_format: DelimitedRecordsFormat,
+                 unhandled_hints: Set[str]):
+        self.hints: ValidatedRecordsHints = records_format.validate(
+            fail_if_cant_handle_hint=fail_if_cant_handle_hint)
+        self.hint_quoting: HintQuoting = self.hints.quoting
+        self.fail_if_cant_handle_hint: bool = fail_if_cant_handle_hint
+        self.records_format: DelimitedRecordsFormat = records_format
+        self.unhandled_hints: Set[str] = unhandled_hints
 
-    #
+
+def get_character_set(mysql_load_parameters: MysqlLoadParameters) -> MySqlCharacterSet:
     # The server uses the character set indicated by the
     # character_set_database system variable to interpret the
     # information in the file. SET NAMES and the setting of
@@ -125,19 +135,29 @@ def mysql_load_options(unhandled_hints: Set[str],
     # character set of the file by using the CHARACTER SET clause. A
     # character set of binary specifies “no conversion.”
     #
-    hint_encoding: HintEncoding = hints.encoding
+    hint_encoding: HintEncoding = mysql_load_parameters.hints.encoding
     character_set = MYSQL_CHARACTER_SETS_FOR_LOAD.get(hint_encoding)
     if character_set is not None:
         mysql_character_set = character_set
     else:
-        cant_handle_hint(fail_if_cant_handle_hint, 'encoding', records_format.hints)
+        cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
+                         'encoding',
+                         mysql_load_parameters.records_format.hints)
         mysql_character_set = 'utf8'
-    quiet_remove(unhandled_hints, 'encoding')
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'encoding')
+    return mysql_character_set
 
-    field_terminator: HintFieldDelimiter = hints.field_delimiter
+
+def get_field_terminator(mysql_load_parameters: MysqlLoadParameters
+                         ) -> str:
+    field_terminator: HintFieldDelimiter = mysql_load_parameters.hints.field_delimiter
     mysql_fields_terminator = field_terminator
-    quiet_remove(unhandled_hints, 'field-delimiter')
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'field-delimiter')
+    return mysql_fields_terminator
 
+
+def get_enclosures(mysql_load_parameters: MysqlLoadParameters
+                   ) -> Tuple[Optional[str], Optional[str]]:
     # https://dev.mysql.com/doc/refman/8.0/en/load-data.html
     #
     #
@@ -156,13 +176,12 @@ def mysql_load_options(unhandled_hints: Set[str],
     #  IGNORE 1 LINES;
     #
     #
-    mysql_fields_enclosed_by = None
-    mysql_fields_optionally_enclosed_by = None
-    hint_quotechar: HintQuoteChar = hints.quotechar
-    hint_quoting: HintQuoting = hints.quoting
-    if hint_quoting == 'all':
+    mysql_fields_enclosed_by: Optional[str] = None
+    mysql_fields_optionally_enclosed_by: Optional[str] = None
+    hint_quotechar: HintQuoteChar = mysql_load_parameters.hints.quotechar
+    if mysql_load_parameters.hint_quoting == 'all':
         mysql_fields_enclosed_by = hint_quotechar
-    elif hint_quoting == 'minimal':
+    elif mysql_load_parameters.hint_quoting == 'minimal':
         # "If the input values are not necessarily enclosed within
         # quotation marks, use OPTIONALLY before the ENCLOSED BY option."
         #
@@ -170,15 +189,18 @@ def mysql_load_options(unhandled_hints: Set[str],
         # otherwise unambiguous strings without double quotes around
         # them will be understood as a string, not rejected.
         mysql_fields_optionally_enclosed_by = hint_quotechar
-    elif hint_quoting == 'nonnumeric':
+    elif mysql_load_parameters.hint_quoting == 'nonnumeric':
         mysql_fields_optionally_enclosed_by = hint_quotechar
-    elif hint_quoting is None:
+    elif mysql_load_parameters.hint_quoting is None:
         pass
     else:
         _assert_never(hint_quotechar)
-    quiet_remove(unhandled_hints, 'quoting')
-    quiet_remove(unhandled_hints, 'quotechar')
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'quoting')
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'quotechar')
+    return (mysql_fields_enclosed_by, mysql_fields_optionally_enclosed_by)
 
+
+def process_hint_doublequote(mysql_load_parameters: MysqlLoadParameters):
     # If the field begins with the ENCLOSED BY character, instances of
     # that character are recognized as terminating a field value only
     # if followed by the field or line TERMINATED BY sequence. To
@@ -186,18 +208,23 @@ def mysql_load_options(unhandled_hints: Set[str],
     # a field value can be doubled and are interpreted as a single
     # instance of the character. For example, if ENCLOSED BY '"' is
     # specified, quotation marks are handled as shown here:
-    hint_doublequote: HintDoublequote = hints.doublequote
-    if hint_quoting is not None:
+    hint_doublequote: HintDoublequote = mysql_load_parameters.hints.doublequote
+    if mysql_load_parameters.hint_quoting is not None:
         # We need to ignore flake8's "is vs ==" check because 'is'
         # doesn't work currently with MyPy's Literal[] case checking
         if hint_doublequote == True:  # noqa: E712
             pass
         elif hint_doublequote == False:  # noqa: E712
-            cant_handle_hint(fail_if_cant_handle_hint, 'doublequote', records_format.hints)
+            cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
+                             'doublequote',
+                             mysql_load_parameters.records_format.hints)
         else:
             _assert_never(hint_doublequote)
-    quiet_remove(unhandled_hints, 'doublequote')
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'doublequote')
 
+
+def get_escaped_by(mysql_load_parameters: MysqlLoadParameters
+                   ) -> Optional[str]:
     # FIELDS ESCAPED BY controls how to read or write special characters:
     #
     # * For input, if the FIELDS ESCAPED BY character is not empty,
@@ -210,22 +237,26 @@ def mysql_load_options(unhandled_hints: Set[str],
     #
     # If the FIELDS ESCAPED BY character is empty, escape-sequence
     # interpretation does not occur.
-    hint_escape: HintEscape = hints.escape
+    hint_escape: HintEscape = mysql_load_parameters.hints.escape
     if hint_escape is None:
         mysql_fields_escaped_by = None
     elif hint_escape == '\\':
         mysql_fields_escaped_by = '\\'
     else:
-        _assert_never(hint_quoting)
-    quiet_remove(unhandled_hints, 'escape')
+        _assert_never(mysql_load_parameters.hint_quoting)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'escape')
+    return mysql_fields_escaped_by
 
-    mysql_lines_starting_by = ''
 
-    hint_record_terminator: HintRecordTerminator = hints.record_terminator
+def get_lines_terminated_by(mysql_load_parameters: MysqlLoadParameters) -> str:
+    hint_record_terminator: HintRecordTerminator = mysql_load_parameters.hints.record_terminator
     mysql_lines_terminated_by = hint_record_terminator
-    quiet_remove(unhandled_hints, 'record-terminator')
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'record-terminator')
+    return mysql_lines_terminated_by
 
-    hint_header_row: HintHeaderRow = hints.header_row
+
+def get_ignore_n_lines(mysql_load_parameters: MysqlLoadParameters) -> int:
+    hint_header_row: HintHeaderRow = mysql_load_parameters.hints.header_row
     # We need to ignore flake8's "is vs ==" check because 'is'
     # doesn't work currently with MyPy's Literal[] case checking
     if hint_header_row == True:  # noqa: E712
@@ -234,13 +265,20 @@ def mysql_load_options(unhandled_hints: Set[str],
         mysql_ignore_n_lines = 0
     else:
         _assert_never(hint_header_row)
-    quiet_remove(unhandled_hints, 'header-row')
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'header-row')
+    return mysql_ignore_n_lines
 
-    hint_compression: HintCompression = hints.compression
+
+def process_hint_compression(mysql_load_parameters: MysqlLoadParameters):
+    hint_compression: HintCompression = mysql_load_parameters.hints.compression
     if hint_compression is not None:
-        cant_handle_hint(fail_if_cant_handle_hint, 'compression', records_format.hints)
-    quiet_remove(unhandled_hints, 'compression')
+        cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
+                         'compression',
+                         mysql_load_parameters.records_format.hints)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'compression')
 
+
+def process_temporal_information(mysql_load_parameters: MysqlLoadParameters):
     #
     # Testing of date/time parsing in MySQL has shown it to be pretty
     # conservative.
@@ -249,18 +287,49 @@ def mysql_load_options(unhandled_hints: Set[str],
     # "set trade_date" per
     # https://stackoverflow.com/questions/44171283/load-data-local-infile-with-sqlalchemy-and-pymysql
     #
-    if 'YYYY-MM-DD' not in hints.datetimeformat or 'AM' in hints.datetimeformat:
-        cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', records_format.hints)
-    quiet_remove(unhandled_hints, 'datetimeformat')
-    if 'YYYY-MM-DD' not in hints.datetimeformattz or 'AM' in hints.datetimeformattz:
-        cant_handle_hint(fail_if_cant_handle_hint, 'datetimeformat', records_format.hints)
-    quiet_remove(unhandled_hints, 'datetimeformattz')
-    if hints.dateformat != 'YYYY-MM-DD':
-        cant_handle_hint(fail_if_cant_handle_hint, 'dateformat', records_format.hints)
-    quiet_remove(unhandled_hints, 'dateformat')
-    if 'AM' in hints.timeonlyformat:
-        cant_handle_hint(fail_if_cant_handle_hint, 'timeonlyformat', records_format.hints)
-    quiet_remove(unhandled_hints, 'timeonlyformat')
+    if ('YYYY-MM-DD' not in mysql_load_parameters.hints.datetimeformat
+            or 'AM' in mysql_load_parameters.hints.datetimeformat):
+        cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
+                         'datetimeformat',
+                         mysql_load_parameters.records_format.hints)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'datetimeformat')
+    if ('YYYY-MM-DD' not in mysql_load_parameters.hints.datetimeformattz
+            or 'AM' in mysql_load_parameters.hints.datetimeformattz):
+        cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
+                         'datetimeformat',
+                         mysql_load_parameters.records_format.hints)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'datetimeformattz')
+    if mysql_load_parameters.hints.dateformat != 'YYYY-MM-DD':
+        cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
+                         'dateformat',
+                         mysql_load_parameters.records_format.hints)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'dateformat')
+    if 'AM' in mysql_load_parameters.hints.timeonlyformat:
+        cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
+                         'timeonlyformat',
+                         mysql_load_parameters.records_format.hints)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'timeonlyformat')
+
+
+def mysql_load_options(unhandled_hints: Set[str],
+                       records_format: DelimitedRecordsFormat,
+                       fail_if_cant_handle_hint: bool) -> MySqlLoadOptions:
+
+    mysql_load_parameters = MysqlLoadParameters(fail_if_cant_handle_hint,
+                                                records_format,
+                                                unhandled_hints)
+
+    mysql_character_set = get_character_set(mysql_load_parameters)
+    mysql_fields_terminator = get_field_terminator(mysql_load_parameters)
+    mysql_fields_enclosed_by, mysql_fields_optionally_enclosed_by = get_enclosures(
+                                                                     mysql_load_parameters)
+    process_hint_doublequote(mysql_load_parameters)
+    mysql_fields_escaped_by = get_escaped_by(mysql_load_parameters)
+    mysql_lines_starting_by = ''
+    mysql_lines_terminated_by = get_lines_terminated_by(mysql_load_parameters)
+    mysql_ignore_n_lines = get_ignore_n_lines(mysql_load_parameters)
+    process_hint_compression(mysql_load_parameters)
+    process_temporal_information(mysql_load_parameters)
 
     return MySqlLoadOptions(character_set=mysql_character_set,
                             fields_terminated_by=mysql_fields_terminator,
