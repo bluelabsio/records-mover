@@ -113,10 +113,21 @@ IGNORE :ignore_n_lines LINES
 
 
 class MysqlLoadParameters:
+    """
+    A class representing MySQL load parameters.
+
+    Attributes:
+        hints (ValidatedRecordsHints): Validated records hints.
+        hint_quoting (HintQuoting): Quoting hint.
+        fail_if_cant_handle_hint (bool): Fail if unable to handle hint.
+        records_format (DelimitedRecordsFormat): Records format.
+        unhandled_hints (Set[str]): Set of unhandled hints.
+    """
     def __init__(self,
                  fail_if_cant_handle_hint: bool,
                  records_format: DelimitedRecordsFormat,
                  unhandled_hints: Set[str]):
+        """Initialize the MySQL load parameters."""
         self.hints: ValidatedRecordsHints = records_format.validate(
             fail_if_cant_handle_hint=fail_if_cant_handle_hint)
         self.hint_quoting: HintQuoting = self.hints.quoting
@@ -126,15 +137,24 @@ class MysqlLoadParameters:
 
 
 def get_character_set(mysql_load_parameters: MysqlLoadParameters) -> MySqlCharacterSet:
-    # The server uses the character set indicated by the
-    # character_set_database system variable to interpret the
-    # information in the file. SET NAMES and the setting of
-    # character_set_client do not affect interpretation of input. If
-    # the contents of the input file use a character set that differs
-    # from the default, it is usually preferable to specify the
-    # character set of the file by using the CHARACTER SET clause. A
-    # character set of binary specifies “no conversion.”
-    #
+    """
+    Determine the character set for the given MySQL load parameters.
+    The server uses the character set indicated by the
+    character_set_database system variable to interpret the
+    information in the file. SET NAMES and the setting of
+    character_set_client do not affect interpretation of input. If
+    the contents of the input file use a character set that differs
+    from the default, it is usually preferable to specify the
+    character set of the file by using the CHARACTER SET clause. A
+    character set of binary specifies “no conversion.”
+
+    Args:
+        mysql_load_parameters (MysqlLoadParameters): MySQL load parameters.
+
+    Returns:
+        MySqlCharacterSet: MySQL character set.
+    """
+
     hint_encoding: HintEncoding = mysql_load_parameters.hints.encoding
     character_set = MYSQL_CHARACTER_SETS_FOR_LOAD.get(hint_encoding)
     if character_set is not None:
@@ -150,6 +170,16 @@ def get_character_set(mysql_load_parameters: MysqlLoadParameters) -> MySqlCharac
 
 def get_field_terminator(mysql_load_parameters: MysqlLoadParameters
                          ) -> str:
+    """
+    Get the field terminator for the given MySQL load parameters.
+
+    Args:
+        mysql_load_parameters (MysqlLoadParameters): MySQL load parameters.
+
+    Returns:
+        str: Field terminator.
+    """
+
     field_terminator: HintFieldDelimiter = mysql_load_parameters.hints.field_delimiter
     mysql_fields_terminator = field_terminator
     quiet_remove(mysql_load_parameters.unhandled_hints, 'field-delimiter')
@@ -158,36 +188,46 @@ def get_field_terminator(mysql_load_parameters: MysqlLoadParameters
 
 def get_enclosures(mysql_load_parameters: MysqlLoadParameters
                    ) -> Tuple[Optional[str], Optional[str]]:
-    # https://dev.mysql.com/doc/refman/8.0/en/load-data.html
-    #
-    #
-    # LOAD DATA can be used to read files obtained from external
-    # sources. For example, many programs can export data in
-    # comma-separated values (CSV) format, such that lines have fields
-    # separated by commas and enclosed within double quotation marks,
-    # with an initial line of column names. If the lines in such a
-    # file are terminated by carriage return/newline pairs, the
-    # statement shown here illustrates the field- and line-handling
-    # options you would use to load the file:
-    #
-    # LOAD DATA INFILE 'data.txt' INTO TABLE tbl_name
-    #  FIELDS TERMINATED BY ',' ENCLOSED BY '"'
-    #  LINES TERMINATED BY '\r\n'
-    #  IGNORE 1 LINES;
-    #
-    #
+    """
+    Get the enclosures for the given MySQL load parameters.
+
+    https://dev.mysql.com/doc/refman/8.0/en/load-data.html
+
+    LOAD DATA can be used to read files obtained from external
+    sources. For example, many programs can export data in
+    comma-separated values (CSV) format, such that lines have fields
+    separated by commas and enclosed within double quotation marks,
+    with an initial line of column names. If the lines in such a
+    file are terminated by carriage return/newline pairs, the
+    statement shown here illustrates the field- and line-handling
+    options you would use to load the file:
+
+    LOAD DATA INFILE 'data.txt' INTO TABLE tbl_name
+     FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+     LINES TERMINATED BY '\r\n'
+     IGNORE 1 LINES;
+
+    "If the input values are not necessarily enclosed within
+    quotation marks, use OPTIONALLY before the ENCLOSED BY option."
+
+    This implies to me that parsing here is permissive -
+    otherwise unambiguous strings without double quotes around
+    them will be understood as a string, not rejected.
+
+    Args:
+        mysql_load_parameters (MysqlLoadParameters): MySQL load parameters.
+
+    Returns:
+        Tuple[Optional[str], Optional[str]]: Tuple of enclosures (
+                                            enclosed by, optionally enclosed by).
+    """
+
     mysql_fields_enclosed_by: Optional[str] = None
     mysql_fields_optionally_enclosed_by: Optional[str] = None
     hint_quotechar: HintQuoteChar = mysql_load_parameters.hints.quotechar
     if mysql_load_parameters.hint_quoting == 'all':
         mysql_fields_enclosed_by = hint_quotechar
     elif mysql_load_parameters.hint_quoting == 'minimal':
-        # "If the input values are not necessarily enclosed within
-        # quotation marks, use OPTIONALLY before the ENCLOSED BY option."
-        #
-        # This implies to me that parsing here is permissive -
-        # otherwise unambiguous strings without double quotes around
-        # them will be understood as a string, not rejected.
         mysql_fields_optionally_enclosed_by = hint_quotechar
     elif mysql_load_parameters.hint_quoting == 'nonnumeric':
         mysql_fields_optionally_enclosed_by = hint_quotechar
@@ -201,17 +241,26 @@ def get_enclosures(mysql_load_parameters: MysqlLoadParameters
 
 
 def process_hint_doublequote(mysql_load_parameters: MysqlLoadParameters):
-    # If the field begins with the ENCLOSED BY character, instances of
-    # that character are recognized as terminating a field value only
-    # if followed by the field or line TERMINATED BY sequence. To
-    # avoid ambiguity, occurrences of the ENCLOSED BY character within
-    # a field value can be doubled and are interpreted as a single
-    # instance of the character. For example, if ENCLOSED BY '"' is
-    # specified, quotation marks are handled as shown here:
+    """
+    Process the doublequote hint for the given MySQL load parameters.
+
+    If the field begins with the ENCLOSED BY character, instances of
+    that character are recognized as terminating a field value only
+    if followed by the field or line TERMINATED BY sequence. To
+    avoid ambiguity, occurrences of the ENCLOSED BY character within
+    a field value can be doubled and are interpreted as a single
+    instance of the character. For example, if ENCLOSED BY '"' is
+    specified, quotation marks are handled as shown here:
+
+    We need to ignore flake8's "is vs ==" check because 'is'
+    doesn't work currently with MyPy's Literal[] case checking
+
+    Args:
+        mysql_load_parameters (MysqlLoadParameters): MySQL load parameters.
+    """
     hint_doublequote: HintDoublequote = mysql_load_parameters.hints.doublequote
     if mysql_load_parameters.hint_quoting is not None:
-        # We need to ignore flake8's "is vs ==" check because 'is'
-        # doesn't work currently with MyPy's Literal[] case checking
+
         if hint_doublequote == True:  # noqa: E712
             pass
         elif hint_doublequote == False:  # noqa: E712
@@ -225,18 +274,28 @@ def process_hint_doublequote(mysql_load_parameters: MysqlLoadParameters):
 
 def get_escaped_by(mysql_load_parameters: MysqlLoadParameters
                    ) -> Optional[str]:
-    # FIELDS ESCAPED BY controls how to read or write special characters:
-    #
-    # * For input, if the FIELDS ESCAPED BY character is not empty,
-    #   occurrences of that character are stripped and the following
-    #   character is taken literally as part of a field value. Some
-    #   two-character sequences that are exceptions, where the first
-    #   character is the escape character.
-    #
-    # [...]
-    #
-    # If the FIELDS ESCAPED BY character is empty, escape-sequence
-    # interpretation does not occur.
+    """
+    Get the escaped by character for the given MySQL load parameters.
+
+    FIELDS ESCAPED BY controls how to read or write special characters:
+
+    * For input, if the FIELDS ESCAPED BY character is not empty,
+      occurrences of that character are stripped and the following
+      character is taken literally as part of a field value. Some
+      two-character sequences that are exceptions, where the first
+      character is the escape character.
+
+    [...]
+
+    If the FIELDS ESCAPED BY character is empty, escape-sequence
+    interpretation does not occur.
+
+    Args:
+        mysql_load_parameters (MysqlLoadParameters): MySQL load parameters.
+
+    Returns:
+        Optional[str]: Escaped by character, or None if not present.
+    """
     hint_escape: HintEscape = mysql_load_parameters.hints.escape
     if hint_escape is None:
         mysql_fields_escaped_by = None
@@ -249,6 +308,15 @@ def get_escaped_by(mysql_load_parameters: MysqlLoadParameters
 
 
 def get_lines_terminated_by(mysql_load_parameters: MysqlLoadParameters) -> str:
+    """
+    Get the line terminator for the given MySQL load parameters.
+
+    Args:
+        mysql_load_parameters (MysqlLoadParameters): MySQL load parameters.
+
+    Returns:
+        str: Line terminator.
+    """
     hint_record_terminator: HintRecordTerminator = mysql_load_parameters.hints.record_terminator
     mysql_lines_terminated_by = hint_record_terminator
     quiet_remove(mysql_load_parameters.unhandled_hints, 'record-terminator')
@@ -257,8 +325,18 @@ def get_lines_terminated_by(mysql_load_parameters: MysqlLoadParameters) -> str:
 
 def get_ignore_n_lines(mysql_load_parameters: MysqlLoadParameters) -> int:
     hint_header_row: HintHeaderRow = mysql_load_parameters.hints.header_row
-    # We need to ignore flake8's "is vs ==" check because 'is'
-    # doesn't work currently with MyPy's Literal[] case checking
+    """
+    Get the number of lines to ignore for the given MySQL load parameters.
+
+    We need to ignore flake8's "is vs ==" check because 'is'
+    doesn't work currently with MyPy's Literal[] case checking
+
+    Args:
+        mysql_load_parameters (MysqlLoadParameters): MySQL load parameters.
+
+    Returns:
+        int: Number of lines to ignore.
+    """
     if hint_header_row == True:  # noqa: E712
         mysql_ignore_n_lines = 1
     elif hint_header_row == False:  # noqa: E712
@@ -270,6 +348,12 @@ def get_ignore_n_lines(mysql_load_parameters: MysqlLoadParameters) -> int:
 
 
 def process_hint_compression(mysql_load_parameters: MysqlLoadParameters):
+    """
+    Process the compression hint for the given MySQL load parameters.
+
+    Args:
+        mysql_load_parameters (MysqlLoadParameters): MySQL load parameters.
+    """
     hint_compression: HintCompression = mysql_load_parameters.hints.compression
     if hint_compression is not None:
         cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
@@ -279,14 +363,20 @@ def process_hint_compression(mysql_load_parameters: MysqlLoadParameters):
 
 
 def process_temporal_information(mysql_load_parameters: MysqlLoadParameters):
-    #
-    # Testing of date/time parsing in MySQL has shown it to be pretty
-    # conservative.
-    #
-    # That said, for DD/MM and MM/DD support, we may want to look into
-    # "set trade_date" per
-    # https://stackoverflow.com/questions/44171283/load-data-local-infile-with-sqlalchemy-and-pymysql
-    #
+    """
+    Process temporal information for the given MySQL load parameters.
+
+    Testing of date/time parsing in MySQL has shown it to be pretty
+    conservative.
+
+    That said, for DD/MM and MM/DD support, we may want to look into
+    "set trade_date" per
+    https://stackoverflow.com/questions/44171283/load-data-local-infile-with-sqlalchemy-and-pymysql
+
+    Args:
+        mysql_load_parameters (MysqlLoadParameters): MySQL load parameters.
+    """
+
     if ('YYYY-MM-DD' not in mysql_load_parameters.hints.datetimeformat
             or 'AM' in mysql_load_parameters.hints.datetimeformat):
         cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
@@ -314,6 +404,31 @@ def process_temporal_information(mysql_load_parameters: MysqlLoadParameters):
 def mysql_load_options(unhandled_hints: Set[str],
                        records_format: DelimitedRecordsFormat,
                        fail_if_cant_handle_hint: bool) -> MySqlLoadOptions:
+    """
+    The mysql_load_options function takes in unhandled hints, records format,
+    and a boolean flag indicating whether to fail if a hint cannot be handled.
+    It returns a MySqlLoadOptions object with the options determined from the given parameters.
+
+    Args:
+
+        unhandled_hints (Set[str]): a set of unhandled hints
+        records_format (DelimitedRecordsFormat): the format of the records
+        fail_if_cant_handle_hint (bool): whether to fail if a hint cannot be handled
+
+    Returns:
+
+        MySqlLoadOptions: a MySqlLoadOptions object with the determined options for loading data
+        into MySQL. The object contains the following fields:
+            character_set (str): the character set to use
+            fields_terminated_by (str): the string used to terminate fields
+            fields_enclosed_by (str): the string used to enclose fields
+            fields_optionally_enclosed_by (str): the string used to optionally enclose fields
+            fields_escaped_by (str): the string used to escape fields
+            lines_starting_by (str): the string used to specify lines starting with a specific
+                character
+            lines_terminated_by (str): the string used to terminate lines
+            ignore_n_lines (int): the number of lines to ignore
+    """
 
     mysql_load_parameters = MysqlLoadParameters(fail_if_cant_handle_hint,
                                                 records_format,
