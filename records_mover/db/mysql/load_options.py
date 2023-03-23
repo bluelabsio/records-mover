@@ -164,7 +164,6 @@ def get_character_set(mysql_load_parameters: MysqlLoadParameters) -> MySqlCharac
                          'encoding',
                          mysql_load_parameters.records_format.hints)
         mysql_character_set = 'utf8'
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'encoding')
     return mysql_character_set
 
 
@@ -182,7 +181,6 @@ def get_field_terminator(mysql_load_parameters: MysqlLoadParameters
 
     field_terminator: HintFieldDelimiter = mysql_load_parameters.hints.field_delimiter
     mysql_fields_terminator = field_terminator
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'field-delimiter')
     return mysql_fields_terminator
 
 
@@ -235,8 +233,6 @@ def get_enclosures(mysql_load_parameters: MysqlLoadParameters
         pass
     else:
         _assert_never(hint_quotechar)
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'quoting')
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'quotechar')
     return (mysql_fields_enclosed_by, mysql_fields_optionally_enclosed_by)
 
 
@@ -269,7 +265,6 @@ def process_hint_doublequote(mysql_load_parameters: MysqlLoadParameters):
                              mysql_load_parameters.records_format.hints)
         else:
             _assert_never(hint_doublequote)
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'doublequote')
 
 
 def get_escaped_by(mysql_load_parameters: MysqlLoadParameters
@@ -303,7 +298,6 @@ def get_escaped_by(mysql_load_parameters: MysqlLoadParameters
         mysql_fields_escaped_by = '\\'
     else:
         _assert_never(mysql_load_parameters.hint_quoting)
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'escape')
     return mysql_fields_escaped_by
 
 
@@ -319,7 +313,6 @@ def get_lines_terminated_by(mysql_load_parameters: MysqlLoadParameters) -> str:
     """
     hint_record_terminator: HintRecordTerminator = mysql_load_parameters.hints.record_terminator
     mysql_lines_terminated_by = hint_record_terminator
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'record-terminator')
     return mysql_lines_terminated_by
 
 
@@ -343,7 +336,6 @@ def get_ignore_n_lines(mysql_load_parameters: MysqlLoadParameters) -> int:
         mysql_ignore_n_lines = 0
     else:
         _assert_never(hint_header_row)
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'header-row')
     return mysql_ignore_n_lines
 
 
@@ -359,7 +351,6 @@ def process_hint_compression(mysql_load_parameters: MysqlLoadParameters):
         cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
                          'compression',
                          mysql_load_parameters.records_format.hints)
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'compression')
 
 
 def process_temporal_information(mysql_load_parameters: MysqlLoadParameters):
@@ -382,23 +373,19 @@ def process_temporal_information(mysql_load_parameters: MysqlLoadParameters):
         cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
                          'datetimeformat',
                          mysql_load_parameters.records_format.hints)
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'datetimeformat')
     if ('YYYY-MM-DD' not in mysql_load_parameters.hints.datetimeformattz
             or 'AM' in mysql_load_parameters.hints.datetimeformattz):
         cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
                          'datetimeformat',
                          mysql_load_parameters.records_format.hints)
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'datetimeformattz')
     if mysql_load_parameters.hints.dateformat != 'YYYY-MM-DD':
         cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
                          'dateformat',
                          mysql_load_parameters.records_format.hints)
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'dateformat')
     if 'AM' in mysql_load_parameters.hints.timeonlyformat:
         cant_handle_hint(mysql_load_parameters.fail_if_cant_handle_hint,
                          'timeonlyformat',
                          mysql_load_parameters.records_format.hints)
-    quiet_remove(mysql_load_parameters.unhandled_hints, 'timeonlyformat')
 
 
 def mysql_load_options(unhandled_hints: Set[str],
@@ -435,16 +422,38 @@ def mysql_load_options(unhandled_hints: Set[str],
                                                 unhandled_hints)
 
     mysql_character_set = get_character_set(mysql_load_parameters)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'encoding')
+
     mysql_fields_terminator = get_field_terminator(mysql_load_parameters)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'field-delimiter')
+
     mysql_fields_enclosed_by, mysql_fields_optionally_enclosed_by = get_enclosures(
                                                                      mysql_load_parameters)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'quoting')
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'quotechar')
+
     process_hint_doublequote(mysql_load_parameters)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'doublequote')
+
     mysql_fields_escaped_by = get_escaped_by(mysql_load_parameters)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'escape')
+
     mysql_lines_starting_by = ''
+
     mysql_lines_terminated_by = get_lines_terminated_by(mysql_load_parameters)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'record-terminator')
+
     mysql_ignore_n_lines = get_ignore_n_lines(mysql_load_parameters)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'header-row')
+
     process_hint_compression(mysql_load_parameters)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'compression')
+
     process_temporal_information(mysql_load_parameters)
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'datetimeformat')
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'datetimeformattz')
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'dateformat')
+    quiet_remove(mysql_load_parameters.unhandled_hints, 'timeonlyformat')
 
     return MySqlLoadOptions(character_set=mysql_character_set,
                             fields_terminated_by=mysql_fields_terminator,
