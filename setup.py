@@ -363,19 +363,3 @@ setup(name='records-mover',
           'Programming Language :: Python :: 3.8',
           'Programming Language :: Python :: 3.9',
       ])
-
-# comment
-# to
-# trigger
-# bigfiles
-# check
-# 1
-# 2
-# 3
-# 4
-# 5
-# 6
-# 7
-# 8
-# 9
-# 10
