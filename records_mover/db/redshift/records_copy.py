@@ -3,6 +3,7 @@ from ...records.delimited import cant_handle_hint
 from records_mover.records.records_format import (
     BaseRecordsFormat, DelimitedRecordsFormat, AvroRecordsFormat
 )
+from records_mover.records.delimited import ValidatedRecordsHints
 from records_mover.mover_types import _assert_never
 from sqlalchemy_redshift.commands import Format, Encoding, Compression
 from typing import Dict, Optional, Set
@@ -10,53 +11,76 @@ from typing import Dict, Optional, Set
 RedshiftCopyOptions = Dict[str, Optional[object]]
 
 
-def redshift_copy_options(unhandled_hints: Set[str],
-                          records_format: BaseRecordsFormat,
-                          fail_if_cant_handle_hint: bool,
-                          fail_if_row_invalid: bool,
-                          max_failure_rows: Optional[int]) -> RedshiftCopyOptions:
-    redshift_options: RedshiftCopyOptions = {}
+class RedshiftCopyParamaters:
+    def __init__(self,
+                 records_format: DelimitedRecordsFormat,
+                 fail_if_cant_handle_hint: bool,
+                 unhandled_hints: Set[str]):
+        self.redshift_options: RedshiftCopyOptions = {}
+        self.hints = records_format.\
+            validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
+        self.unhandled_hints = unhandled_hints
+        self.fail_if_cant_handle_hint = fail_if_cant_handle_hint
 
-    if isinstance(records_format, AvroRecordsFormat):
-        redshift_options['format'] = Format.avro
-        return redshift_options
 
-    if not isinstance(records_format, DelimitedRecordsFormat):
-        raise NotImplementedError(f"Teach me how to COPY to {records_format}")
-
-    hints = records_format.\
-        validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
-
-    if hints.compression == 'GZIP':
-        redshift_options['compression'] = Compression.gzip
-    elif hints.compression == 'LZO':
-        redshift_options['compression'] = Compression.lzop
-    elif hints.compression == 'BZIP':
-        redshift_options['compression'] = Compression.bzip2
-    elif hints.compression is None:
-        redshift_options['compression'] = None
+def process_compression(redshift_options: RedshiftCopyOptions,
+                        hints: ValidatedRecordsHints,
+                        unhandled_hints: Set[str]):
+    compression_map = {
+        'GZIP': Compression.gzip,
+        'LZO': Compression.lzop,
+        'BZIP': Compression.bzip2,
+        None: None
+    }
+    hints_compression: Optional[str] = hints.compression
+    compression = compression_map.get(hints_compression)
+    if compression is None and hints_compression is not None:
+        _assert_never(hints_compression)
     else:
-        _assert_never(hints.compression)
+        redshift_options['compression'] = compression
     quiet_remove(unhandled_hints, 'compression')
+
+
+def process_dateformat(redshift_options: RedshiftCopyOptions,
+                       hints: ValidatedRecordsHints,
+                       unhandled_hints: Set[str]):
     if hints.dateformat is None:
         redshift_options['date_format'] = 'auto'
     else:
         redshift_options['date_format'] = hints.dateformat
     quiet_remove(unhandled_hints, 'dateformat')
-    if hints.encoding == 'UTF8':
-        redshift_options['encoding'] = Encoding.utf8
-    elif hints.encoding == 'UTF16':
-        redshift_options['encoding'] = Encoding.utf16
-    elif hints.encoding == 'UTF16LE':
-        redshift_options['encoding'] = Encoding.utf16le
-    elif hints.encoding == 'UTF16BE':
-        redshift_options['encoding'] = Encoding.utf16be
-    else:
+
+
+def process_encoding(redshift_options: RedshiftCopyOptions,
+                     hints: ValidatedRecordsHints,
+                     unhandled_hints: Set[str],
+                     fail_if_cant_handle_hint: bool):
+    encoding_map = {
+        'UTF8': Encoding.utf8,
+        'UTF16': Encoding.utf16,
+        'UTF16LE': Encoding.utf16le,
+        'UTF16BE': Encoding.utf16be,
+    }
+    encoding = encoding_map.get(hints.encoding)
+    if not encoding:
         cant_handle_hint(fail_if_cant_handle_hint, 'encoding', hints)
         redshift_options['encoding'] = Encoding(hints.encoding)
+    else:
+        redshift_options['encoding'] = encoding
     quiet_remove(unhandled_hints, 'encoding')
+
+
+def process_quotechar(redshift_options: RedshiftCopyOptions,
+                      hints: ValidatedRecordsHints,
+                      unhandled_hints: Set[str]):
     redshift_options['quote'] = hints.quotechar
     quiet_remove(unhandled_hints, 'quotechar')
+
+
+def process_quoting(redshift_options: RedshiftCopyOptions,
+                    hints: ValidatedRecordsHints,
+                    unhandled_hints: Set[str],
+                    fail_if_cant_handle_hint: bool):
     if hints.quoting == 'minimal':
         if hints.escape is not None:
             cant_handle_hint(fail_if_cant_handle_hint, 'escape', hints)
@@ -87,6 +111,11 @@ def redshift_copy_options(unhandled_hints: Set[str],
     quiet_remove(unhandled_hints, 'escape')
     quiet_remove(unhandled_hints, 'field-delimiter')
     quiet_remove(unhandled_hints, 'doublequote')
+
+
+def process_temporal_info(redshift_options: RedshiftCopyOptions,
+                          hints: ValidatedRecordsHints,
+                          unhandled_hints: Set[str]):
     if hints.datetimeformat is None:
         redshift_options['time_format'] = 'auto'
     else:
@@ -137,6 +166,11 @@ def redshift_copy_options(unhandled_hints: Set[str],
     # Redshift doesn't support time-only fields, so these will
     # come in as strings regardless.
     quiet_remove(unhandled_hints, 'timeonlyformat')
+
+
+def process_max_failure_rows(redshift_options: RedshiftCopyOptions,
+                             max_failure_rows: Optional[int],
+                             fail_if_row_invalid: bool):
     if max_failure_rows is not None:
         redshift_options['max_error'] = max_failure_rows
     elif fail_if_row_invalid:
@@ -144,16 +178,52 @@ def redshift_copy_options(unhandled_hints: Set[str],
     else:
         # max allowed value
         redshift_options['max_error'] = 100000
+
+
+def process_records_terminator(hints: ValidatedRecordsHints,
+                               unhandled_hints: Set[str],
+                               fail_if_cant_handle_hint: bool):
     if hints.record_terminator is not None and \
        hints.record_terminator != "\n":
-
         cant_handle_hint(fail_if_cant_handle_hint, 'record-terminator', hints)
     quiet_remove(unhandled_hints, 'record-terminator')
 
+
+def process_header_row(hints: ValidatedRecordsHints,
+                       redshift_options: RedshiftCopyOptions,
+                       unhandled_hints: Set[str]):
     if hints.header_row:
         redshift_options['ignore_header'] = 1
     else:
         redshift_options['ignore_header'] = 0
     quiet_remove(unhandled_hints, 'header-row')
+
+
+def redshift_copy_options(unhandled_hints: Set[str],
+                          records_format: BaseRecordsFormat,
+                          fail_if_cant_handle_hint: bool,
+                          fail_if_row_invalid: bool,
+                          max_failure_rows: Optional[int]) -> RedshiftCopyOptions:
+    redshift_options: RedshiftCopyOptions = dict()
+
+    if isinstance(records_format, AvroRecordsFormat):
+        redshift_options['format'] = Format.avro
+        return redshift_options
+
+    if not isinstance(records_format, DelimitedRecordsFormat):
+        raise NotImplementedError(f"Teach me how to COPY to {records_format}")
+
+    hints: ValidatedRecordsHints = records_format.\
+        validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
+
+    process_compression(redshift_options, hints, unhandled_hints)
+    process_dateformat(redshift_options, hints, unhandled_hints)
+    process_encoding(redshift_options, hints, unhandled_hints, fail_if_cant_handle_hint)
+    process_quotechar(redshift_options, hints, unhandled_hints)
+    process_quoting(redshift_options, hints, unhandled_hints, fail_if_cant_handle_hint)
+    process_temporal_info(redshift_options, hints, unhandled_hints)
+    process_max_failure_rows(redshift_options, max_failure_rows, fail_if_row_invalid)
+    process_records_terminator(hints, unhandled_hints, fail_if_cant_handle_hint)
+    process_header_row(hints, redshift_options, unhandled_hints)
 
     return redshift_options
