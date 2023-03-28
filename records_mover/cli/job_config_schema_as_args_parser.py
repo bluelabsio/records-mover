@@ -168,7 +168,7 @@ class JobConfigSchemaAsArgsParser():
             required_subkeys = [
                 self.add_to_prefix(key, partial_subkey)
                 for partial_subkey
-                in value.get('required', [])  # type: ignore
+                in value.get('required', [])
             ]
         self.configure_from_properties(sub_properties, required_subkeys, prefix=key)
 
