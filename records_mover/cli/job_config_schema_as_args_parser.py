@@ -60,6 +60,7 @@ class JobConfigSchemaAsArgsParser():
                                   properties: JsonSchema,
                                   required_keys: Iterable[str],
                                   prefix: str = '') -> None:
+        self.required_keys = required_keys
         for naked_key, raw_value in properties.items():
             if not isinstance(raw_value, dict):
                 raise TypeError(f"Did not understand [{raw_value}] in [{properties}]")
@@ -213,8 +214,8 @@ class JobConfigSchemaAsArgsParser():
             required_keys_raw = schema.get('required', [])
             if not isinstance(required_keys_raw, list):
                 raise TypeError(f"Did not understand {required_keys_raw} in {schema}")
-            self.required_keys: List = required_keys_raw
-            self.configure_from_properties(props, self.required_keys)
+            required_keys: List = required_keys_raw
+            self.configure_from_properties(props, required_keys)
         else:
             raise Exception("Did not know how to parse " +
                             str(self.config_json_schema))
