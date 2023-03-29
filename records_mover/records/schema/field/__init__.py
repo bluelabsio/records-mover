@@ -290,7 +290,7 @@ class RecordsSchemaField:
         }
 
         pd_dtype = field_type_to_pd_dtype_map.get(self.field_type)
-        if not pd_dtype:
+        if pd_dtype is None:
             raise NotImplementedError("Teach me how to handle records schema "
                                       f"type {self.field_type}")
         if self.field_type in ('integer', 'decimal') and callable(pd_dtype):
