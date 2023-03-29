@@ -170,7 +170,8 @@ class JobConfigSchemaAsArgsParser():
                 for partial_subkey
                 in value.get('required', [])
             ]
-        self.configure_from_properties(sub_properties, required_subkeys, prefix=key)
+        sub_config = JobConfigSchemaAsArgsParser(self.schema, self.arg_parser)
+        sub_config.configure_from_properties(sub_properties, required_subkeys, prefix=key)
 
     def add_bool_arg(self, key, arg_name, value, kwargs):
         # https://stackoverflow.com/questions/9183936/boolean-argument-for-script
