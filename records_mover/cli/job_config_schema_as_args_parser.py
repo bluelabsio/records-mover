@@ -170,7 +170,7 @@ class JobConfigSchemaAsArgsParser():
                 for partial_subkey
                 in value.get('required', [])
             ]
-        sub_config = JobConfigSchemaAsArgsParser(self.schema, self.arg_parser)
+        sub_config = JobConfigSchemaAsArgsParser(self.config_json_schema, self.arg_parser)
         sub_config.configure_from_properties(sub_properties, required_subkeys, prefix=key)
 
     def add_bool_arg(self, key, arg_name, value, kwargs):
