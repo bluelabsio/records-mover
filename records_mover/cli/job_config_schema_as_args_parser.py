@@ -60,6 +60,7 @@ class JobConfigSchemaAsArgsParser():
                                   properties: JsonSchema,
                                   required_keys: Iterable[str],
                                   prefix: str = '') -> None:
+        self.required_keys = required_keys
         for naked_key, raw_value in properties.items():
             if not isinstance(raw_value, dict):
                 raise TypeError(f"Did not understand [{raw_value}] in [{properties}]")
@@ -72,20 +73,14 @@ class JobConfigSchemaAsArgsParser():
                                        value: Dict[str, object],
                                        required_keys: Iterable[str],
                                        properties: JsonSchema) -> None:
-        arg_name = key
-        # For consistency with other args, we map dashes to underscores in the CLI args
-        formatted_key_name = key.replace('-', '_')
         kwargs: ArgParseArgument = {}
-        if key in required_keys:
-            # use a positional argument if it's required
-            arg_name = key
-        else:
-            # use a --parameter=value argument if it's optional
-            arg_name = "--" + formatted_key_name
-            kwargs['required'] = False
+        arg_name = self.get_arg_name(key, value)
 
-            # When the formatted_key_name differs from key, this will make sure that the arg
-            # parser is storing the value in a place that matches the actual schema
+        if not self.is_key_required(key):
+            kwargs['required'] = False
+            # When the formatted_key_name differs from key, this will make sure
+            # that the arg parser is storing the value in a place that matches
+            # the actual schema
             kwargs['dest'] = key
 
         if 'default' in value:
@@ -95,88 +90,119 @@ class JobConfigSchemaAsArgsParser():
             kwargs['help'] = str(value['description'])
 
         if 'enum' in value:
-            enum_values: Iterable[Any] = value['enum']  # type: ignore
-            non_none_values: Iterable[Any] = [v for v in enum_values if v is not None]
-            kwargs['choices'] = non_none_values
-            if None in enum_values:
-                # add an arg that maps to 'None' for this key
-                no_arg_kwargs: ArgParseArgument = {}
-                # if --no_foo is specified, set foo variable to None
-                split_key_name = formatted_key_name.split('.')
-                no_arg_arg_name = '--' + '.'.join([*split_key_name[:-1],
-                                                   'no_' + split_key_name[-1]])
-                no_arg_kwargs['action'] = 'store_const'
-                no_arg_kwargs['const'] = ARG_VALUE_WAS_NONE
-                no_arg_kwargs['dest'] = key
-                no_arg_kwargs['required'] = False
-                self.arg_parser.add_argument(no_arg_arg_name, **no_arg_kwargs)
-
+            self.add_enum_arg(key, arg_name, value, kwargs)
         elif 'type' in value and value['type'] == 'string':
             kwargs['type'] = str
+            self.arg_parser.add_argument(arg_name, **kwargs)
         elif 'type' in value and value['type'] == 'integer':
             kwargs['type'] = int
+            self.arg_parser.add_argument(arg_name, **kwargs)
         elif 'type' in value and value['type'] == 'array':
-            items = value['items']
-            if not isinstance(items, dict):
-                raise TypeError(f"Did not understand [{items}] in [{properties}]")
-            item_type = items['type']
-            if not isinstance(item_type, str):
-                raise TypeError(f"Did not understand [{item_type}] in [{properties}]")
-            if item_type == 'string':
-                kwargs['type'] = str
-            elif item_type == 'integer':
-                kwargs['type'] = int
-            else:
-                raise NotImplementedError("Teach me how to handle array item "
-                                          f"type of {item_type}")
-            kwargs['nargs'] = '*'
+            self.add_array_arg(key, arg_name, value, kwargs, properties)
         elif 'type' in value and value['type'] == 'object':
-            # Recurse and handle nested dicts
-            sub_properties = value['properties']
-            if not isinstance(sub_properties, dict):
-                raise TypeError(f"Did not understand [{sub_properties}] in [{properties}]")
-            required_subkeys: List[str] = []
-            if key in required_keys:
-                required_subkeys = [
-                    self.add_to_prefix(key, partial_subkey)
-                    for partial_subkey
-                    in value.get('required', [])  # type: ignore
-                ]
-            self.configure_from_properties(sub_properties, required_subkeys, prefix=key)
-            return  # no immediate argument to add
+            self.add_object_arg(key, arg_name, value, kwargs, properties)
         elif 'type' in value and value['type'] == 'boolean':
-            # https://stackoverflow.com/questions/9183936/boolean-argument-for-script
-            if 'default' in value:
-                if value['default'] is True:
-                    # if --no_foo is specified, set foo variable to False
-                    arg_name = "--no_" + formatted_key_name
-                    kwargs['action'] = 'store_false'
-                else:
-                    kwargs['action'] = 'store_true'
-            else:
-                if key in required_keys:
-                    raise NotImplementedError("Teach me how to handle a required boolean "
-                                              "with no default")
-                else:
-                    # the regular --foo will set this to True:
-                    kwargs['action'] = 'store_const'
-                    # store_true sets a default, so we use store_const
-                    kwargs['const'] = True
-
-                    # and we'll add an arg that maps to False for this key:
-                    false_arg_kwargs: ArgParseArgument = {}
-                    # if --no_foo is specified, set foo variable to False
-                    split_key_name = formatted_key_name.split('.')
-                    false_arg_arg_name = '--' + '.'.join([*split_key_name[:-1],
-                                                          'no_' + split_key_name[-1]])
-                    false_arg_kwargs['action'] = 'store_const'
-                    false_arg_kwargs['const'] = False
-                    false_arg_kwargs['dest'] = key
-                    false_arg_kwargs['required'] = False
-                    self.arg_parser.add_argument(false_arg_arg_name, **false_arg_kwargs)
+            self.add_bool_arg(key, arg_name, value, kwargs)
         else:
             raise Exception("Did not know how to handle key " + key +
                             " and value " + str(value))
+
+    # For consistency with other args, we map dashes to underscores in the
+    # CLI args
+    def formatted_key_name(self, key: str) -> str:
+        return key.replace('-', '_')
+
+    def is_key_required(self, key: str) -> bool:
+        return key in self.required_keys
+
+    def get_arg_name(self, key: str, value: Dict[str, object]) -> str:
+        if self.is_key_required(key):
+            return key  # why is this not formatted_key_name?
+
+        if value.get('type') == 'boolean' and value.get('default') is True:
+            return '--no_' + self.formatted_key_name(key)
+        else:
+            return "--" + self.formatted_key_name(key)
+
+    def add_enum_arg(self, key, arg_name, value, kwargs):
+        enum_values: Iterable[Any] = value['enum']  # type: ignore
+        non_none_values: Iterable[Any] = [v for v in enum_values if v is not None]
+        kwargs['choices'] = non_none_values
+        if None in enum_values:
+            # add an arg that maps to 'None' for this key
+            no_arg_kwargs: ArgParseArgument = {}
+            # if --no_foo is specified, set foo variable to None
+            split_key_name = self.formatted_key_name(key).split('.')
+            no_arg_arg_name = '--' + '.'.join([*split_key_name[:-1],
+                                               'no_' + split_key_name[-1]])
+            no_arg_kwargs['action'] = 'store_const'
+            no_arg_kwargs['const'] = ARG_VALUE_WAS_NONE
+            no_arg_kwargs['dest'] = key
+            no_arg_kwargs['required'] = False
+            self.arg_parser.add_argument(no_arg_arg_name, **no_arg_kwargs)
+        self.arg_parser.add_argument(arg_name, **kwargs)
+
+    def add_array_arg(self, key, arg_name, value, kwargs, props):
+        items = value['items']
+        if not isinstance(items, dict):
+            raise TypeError(f"Did not understand [{items}] in [{props}]")
+        item_type = items['type']
+        if not isinstance(item_type, str):
+            raise TypeError(f"Did not understand [{item_type}] in [{props}]")
+        if item_type == 'string':
+            kwargs['type'] = str
+        elif item_type == 'integer':
+            kwargs['type'] = int
+        else:
+            raise NotImplementedError("Teach me how to handle array item "
+                                      f"type of {item_type}")
+        kwargs['nargs'] = '*'
+        self.arg_parser.add_argument(arg_name, **kwargs)
+
+    def add_object_arg(self, key, arg_name, value, kwargs, props):
+        # Recurse and handle nested dicts
+        sub_properties = value['properties']
+        if not isinstance(sub_properties, dict):
+            raise TypeError(f"Did not understand [{sub_properties}] in [{props}]")
+        required_subkeys: List[str] = []
+        if self.is_key_required(key):
+            required_subkeys = [
+                self.add_to_prefix(key, partial_subkey)
+                for partial_subkey
+                in value.get('required', [])
+            ]
+        sub_config = JobConfigSchemaAsArgsParser(self.config_json_schema, self.arg_parser)
+        sub_config.configure_from_properties(sub_properties, required_subkeys, prefix=key)
+
+    def add_bool_arg(self, key, arg_name, value, kwargs):
+        # https://stackoverflow.com/questions/9183936/boolean-argument-for-script
+        if 'default' in value:
+            if value['default'] is True:
+                # if --no_foo is specified, set foo variable to False
+                kwargs['action'] = 'store_false'
+            else:
+                kwargs['action'] = 'store_true'
+        else:
+            if self.is_key_required(key):
+                raise NotImplementedError("Teach me how to handle a required boolean "
+                                          "with no default")
+            else:
+                # the regular --foo will set this to True:
+                kwargs['action'] = 'store_const'
+                # store_true sets a default, so we use store_const
+                kwargs['const'] = True
+
+                # and we'll add an arg that maps to False for this key:
+                false_arg_kwargs: ArgParseArgument = {}
+                # if --no_foo is specified, set foo variable to False
+                split_key_name = self.formatted_key_name(key).split('.')
+                false_arg_arg_name = '--' + '.'.join([*split_key_name[:-1],
+                                                      'no_' + split_key_name[-1]])
+                false_arg_kwargs['action'] = 'store_const'
+                false_arg_kwargs['const'] = False
+                false_arg_kwargs['dest'] = key
+                false_arg_kwargs['required'] = False
+                self.arg_parser.add_argument(false_arg_arg_name, **false_arg_kwargs)
         self.arg_parser.add_argument(arg_name, **kwargs)
 
     def configure_arg_parser(self) -> None:
