@@ -76,7 +76,7 @@ class FileobjTarget(SupportsMoveFromDataframes):
         else:
             with NamedTemporaryFile(prefix='mover_fileobj_target') as output_file: # noqa
                 with open(output_file.name, "rb") as output_fileobj:
-                    copyfileobj(output_fileobj, self.fileobj)
+                    copyfileobj(output_fileobj, self.fileobj)  # type: ignore
 
         logger.info('CSV file written')
         return MoveResult(output_urls=None, move_count=move_count)

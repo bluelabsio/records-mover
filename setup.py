@@ -187,7 +187,7 @@ parquet_dependencies = [
 ]
 
 pandas_dependencies = [
-    'pandas>=1.1.5',
+    'pandas>=1.1.5,<2',
 ]
 
 mysql_dependencies = [
@@ -196,7 +196,7 @@ mysql_dependencies = [
 
 redshift_dependencies_base = [
     # sqlalchemy-redshift 0.7.7 introduced support for Parquet in UNLOAD
-    'sqlalchemy-redshift>=0.7.7',
+    'sqlalchemy-redshift>=0.7.7,<0.8.13',
 ] + aws_dependencies + db_dependencies
 
 redshift_dependencies_binary = [

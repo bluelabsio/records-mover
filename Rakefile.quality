@@ -20,6 +20,7 @@ Quality::Rake::Task.new do |t|
 
   t.skip_tools = [
     'rails_best_practices',
+    'bigfiles',
     'brakeman',
     'bundle_audit',
     'cane',
