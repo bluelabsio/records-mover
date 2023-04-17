@@ -12,12 +12,25 @@ RedshiftCopyOptions = Dict[str, Optional[object]]
 
 
 class RedshiftDelimitedRecordsHandler:
+    """
+    Class for handling Redshift delimited records format options.
+    """
+
     def __init__(self,
                  records_format: DelimitedRecordsFormat,
                  fail_if_cant_handle_hint: bool,
                  unhandled_hints: Set[str],
                  fail_if_row_invalid: bool,
                  max_failure_rows: Optional[int]):
+        """
+        Initialize the RedshiftDelimitedRecordsHandler object.
+
+        :param records_format: Delimited records format object.
+        :param fail_if_cant_handle_hint: If True, raise an error if a hint is not handled.
+        :param unhandled_hints: Set of unhandled hints.
+        :param fail_if_row_invalid: If True, fail if a row is invalid.
+        :param max_failure_rows: Maximum number of allowed failure rows.
+        """
         self.redshift_options: RedshiftCopyOptions = dict()
         self.hints: ValidatedRecordsHints = records_format.\
             validate(fail_if_cant_handle_hint=fail_if_cant_handle_hint)
@@ -36,6 +49,9 @@ class RedshiftDelimitedRecordsHandler:
         self.process_header_row()
 
     def process_compression(self):
+        """
+        Processes the compression hint for RedshiftCopyOptions.
+        """
         compression_map = {
             'GZIP': Compression.gzip,
             'LZO': Compression.lzop,
@@ -50,6 +66,9 @@ class RedshiftDelimitedRecordsHandler:
         quiet_remove(self.unhandled_hints, 'compression')
 
     def process_dateformat(self):
+        """
+        Processes the date format hint for RedshiftCopyOptions.
+        """
         if self.hints.dateformat is None:
             self.redshift_options['date_format'] = 'auto'
         else:
@@ -59,6 +78,9 @@ class RedshiftDelimitedRecordsHandler:
         quiet_remove(self.unhandled_hints, 'dateformat')
 
     def process_encoding(self):
+        """
+        Processes the encoding hint for RedshiftCopyOptions.
+        """
         encoding_map = {
             'UTF8': Encoding.utf8,
             'UTF16': Encoding.utf16,
@@ -76,10 +98,16 @@ class RedshiftDelimitedRecordsHandler:
         quiet_remove(self.unhandled_hints, 'encoding')
 
     def process_quotechar(self):
+        """
+        Processes the quote character hint for RedshiftCopyOptions.
+        """
         self.redshift_options['quote'] = self.hints.quotechar
         quiet_remove(self.unhandled_hints, 'quotechar')
 
     def process_quoting(self):
+        """
+        Processes the quoting hint for RedshiftCopyOptions.
+        """
         if self.hints.quoting == 'minimal':
             if self.hints.escape is not None:
                 cant_handle_hint(self.fail_if_cant_handle_hint,
@@ -119,50 +147,61 @@ class RedshiftDelimitedRecordsHandler:
         quiet_remove(self.unhandled_hints, 'doublequote')
 
     def process_temporal_info(self):
+        """
+        Processes the datetime format hints for RedshiftCopyOptions.
+
+        NOTES:
+        After testing, Redshift's date/time parsing doesn't actually
+        support timezone parsing if you give it configuration - as
+        documented below, it doesn't accept a time zone as part of
+        the format string, and in experimentation, it silently drops
+        the offset when data into a timestamptz field if you specify
+        one directly.
+
+        Redshift doesn't support time-only fields, so these will
+        come in as strings regardless.
+
+        Its automatic parser seems to be smarter, though, and is
+        likely to handle a variety of formats:
+
+        https://docs.aws.amazon.com/redshift/latest/dg/automatic-recognition.html
+
+        The Redshift auto parser seems to take a good handling
+        at our various supported formats, so let's give it a
+        shot if we're not able to specify a specific format due
+        to the Redshift timestamptz limitation:
+
+        analytics=> create table formattest (test char(32));
+        CREATE TABLE
+        analytics=> insert into formattest values('2018-01-01 12:34:56');
+        INSERT 0 1
+        analytics=> insert into formattest values('01/02/18 15:34');
+        INSERT 0 1
+        analytics=> insert into formattest values('2018-01-02 15:34:12');
+        INSERT 0 1
+        analytics=> insert into formattest values('2018-01-02 10:34 PM');
+        INSERT 0 1
+        analytics=> select test, cast(test as timestamp) as timestamp,
+                    cast(test as date) as date from formattest;
+
+                        test               |      timestamp      |    date
+        ----------------------------------+---------------------+------------
+            2018-01-01 12:34:56              | 2018-01-01 12:34:56 | 2018-01-01
+            01/02/18 15:34                   | 2018-01-02 15:34:00 | 2018-01-02
+            2018-01-02 15:34:12              | 2018-01-02 15:34:12 | 2018-01-02
+            2018-01-02 10:34 PM              | 2018-01-02 22:34:00 | 2018-01-02
+        (4 rows)
+
+        analytics=>
+
+        """
         if self.hints.datetimeformat is None:
             self.redshift_options['time_format'] = 'auto'
         else:
-            # After testing, Redshift's date/time parsing doesn't actually
-            # support timezone parsing if you give it configuration - as
-            # documented below, it doesn't accept a time zone as part of
-            # the format string, and in experimentation, it silently drops
-            # the offset when data into a timestamptz field if you specify
-            # one directly.
-            #
-            # Its automatic parser seems to be smarter, though, and is
-            # likely to handle a variety of formats:
-            #
-            # https://docs.aws.amazon.com/redshift/latest/dg/automatic-recognition.html
+
             if self.hints.datetimeformat != (self
                                              .hints
                                              .datetimeformattz):
-                # The Redshift auto parser seems to take a good handling
-                # at our various supported formats, so let's give it a
-                # shot if we're not able to specify a specific format due
-                # to the Redshift timestamptz limitation:
-                #
-                # analytics=> create table formattest (test char(32));
-                # CREATE TABLE
-                # analytics=> insert into formattest values('2018-01-01 12:34:56');
-                # INSERT 0 1
-                # analytics=> insert into formattest values('01/02/18 15:34');
-                # INSERT 0 1
-                # analytics=> insert into formattest values('2018-01-02 15:34:12');
-                # INSERT 0 1
-                # analytics=> insert into formattest values('2018-01-02 10:34 PM');
-                # INSERT 0 1
-                # analytics=> select test, cast(test as timestamp) as timestamp,
-                #             cast(test as date) as date from formattest;
-                #
-                #                test               |      timestamp      |    date
-                # ----------------------------------+---------------------+------------
-                #  2018-01-01 12:34:56              | 2018-01-01 12:34:56 | 2018-01-01
-                #  01/02/18 15:34                   | 2018-01-02 15:34:00 | 2018-01-02
-                #  2018-01-02 15:34:12              | 2018-01-02 15:34:12 | 2018-01-02
-                #  2018-01-02 10:34 PM              | 2018-01-02 22:34:00 | 2018-01-02
-                # (4 rows)
-                #
-                # analytics=>
                 self.redshift_options['time_format'] = 'auto'
             else:
                 self.redshift_options['time_format'] = (self
@@ -170,21 +209,25 @@ class RedshiftDelimitedRecordsHandler:
                                                         .datetimeformat)
         quiet_remove(self.unhandled_hints, 'datetimeformat')
         quiet_remove(self.unhandled_hints, 'datetimeformattz')
-        # Redshift doesn't support time-only fields, so these will
-        # come in as strings regardless.
+
         quiet_remove(self.unhandled_hints, 'timeonlyformat')
 
     def process_max_failure_rows(self):
+        """
+        Processes the max failure rows and fail_if_row_invalid options for RedshiftCopyOptions.
+        """
         if self.max_failure_rows is not None:
             self.redshift_options['max_error'] = (self
                                                   .max_failure_rows)
         elif self.fail_if_row_invalid:
             self.redshift_options['max_error'] = 0
         else:
-            # max allowed value
             self.redshift_options['max_error'] = 100000
 
     def process_records_terminator(self):
+        """
+        Processes the record terminator hint for RedshiftCopyOptions.
+        """
         if self.hints.record_terminator is not None and \
                 self.hints.record_terminator != "\n":
             cant_handle_hint(self.fail_if_cant_handle_hint,
@@ -192,6 +235,9 @@ class RedshiftDelimitedRecordsHandler:
         quiet_remove(self.unhandled_hints, 'record-terminator')
 
     def process_header_row(self):
+        """
+        Processes the header row hint for RedshiftCopyOptions.
+        """
         if self.hints.header_row:
             self.redshift_options['ignore_header'] = 1
         else:
@@ -204,7 +250,16 @@ def redshift_copy_options(unhandled_hints: Set[str],
                           fail_if_cant_handle_hint: bool,
                           fail_if_row_invalid: bool,
                           max_failure_rows: Optional[int]) -> RedshiftCopyOptions:
+    """
+    Returns RedshiftCopyOptions based on the given parameters.
 
+    :param unhandled_hints: Set of unhandled hints.
+    :param records_format: Records format object.
+    :param fail_if_cant_handle_hint: If True, raise an error if a hint is not handled.
+    :param fail_if_row_invalid: If True, fail if a row is invalid.
+    :param max_failure_rows: Maximum number of allowed failure rows.
+    :return: A dictionary of RedshiftCopyOptions.
+    """
     if isinstance(records_format, AvroRecordsFormat):
         redshift_options: RedshiftCopyOptions = dict()
         redshift_options['format'] = Format.avro
