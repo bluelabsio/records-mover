@@ -25,6 +25,15 @@ class RedshiftDelimitedRecordsHandler:
         self.fail_if_cant_handle_hint = fail_if_cant_handle_hint
         self.fail_if_row_invalid = fail_if_row_invalid
         self.max_failure_rows = max_failure_rows
+        self.process_compression()
+        self.process_dateformat()
+        self.process_encoding()
+        self.process_quotechar()
+        self.process_quoting()
+        self.process_temporal_info()
+        self.process_max_failure_rows()
+        self.process_records_terminator()
+        self.process_header_row()
 
     def process_compression(self):
         compression_map = {
@@ -35,7 +44,7 @@ class RedshiftDelimitedRecordsHandler:
         }
         compression = compression_map.get(self.hints.compression)
         if compression is None and self.hints.compression is not None:
-            _assert_never(self.hints.compression)  # type: ignore
+            _assert_never(self.hints.compression)
         else:
             self.redshift_options['compression'] = compression
         quiet_remove(self.unhandled_hints, 'compression')
@@ -206,15 +215,5 @@ def redshift_copy_options(unhandled_hints: Set[str],
             max_failure_rows)
     else:
         raise NotImplementedError(f"Teach me how to COPY to {records_format}")
-
-    redshift_delimited_records_handler.process_compression()
-    redshift_delimited_records_handler.process_dateformat()
-    redshift_delimited_records_handler.process_encoding()
-    redshift_delimited_records_handler.process_quotechar()
-    redshift_delimited_records_handler.process_quoting()
-    redshift_delimited_records_handler.process_temporal_info()
-    redshift_delimited_records_handler.process_max_failure_rows()
-    redshift_delimited_records_handler.process_records_terminator()
-    redshift_delimited_records_handler.process_header_row()
 
     return redshift_delimited_records_handler.redshift_options
