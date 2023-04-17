@@ -74,7 +74,7 @@ class FileobjTarget(SupportsMoveFromDataframes):
             move_count = write_dfs(text_fileobj)
             text_fileobj.detach()
         else:
-            with NamedTemporaryFile(prefix='mover_fileobj_target') as output_file:
+            with NamedTemporaryFile(prefix='mover_fileobj_target') as output_file: # noqa
                 move_count = write_dfs(output_file.name)
                 with open(output_file.name, "rb") as output_fileobj:
                     copyfileobj(output_fileobj, self.fileobj)  # type: ignore
