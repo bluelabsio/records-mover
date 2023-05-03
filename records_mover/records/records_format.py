@@ -152,7 +152,7 @@ class DelimitedRecordsFormat(BaseRecordsFormat):
             format_driven_hints['quotechar'] = '"'
             format_driven_hints['header-row'] = True
             format_driven_hints['datetimeformat'] = 'YYYY-MM-DD HH:MI:SS'
-            format_driven_hints['datetimeformattz'] = 'YYYY-MM-DD HH:MI:SS'
+            format_driven_hints['datetimeformattz'] = 'YYYY-MM-DD HH:MI:SSOF'
         elif self.variant == 'bluelabs':
             format_driven_hints['field-delimiter'] = ','
             format_driven_hints['escape'] = '\\'
