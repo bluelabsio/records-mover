@@ -14,7 +14,7 @@ class TestToCsvOptions(unittest.TestCase):
     def test_datetimeformat(self) -> None:
         known_failures: Set[str] = set()
         expectations = {
-            'YYYY-MM-DD HH:MI:SSOF': '%Y-%m-%d %H:%M:%S.%f%z',
+            'YYYY-MM-DD HH:MI:SSOF': '%Y-%m-%d %H:%M:%S.%f%Z',
             'YYYY-MM-DD HH:MI:SS': '%Y-%m-%d %H:%M:%S.%f',
             'YYYY-MM-DD HH24:MI:SSOF': '%Y-%m-%d %H:%M:%S.%f%z',
             'MM/DD/YY HH24:MI': '%m/%d/%y %H:%M',
