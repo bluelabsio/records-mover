@@ -40,7 +40,7 @@ def load_job_config(unhandled_hints: Set[str],
     # create_disposition: Specifies behavior for creating tables.
     #
     # Rely on prep.py in records/ to create the table.
-    config.autodetect = False
+    config.autodetect = True
     config.create_disposition = CreateDisposition.CREATE_NEVER
 
     # destination_encryption_configuration: Custom encryption configuration for
