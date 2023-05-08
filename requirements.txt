@@ -5,19 +5,5 @@ twine
 flake8
 # https://github.com/pallets/markupsafe/issues/284
 markupsafe==2.0.1
-# https://github.com/pandas-dev/pandas/pull/45749
-pandas>=1.1.5,<2
 google-cloud-storage
 boto3
-
-# updating this line to see if this changes checksum
-# this is pre-release, but seems to work!  Let's keep it pinned to a
-# commit until they make a release, just in case they break
-# compatibility.  Feel free to try to update!
-#
-# Note: it looks like numpy 1.20 is likely to roll these in natively
-# without a need for a separate stub package:
-#
-#  https://github.com/numpy/numpy/blob/master/doc/release/upcoming_changes/16558.new_feature.rst
-#  https://github.com/numpy/numpy/pull/16558
-git+https://github.com/numpy/numpy-stubs.git@be9a479#egg=numpy-stubs
