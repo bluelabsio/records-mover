@@ -6,7 +6,7 @@ from records_mover.db import connect
 class TestConnect(unittest.TestCase):
     @patch('records_mover.db.connect.db_facts_from_lpass')
     @patch('records_mover.db.connect.sa.create_engine')
-    @patch('records_mover.db.connect.sa.engine.url.URL')
+    @patch('records_mover.db.connect.sa.engine.url.URL.create')
     def test_engine_from_lpass_entry(self,
                                      mock_url,
                                      mock_create_engine,
