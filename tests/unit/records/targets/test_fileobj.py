@@ -42,7 +42,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             encoding='UTF8',
                                             escapechar='\\',
                                             header=False,
-                                            line_terminator='\n',
+                                            lineterminator='\n',
                                             quotechar='"',
                                             quoting=1,
                                             sep=',')
@@ -54,7 +54,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             encoding='UTF8',
                                             escapechar='\\',
                                             header=False,
-                                            line_terminator='\n',
+                                            lineterminator='\n',
                                             quotechar='"',
                                             quoting=1,
                                             sep=',')
@@ -96,7 +96,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             encoding='UTF8',
                                             escapechar='\\',
                                             header=True,
-                                            line_terminator='\n',
+                                            lineterminator='\n',
                                             quotechar='"',
                                             quoting=1,
                                             sep=',')
@@ -108,7 +108,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             encoding='UTF8',
                                             escapechar='\\',
                                             header=False,
-                                            line_terminator='\n',
+                                            lineterminator='\n',
                                             quotechar='"',
                                             quoting=1,
                                             sep=',')
@@ -150,7 +150,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             encoding='UTF8',
                                             escapechar='\\',
                                             header=False,
-                                            line_terminator='\n',
+                                            lineterminator='\n',
                                             quotechar='"',
                                             quoting=1,
                                             sep=',')
@@ -163,7 +163,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             encoding='UTF8',
                                             escapechar='\\',
                                             header=False,
-                                            line_terminator='\n',
+                                            lineterminator='\n',
                                             quotechar='"',
                                             quoting=1,
                                             sep=',')
@@ -205,7 +205,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             encoding='UTF8',
                                             escapechar='\\',
                                             header=True,
-                                            line_terminator='\n',
+                                            lineterminator='\n',
                                             quotechar='"',
                                             quoting=1,
                                             sep=',')
@@ -218,7 +218,7 @@ class TestFileobjTarget(unittest.TestCase):
                                             encoding='UTF8',
                                             escapechar='\\',
                                             header=False,
-                                            line_terminator='\n',
+                                            lineterminator='\n',
                                             quotechar='"',
                                             quoting=1,
                                             sep=',')

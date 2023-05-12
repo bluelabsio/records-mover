@@ -111,7 +111,7 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
     pandas_options['sep'] = hints.field_delimiter
     quiet_remove(unhandled_hints, 'field-delimiter')
 
-    pandas_options['line_terminator'] = hints.record_terminator
+    pandas_options['lineterminator'] = hints.record_terminator
     quiet_remove(unhandled_hints, 'record-terminator')
 
     return pandas_options

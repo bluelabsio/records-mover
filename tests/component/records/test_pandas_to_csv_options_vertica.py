@@ -12,7 +12,7 @@ class TestPandasToCsvOptionsVertica(unittest.TestCase):
             'doublequote': False,
             'encoding': 'UTF8',
             'header': False,
-            'line_terminator': '\x02',
+            'lineterminator': '\x02',
             'quotechar': '"',
             'quoting': 3,
             'sep': '\x01',

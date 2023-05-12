@@ -14,7 +14,7 @@ class TestPandasToCsvOptionsBlueLabs(unittest.TestCase):
             'encoding': 'UTF8',
             'escapechar': '\\',
             'header': False,
-            'line_terminator': '\n',
+            'lineterminator': '\n',
             'quotechar': '"',
             'quoting': 3,
             'sep': ',',

@@ -13,7 +13,7 @@ class TestPandasToCsvOptionsCsv(unittest.TestCase):
             'doublequote': True,
             'encoding': 'UTF8',
             'header': True,
-            'line_terminator': '\n',
+            'lineterminator': '\n',
             'quotechar': '"',
             'quoting': 0,
             'sep': ','
