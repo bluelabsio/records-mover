@@ -38,13 +38,12 @@ class TestPandasReadCsvOptions(unittest.TestCase):
             'doublequote': False,
             'encoding': 'UTF8',
             'engine': 'python',
-            'on_bad_lines': True,
+            'on_bad_lines': 'error',
             'escapechar': '\\',
             'header': None,
             'prefix': 'untitled_',
             'quotechar': '"',
             'quoting': 3,
-            'warn_bad_lines': True,
             'parse_dates': [0, 1, 2, 3],
         }
         processing_instructions = ProcessingInstructions()
@@ -116,11 +115,10 @@ class TestPandasReadCsvOptions(unittest.TestCase):
             'doublequote': True,
             'encoding': 'UTF8',
             'engine': 'python',
-            'on_bad_lines': True,
+            'on_bad_lines': 'error',
             'header': 0,
             'quotechar': '"',
             'quoting': 0,
-            'warn_bad_lines': True,
             'parse_dates': [0, 1, 2, 3],
         }
         processing_instructions = ProcessingInstructions()
@@ -141,13 +139,12 @@ class TestPandasReadCsvOptions(unittest.TestCase):
             'delimiter': '\x01',
             'doublequote': False,
             'engine': 'c',
-            'on_bad_lines': True,
+            'on_bad_lines': 'error',
             'header': None,
             'lineterminator': '\x02',
             'prefix': 'untitled_',
             'quotechar': '"',
             'quoting': 3,
-            'warn_bad_lines': True,
             'parse_dates': [0, 1, 2, 3],
         }
         processing_instructions = ProcessingInstructions()
