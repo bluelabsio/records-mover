@@ -630,7 +630,7 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # (deprecated, so not supplying)
 
     #
-    # error_bad_lines : bool, default True
+    # on_bad_lines : bool, default True
     #
     # Lines with too many fields (e.g. a csv line with too many
     # commas) will by default cause an exception to be raised, and no
@@ -638,12 +638,12 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # will dropped from the DataFrame that is returned.
     #
 
-    pandas_options['error_bad_lines'] = processing_instructions.fail_if_row_invalid
+    pandas_options['on_bad_lines'] = processing_instructions.fail_if_row_invalid
 
     #
     # warn_bad_lines : bool, default True
     #
-    # If error_bad_lines is False, and warn_bad_lines is True, a
+    # If on_bad_lines is False, and warn_bad_lines is True, a
     # warning for each “bad line” will be output.
     #
 
