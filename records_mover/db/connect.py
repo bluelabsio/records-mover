@@ -113,7 +113,7 @@ def create_sqlalchemy_url(db_facts: DBFacts,
 
         return create_bigquery_sqlalchemy_url(db_facts)
     else:
-        return sa.engine.url.URL.create(
+        return sa.engine.url.URL.create(  # type: ignore
             drivername=driver,
             username=username,
             password=db_facts['password'],
