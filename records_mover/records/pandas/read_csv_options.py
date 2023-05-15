@@ -147,29 +147,6 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     #
 
     #
-    # prefix : str, optional
-    #
-    # Prefix to add to column numbers when no header, e.g. ‘X’ for X0, X1,
-    #
-
-    #
-    # Not sure this actually does anything - when loading a CSV format
-    # file with an empty final column name - e.g.,
-    # tests/integration/resources/delimited-csv-with-header.csv - the
-    # column still comes out as 'unnamed: 11'ead as 'untitled_11'.
-    #
-    # Leaving this in case a future version of Pandas behaves
-    # better.
-    #
-    if pandas_options['header'] is None:
-        # Pandas only accepts the prefix argument when the
-        # header is marked as missing.
-        #
-        # https://github.com/pandas-dev/pandas/issues/27394
-        # https://github.com/pandas-dev/pandas/pull/31383
-        pandas_options['prefix'] = 'untitled_'
-
-    #
     # mangle_dupe_cols : bool, default True
     #
     # Duplicate columns will be specified as ‘X’, ‘X.1’, …’X.N’,
