@@ -299,6 +299,10 @@ jobs:
         type: boolean
         description: "If true, pass in the env variable specifying an GCS scratch bucket to Records Mover (for BigQuery)"
         default: true
+      pytest_flags:
+        type: string
+        description: "Any flags you'd like to add to the pytest call"
+        default: ""
     environment:
             SQLALCHEMY_SILENCE_UBER_WARNING: 1
     docker:
@@ -333,7 +337,7 @@ jobs:
               # This is set by default in the CircleCI environment
               unset SCRATCH_GCS_URL
             fi
-            with-db <<parameters.db_name>> pytest
+            with-db <<parameters.db_name>> pytest <<parameters.pytest_flags>>
       - store_test_results:
           path: test-reports
       - store_artifacts:
@@ -632,6 +636,7 @@ workflows:
           numpy_version: "<1.24"
           context: slack-secrets
           db_name: demo-itest
+          pytest_flags: "-W default::FutureWarning"
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
