@@ -6,6 +6,8 @@ from ..records_format import DelimitedRecordsFormat
 from records_mover.records.schema import RecordsSchema
 import logging
 from typing import Set, Dict, Any
+from packaging import version
+import pandas as pd
 
 
 logger = logging.getLogger(__name__)
@@ -499,7 +501,10 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # Character to break file into lines. Only valid with C parser.
     #
     if non_standard_record_terminator:
-        pandas_options['lineterminator'] = hints.record_terminator
+        if version.parse(pd.__version__) >= version.parse('1.5.0'):
+            pandas_options['lineterminator'] = hints.record_terminator
+        else:
+            pandas_options['line_terminator'] = hints.record_terminator
     quiet_remove(unhandled_hints, 'record-terminator')
 
     #

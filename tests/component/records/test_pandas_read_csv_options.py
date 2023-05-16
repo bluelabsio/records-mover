@@ -4,6 +4,8 @@ from records_mover.records.pandas import pandas_read_csv_options
 from records_mover.records.processing_instructions import ProcessingInstructions
 from records_mover.records.records_format import DelimitedRecordsFormat
 from records_mover.records.schema import RecordsSchema
+from packaging import version
+import pandas as pd
 
 
 class TestPandasReadCsvOptions(unittest.TestCase):
@@ -131,19 +133,34 @@ class TestPandasReadCsvOptions(unittest.TestCase):
 
     def test_pandas_read_csv_options_vertica(self):
         self.maxDiff = None
-        expected = {
-            'dayfirst': False,
-            'compression': None,
-            'delimiter': '\x01',
-            'doublequote': False,
-            'engine': 'c',
-            'on_bad_lines': 'error',
-            'header': None,
-            'lineterminator': '\x02',
-            'quotechar': '"',
-            'quoting': 3,
-            'parse_dates': [0, 1, 2, 3],
-        }
+        if version.parse(pd.__version__) >= version.parse('1.5.0'):
+            expected = {
+                'dayfirst': False,
+                'compression': None,
+                'delimiter': '\x01',
+                'doublequote': False,
+                'engine': 'c',
+                'on_bad_lines': 'error',
+                'header': None,
+                'lineterminator': '\x02',
+                'quotechar': '"',
+                'quoting': 3,
+                'parse_dates': [0, 1, 2, 3],
+            }
+        else:
+            expected = {
+                'dayfirst': False,
+                'compression': None,
+                'delimiter': '\x01',
+                'doublequote': False,
+                'engine': 'c',
+                'on_bad_lines': 'error',
+                'header': None,
+                'line_terminator': '\x02',
+                'quotechar': '"',
+                'quoting': 3,
+                'parse_dates': [0, 1, 2, 3],
+            }
         processing_instructions = ProcessingInstructions()
         records_format = DelimitedRecordsFormat(hints=vertica_format_hints)
         unhandled_hints = set(records_format.hints)

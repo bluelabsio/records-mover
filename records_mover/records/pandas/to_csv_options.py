@@ -6,6 +6,8 @@ from ..records_format import DelimitedRecordsFormat
 from records_mover.mover_types import _assert_never
 import logging
 from typing import Set, Dict
+from packaging import version
+import pandas as pd
 
 
 logger = logging.getLogger(__name__)
@@ -111,7 +113,10 @@ def pandas_to_csv_options(records_format: DelimitedRecordsFormat,
     pandas_options['sep'] = hints.field_delimiter
     quiet_remove(unhandled_hints, 'field-delimiter')
 
-    pandas_options['lineterminator'] = hints.record_terminator
+    if version.parse(pd.__version__) >= version.parse('1.5.0'):
+        pandas_options['lineterminator'] = hints.record_terminator
+    else:
+        pandas_options['line_terminator'] = hints.record_terminator
     quiet_remove(unhandled_hints, 'record-terminator')
 
     return pandas_options
