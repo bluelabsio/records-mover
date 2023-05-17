@@ -23,6 +23,8 @@ class DBDriver(metaclass=ABCMeta):
         self.db = db
         self.db_engine = db.engine
         self.meta = MetaData()
+        self.meta.create_all(self.db_engine)
+        self.meta.reflect(self.db_engine)
 
     def has_table(self, schema: str, table: str) -> bool:
         return self.db.dialect.has_table(self.db, table_name=table, schema=schema)

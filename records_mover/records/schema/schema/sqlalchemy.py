@@ -16,14 +16,21 @@ def schema_to_schema_sql(records_schema: 'RecordsSchema',
                          driver: 'DBDriver',
                          schema_name: str,
                          table_name: str) -> str:
-    meta = MetaData()
-    columns = [f.to_sqlalchemy_column(driver) for f in records_schema.fields]
-    table = Table(table_name, meta,
-                  *columns,
-                  schema=schema_name)
     db = None
     if driver is not None:
         db = driver.db
+    db_engine = None
+    if db is not None:
+        db_engine = db.engine
+    meta = MetaData()
+    meta.create_all(db_engine)
+    meta.reflect(db_engine)
+    columns = [f.to_sqlalchemy_column(driver) for f in records_schema.fields]
+
+    table = Table(table_name, meta,
+                  *columns,
+                  schema=schema_name,
+                  autoload_with=db_engine)
     return str(CreateTable(table, bind=db))
 
 
