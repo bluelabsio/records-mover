@@ -30,7 +30,7 @@ class DBDriver(metaclass=ABCMeta):
     def table(self,
               schema: str,
               table: str) -> Table:
-        return Table(table, self.meta, schema=schema, autoload=True, autoload_with=self.db_engine)
+        return Table(table, self.meta, schema=schema, autoload_with=self.db_engine)
 
     def schema_sql(self,
                    schema: str,

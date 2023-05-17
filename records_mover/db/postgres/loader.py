@@ -58,7 +58,6 @@ class PostgresLoader(LoaderFromFileobj):
         table_obj = Table(table,
                           self.meta,
                           schema=schema,
-                          autoload=True,
                           autoload_with=self.db)
 
         with self.db.engine.begin() as conn:

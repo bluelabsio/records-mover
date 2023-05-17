@@ -57,7 +57,6 @@ class TestPostgresLoader(unittest.TestCase):
         mock_Table.assert_called_with(mock_table,
                                       self.mock_meta,
                                       schema=mock_schema,
-                                      autoload=True,
                                       autoload_with=self.mock_db)
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
         mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_ORDER_STYLE')
@@ -110,7 +109,6 @@ class TestPostgresLoader(unittest.TestCase):
         mock_Table.assert_called_with(mock_table,
                                       self.mock_meta,
                                       schema=mock_schema,
-                                      autoload=True,
                                       autoload_with=self.mock_db)
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
         mock_quote_value.assert_called_with(mock_conn, 'ISO, MDY')
@@ -172,7 +170,6 @@ class TestPostgresLoader(unittest.TestCase):
         mock_Table.assert_called_with(mock_table,
                                       self.mock_meta,
                                       schema=mock_schema,
-                                      autoload=True,
                                       autoload_with=self.mock_db)
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
         mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_ORDER_STYLE')

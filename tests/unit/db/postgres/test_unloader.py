@@ -55,7 +55,6 @@ class TestPostgresUnloader(unittest.TestCase):
         mock_Table.assert_called_with(mock_table,
                                       ANY,
                                       schema=mock_schema,
-                                      autoload=True,
                                       autoload_with=self.mock_db)
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
         mock_quote_value.assert_called_with(mock_conn, 'DATE_OUTPUT_STYLE, DATE_ORDER_STYLE')
@@ -112,7 +111,6 @@ class TestPostgresUnloader(unittest.TestCase):
         mock_Table.assert_called_with(mock_table,
                                       ANY,
                                       schema=mock_schema,
-                                      autoload=True,
                                       autoload_with=self.mock_db)
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
         mock_quote_value.assert_called_with(mock_conn, 'DATE_OUTPUT_STYLE, MDY')

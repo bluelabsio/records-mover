@@ -66,7 +66,7 @@ class RedshiftDBDriver(DBDriver):
                 # There was some hang-wringing when they added it originally:
                 #  https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/commit/
                 #      94723ec6437c5e5197fcf785845499e81640b167
-                return Table(table, self.meta, schema=schema, autoload=True, autoload_with=conn)
+                return Table(table, self.meta, schema=schema, autoload_with=conn)
 
     def set_grant_permissions_for_groups(self, schema_name: str, table: str,
                                          groups: Dict[str, List[str]],

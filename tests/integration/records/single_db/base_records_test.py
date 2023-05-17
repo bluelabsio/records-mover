@@ -74,7 +74,7 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         self.fixture.tear_down()
 
     def table(self, schema, table):
-        return Table(table, self.meta, schema=schema, autoload=True, autoload_with=self.engine)
+        return Table(table, self.meta, schema=schema, autoload_with=self.engine)
 
     def variant_has_header(self, variant):
         return variant in ['csv', 'bigquery']
