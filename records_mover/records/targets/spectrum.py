@@ -118,7 +118,7 @@ class SpectrumRecordsTarget(SupportsRecordsDirectory):
                       prefixes=["EXTERNAL"],
                       *columns,
                       schema=self.schema_name)
-        schema_sql = str(CreateTable(table, bind=self.driver.db_engine))
+        schema_sql = str(CreateTable(table))
         table_properties_clause = ''
         if num_rows_loaded is not None:
             table_properties_clause = f"\nTABLE PROPERTIES ('numRows'='{num_rows_loaded}')"
