@@ -115,7 +115,7 @@ jobs:
     docker:
       - image: cimg/python:<<parameters.python_version>>
     environment:
-            SQLALCHEMY_SILENCE_UBER_WARNING: 1
+            SQLALCHEMY_WARN_20: 1
     steps:
       - checkout
       - add_ssh_keys:
