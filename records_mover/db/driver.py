@@ -30,17 +30,7 @@ class DBDriver(metaclass=ABCMeta):
     def table(self,
               schema: str,
               table: str) -> Table:
-        with self.db_engine.connect() as connection:
-            # create tables, requires explicit begin and/or commit:
-            with connection.begin():
-                self.meta.create_all(connection)
-
-            # reflect all tables
-            self.meta.reflect(connection)
-
-            # reflect individual table
-            table_obj = Table(table, self.meta, schema=schema, autoload_with=connection)
-        return table_obj
+        return Table(table, self.meta, schema=schema, autoload_with=self.db_engine)
 
     def schema_sql(self,
                    schema: str,
