@@ -35,7 +35,7 @@ commands:
           name: Install python deps in venv
           environment:
             PYENV_VERSION: <<parameters.python_version>>
-            SQLALCHEMY_WARN_20=1
+            SQLALCHEMY_WARN_20: 1
           command: |
             if [ -f venv/bin/activate ]
             then
