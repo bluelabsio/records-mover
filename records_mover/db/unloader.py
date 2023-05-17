@@ -13,10 +13,7 @@ class Unloader(metaclass=ABCMeta):
     def __init__(self,
                  db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]) -> None:
         self.db = db
-        self.db_engine = db.engine
         self.meta = MetaData()
-        self.meta.create_all(self.db_engine)
-        self.meta.reflect(self.db_engine)
 
     @abstractmethod
     def unload(self,

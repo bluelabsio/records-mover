@@ -103,8 +103,6 @@ class SpectrumRecordsTarget(SupportsRecordsDirectory):
         assert records_schema is not None  # just written before this was called
 
         meta = MetaData()
-        meta.create_all(self.driver.db_engine)
-        meta.reflect(self.driver.db_engine)
         columns = [f.to_sqlalchemy_column(self.driver) for f in records_schema.fields]
         for column in columns:
             if isinstance(column.type, sqlalchemy.sql.sqltypes.Numeric) and column.type.asdecimal:
@@ -119,8 +117,7 @@ class SpectrumRecordsTarget(SupportsRecordsDirectory):
         table = Table(self.table_name, meta,
                       prefixes=["EXTERNAL"],
                       *columns,
-                      schema=self.schema_name,
-                      autoload_with=self.driver.db_engine)
+                      schema=self.schema_name)
         schema_sql = str(CreateTable(table, bind=self.driver.db_engine))
         table_properties_clause = ''
         if num_rows_loaded is not None:

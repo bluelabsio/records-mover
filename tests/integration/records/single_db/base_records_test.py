@@ -67,8 +67,6 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         logger.debug("Initialized class!")
 
         self.meta = MetaData()
-        self.meta.create_all(self.engine)
-        self.meta.reflect(self.engine)
         self.records = self.session.records
 
     def tearDown(self):
