@@ -35,7 +35,7 @@ commands:
           name: Install python deps in venv
           environment:
             PYENV_VERSION: <<parameters.python_version>>
-            SQLALCHEMY_SILENCE_UBER_WARNING: 1
+            SQLALCHEMY_SILENCE_UBER_WARNING: 0
           command: |
             if [ -f venv/bin/activate ]
             then
@@ -115,7 +115,7 @@ jobs:
     docker:
       - image: cimg/python:<<parameters.python_version>>
     environment:
-            SQLALCHEMY_SILENCE_UBER_WARNING: 1
+            SQLALCHEMY_SILENCE_UBER_WARNING: 0
     steps:
       - checkout
       - add_ssh_keys:
@@ -189,7 +189,7 @@ jobs:
         type: string
         description: "Command to run in records-mover venv"
     environment:
-            SQLALCHEMY_SILENCE_UBER_WARNING: 1
+            SQLALCHEMY_SILENCE_UBER_WARNING: 0
     docker:
       - image: cimg/python:<<parameters.python_version>>
       - image: jbfavre/vertica:8.1.1-16_centos-7
@@ -304,7 +304,7 @@ jobs:
         description: "Any flags you'd like to add to the pytest call"
         default: ""
     environment:
-            SQLALCHEMY_SILENCE_UBER_WARNING: 1
+            SQLALCHEMY_SILENCE_UBER_WARNING: 0
     docker:
       - image: cimg/python:<<parameters.python_version>>
     steps:
@@ -362,7 +362,7 @@ jobs:
     docker:
       - image: cimg/python:<<parameters.python_version>>
     environment:
-            SQLALCHEMY_SILENCE_UBER_WARNING: 1
+            SQLALCHEMY_SILENCE_UBER_WARNING: 0
     steps:
       - checkout
       - installvenv:
@@ -413,7 +413,7 @@ jobs:
     docker:
       - image: cimg/python:3.9
     environment:
-      SQLALCHEMY_SILENCE_UBER_WARNING: 1
+      SQLALCHEMY_SILENCE_UBER_WARNING: 0
     steps:
       - checkout
       - installvenv:
