@@ -21,7 +21,10 @@ def schema_to_schema_sql(records_schema: 'RecordsSchema',
     table = Table(table_name, meta,
                   *columns,
                   schema=schema_name)
-    return str(CreateTable(table))
+    db = None
+    if driver is not None:
+        db = driver.db
+    return str(CreateTable(table, bind=db))
 
 
 def schema_from_db_table(schema_name: str,

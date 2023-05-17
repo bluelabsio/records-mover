@@ -83,7 +83,7 @@ class TestSpectrum(unittest.TestCase):
         mock_field.to_sqlalchemy_column.assert_called_with(self.mock_driver)
         mock_Table.assert_called_with('mytable', mock_meta,
                                       *mock_columns, prefixes=['EXTERNAL'], schema='myschema')
-        mock_CreateTable.assert_called_with(mock_table)
+        mock_CreateTable.assert_called_with(mock_table, bind=self.mock_driver.db_engine)
         mock_cursor.execution_options.assert_called_with(isolation_level='AUTOCOMMIT')
         mock_cursor.execute.assert_called_with("SOME GENERATED CREATE TABLES STATEMENT "
                                                "STORED AS PARQUET\n"

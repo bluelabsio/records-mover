@@ -42,7 +42,7 @@ class DBDriver(metaclass=ABCMeta):
         """
         # http://docs.sqlalchemy.org/en/latest/core/reflection.html
         table_obj = self.table(schema, table)
-        return str(CreateTable(table_obj))
+        return str(CreateTable(table_obj, bind=self.db))
 
     def varchar_length_is_in_chars(self) -> bool:
         """True if the 'n' in VARCHAR(n) is represented in natural language
