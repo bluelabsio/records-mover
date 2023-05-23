@@ -44,18 +44,6 @@ def stream_csv(filepath_or_buffer: Union[str, IO[bytes]],
         'iterator': True,
         'engine': 'python'
     }
-    if header is None:
-        # Pandas only accepts the prefix argument (which makes for
-        # tidier column names when otherwise not provided) when the
-        # header is explicitly marked as missing, not when it's
-        # available or even when we ask Pandas to infer it.  Bummer,
-        # as this means that when Pandas infers that there's no
-        # header, the column names will end up different than folks
-        # explicitly tell records mover that there is no header.
-        #
-        # https://github.com/pandas-dev/pandas/issues/27394
-        # https://github.com/pandas-dev/pandas/pull/31383
-        kwargs['prefix'] = 'untitled_'
     if 'quoting' in hints:
         quoting = hints['quoting']
         kwargs['quoting'] = pandas_quoting_from_hint[quoting]

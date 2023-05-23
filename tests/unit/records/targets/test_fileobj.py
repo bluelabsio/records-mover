@@ -3,6 +3,8 @@ from records_mover.records.targets.fileobj import FileobjTarget
 from records_mover.records.results import MoveResult
 from records_mover.records.records_format import DelimitedRecordsFormat
 from mock import patch, Mock, ANY
+from packaging import version
+import pandas as pd
 
 
 class TestFileobjTarget(unittest.TestCase):
@@ -34,30 +36,58 @@ class TestFileobjTarget(unittest.TestCase):
         out = fileobj_target.move_from_dataframes_source(mock_dfs_source,
                                                          mock_processing_instructions)
         mock_text_fileobj = mock_io.TextIOWrapper.return_value
-        mock_df_1.to_csv.assert_called_with(index=mock_dfs_source.include_index,
-                                            path_or_buf=mock_text_fileobj,
-                                            mode="a",
-                                            date_format='%Y-%m-%d %H:%M:%S.%f%z',
-                                            doublequote=False,
-                                            encoding='UTF8',
-                                            escapechar='\\',
-                                            header=False,
-                                            line_terminator='\n',
-                                            quotechar='"',
-                                            quoting=1,
-                                            sep=',')
-        mock_df_2.to_csv.assert_called_with(index=mock_dfs_source.include_index,
-                                            path_or_buf=mock_text_fileobj,
-                                            mode="a",
-                                            date_format='%Y-%m-%d %H:%M:%S.%f%z',
-                                            doublequote=False,
-                                            encoding='UTF8',
-                                            escapechar='\\',
-                                            header=False,
-                                            line_terminator='\n',
-                                            quotechar='"',
-                                            quoting=1,
-                                            sep=',')
+        if version.parse(pd.__version__) >= version.parse('1.5.0'):
+            mock_df_1.to_csv.assert_called_with(index=mock_dfs_source.include_index,
+                                                path_or_buf=mock_text_fileobj,
+                                                mode="a",
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=False,
+                                                lineterminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
+        else:
+            mock_df_1.to_csv.assert_called_with(index=mock_dfs_source.include_index,
+                                                path_or_buf=mock_text_fileobj,
+                                                mode="a",
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=False,
+                                                line_terminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
+        if version.parse(pd.__version__) >= version.parse('1.5.0'):
+            mock_df_2.to_csv.assert_called_with(index=mock_dfs_source.include_index,
+                                                path_or_buf=mock_text_fileobj,
+                                                mode="a",
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=False,
+                                                lineterminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
+        else:
+            mock_df_2.to_csv.assert_called_with(index=mock_dfs_source.include_index,
+                                                path_or_buf=mock_text_fileobj,
+                                                mode="a",
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=False,
+                                                line_terminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
         self.assertEqual(out, MoveResult(move_count=2, output_urls=None))
 
     @patch('records_mover.records.pandas.prep_df_for_csv_output')
@@ -88,30 +118,58 @@ class TestFileobjTarget(unittest.TestCase):
         out = fileobj_target.move_from_dataframes_source(mock_dfs_source,
                                                          mock_processing_instructions)
         mock_text_fileobj = mock_io.TextIOWrapper.return_value
-        mock_df_1.to_csv.assert_called_with(index=mock_dfs_source.include_index,
-                                            path_or_buf=mock_text_fileobj,
-                                            mode="a",
-                                            date_format='%Y-%m-%d %H:%M:%S.%f%z',
-                                            doublequote=False,
-                                            encoding='UTF8',
-                                            escapechar='\\',
-                                            header=True,
-                                            line_terminator='\n',
-                                            quotechar='"',
-                                            quoting=1,
-                                            sep=',')
-        mock_df_2.to_csv.assert_called_with(index=mock_dfs_source.include_index,
-                                            path_or_buf=mock_text_fileobj,
-                                            mode="a",
-                                            date_format='%Y-%m-%d %H:%M:%S.%f%z',
-                                            doublequote=False,
-                                            encoding='UTF8',
-                                            escapechar='\\',
-                                            header=False,
-                                            line_terminator='\n',
-                                            quotechar='"',
-                                            quoting=1,
-                                            sep=',')
+        if version.parse(pd.__version__) >= version.parse('1.5.0'):
+            mock_df_1.to_csv.assert_called_with(index=mock_dfs_source.include_index,
+                                                path_or_buf=mock_text_fileobj,
+                                                mode="a",
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=True,
+                                                lineterminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
+        else:
+            mock_df_1.to_csv.assert_called_with(index=mock_dfs_source.include_index,
+                                                path_or_buf=mock_text_fileobj,
+                                                mode="a",
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=True,
+                                                line_terminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
+        if version.parse(pd.__version__) >= version.parse('1.5.0'):
+            mock_df_2.to_csv.assert_called_with(index=mock_dfs_source.include_index,
+                                                path_or_buf=mock_text_fileobj,
+                                                mode="a",
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=False,
+                                                lineterminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
+        else:
+            mock_df_2.to_csv.assert_called_with(index=mock_dfs_source.include_index,
+                                                path_or_buf=mock_text_fileobj,
+                                                mode="a",
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=False,
+                                                line_terminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
         self.assertEqual(out, MoveResult(move_count=2, output_urls=None))
 
     @patch('records_mover.records.pandas.prep_df_for_csv_output')
@@ -141,32 +199,62 @@ class TestFileobjTarget(unittest.TestCase):
         mock_prep_df_for_csv_output.side_effect = [mock_df_1, mock_df_2]
         out = fileobj_target.move_from_dataframes_source(mock_dfs_source,
                                                          mock_processing_instructions)
-        mock_df_1.to_csv.assert_called_with(path_or_buf=ANY,
-                                            index=mock_dfs_source.include_index,
-                                            mode="a",
-                                            compression='gzip',
-                                            date_format='%Y-%m-%d %H:%M:%S.%f%z',
-                                            doublequote=False,
-                                            encoding='UTF8',
-                                            escapechar='\\',
-                                            header=False,
-                                            line_terminator='\n',
-                                            quotechar='"',
-                                            quoting=1,
-                                            sep=',')
-        mock_df_2.to_csv.assert_called_with(path_or_buf=ANY,
-                                            index=mock_dfs_source.include_index,
-                                            mode="a",
-                                            compression='gzip',
-                                            date_format='%Y-%m-%d %H:%M:%S.%f%z',
-                                            doublequote=False,
-                                            encoding='UTF8',
-                                            escapechar='\\',
-                                            header=False,
-                                            line_terminator='\n',
-                                            quotechar='"',
-                                            quoting=1,
-                                            sep=',')
+        if version.parse(pd.__version__) >= version.parse('1.5.0'):
+            mock_df_1.to_csv.assert_called_with(path_or_buf=ANY,
+                                                index=mock_dfs_source.include_index,
+                                                mode="a",
+                                                compression='gzip',
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=False,
+                                                lineterminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
+        else:
+            mock_df_1.to_csv.assert_called_with(path_or_buf=ANY,
+                                                index=mock_dfs_source.include_index,
+                                                mode="a",
+                                                compression='gzip',
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=False,
+                                                line_terminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
+        if version.parse(pd.__version__) >= version.parse('1.5.0'):
+            mock_df_2.to_csv.assert_called_with(path_or_buf=ANY,
+                                                index=mock_dfs_source.include_index,
+                                                mode="a",
+                                                compression='gzip',
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=False,
+                                                lineterminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
+        else:
+            mock_df_2.to_csv.assert_called_with(path_or_buf=ANY,
+                                                index=mock_dfs_source.include_index,
+                                                mode="a",
+                                                compression='gzip',
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=False,
+                                                line_terminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
         self.assertEqual(out, MoveResult(move_count=2, output_urls=None))
 
     @patch('records_mover.records.pandas.prep_df_for_csv_output')
@@ -196,30 +284,60 @@ class TestFileobjTarget(unittest.TestCase):
         mock_prep_df_for_csv_output.side_effect = [mock_df_1, mock_df_2]
         out = fileobj_target.move_from_dataframes_source(mock_dfs_source,
                                                          mock_processing_instructions)
-        mock_df_1.to_csv.assert_called_with(path_or_buf=ANY,
-                                            index=mock_dfs_source.include_index,
-                                            mode="a",
-                                            compression='gzip',
-                                            date_format='%Y-%m-%d %H:%M:%S.%f%z',
-                                            doublequote=False,
-                                            encoding='UTF8',
-                                            escapechar='\\',
-                                            header=True,
-                                            line_terminator='\n',
-                                            quotechar='"',
-                                            quoting=1,
-                                            sep=',')
-        mock_df_2.to_csv.assert_called_with(path_or_buf=ANY,
-                                            index=mock_dfs_source.include_index,
-                                            mode="a",
-                                            compression='gzip',
-                                            date_format='%Y-%m-%d %H:%M:%S.%f%z',
-                                            doublequote=False,
-                                            encoding='UTF8',
-                                            escapechar='\\',
-                                            header=False,
-                                            line_terminator='\n',
-                                            quotechar='"',
-                                            quoting=1,
-                                            sep=',')
+        if version.parse(pd.__version__) >= version.parse('1.5.0'):
+            mock_df_1.to_csv.assert_called_with(path_or_buf=ANY,
+                                                index=mock_dfs_source.include_index,
+                                                mode="a",
+                                                compression='gzip',
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=True,
+                                                lineterminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
+        else:
+            mock_df_1.to_csv.assert_called_with(path_or_buf=ANY,
+                                                index=mock_dfs_source.include_index,
+                                                mode="a",
+                                                compression='gzip',
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=True,
+                                                line_terminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
+        if version.parse(pd.__version__) >= version.parse('1.5.0'):
+            mock_df_2.to_csv.assert_called_with(path_or_buf=ANY,
+                                                index=mock_dfs_source.include_index,
+                                                mode="a",
+                                                compression='gzip',
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=False,
+                                                lineterminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
+        else:
+            mock_df_2.to_csv.assert_called_with(path_or_buf=ANY,
+                                                index=mock_dfs_source.include_index,
+                                                mode="a",
+                                                compression='gzip',
+                                                date_format='%Y-%m-%d %H:%M:%S.%f%z',
+                                                doublequote=False,
+                                                encoding='UTF8',
+                                                escapechar='\\',
+                                                header=False,
+                                                line_terminator='\n',
+                                                quotechar='"',
+                                                quoting=1,
+                                                sep=',')
         self.assertEqual(out, MoveResult(move_count=2, output_urls=None))

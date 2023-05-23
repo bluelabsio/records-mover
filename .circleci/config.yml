@@ -30,11 +30,12 @@ commands:
         default: ""
     steps:
       - restore_cache:
-          key: deps-v7-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v8-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           environment:
             PYENV_VERSION: <<parameters.python_version>>
+            SQLALCHEMY_SILENCE_UBER_WARNING: 1
           command: |
             if [ -f venv/bin/activate ]
             then
@@ -63,7 +64,7 @@ commands:
               fi
             fi
       - save_cache:
-          key: deps-v6-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v8-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
   wait_for_db:
@@ -113,6 +114,8 @@ jobs:
         description: "Enforce coverage not slipping"
     docker:
       - image: cimg/python:<<parameters.python_version>>
+    environment:
+            SQLALCHEMY_SILENCE_UBER_WARNING: 1
     steps:
       - checkout
       - add_ssh_keys:
@@ -185,6 +188,8 @@ jobs:
       command:
         type: string
         description: "Command to run in records-mover venv"
+    environment:
+            SQLALCHEMY_SILENCE_UBER_WARNING: 1
     docker:
       - image: cimg/python:<<parameters.python_version>>
       - image: jbfavre/vertica:8.1.1-16_centos-7
@@ -294,7 +299,12 @@ jobs:
         type: boolean
         description: "If true, pass in the env variable specifying an GCS scratch bucket to Records Mover (for BigQuery)"
         default: true
-
+      pytest_flags:
+        type: string
+        description: "Any flags you'd like to add to the pytest call"
+        default: ""
+    environment:
+            SQLALCHEMY_SILENCE_UBER_WARNING: 1
     docker:
       - image: cimg/python:<<parameters.python_version>>
     steps:
@@ -327,7 +337,7 @@ jobs:
               # This is set by default in the CircleCI environment
               unset SCRATCH_GCS_URL
             fi
-            with-db <<parameters.db_name>> pytest
+            with-db <<parameters.db_name>> pytest <<parameters.pytest_flags>>
       - store_test_results:
           path: test-reports
       - store_artifacts:
@@ -351,6 +361,8 @@ jobs:
         default: '3.9'
     docker:
       - image: cimg/python:<<parameters.python_version>>
+    environment:
+            SQLALCHEMY_SILENCE_UBER_WARNING: 1
     steps:
       - checkout
       - installvenv:
@@ -400,6 +412,8 @@ jobs:
   cli-extra-test:
     docker:
       - image: cimg/python:3.9
+    environment:
+      SQLALCHEMY_SILENCE_UBER_WARNING: 1
     steps:
       - checkout
       - installvenv:
@@ -622,6 +636,7 @@ workflows:
           numpy_version: "<1.24"
           context: slack-secrets
           db_name: demo-itest
+          pytest_flags: "-W default::FutureWarning"
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/

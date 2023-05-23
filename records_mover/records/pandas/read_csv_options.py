@@ -6,6 +6,8 @@ from ..records_format import DelimitedRecordsFormat
 from records_mover.records.schema import RecordsSchema
 import logging
 from typing import Set, Dict, Any
+from packaging import version
+import pandas as pd
 
 
 logger = logging.getLogger(__name__)
@@ -145,29 +147,6 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     #
     # (better to keep a standard format, no matter how many columsn)
     #
-
-    #
-    # prefix : str, optional
-    #
-    # Prefix to add to column numbers when no header, e.g. ‘X’ for X0, X1,
-    #
-
-    #
-    # Not sure this actually does anything - when loading a CSV format
-    # file with an empty final column name - e.g.,
-    # tests/integration/resources/delimited-csv-with-header.csv - the
-    # column still comes out as 'unnamed: 11'ead as 'untitled_11'.
-    #
-    # Leaving this in case a future version of Pandas behaves
-    # better.
-    #
-    if pandas_options['header'] is None:
-        # Pandas only accepts the prefix argument when the
-        # header is marked as missing.
-        #
-        # https://github.com/pandas-dev/pandas/issues/27394
-        # https://github.com/pandas-dev/pandas/pull/31383
-        pandas_options['prefix'] = 'untitled_'
 
     #
     # mangle_dupe_cols : bool, default True
@@ -522,7 +501,10 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # Character to break file into lines. Only valid with C parser.
     #
     if non_standard_record_terminator:
-        pandas_options['lineterminator'] = hints.record_terminator
+        if version.parse(pd.__version__) >= version.parse('1.5.0'):
+            pandas_options['lineterminator'] = hints.record_terminator
+        else:
+            pandas_options['line_terminator'] = hints.record_terminator
     quiet_remove(unhandled_hints, 'record-terminator')
 
     #
@@ -630,7 +612,7 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # (deprecated, so not supplying)
 
     #
-    # error_bad_lines : bool, default True
+    # on_bad_lines : string default 'error'
     #
     # Lines with too many fields (e.g. a csv line with too many
     # commas) will by default cause an exception to be raised, and no
@@ -638,16 +620,14 @@ def pandas_read_csv_options(records_format: DelimitedRecordsFormat,
     # will dropped from the DataFrame that is returned.
     #
 
-    pandas_options['error_bad_lines'] = processing_instructions.fail_if_row_invalid
+    pandas_options['on_bad_lines'] = 'error' if processing_instructions.fail_if_row_invalid else 'warn'
 
     #
-    # warn_bad_lines : bool, default True
+    #  
     #
-    # If error_bad_lines is False, and warn_bad_lines is True, a
+    # If processing_instructions.fail_if_row_invalid is False, a
     # warning for each “bad line” will be output.
     #
-
-    pandas_options['warn_bad_lines'] = True
 
     #
     # delim_whitespace : bool, default False

@@ -90,7 +90,7 @@ class TestReadCsvOptions(unittest.TestCase):
             fileobj = io.StringIO(create_sample(dateformat))
             df = pandas.read_csv(filepath_or_buffer=fileobj,
                                  **options)
-            timestamp = df['untitled_0'][0]
+            timestamp = df[0][0]
             self.assertEqual(timestamp.year, SAMPLE_YEAR)
             self.assertEqual(timestamp.month, SAMPLE_MONTH)
             self.assertEqual(timestamp.day, SAMPLE_DAY)
@@ -145,7 +145,7 @@ class TestReadCsvOptions(unittest.TestCase):
             fileobj = io.StringIO(datetimetz)
             df = pandas.read_csv(filepath_or_buffer=fileobj,
                                  **options)
-            timestamp = df['untitled_0'][0]
+            timestamp = df[0][0]
             self.assertIsInstance(timestamp, pandas.Timestamp,
                                   f"Pandas did not parse {datetimetz} as a timestamp object")
             self.assertEqual(timestamp.year, SAMPLE_YEAR)
@@ -208,7 +208,7 @@ class TestReadCsvOptions(unittest.TestCase):
             fileobj = io.StringIO(datetimetz)
             df = pandas.read_csv(filepath_or_buffer=fileobj,
                                  **options)
-            timestamp = df['untitled_0'][0]
+            timestamp = df[0][0]
             self.assertIsInstance(timestamp, pandas.Timestamp,
                                   f"Pandas did not parse {datetimetz} as a timestamp object")
             self.assertEqual(timestamp.year, SAMPLE_YEAR)
@@ -249,7 +249,7 @@ class TestReadCsvOptions(unittest.TestCase):
             fileobj = io.StringIO(timeonly)
             df = pandas.read_csv(filepath_or_buffer=fileobj,
                                  **options)
-            timestamp = df['untitled_0'][0]
+            timestamp = df[0][0]
             self.assertIsInstance(timestamp, pandas.Timestamp,
                                   f"Pandas did not parse {timeonly} as a timestamp object")
             self.assertEqual(timestamp.hour, SAMPLE_HOUR)

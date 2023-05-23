@@ -113,13 +113,14 @@ def create_sqlalchemy_url(db_facts: DBFacts,
 
         return create_bigquery_sqlalchemy_url(db_facts)
     else:
-        return sa.engine.url.URL(drivername=driver,
-                                 username=username,
-                                 password=db_facts['password'],
-                                 host=db_facts['host'],
-                                 port=db_facts['port'],
-                                 database=db_facts['database'],
-                                 query=query_for_type.get(db_type))
+        return sa.engine.url.URL.create(  # type: ignore
+            drivername=driver,
+            username=username,
+            password=db_facts['password'],
+            host=db_facts['host'],
+            port=db_facts['port'],
+            database=db_facts['database'],
+            query=query_for_type.get(db_type))
 
 
 def engine_from_lpass_entry(lpass_entry_name: str) -> sa.engine.Engine:

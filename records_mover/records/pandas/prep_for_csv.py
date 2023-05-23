@@ -110,5 +110,5 @@ def prep_df_for_csv_output(df: DataFrame,
                                                     records_format,
                                                     processing_instructions)
         if formatted_series is not None:
-            formatted_df.iloc[:, index] = formatted_series
+            formatted_df[formatted_df.columns[index]] = formatted_series
     return formatted_df
