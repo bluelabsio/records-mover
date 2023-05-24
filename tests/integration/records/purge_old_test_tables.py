@@ -37,7 +37,9 @@ def purge_old_tables(schema_name: str, table_name_prefix: str,
     for table_name in purgable_table_names:
         sql = f"DROP TABLE {quote_schema_and_table(db_engine, schema_name, table_name)}"
         print(sql)
-        db_engine.execute(sql)
+        with db_engine.connect() as connection:
+            with connection.begin():
+                connection.exec_driver_sql(sql)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 import sqlalchemy
 import logging
-from typing import Union, Optional
+from typing import Optional
 from sqlalchemy.sql import text
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ select_load_errors = """
 
 def schema_sql_from_admin_views(schema: str,
                                 table: str,
-                                db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection])\
+                                db: sqlalchemy.engine.Engine)\
         -> Optional[str]:
     # The default behavior in current sqlalchemy driver seems to
     # map "DOUBLE PRECISION" to "DOUBLE_PRECISION", so lean back
@@ -32,12 +32,15 @@ AND tablename = :table_name
 """)
     out: Optional[str]
     try:
-        result = db.execute(sql, schema_name=schema, table_name=table).fetchall()
+        with db.connect() as connection:
+            with connection.begin():
+                result = connection.execute(sql, {'schema_name': schema,
+                                                  'table_name': table}).fetchall()
         if len(result) == 0:
             out = None
         else:
             # First line is a commented-out drop table, don't need that.
-            out = "\n".join(map(lambda r: r['ddl'], result[1:]))
+            out = "\n".join(map(lambda r: r.ddl, result[1:]))
     except sqlalchemy.exc.ProgrammingError:
         logger.debug("Error while generating SQL", exc_info=True)
         out = None

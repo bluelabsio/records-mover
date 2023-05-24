@@ -10,7 +10,7 @@ from ...records.delimited import complain_on_unhandled_hints
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from ..loader import LoaderFromFileobj
-from typing import IO, Union, List, Type
+from typing import IO, List, Type
 import logging
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class VerticaLoader(LoaderFromFileobj):
     def __init__(self,
                  url_resolver: UrlResolver,
-                 db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]) -> None:
+                 db: sqlalchemy.engine.Engine) -> None:
         self.url_resolver = url_resolver
         self.db = db
 

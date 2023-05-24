@@ -9,6 +9,7 @@ from ..records_database_fixture import RecordsDatabaseFixture
 from ..table_validator import RecordsTableValidator
 from ..purge_old_test_tables import purge_old_tables
 
+
 logger = logging.getLogger(__name__)
 
 CURRENT_EPOCH = int(time.time())
@@ -91,7 +92,9 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
 
         quoted_target = quote_schema_and_table(target_engine, target_schema_name, TARGET_TABLE_NAME)
         sql = f"DROP TABLE {quoted_target}"
-        target_engine.execute(sql)
+        with target_engine.connect() as connection:
+            with connection.begin():
+                connection.exec_driver_sql(sql)
 
         records_database_fixture.tear_down()
 

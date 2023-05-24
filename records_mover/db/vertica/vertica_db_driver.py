@@ -4,7 +4,7 @@ from sqlalchemy.sql import text
 from records_mover.db.quoting import quote_schema_and_table
 from sqlalchemy.schema import Table, Column
 import logging
-from typing import Optional, Union, Tuple
+from typing import Optional, Tuple
 from ...url.resolver import UrlResolver
 from ...url.base import BaseDirectoryUrl
 from .loader import VerticaLoader
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class VerticaDBDriver(DBDriver):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
+                 db: sqlalchemy.engine.Engine,
                  url_resolver: UrlResolver,
                  s3_temp_base_loc: Optional[BaseDirectoryUrl] = None,
                  **kwargs: object) -> None:
@@ -42,14 +42,15 @@ class VerticaDBDriver(DBDriver):
     def has_table(self, schema: str, table: str) -> bool:
         try:
             sql = f"SELECT 1 from {quote_schema_and_table(self.db, schema, table)} limit 0;"
-            self.db.execute(sql)
+            self.db.execute(text(sql))
             return True
         except sqlalchemy.exc.ProgrammingError:
             return False
 
     def schema_sql(self, schema: str, table: str) -> str:
         sql = text("SELECT EXPORT_OBJECTS('', :schema_and_table, false)")
-        result = self.db.execute(sql, schema_and_table=f"{schema}.{table}").fetchall()
+        with self.db.connect() as connection:
+            result = connection.execute(sql, {'schema_and_table': f"{schema}.{table}"}).fetchall()
 
         if len(result) == 1:
             return result[0].EXPORT_OBJECTS
@@ -67,14 +68,16 @@ class VerticaDBDriver(DBDriver):
         # https://docs.sqlalchemy.org/en/latest/core/metadata.html#sqlalchemy.schema.Column
         # https://docs.sqlalchemy.org/en/latest/core/reflection.html#
         #    sqlalchemy.engine.reflection.Inspector.get_columns
-        columns = [Column(colinfo['name'],
-                          type_=colinfo['type'],
-                          nullable=colinfo['nullable'],
-                          default=colinfo['default'],
-                          **colinfo.get('attrs', {}))
-                   for colinfo in self.db_engine.dialect.get_columns(self.db_engine,
-                                                                     table,
-                                                                     schema=schema)]
+        with self.db_engine.connect() as connection:
+            with connection.begin():
+                columns = [Column(colinfo['name'],
+                                  type_=colinfo['type'],
+                                  nullable=colinfo['nullable'],
+                                  default=colinfo['default'],
+                                  **colinfo.get('attrs', {}))
+                           for colinfo in self.db_engine.dialect.get_columns(connection,
+                                                                             table,
+                                                                             schema=schema)]
         t = Table(table, self.meta, schema=schema, *columns)
         return t
 

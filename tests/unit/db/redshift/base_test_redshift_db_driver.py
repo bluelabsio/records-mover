@@ -24,7 +24,8 @@ class BaseTestRedshiftDBDriver(unittest.TestCase):
             __add__.return_value = 'myschema.mytable'
         self.redshift_db_driver = RedshiftDBDriver(db=self.mock_db_engine,
                                                    s3_temp_base_loc=self.mock_s3_temp_base_loc)
-
+        self.mock_db_engine.dialect.ddl_compiler.return_value = (
+            '\nCREATE TABLE myschema.mytable (\n)\n\n')
         mock_records_unload_plan = create_autospec(RecordsUnloadPlan)
         mock_records_unload_plan.records_format = create_autospec(DelimitedRecordsFormat)
         mock_records_unload_plan.records_format.format_type = 'delimited'

@@ -15,7 +15,7 @@ from sqlalchemy.dialects import postgresql
 __version__ = '0.5.0'
 
 
-def copy_to(source, dest, engine_or_conn, **flags):
+def copy_to(source, dest, conn, **flags):
     """Export a query or select to a file. For flags, see the PostgreSQL
     documentation at http://www.postgresql.org/docs/9.5/static/sql-copy.html.
 
@@ -24,32 +24,29 @@ def copy_to(source, dest, engine_or_conn, **flags):
         with open('/path/to/file.tsv', 'w') as fp:
             copy_to(select, fp, conn)
 
-        query = session.query(MyModel)
-        with open('/path/to/file/csv', 'w') as fp:
-            copy_to(query, fp, engine, format='csv', null='.')
 
     :param source: SQLAlchemy query or select
     :param dest: Destination file pointer, in write mode
-    :param engine_or_conn: SQLAlchemy engine, connection, or raw_connection
+    :param conn: SQLAlchemy connection
     :param **flags: Options passed through to COPY
 
-    If an existing connection is passed to `engine_or_conn`, it is the caller's
+    If an existing connection is passed to `conn`, it is the caller's
     responsibility to commit and close.
     """
     dialect = postgresql.dialect()
     statement = getattr(source, 'statement', source)
     compiled = statement.compile(dialect=dialect)
-    conn, autoclose = raw_connection_from(engine_or_conn)
-    cursor = conn.cursor()
+    raw_conn, autoclose = raw_connection_from(conn)
+    cursor = raw_conn.cursor()
     query = cursor.mogrify(compiled.string, compiled.params).decode()
     formatted_flags = '({})'.format(format_flags(flags)) if flags else ''
     copy = 'COPY ({}) TO STDOUT {}'.format(query, formatted_flags)
     cursor.copy_expert(copy, dest)
     if autoclose:
-        conn.close()
+        raw_conn.close()
 
 
-def copy_from(source, dest, engine_or_conn, columns=(), **flags):
+def copy_from(source, dest, conn, columns=(), **flags):
     """Import a table from a file. For flags, see the PostgreSQL documentation
     at http://www.postgresql.org/docs/9.5/static/sql-copy.html.
 
@@ -57,16 +54,13 @@ def copy_from(source, dest, engine_or_conn, columns=(), **flags):
         with open('/path/to/file.tsv') as fp:
             copy_from(fp, MyTable, conn)
 
-        with open('/path/to/file.csv') as fp:
-            copy_from(fp, MyModel, engine, format='csv')
-
     :param source: Source file pointer, in read mode
     :param dest: SQLAlchemy model or table
-    :param engine_or_conn: SQLAlchemy engine, connection, or raw_connection
+    :param conn: SQLAlchemy connection
     :param columns: Optional tuple of columns
     :param **flags: Options passed through to COPY
 
-    If an existing connection is passed to `engine_or_conn`, it is the caller's
+    If an existing connection is passed to `conn`, it is the caller's
     responsibility to commit and close.
 
     The `columns` flag can be set to a tuple of strings to specify the column
@@ -74,8 +68,8 @@ def copy_from(source, dest, engine_or_conn, columns=(), **flags):
     postgres to ignore the first line of `source`.
     """
     tbl = dest.__table__ if is_model(dest) else dest
-    conn, autoclose = raw_connection_from(engine_or_conn)
-    cursor = conn.cursor()
+    raw_conn, autoclose = raw_connection_from(conn)
+    cursor = raw_conn.cursor()
     relation = '.'.join('"{}"'.format(part) for part in (tbl.schema, tbl.name) if part)
     formatted_columns = '({})'.format(','.join(columns)) if columns else ''
     formatted_flags = '({})'.format(format_flags(flags)) if flags else ''
@@ -86,20 +80,20 @@ def copy_from(source, dest, engine_or_conn, columns=(), **flags):
     )
     cursor.copy_expert(copy, source)
     if autoclose:
-        conn.commit()
-        conn.close()
+        raw_conn.commit()
+        raw_conn.close()
 
 
-def raw_connection_from(engine_or_conn):
+def raw_connection_from(conn):
     """Extract a raw_connection and determine if it should be automatically closed.
 
     Only connections opened by this package will be closed automatically.
     """
-    if hasattr(engine_or_conn, 'cursor'):
-        return engine_or_conn, False
-    if hasattr(engine_or_conn, 'connection'):
-        return engine_or_conn.connection, False
-    return engine_or_conn.raw_connection(), True
+    if hasattr(conn, 'cursor'):
+        return conn, False
+    if hasattr(conn, 'connection'):
+        return conn.connection, False
+    return conn.raw_connection(), True
 
 
 def format_flags(flags):

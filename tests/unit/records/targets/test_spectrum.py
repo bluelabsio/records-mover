@@ -48,7 +48,9 @@ class TestSpectrum(unittest.TestCase):
                                                        self.target.schema_name,
                                                        self.target.table_name)
         mock_cursor.execution_options.assert_called_with(isolation_level='AUTOCOMMIT')
-        mock_cursor.execute.assert_called_with(f"DROP TABLE IF EXISTS {mock_schema_and_table}")
+        arg = mock_cursor.execute.call_args.args[0]
+        arg_str = str(arg)
+        self.assertEqual(arg_str, f"DROP TABLE IF EXISTS {mock_schema_and_table}")
         self.mock_output_loc.purge_directory.assert_called_with()
 
     @patch('records_mover.records.targets.spectrum.RecordsDirectory')

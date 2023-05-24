@@ -177,79 +177,80 @@ class RecordsTableValidator:
                     "formatstr": "%E4Y-%m-%d %H:%M:%E*S",
                 }
             elif self.target_db_engine.name == 'mysql':
-                select_sql = f"""
+                select_sql = text(f"""
                 SELECT num, numstr, comma, doublequote, quotecommaquote, date, `time`,
                        `timestamp`,
-                       DATE_FORMAT(`timestamp`, '%%Y-%%m-%%d %%H:%%i:%%s.%%f') as timestampstr,
+                       DATE_FORMAT(`timestamp`, '%Y-%m-%d %H:%i:%s.%f') as timestampstr,
                        timestamptz,
-                       DATE_FORMAT(timestamptz, '%%Y-%%m-%%d %%H:%%i:%%s.%%f+00') as timestamptzstr
+                       DATE_FORMAT(timestamptz, '%Y-%m-%d %H:%i:%s.%f+00') as timestamptzstr
                 FROM {schema_name}.{table_name}
-                """
+                """)
             elif self.tc.raw_avro_types_written():
                 # no real date/time column types used, so can't cast types
-                select_sql = f"""
+                select_sql = text(f"""
                 SELECT num, numstr, comma, doublequote, quotecommaquote, date, "time",
                        "timestamp",
                        "timestamp" as timestampstr,
                        timestamptz,
                        timestamptz as timestamptzstr
                 FROM {schema_name}.{table_name}
-                """
+                """)
             else:
-                select_sql = f"""
+                select_sql = text(f"""
                 SELECT num, numstr, comma, doublequote, quotecommaquote, date, "time",
                        "timestamp",
                        to_char("timestamp", 'YYYY-MM-DD HH24:MI:SS.US') as timestampstr,
                        timestamptz, to_char(timestamptz,
                                             'YYYY-MM-DD HH24:MI:SS.US TZ') as timestamptzstr
                 FROM {schema_name}.{table_name}
-                """
+                """)
             out = connection.execute(select_sql, **params)
             ret_all = out.fetchall()
         assert 1 == len(ret_all)
         ret = ret_all[0]
 
-        assert ret['num'] == 123
-        assert ret['numstr'] == '123', ret['numstr']
-        assert ret['comma'] == ','
-        assert ret['doublequote'] == '"'
-        assert ret['quotecommaquote'] == '","'
+        assert ret.num == 123
+        assert ret.numstr == '123', ret.numstr
+        assert ret.comma == ','
+        assert ret.doublequote == '"'
+        assert ret.quotecommaquote == '","'
         if self.tc.raw_avro_types_written():
-            assert ret['date'] == 10957, ret['date']
+            assert ret.date == 10957, ret.date
         else:
-            assert ret['date'] == datetime.date(2000, 1, 1),\
-                f"Expected datetime.date(2000, 1, 1), got {ret['date']}"
+            assert ret.date == datetime.date(2000, 1, 1),\
+                f"Expected datetime.date(2000, 1, 1), got {ret.date}"
 
         if self.tc.raw_avro_types_written():
-            assert ret['time'] == 0, ret['time']
+            assert ret.time == 0, ret.time
         elif self.tc.supports_time_without_date():
             if self.tc.selects_time_types_as_timedelta():
-                assert ret['time'] == datetime.timedelta(0, 0),\
-                    f"Incorrect time: {ret['time']} (of type {type(ret['time'])})"
+                assert ret.time == datetime.timedelta(0, 0),\
+                    f"Incorrect time: {ret.time} (of type {type(ret.time)})"
             else:
-                assert ret['time'] == datetime.time(0, 0),\
-                    f"Incorrect time: {ret['time']} (of type {type(ret['time'])})"
+                assert ret.time == datetime.time(0, 0),\
+                    f"Incorrect time: {ret.time} (of type {type(ret.time)})"
         else:
             # fall back to storing as string
             if load_variant is not None and self.tc.variant_uses_am_pm(load_variant):
-                assert ret['time'] == '12:00 AM', f"time was {ret['time']}"
+                assert ret.time == '12:00 AM', f"time was {ret.time}"
             else:
-                assert ret['time'] == '00:00:00', f"time was {ret['time']}"
+                assert ret.time == '00:00:00', f"time was {ret.time}"
 
         if self.tc.raw_avro_types_written():
-            assert ret['timestamp'] == '2000-01-02T12:34:56.789012'
+            assert ret.timestamp == '2000-01-02T12:34:56.789012'
         elif (((load_variant is not None) and
                self.tc.variant_doesnt_support_seconds(load_variant)) or
               ((self.file_variant is not None) and
               self.tc.variant_doesnt_support_seconds(self.file_variant))):
-            assert ret['timestamp'] ==\
+            assert ret.timestamp ==\
                 datetime.datetime(2000, 1, 2, 12, 34),\
-                f"Found timestamp {ret['timestamp']}"
+                f"Found timestamp {ret.timestamp}"
 
         else:
-            assert (ret['timestamp'] == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)),\
-                f"ret['timestamp'] was {ret['timestamp']} of type {type(ret['timestamp'])}"
-
-        self.tz_validator.validate(timestampstr=ret['timestampstr'],
-                                   timestamptzstr=ret['timestamptzstr'],
-                                   timestamptz=ret['timestamptz'])
+            assert (ret.timestamp == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)),\
+                f"ret.timestamp was {ret.timestamp} of type {type(ret.timestamp)}"
+        print("ROW OUTPUT VALUES:", ret)
+        print("ROW OUTPUT AS DICTIONARY:", ret._asdict())
+        self.tz_validator.validate(timestampstr=ret.timestampstr,
+                                   timestamptzstr=ret.timestamptzstr,
+                                   timestamptz=ret.timestamptz)

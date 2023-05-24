@@ -9,7 +9,7 @@ from records_mover.records.records_format import BaseRecordsFormat, DelimitedRec
 from .load_options import mysql_load_options
 from ...records.delimited import complain_on_unhandled_hints
 from ...url.resolver import UrlResolver
-from typing import Union, List
+from typing import List
 import logging
 import tempfile
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class MySQLLoader(LoaderFromRecordsDirectory):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
+                 db: sqlalchemy.engine.Engine,
                  url_resolver: UrlResolver) -> None:
         self.db = db
         self.url_resolver = url_resolver

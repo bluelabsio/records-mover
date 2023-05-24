@@ -16,7 +16,7 @@ import logging
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .db import DBDriver  # noqa
-    from sqlalchemy.engine import Engine, Connection  # noqa
+    from sqlalchemy.engine import Engine # noqa
     import boto3  # noqa
     import google.cloud.storage  # noqa
 
@@ -261,7 +261,7 @@ class Session():
         db_facts = creds_provider.db_facts(db_creds_name)
         return engine_from_db_facts(db_facts)
 
-    def db_driver(self, db: Union['Engine', 'Connection']) -> 'DBDriver':
+    def db_driver(self, db: 'Engine') -> 'DBDriver':
         from .db.factory import db_driver
 
         kwargs = {}

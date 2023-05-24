@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from sqlalchemy import text
 from sqlalchemy.schema import Table
 from .sqlalchemy_postgres_copy import copy_to
 from ..quoting import quote_value
@@ -57,7 +58,7 @@ class PostgresUnloader(Unloader):
             date_style = f"{date_output_style}, {date_order_style}"
             sql = f"SET LOCAL DateStyle = {quote_value(conn, date_style)}"
             logger.info(sql)
-            conn.execute(sql)
+            conn.execute(text(sql))
 
             filename = unload_plan.records_format.generate_filename('data')
             loc = directory.loc.file_in_this_directory(filename)

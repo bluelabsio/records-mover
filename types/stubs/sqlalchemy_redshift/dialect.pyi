@@ -3,7 +3,6 @@ from .commands import AlterTableAppendCommand as AlterTableAppendCommand, Compre
 from alembic.ddl import postgresql
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION as DOUBLE_PRECISION  # noqa
 from sqlalchemy.dialects.postgresql.base import (PGCompiler,
-                                                 PGDDLCompiler,
                                                  PGIdentifierPreparer,
                                                  PGTypeCompiler)
 from sqlalchemy.dialects.postgresql.psycopg2 import PGDialect_psycopg2
@@ -27,11 +26,6 @@ class RelationKey:
 
 class RedshiftCompiler(PGCompiler):
     def visit_now_func(self, fn: Any, **kw: Any): ...
-
-
-class RedshiftDDLCompiler(PGDDLCompiler):
-    def post_create_table(self, table: Any): ...
-    def get_column_specification(self, column: Any, **kwargs: Any): ...
 
 
 class RedshiftTypeCompiler(PGTypeCompiler):

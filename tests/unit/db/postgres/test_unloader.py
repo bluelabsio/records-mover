@@ -58,7 +58,8 @@ class TestPostgresUnloader(unittest.TestCase):
                                       autoload_with=self.mock_db)
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
         mock_quote_value.assert_called_with(mock_conn, 'DATE_OUTPUT_STYLE, DATE_ORDER_STYLE')
-        mock_conn.execute.assert_called_with('SET LOCAL DateStyle = ABC')
+        str_arg = str(mock_conn.execute.call_args.args[0])
+        self.assertEqual(str_arg, 'SET LOCAL DateStyle = ABC')
         mock_fileobj = mock_directory.loc.file_in_this_directory.return_value.open.\
             return_value.__enter__.return_value
         mock_copy_to.assert_called_with(mock_table_obj.select.return_value,
@@ -114,7 +115,8 @@ class TestPostgresUnloader(unittest.TestCase):
                                       autoload_with=self.mock_db)
         mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
         mock_quote_value.assert_called_with(mock_conn, 'DATE_OUTPUT_STYLE, MDY')
-        mock_conn.execute.assert_called_with('SET LOCAL DateStyle = ABC')
+        str_arg = str(mock_conn.execute.call_args.args[0])
+        self.assertEqual(str_arg, 'SET LOCAL DateStyle = ABC')
         mock_fileobj = mock_directory.loc.file_in_this_directory.return_value.open.\
             return_value.__enter__.return_value
         mock_copy_to.assert_called_with(mock_table_obj.select.return_value,

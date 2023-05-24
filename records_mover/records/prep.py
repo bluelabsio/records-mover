@@ -1,5 +1,6 @@
 from typing import Optional
 from sqlalchemy.engine import Connection
+from sqlalchemy import text
 from records_mover.db.quoting import quote_schema_and_table
 from records_mover.records.existing_table_handling import ExistingTableHandling
 from records_mover.db import DBDriver
@@ -13,7 +14,7 @@ class TablePrep:
     def __init__(self, target_table_details: TargetTableDetails) -> None:
         self.tbl = target_table_details
 
-    def add_permissions(self, conn: Connection, driver: DBDriver) -> None:
+    def add_permissions(self, driver: DBDriver) -> None:
         schema_and_table: str = quote_schema_and_table(driver.db,
                                                        self.tbl.schema_name,
                                                        self.tbl.table_name)
@@ -23,7 +24,7 @@ class TablePrep:
             driver.set_grant_permissions_for_groups(self.tbl.schema_name,
                                                     self.tbl.table_name,
                                                     self.tbl.add_group_perms_for,
-                                                    conn)
+                                                    driver.db_engine)
         if self.tbl.add_user_perms_for is not None:
             logger.info(f"Adding permissions for {schema_and_table} "
                         f"to {self.tbl.add_user_perms_for}")
@@ -31,13 +32,13 @@ class TablePrep:
                 set_grant_permissions_for_users(self.tbl.schema_name,
                                                 self.tbl.table_name,
                                                 self.tbl.add_user_perms_for,
-                                                conn)
+                                                driver.db_engine)
 
     def create_table(self, schema_sql: str, conn: Connection, driver: DBDriver) -> None:
         logger.info('Creating table...')
-        conn.execute(schema_sql)
+        conn.exec_driver_sql(schema_sql)  # type: ignore
         logger.info(f"Just ran {schema_sql}")
-        self.add_permissions(conn, driver)
+        self.add_permissions(driver)
         logger.info("Table prepped")
 
     def prep_table_for_load(self,
@@ -55,11 +56,11 @@ class TablePrep:
                                                            self.tbl.table_name)
             if (how_to_prep == ExistingTableHandling.TRUNCATE_AND_OVERWRITE):
                 logger.info("Truncating...")
-                db.execute(f"TRUNCATE TABLE {schema_and_table}")
+                db.execute(text(f"TRUNCATE TABLE {schema_and_table}"))
                 logger.info("Truncated.")
             elif (how_to_prep == ExistingTableHandling.DELETE_AND_OVERWRITE):
                 logger.info("Deleting rows...")
-                db.execute(f"DELETE FROM {schema_and_table} WHERE true")
+                db.execute(text(f"DELETE FROM {schema_and_table} WHERE true"))
                 logger.info("Deleted")
             elif (how_to_prep == ExistingTableHandling.DROP_AND_RECREATE):
                 with db.engine.connect() as conn:

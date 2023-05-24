@@ -8,6 +8,7 @@ from ..datetime_cases import (
 )
 from records_mover.records import RecordsSchema, RecordsFormat, PartialRecordsHints
 from records_mover.records.schema.field.field_types import FieldType
+from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 
@@ -58,12 +59,16 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
 
     def pull_result(self,
                     column_name: str) -> datetime.datetime:
-        out = self.engine.execute(f'SELECT {column_name} '
-                                  f'from {self.schema_name}.{self.table_name}')
-        ret_all = out.fetchall()
+        with self.engine.connect() as connection:
+            with connection.begin():
+                out = connection.execute(text(
+                        f'SELECT {column_name} '
+                        f'from {self.schema_name}.{self.table_name}'))
+                ret_all = out.fetchall()
         assert 1 == len(ret_all)
         ret = ret_all[0]
-        return ret[column_name]
+        ret_mapping = ret._mapping
+        return ret_mapping[column_name]
 
     def database_provides_times_as_timedeltas(self) -> bool:
         return self.engine.name == 'mysql'

@@ -3,14 +3,15 @@ from records_mover.db.quoting import quote_schema_and_table
 from ...db import DBDriver
 from ...url.resolver import UrlResolver
 from ...url import BaseDirectoryUrl
-from sqlalchemy.engine import Engine, Connection
+from sqlalchemy.engine import Engine
 from ..records_directory import RecordsDirectory
 from ..records_format import ParquetRecordsFormat
 from sqlalchemy.schema import CreateTable, MetaData, Table
 from ..existing_table_handling import ExistingTableHandling
-from typing import Optional, Callable, Union
+from typing import Optional, Callable
 import logging
 import sqlalchemy
+from sqlalchemy import text
 
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ class SpectrumRecordsTarget(SupportsRecordsDirectory):
                  schema_name: str,
                  table_name: str,
                  db_engine: Engine,
-                 db_driver: Callable[[Union[Engine, Connection]], DBDriver],
+                 db_driver: Callable[[Engine], DBDriver],
                  url_resolver: UrlResolver,
                  spectrum_base_url: Optional[str],
                  spectrum_rdir_url: Optional[str],
@@ -77,7 +78,7 @@ class SpectrumRecordsTarget(SupportsRecordsDirectory):
                 with self.db.connect() as cursor:
                     # See below note about fix from Spectrify
                     cursor.execution_options(isolation_level='AUTOCOMMIT')
-                    cursor.execute(f"DROP TABLE IF EXISTS {schema_and_table}")
+                    cursor.execute(text(f"DROP TABLE IF EXISTS {schema_and_table}"))
 
             logger.info(f"Deleting files in {self.output_loc}...")
             self.output_loc.purge_directory()

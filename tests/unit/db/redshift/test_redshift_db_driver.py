@@ -7,10 +7,8 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
     maxDiff = None
 
     def test_schema_sql(self):
-        self.mock_db_engine.execute.return_value.fetchall.return_value =\
-            [{}, {'ddl': 'real line 1'}, {'ddl': 'real line 2'}]
         sql = self.redshift_db_driver.schema_sql('myschema', 'mytable')
-        self.assertEqual(sql, "real line 1\nreal line 2")
+        self.assertEqual(sql, '\nCREATE TABLE myschema.mytable (\n)\n\n')
 
     def test_schema_sql_no_admin_views(self):
         self.mock_db_engine.execute.return_value.fetchall.return_value = []

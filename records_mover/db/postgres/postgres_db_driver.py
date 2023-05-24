@@ -12,7 +12,7 @@ from .loader import PostgresLoader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from .unloader import PostgresUnloader
 from ..unloader import Unloader
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple
 
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class PostgresDBDriver(DBDriver):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
+                 db: sqlalchemy.engine.Engine,
                  url_resolver: UrlResolver,
                  **kwargs) -> None:
         super().__init__(db)

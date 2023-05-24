@@ -4,7 +4,7 @@ from ...records import RecordsSchema
 from ...records.records_format import BaseRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
 from ...utils.limits import INT64_MAX, INT64_MIN, FLOAT64_SIGNIFICAND_BITS, num_digits
 import re
-from typing import Union, Optional, Tuple
+from typing import Optional, Tuple
 from ...url.resolver import UrlResolver
 import sqlalchemy
 from .loader import BigQueryLoader
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class BigQueryDBDriver(DBDriver):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
+                 db: sqlalchemy.engine.Engine,
                  url_resolver: UrlResolver,
                  gcs_temp_base_loc: Optional[BaseDirectoryUrl] = None,
                  **kwargs: object) -> None:

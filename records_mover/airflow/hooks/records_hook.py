@@ -6,7 +6,7 @@ from records_mover.db.factory import db_driver
 from records_mover.db import DBDriver
 from records_mover.url.resolver import UrlResolver
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
-from typing import Optional, Union, List, TYPE_CHECKING
+from typing import Optional, List, TYPE_CHECKING
 import sqlalchemy
 
 try:
@@ -50,8 +50,7 @@ class RecordsHook(BaseHook):
                            gcs_client_getter=lambda: None,
                            gcp_credentials_getter=lambda: None)
 
-    def _db_driver(self, db: Union[sqlalchemy.engine.Engine,
-                                   sqlalchemy.engine.Connection]) -> DBDriver:
+    def _db_driver(self, db: sqlalchemy.engine.Engine) -> DBDriver:
         s3_temp_base_loc = (self._url_resolver.directory_url(self._s3_temp_base_url)
                             if self._s3_temp_base_url else None)
 

@@ -1,5 +1,6 @@
 import sqlalchemy
 from sqlalchemy import MetaData
+from sqlalchemy import text
 from sqlalchemy.schema import Table
 from ..quoting import quote_value
 from ...url.resolver import UrlResolver
@@ -9,7 +10,7 @@ from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from .sqlalchemy_postgres_copy import copy_from
 from .copy_options import postgres_copy_from_options
-from typing import IO, Union, List, Iterable
+from typing import IO, List, Iterable
 from ..loader import LoaderFromFileobj
 import logging
 
@@ -20,7 +21,7 @@ class PostgresLoader(LoaderFromFileobj):
     def __init__(self,
                  url_resolver: UrlResolver,
                  meta: MetaData,
-                 db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]) -> None:
+                 db: sqlalchemy.engine.Engine) -> None:
         self.url_resolver = url_resolver
         self.db = db
         self.meta = meta
@@ -72,7 +73,7 @@ class PostgresLoader(LoaderFromFileobj):
             date_style = f"ISO, {date_order_style}"
             sql = f"SET LOCAL DateStyle = {quote_value(conn, date_style)}"
             logger.info(sql)
-            conn.execute(sql)
+            conn.execute(text(sql))
 
             for fileobj in fileobjs:
                 # Postgres COPY FROM defaults to appending data--we

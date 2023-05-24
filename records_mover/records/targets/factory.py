@@ -4,7 +4,7 @@ from ..records_format import BaseRecordsFormat
 from .fileobj import FileobjTarget
 from .directory_from_url import DirectoryFromUrlRecordsTarget
 from .data_url import DataUrlTarget
-from typing import Callable, Optional, Union, Dict, List, IO, TYPE_CHECKING
+from typing import Callable, Optional, Dict, List, IO, TYPE_CHECKING
 from ..existing_table_handling import ExistingTableHandling
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
@@ -43,7 +43,7 @@ class RecordsTargets(object):
 
     def __init__(self,
                  url_resolver: UrlResolver,
-                 db_driver: Callable[[Union['Engine', 'Connection']], 'DBDriver']) -> None:
+                 db_driver: Callable[['Engine'], 'DBDriver']) -> None:
         self.url_resolver = url_resolver
         self.db_driver = db_driver
 

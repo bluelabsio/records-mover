@@ -39,7 +39,8 @@ class TestPrep(unittest.TestCase):
         mock_quote_schema_and_table.assert_called_with(mock_driver.db,
                                                        self.mock_tbl.schema_name,
                                                        self.mock_tbl.table_name)
-        mock_driver.db.execute.assert_called_with(f"TRUNCATE TABLE {mock_schema_and_table}")
+        str_arg = str(mock_driver.db.execute.call_args.args[0])
+        self.assertEqual(str_arg, f"TRUNCATE TABLE {mock_schema_and_table}")
 
     @patch('records_mover.records.prep.quote_schema_and_table')
     def test_prep_table_exists_delete_implicit(self, mock_quote_schema_and_table):
@@ -58,12 +59,14 @@ class TestPrep(unittest.TestCase):
         mock_quote_schema_and_table.assert_called_with(mock_driver.db,
                                                        self.mock_tbl.schema_name,
                                                        self.mock_tbl.table_name)
-        mock_driver.db.execute.assert_called_with(f"DELETE FROM {mock_schema_and_table} WHERE true")
+        str_arg = str(mock_driver.db.execute.call_args.args[0])
+        self.assertEqual(str_arg, f"DELETE FROM {mock_schema_and_table} WHERE true")
 
     @patch('records_mover.records.prep.quote_schema_and_table')
     def test_prep_table_exists_drop_implicit(self, mock_quote_schema_and_table):
         mock_schema_sql = Mock(name='schema_sql')
         mock_driver = Mock(name='driver', spec=DBDriver)
+        mock_driver.db_engine = mock_driver
         mock_db = MagicMock(name='db')
         mock_driver.db = mock_db
 
@@ -81,23 +84,26 @@ class TestPrep(unittest.TestCase):
                                                        self.mock_tbl.table_name)
         mock_conn.execute.assert_has_calls([
             call(f"DROP TABLE {mock_schema_and_table}"),
+        ])
+        mock_conn.exec_driver_sql.assert_has_calls([
             call(mock_schema_sql),
         ])
         mock_driver.set_grant_permissions_for_groups.\
             assert_called_with(self.mock_tbl.schema_name,
                                self.mock_tbl.table_name,
                                self.mock_tbl.add_group_perms_for,
-                               mock_conn)
+                               mock_driver)
         mock_driver.set_grant_permissions_for_users.\
             assert_called_with(self.mock_tbl.schema_name,
                                self.mock_tbl.table_name,
                                self.mock_tbl.add_user_perms_for,
-                               mock_conn)
+                               mock_driver)
 
     @patch('records_mover.records.prep.quote_schema_and_table')
     def test_prep_table_not_exists(self, mock_quote_schema_and_table):
         mock_schema_sql = Mock(name='schema_sql')
         mock_driver = Mock(name='driver', spec=DBDriver)
+        mock_driver.db_engine = mock_driver
         mock_db = MagicMock(name='db')
         mock_driver.db = mock_db
 
@@ -109,24 +115,25 @@ class TestPrep(unittest.TestCase):
         self.prep.prep(mock_schema_sql, mock_driver)
         mock_conn = mock_db.engine.connect.return_value.__enter__.return_value
 
-        mock_conn.execute.assert_has_calls([
+        mock_conn.exec_driver_sql.assert_has_calls([
             call(mock_schema_sql),
         ])
         mock_driver.set_grant_permissions_for_groups.\
             assert_called_with(self.mock_tbl.schema_name,
                                self.mock_tbl.table_name,
                                self.mock_tbl.add_group_perms_for,
-                               mock_conn)
+                               mock_driver)
         mock_driver.set_grant_permissions_for_users.\
             assert_called_with(self.mock_tbl.schema_name,
                                self.mock_tbl.table_name,
                                self.mock_tbl.add_user_perms_for,
-                               mock_conn)
+                               mock_driver)
 
     @patch('records_mover.records.prep.quote_schema_and_table')
     def test_prep_table_exists_drop_explicit(self, mock_quote_schema_and_table):
         mock_schema_sql = Mock(name='schema_sql')
         mock_driver = Mock(name='driver', spec=DBDriver)
+        mock_driver.db_engine = mock_driver
         mock_db = MagicMock(name='db')
         mock_driver.db = mock_db
 
@@ -145,15 +152,17 @@ class TestPrep(unittest.TestCase):
                                                        self.mock_tbl.table_name)
         mock_conn.execute.assert_has_calls([
             call(f"DROP TABLE {mock_schema_and_table}"),
+        ])
+        mock_conn.exec_driver_sql.assert_has_calls([
             call(mock_schema_sql),
         ])
         mock_driver.set_grant_permissions_for_groups.\
             assert_called_with(self.mock_tbl.schema_name,
                                self.mock_tbl.table_name,
                                self.mock_tbl.add_group_perms_for,
-                               mock_conn)
+                               mock_driver)
         mock_driver.set_grant_permissions_for_users.\
             assert_called_with(self.mock_tbl.schema_name,
                                self.mock_tbl.table_name,
                                self.mock_tbl.add_user_perms_for,
-                               mock_conn)
+                               mock_driver)

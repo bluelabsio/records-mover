@@ -1,5 +1,6 @@
 from records_mover.db.quoting import quote_value
 import sqlalchemy
+from sqlalchemy import text
 from contextlib import contextmanager
 from ...records.unload_plan import RecordsUnloadPlan
 from ...records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
@@ -12,7 +13,7 @@ from .records_export_options import vertica_export_options
 from ...records.delimited import complain_on_unhandled_hints
 from ..unloader import Unloader
 import logging
-from typing import Iterator, Optional, Union, List, TYPE_CHECKING
+from typing import Iterator, Optional, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from botocore.credentials import Credentials  # noqa
 
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 class VerticaUnloader(Unloader):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
+                 db: sqlalchemy.engine.Engine,
                  s3_temp_base_loc: Optional[BaseDirectoryUrl]) -> None:
         super().__init__(db=db)
         self.s3_temp_base_loc = s3_temp_base_loc
@@ -69,10 +70,13 @@ class VerticaUnloader(Unloader):
         return self.s3_temp_base_loc is not None
 
     def s3_export_available(self) -> bool:
-        out = self.db.execute("SELECT lib_name from user_libraries where lib_name = 'awslib'")
-        available = len(list(out.fetchall())) == 1
-        if not available:
-            logger.info("Not attempting S3 export - no access to awslib in Vertica")
+        with self.db.connect() as connection:
+            out = connection.execute(text("SELECT lib_name "
+                                          "from user_libraries "
+                                          "where lib_name = 'awslib'"))
+            available = len(list(out.fetchall())) == 1
+            if not available:
+                logger.info("Not attempting S3 export - no access to awslib in Vertica")
         return available
 
     def unload_to_s3_directory(self,
@@ -97,7 +101,9 @@ class VerticaUnloader(Unloader):
         processing_instructions = unload_plan.processing_instructions
         try:
             s3_sql = self.aws_creds_sql(aws_creds.access_key, aws_creds.secret_key)
-            self.db.execute(s3_sql)
+            with self.db.connect() as connection:
+                with connection.begin():
+                    connection.execute(text(s3_sql))
         except sqlalchemy.exc.ProgrammingError as e:
             raise DatabaseDoesNotSupportS3Export(str(e))
 
@@ -112,7 +118,9 @@ class VerticaUnloader(Unloader):
                                         s3_url=directory.loc.url,
                                         **vertica_options)
         logger.info(export_sql)
-        export_result = self.db.execute(export_sql).fetchall()
+        with self.db.connect() as connection:
+            with connection.begin():
+                export_result = connection.execute(text(export_sql)).fetchall()
         directory.save_preliminary_manifest()
         export_count = 0
         for record in export_result:
