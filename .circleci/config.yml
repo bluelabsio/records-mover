@@ -30,7 +30,7 @@ commands:
         default: ""
     steps:
       - restore_cache:
-          key: deps-v8-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v9-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           environment:
@@ -64,7 +64,7 @@ commands:
               fi
             fi
       - save_cache:
-          key: deps-v8-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v9-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
   wait_for_db:
@@ -168,7 +168,7 @@ jobs:
       - slack/notify:
           event: fail
           branch_pattern: main
-          channel: engineering-general
+          channel: records-mover-ci-builds
           mentions: '<@bruno.castrokarney>'
           template: basic_fail_1
 
