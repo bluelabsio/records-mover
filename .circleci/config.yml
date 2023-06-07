@@ -168,7 +168,7 @@ jobs:
       - slack/notify:
           event: fail
           branch_pattern: main
-          channel: engineering-general
+          channel: records-mover-ci-builds
           mentions: '<@bruno.castrokarney>'
           template: basic_fail_1
 
