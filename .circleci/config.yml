@@ -2,6 +2,7 @@ version: 2.1
 
 quality_gem_version: &quality_gem_version python-37
 
+
 orbs:
   quality: bluelabs/quality@0.0.2
   slack: circleci/slack@4.12.1
