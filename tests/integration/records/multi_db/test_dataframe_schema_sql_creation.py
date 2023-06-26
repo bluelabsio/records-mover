@@ -16,7 +16,7 @@ class TestDataframeSchemaSqlCreation(unittest.TestCase):
         #
         # https://github.com/bluelabsio/records-mover/pull/103
         session = Session()
-        engine = session.get_db_engine('demo-itest')
+        db_engine = session.get_db_engine('demo-itest')
         data = {'Population': [11190846, 1303171035, 207847528]}
         df = DataFrame(data, columns=['Population'])
 
@@ -26,7 +26,7 @@ class TestDataframeSchemaSqlCreation(unittest.TestCase):
         source = DataframesRecordsSource(dfs=[df])
         processing_instructions = ProcessingInstructions()
         schema = source.initial_records_schema(processing_instructions)
-        driver = RedshiftDBDriver(db=engine)
+        driver = RedshiftDBDriver(None, db_engine=db_engine)
         schema_sql = schema.to_schema_sql(driver=driver,
                                           schema_name='my_schema_name',
                                           table_name='my_table_name')

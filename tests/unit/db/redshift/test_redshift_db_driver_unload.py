@@ -24,7 +24,6 @@ class TestRedshiftDBDriverUnload(BaseTestRedshiftDBDriver):
                                    hints=bluelabs_format_hints)
         self.mock_directory.scheme = 'mumble'
         self.mock_db_engine.connect.return_value \
-            .__enter__.return_value \
             .execute.return_value \
             .scalar.return_value = 456
         rows = self.redshift_db_driver.unloader().\
@@ -65,7 +64,6 @@ class TestRedshiftDBDriverUnload(BaseTestRedshiftDBDriver):
                                    hints=bluelabs_format_hints)
         self.mock_directory.scheme = 's3'
         self.mock_db_engine.connect.return_value \
-            .__enter__.return_value \
             .execute.return_value \
             .scalar.return_value = 456
         rows = self.redshift_db_driver.unloader().\

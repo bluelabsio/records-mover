@@ -1,6 +1,6 @@
 from abc import ABCMeta
-from sqlalchemy.engine import Engine
-from typing import Optional, Dict, List
+from sqlalchemy.engine import Engine, Connection
+from typing import Union, Optional, Dict, List
 from records_mover.records.existing_table_handling import ExistingTableHandling
 from records_mover.db import DBDriver
 import logging
@@ -24,5 +24,8 @@ class TargetTableDetails(metaclass=ABCMeta):
     #
     # https://github.com/python/mypy/issues/5485
     # @abstractmethod
-    def db_driver(self, db: Engine) -> DBDriver:  # type: ignore
+    def db_driver(self,  # type: ignore
+                  db: Optional[Union[Engine, Connection]],
+                  db_engine: Optional[Engine] = None,
+                  db_conn: Optional[Connection] = None) -> DBDriver:
         ...

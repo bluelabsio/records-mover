@@ -4,7 +4,7 @@ from records_mover.records.targets.base import (
     MightSupportMoveFromFileobjsSource,
     SupportsMoveFromDataframes,
 )
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Engine, Connection
 from records_mover.records.prep import TablePrep, TargetTableDetails
 from records_mover.records.records_format import BaseRecordsFormat
 from records_mover.db import DBDriver
@@ -22,7 +22,7 @@ from records_mover.records.targets.table.move_from_temp_loc_after_filling_it imp
     DoMoveFromTempLocAfterFillingIt
 )
 import logging
-from typing import Callable, Optional, Dict, List, TYPE_CHECKING
+from typing import Callable, Union, Optional, Dict, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from records_mover.records.sources.dataframes import DataframesRecordsSource
 
@@ -39,16 +39,20 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
                  schema_name: str,
                  table_name: str,
                  db_engine: Engine,
-                 db_driver: Callable[[Engine], DBDriver],
+                 db_driver: Callable[[Optional[Union['Engine', 'Connection']],
+                                      Optional[Connection],
+                                      Optional[Engine]], DBDriver],
                  add_user_perms_for: Optional[Dict[str, List[str]]] = None,
                  add_group_perms_for: Optional[Dict[str, List[str]]] = None,
                  existing_table_handling: ExistingTableHandling =
                  ExistingTableHandling.DELETE_AND_OVERWRITE,
-                 drop_and_recreate_on_load_error: bool = False) -> None:
+                 drop_and_recreate_on_load_error: bool = False,
+                 db_conn: Optional[Connection] = None) -> None:
         self.schema_name = schema_name
         self.table_name = table_name
         self.db_driver = db_driver  # type: ignore
         self.db_engine = db_engine
+        self.db_conn = db_conn
         self.add_user_perms_for = add_user_perms_for
         self.add_group_perms_for = add_group_perms_for
         self.existing_table_handling = existing_table_handling
@@ -80,12 +84,16 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
                                         processing_instructions).move()
 
     def can_move_from_fileobjs_source(self) -> bool:
-        driver = self.db_driver(self.db_engine)
+        driver = self.db_driver(None,
+                                db_engine=self.db_engine,
+                                db_conn=self.db_conn)
         loader = driver.loader_from_fileobj()
         return loader is not None
 
     def can_move_directly_from_scheme(self, scheme: str) -> bool:
-        driver = self.db_driver(self.db_engine)
+        driver = self.db_driver(None,
+                                db_engine=self.db_engine,
+                                db_conn=self.db_conn)
         loader = driver.loader()
         if loader is None:
             # can't bulk load at all, so can't load direct!
@@ -94,7 +102,9 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         return loader.best_scheme_to_load_from() == scheme
 
     def known_supported_records_formats(self) -> List[BaseRecordsFormat]:
-        driver = self.db_driver(self.db_engine)
+        driver = self.db_driver(None,
+                                db_engine=self.db_engine,
+                                db_conn=self.db_conn)
         loader = driver.loader()
         if loader is None:
             logger.warning(f"No loader configured for this database type ({self.db_engine.name})")
@@ -105,7 +115,9 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
                              source_records_format: BaseRecordsFormat) -> bool:
         """Return true if writing the specified format satisfies our format
         needs"""
-        driver = self.db_driver(self.db_engine)
+        driver = self.db_driver(None,
+                                db_engine=self.db_engine,
+                                db_conn=self.db_conn)
         loader = driver.loader()
         if loader is None:
             logger.warning(f"No loader configured for this database type ({self.db_engine.name})")
@@ -113,7 +125,9 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         return loader.can_load_this_format(source_records_format)
 
     def can_move_from_temp_loc_after_filling_it(self) -> bool:
-        driver = self.db_driver(self.db_engine)
+        driver = self.db_driver(None,
+                                db_engine=self.db_engine,
+                                db_conn=self.db_conn)
         loader = driver.loader()
         if loader is None:
             logger.warning(f"No loader configured for this database type ({self.db_engine.name})")
@@ -130,7 +144,9 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
         return has_scratch_location
 
     def temporary_loadable_directory_scheme(self) -> str:
-        driver = self.db_driver(self.db_engine)
+        driver = self.db_driver(None,
+                                db_engine=self.db_engine,
+                                db_conn=self.db_conn)
         loader = driver.loader()
         if loader is None:
             raise TypeError("Please check can_move_from_temp_loc_after_filling_it() "

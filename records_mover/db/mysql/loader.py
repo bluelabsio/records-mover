@@ -9,19 +9,42 @@ from records_mover.records.records_format import BaseRecordsFormat, DelimitedRec
 from .load_options import mysql_load_options
 from ...records.delimited import complain_on_unhandled_hints
 from ...url.resolver import UrlResolver
-from typing import List
+from typing import Union, List, Optional
 import logging
 import tempfile
+from ...check_db_conn_engine import check_db_conn_engine
 
 logger = logging.getLogger(__name__)
 
 
 class MySQLLoader(LoaderFromRecordsDirectory):
     def __init__(self,
-                 db: sqlalchemy.engine.Engine,
-                 url_resolver: UrlResolver) -> None:
+                 db: Optional[Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection]],
+                 url_resolver: UrlResolver,
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
+        self.conn_opened_here = False
         self.db = db
+        self._db_conn = db_conn
+        self.db_engine = db_engine
         self.url_resolver = url_resolver
+
+    def get_db_conn(self) -> sqlalchemy.engine.Connection:
+        if self._db_conn is None:
+            self._db_conn = self.db_engine.connect()
+            self.conn_opened_here = True
+            logger.debug(f"Opened connection to database within {self} because none was provided.")
+        return self._db_conn
+
+    def set_db_conn(self, db_conn: Optional[sqlalchemy.engine.Connection]) -> None:
+        self._db_conn = db_conn
+
+    def del_db_conn(self) -> None:
+        if self.conn_opened_here:
+            self.db_conn.close()
+
+    db_conn = property(get_db_conn, set_db_conn, del_db_conn)
 
     def load(self,
              schema: str,
@@ -61,7 +84,7 @@ class MySQLLoader(LoaderFromRecordsDirectory):
                                                       schema_name=schema)
             logger.info(f"Loading to MySQL with options: {load_options}")
             logger.info(str(sql))
-            self.db.execute(sql)
+            self.db_conn.execute(sql)
             logger.info("MySQL LOAD DATA complete.")
         return None
 
@@ -101,3 +124,6 @@ class MySQLLoader(LoaderFromRecordsDirectory):
                                        'compression': None
                                    }),
         ]
+
+    def __del__(self) -> None:
+        self.del_db_conn()

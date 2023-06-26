@@ -26,8 +26,11 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
         mock_quote_group_name.return_value = '"a_group"'
         groups = {'all': ['a_group']}
         mock_conn = self.mock_db_engine.engine.connect.return_value.__enter__.return_value
-        self.redshift_db_driver.set_grant_permissions_for_groups(mock_schema, mock_table,
-                                                                 groups, mock_conn)
+        self.redshift_db_driver.set_grant_permissions_for_groups(mock_schema,
+                                                                 mock_table,
+                                                                 groups,
+                                                                 None,
+                                                                 db_conn=mock_conn)
         mock_conn.execute.assert_called_with(
             f'GRANT all ON TABLE {mock_schema}.{mock_table} TO GROUP "a_group"')
 

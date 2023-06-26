@@ -107,7 +107,7 @@ def field_from_sqlalchemy_column(column: Column,
                                  driver=driver)
     representations = {
         'origin': RecordsSchemaFieldRepresentation.
-        from_sqlalchemy_column(column, driver.db.dialect,
+        from_sqlalchemy_column(column, driver.db_engine.dialect,
                                rep_type)
     }
 

@@ -20,9 +20,10 @@ class BaseTestVerticaDBDriver(unittest.TestCase):
         self.mock_s3_temp_base_loc.url = 's3://fakebucket/fakedir/fakesubdir/'
         with patch('records_mover.db.vertica.vertica_db_driver.VerticaLoader') \
                 as mock_VerticaLoader:
-            self.vertica_db_driver = VerticaDBDriver(db=self.mock_db_engine,
+            self.vertica_db_driver = VerticaDBDriver(db=None,
                                                      s3_temp_base_loc=self.mock_s3_temp_base_loc,
-                                                     url_resolver=self.mock_url_resolver)
+                                                     url_resolver=self.mock_url_resolver,
+                                                     db_conn=self.mock_db_engine)
             self.mock_VerticaLoader = mock_VerticaLoader
             self.mock_vertica_loader = mock_VerticaLoader.return_value
 

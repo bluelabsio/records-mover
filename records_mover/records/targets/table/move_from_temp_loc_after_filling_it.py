@@ -27,7 +27,7 @@ class DoMoveFromTempLocAfterFillingIt(BaseTableMoveAlgorithm):
 
     @contextmanager
     def temporary_loadable_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
-        driver = self.tbl.db_driver(self.tbl.db_engine)
+        driver = self.tbl.db_driver(db=None, db_engine=self.tbl.db_engine)
         loader = driver.loader()
         # This will only be reached in move() if
         # Source#has_compatible_format(records_target) returns true,

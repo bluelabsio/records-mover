@@ -19,7 +19,7 @@ commands:
         default: false
       python_version:
         type: string
-        description: "Version of python to test against"
+        description: "Version of python to test against."
       pandas_version:
         type: string
         description: "Version of pandas to test against, or empty string for none"
@@ -34,7 +34,7 @@ commands:
         default: ""
     steps:
       - restore_cache:
-          key: deps-v9-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v10-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           environment:
@@ -73,7 +73,7 @@ commands:
               fi
             fi
       - save_cache:
-          key: deps-v9-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v10-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
   wait_for_db:
@@ -468,15 +468,6 @@ workflows:
       #
       # https://devguide.python.org/devcycle/#end-of-life-branches
       - test:
-          name: test-3.7
-          extras: '[unittest,typecheck]'
-          python_version: "3.7"
-          pandas_version: ">=1.3.5,<2"
-          context: slack-secrets
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - test:
           name: test-3.8
           extras: '[unittest,typecheck]'
           python_version: "3.8"
@@ -690,8 +681,8 @@ workflows:
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
-            cd tests/integration
-            python3 -m records.multi_db.test_records_table2table
+            cd tests/integration/records/multi_db
+            pytest -vvv test_records_table2table.py
       - integration_test_with_dbs:
           name: tbl2tbl-itest-old-sqlalchemy
           extras: '[literally_every_single_database_binary,itest]'
@@ -704,8 +695,8 @@ workflows:
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
-            cd tests/integration
-            python3 -m records.multi_db.test_records_table2table
+            cd tests/integration/records/multi_db
+            pytest -vvv test_records_table2table.py
       - integration_test_with_dbs:
           name: redshift-test-dataframe-schema-sql-creation
           extras: '[redshift-binary,itest]'
@@ -746,7 +737,6 @@ workflows:
             - PyPI
             - slack-secrets
           requires:
-            - test-3.7
             - test-3.8
             - test-3.9
             - cli-extra-test

@@ -1,3 +1,4 @@
+from ..check_db_conn_engine import check_db_conn_engine
 from sqlalchemy.schema import CreateTable
 from ..records.records_format import BaseRecordsFormat
 from .loader import LoaderFromFileobj, LoaderFromRecordsDirectory
@@ -9,7 +10,7 @@ from sqlalchemy.schema import Table
 from records_mover.db.quoting import quote_group_name, quote_user_name, quote_schema_and_table
 from abc import ABCMeta, abstractmethod
 from records_mover.records import RecordsSchema
-from typing import Dict, List, Tuple, Optional, TYPE_CHECKING
+from typing import Union, Dict, List, Tuple, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from typing_extensions import Literal  # noqa
 
@@ -18,13 +19,36 @@ logger = logging.getLogger(__name__)
 
 class DBDriver(metaclass=ABCMeta):
     def __init__(self,
-                 db: sqlalchemy.engine.Engine, **kwargs) -> None:
+                 db: Optional[Union[sqlalchemy.engine.Engine,
+                              sqlalchemy.engine.Connection]],
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None,
+                 **kwargs) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
         self.db = db
-        self.db_engine = db.engine
+        self.db_engine = db_engine
+        self._db_conn = db_conn
+        self.conn_opened_here = False
         self.meta = MetaData()
 
+    def get_db_conn(self) -> sqlalchemy.engine.Connection:
+        if self._db_conn is None:
+            self._db_conn = self.db_engine.connect()
+            self.conn_opened_here = True
+            logger.debug(f"Opened connection to database within {self} because none was provided.")
+        return self._db_conn
+
+    def set_db_conn(self, db_conn: Optional[sqlalchemy.engine.Connection]) -> None:
+        self._db_conn = db_conn
+
+    def del_db_conn(self) -> None:
+        if self.conn_opened_here:
+            self.db_conn.close()
+
+    db_conn = property(get_db_conn, set_db_conn, del_db_conn)
+
     def has_table(self, schema: str, table: str) -> bool:
-        return self.db.dialect.has_table(self.db, table_name=table, schema=schema)
+        return sqlalchemy.inspect(self.db_engine).has_table(table, schema=schema)
 
     def table(self,
               schema: str,
@@ -49,33 +73,55 @@ class DBDriver(metaclass=ABCMeta):
         override it to control"""
         return False
 
-    def set_grant_permissions_for_groups(self, schema_name: str, table: str,
+    def set_grant_permissions_for_groups(self,
+                                         schema_name: str,
+                                         table: str,
                                          groups: Dict[str, List[str]],
-                                         db: sqlalchemy.engine.Engine) -> None:
-        schema_and_table: str = quote_schema_and_table(self.db.engine, schema_name, table)
+                                         db: Optional[Union[sqlalchemy.engine.Engine,
+                                                      sqlalchemy.engine.Connection]],
+                                         db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                                         db_engine: Optional[sqlalchemy.engine.Engine] = None
+                                         ) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
+        schema_and_table: str = quote_schema_and_table(None, schema_name, table,
+                                                       db_engine=self.db_engine)
         for perm_type in groups:
             groups_list = groups[perm_type]
             for group in groups_list:
-                group_name: str = quote_group_name(self.db.engine, group)
+                group_name: str = quote_group_name(None, group, db_engine=self.db_engine)
                 if not perm_type.isalpha():
                     raise TypeError("Please make sure your permission types"
                                     " are an acceptable value.")
                 perms_sql = f'GRANT {perm_type} ON TABLE {schema_and_table} TO {group_name}'
-                db.execute(perms_sql)
+                if db_conn:
+                    db_conn.execute(perms_sql)
+                else:
+                    with db_engine.connect() as conn:
+                        conn.execute(perms_sql)
 
     def set_grant_permissions_for_users(self, schema_name: str, table: str,
                                         users: Dict[str, List[str]],
-                                        db: sqlalchemy.engine.Engine) -> None:
-        schema_and_table: str = quote_schema_and_table(self.db.engine, schema_name, table)
+                                        db: Optional[Union[sqlalchemy.engine.Engine,
+                                                     sqlalchemy.engine.Connection]],
+                                        db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                                        db_engine: Optional[sqlalchemy.engine.Engine] = None
+                                        ) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
+        schema_and_table: str = quote_schema_and_table(None, schema_name, table,
+                                                       db_engine=self.db_engine)
         for perm_type in users:
             user_list = users[perm_type]
             for user in user_list:
-                user_name: str = quote_user_name(self.db.engine, user)
+                user_name: str = quote_user_name(self.db_engine, user)
                 if not perm_type.isalpha():
                     raise TypeError("Please make sure your permission types"
                                     " are an acceptable value.")
                 perms_sql = f'GRANT {perm_type} ON TABLE {schema_and_table} TO {user_name}'
-                db.execute(perms_sql)
+                if db_conn:
+                    db_conn.execute(perms_sql)
+                else:
+                    with db_engine.connect() as conn:
+                        conn.execute(perms_sql)
 
     def supports_time_type(self) -> bool:
         return True
@@ -189,6 +235,9 @@ class DBDriver(metaclass=ABCMeta):
                                           records_schema: RecordsSchema,
                                           records_format: BaseRecordsFormat) -> RecordsSchema:
         return records_schema
+
+    def __del__(self) -> None:
+        self.del_db_conn()
 
 
 class GenericDBDriver(DBDriver):

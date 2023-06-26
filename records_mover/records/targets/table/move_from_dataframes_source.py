@@ -85,7 +85,7 @@ class DoMoveFromDataframesSource(BaseTableMoveAlgorithm):
         return rows_loaded
 
     def move_from_dataframes_source_via_insert(self) -> MoveResult:
-        driver = self.tbl.db_driver(self.tbl.db_engine)
+        driver = self.tbl.db_driver(db=None, db_engine=self.tbl.db_engine)
         schema_sql = self.records_schema.to_schema_sql(driver,
                                                        self.tbl.schema_name,
                                                        self.tbl.table_name)

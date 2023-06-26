@@ -41,7 +41,7 @@ class TestDoMoveFromFileobjsSource(unittest.TestCase):
         mock_loader_from_fileobj = mock_driver.loader_from_fileobj.return_value
         mock_import_count = mock_loader_from_fileobj.load_from_fileobj.return_value
         out = self.algo.move()
-        self.mock_tbl.db_driver.assert_called_with(mock_db)
+        self.mock_tbl.db_driver.assert_called_with(db=None, db_conn=mock_db)
         self.mock_RecordsLoadPlan.\
             assert_called_with(records_format=self.mock_fileobjs_source.records_format,
                                processing_instructions=self.mock_processing_instructions)
@@ -75,7 +75,7 @@ class TestDoMoveFromFileobjsSource(unittest.TestCase):
 
         mock_loader_from_fileobj.load_failure_exception.assert_called_with()
 
-        self.mock_tbl.db_driver.assert_called_with(mock_db)
+        self.mock_tbl.db_driver.assert_called_with(db=None, db_conn=mock_db)
         mock_tweaked_records_schema.to_schema_sql.\
             assert_called_with(mock_driver,
                                self.mock_tbl.schema_name,
@@ -112,7 +112,7 @@ class TestDoMoveFromFileobjsSource(unittest.TestCase):
         out = self.algo.move()
         mock_loader_from_fileobj.load_failure_exception.assert_called_with()
 
-        self.mock_tbl.db_driver.assert_called_with(mock_db)
+        self.mock_tbl.db_driver.assert_called_with(db=None, db_conn=mock_db)
         mock_tweaked_records_schema.to_schema_sql.\
             assert_called_with(mock_driver,
                                self.mock_tbl.schema_name,

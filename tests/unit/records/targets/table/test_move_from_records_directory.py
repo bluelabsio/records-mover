@@ -36,7 +36,7 @@ class TestDoMoveFromRecordsDirectory(unittest.TestCase):
         mock_plan = mock_RecordsLoadPlan.return_value
         out = self.algo.move()
         self.mock_prep.prep.assert_called_with(schema_sql=mock_schema_sql, driver=mock_driver)
-        self.mock_tbl.db_driver.assert_called_with(mock_db)
+        self.mock_tbl.db_driver.assert_called_with(db=None, db_conn=mock_db)
         mock_driver.tweak_records_schema_for_load.\
             assert_called_with(mock_schema_obj, mock_plan.records_format)
         mock_tweaked_records_schema.to_schema_sql.assert_called_with(mock_driver,
@@ -65,7 +65,7 @@ class TestDoMoveFromRecordsDirectory(unittest.TestCase):
         out = self.algo.move()
 
         self.mock_prep.prep.assert_called_with(schema_sql=mock_schema_sql, driver=mock_driver)
-        self.mock_tbl.db_driver.assert_called_with(mock_db)
+        self.mock_tbl.db_driver.assert_called_with(db=None, db_conn=mock_db)
         self.mock_directory.load_schema_sql_from_sql_file.assert_called_with()
         mock_RecordsLoadPlan.\
             assert_called_with(records_format=mock_records_format,
@@ -101,7 +101,7 @@ class TestDoMoveFromRecordsDirectory(unittest.TestCase):
         self.mock_directory.load_format.\
             assert_called_with(self.mock_processing_instructions.fail_if_dont_understand)
         self.mock_prep.prep.assert_called_with(schema_sql=mock_schema_sql, driver=mock_driver)
-        self.mock_tbl.db_driver.assert_called_with(mock_db)
+        self.mock_tbl.db_driver.assert_called_with(db=None, db_conn=mock_db)
         self.mock_directory.load_schema_sql_from_sql_file.assert_called_with()
 
         mock_RecordsLoadPlan.\

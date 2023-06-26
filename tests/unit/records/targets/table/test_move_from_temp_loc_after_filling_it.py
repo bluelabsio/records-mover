@@ -31,7 +31,7 @@ class TestDoMoveFromTempLocAfterFillingIt(unittest.TestCase):
         mock_directory = mock_RecordsDirectory.return_value
         out = algo.move()
         mock_records_source.compatible_format.assert_called_with(mock_table_target)
-        mock_tbl.db_driver.assert_called_with(mock_tbl.db_engine)
+        mock_tbl.db_driver.assert_called_with(db=None, db_engine=mock_tbl.db_engine)
         mock_RecordsDirectory.assert_called_with(records_loc=mock_temp_loc)
         mock_records_source.move_to_records_directory.\
             assert_called_with(records_directory=mock_directory,

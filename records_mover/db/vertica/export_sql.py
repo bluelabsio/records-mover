@@ -21,7 +21,7 @@ def vertica_export_sql(db_engine: Engine,
     """
 
     def quote(value: str) -> str:
-        return quote_value(db_engine, value)
+        return quote_value(None, value, db_engine=db_engine)
 
     params_data = {
         "url": quote(s3_url + 'records.csv'),
@@ -32,7 +32,7 @@ def vertica_export_sql(db_engine: Engine,
     }
 
     params = ", ".join([f"{key}={value}" for key, value in params_data.items()])
-    schema_and_table = quote_schema_and_table(db_engine, schema, table)
+    schema_and_table = quote_schema_and_table(None, schema, table, db_engine=db_engine)
     sql = template.format(params=params,
                           schema_and_table=schema_and_table)
 

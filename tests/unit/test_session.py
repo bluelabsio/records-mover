@@ -61,13 +61,15 @@ class TestSession(unittest.TestCase):
         mock_s3_temp_base_loc = mock_url_resolver.directory_url.return_value
         mock_gcs_temp_base_loc = mock_url_resolver.directory_url.return_value
         session = Session(creds=mock_creds)
-        out = session.db_driver(mock_db)
+        out = session.db_driver(None, db_conn=mock_db)
         self.assertEqual(out, mock_db_driver.return_value)
         mock_url_resolver.directory_url.assert_has_calls(
             [call(mock_scratch_s3_url),
              call(mock_scratch_gcs_url)]
         )
-        mock_db_driver.assert_called_with(db=mock_db,
+        mock_db_driver.assert_called_with(db=None,
+                                          db_conn=mock_db,
+                                          db_engine=None,
                                           url_resolver=mock_url_resolver,
                                           s3_temp_base_loc=mock_s3_temp_base_loc,
                                           gcs_temp_base_loc=mock_gcs_temp_base_loc)

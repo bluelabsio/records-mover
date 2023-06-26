@@ -45,7 +45,8 @@ class TestFactory(unittest.TestCase):
                                drop_and_recreate_on_load_error=False,
                                existing_table_handling=existing_table_handling,
                                add_group_perms_for=None,
-                               add_user_perms_for=None)
+                               add_user_perms_for=None,
+                               db_conn=None)
         self.assertEqual(table, mock_TableRecordsTarget.return_value)
 
     @patch('records_mover.records.targets.google_sheets.GoogleSheetsRecordsTarget')

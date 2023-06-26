@@ -46,7 +46,8 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
                                default_db_creds_name=None,
                                default_aws_creds_name=None)
         self.engine = self.session.get_default_db_engine()
-        self.driver = self.session.db_driver(self.engine)
+        self.connection = self.engine.connect()
+        self.driver = self.session.db_driver(None, db_conn=self.connection, db_engine=self.engine)
         if self.engine.name == 'bigquery':
             self.schema_name = 'bq_itest'
             # avoid per-table rate limits
@@ -72,6 +73,8 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
     def tearDown(self):
         self.session = None
         self.fixture.tear_down()
+        if not self.connection.closed:
+            self.connection.close()
 
     def table(self, schema, table):
         return Table(table, self.meta, schema=schema, autoload_with=self.engine)
@@ -108,7 +111,8 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory_name:
             source = sources.table(schema_name=self.schema_name,
                                    table_name=self.table_name,
-                                   db_engine=self.engine)
+                                   db_engine=self.engine,
+                                   db_conn=self.connection)
             directory_url = pathlib.Path(directory_name).as_uri() + '/'
             target = targets.directory_from_url(output_url=directory_url,
                                                 records_format=records_format)

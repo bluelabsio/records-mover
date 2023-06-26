@@ -53,8 +53,8 @@ class DoMoveFromFileobjsSource(BaseTableMoveAlgorithm):
         self.fileobj.seek(0)
 
     def move(self) -> MoveResult:
-        with self.tbl.db_engine.begin() as db:
-            driver = self.tbl.db_driver(db)
+        with self.tbl.db_engine.begin() as db_conn:
+            driver = self.tbl.db_driver(None, db_conn=db_conn)
             schema_obj = self.fileobjs_source.records_schema
             schema_sql = self.schema_sql_for_load(schema_obj, self.records_format, driver)
             loader_from_fileobj = driver.loader_from_fileobj()

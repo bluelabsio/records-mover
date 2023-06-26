@@ -11,7 +11,8 @@ class TestVerticaLoader(unittest.TestCase):
     def setUp(self):
         mock_url_resolver = Mock(name='url_resolver')
         mock_db = Mock(name='db')
-        self.vertica_loader = VerticaLoader(url_resolver=mock_url_resolver, db=mock_db)
+        self.vertica_loader = VerticaLoader(url_resolver=mock_url_resolver, db=None,
+                                            db_conn=mock_db)
 
     @patch('records_mover.db.vertica.loader.ProcessingInstructions')
     @patch('records_mover.db.vertica.loader.RecordsLoadPlan')

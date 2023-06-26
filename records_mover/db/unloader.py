@@ -4,16 +4,43 @@ from ..records.unload_plan import RecordsUnloadPlan
 from ..records.records_format import BaseRecordsFormat
 from ..records.records_directory import RecordsDirectory
 from records_mover.url.base import BaseDirectoryUrl
-from typing import List, Optional, Iterator
+from typing import Union, List, Optional, Iterator
 from abc import ABCMeta, abstractmethod
 import sqlalchemy
+from ..check_db_conn_engine import check_db_conn_engine
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class Unloader(metaclass=ABCMeta):
     def __init__(self,
-                 db: sqlalchemy.engine.Engine) -> None:
+                 db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
         self.db = db
+        self._db_conn = db_conn
+        self.db_engine = db_engine
+        self.conn_opened_here = False
         self.meta = MetaData()
+
+    def get_db_conn(self) -> sqlalchemy.engine.Connection:
+        if self._db_conn is None:
+            self._db_conn = self.db_engine.connect()
+            self.conn_opened_here = True
+            logger.debug("Opened connection to database which will be closed inside this uploader.")
+        return self._db_conn
+
+    def set_db_conn(self, db_conn: Optional[sqlalchemy.engine.Connection]) -> None:
+        self._db_conn = db_conn
+
+    def del_db_conn(self) -> None:
+        if self.conn_opened_here:
+            self.db_conn.close()
+
+    db_conn = property(get_db_conn, set_db_conn, del_db_conn)
 
     @abstractmethod
     def unload(self,
@@ -65,3 +92,6 @@ class Unloader(metaclass=ABCMeta):
         if len(supported_formats) == 0:
             return None
         return supported_formats[0]
+
+    def __del__(self) -> None:
+        self.del_db_conn()

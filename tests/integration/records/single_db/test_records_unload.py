@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
+    def tearDown(self):
+        self.connection.close()
+
     def test_unload_csv_format(self):
         self.unload_and_verify('delimited', 'csv')
 
@@ -74,7 +77,8 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
         sources = self.records.sources
         source = sources.table(schema_name=self.schema_name,
                                table_name=self.table_name,
-                               db_engine=self.engine)
+                               db_engine=self.engine,
+                               db_conn=self.connection)
         target = targets.directory_from_url(output_url=directory_url,
                                             records_format=records_format)
         out = self.records.move(source, target)

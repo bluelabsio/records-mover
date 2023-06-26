@@ -30,28 +30,28 @@ class TestTableRecordsSource(unittest.TestCase):
                                   mock_DataframesRecordsSource):
         mock_processing_instructions = Mock(name='processing_instructions')
         mock_records_schema = mock_RecordsSchema.from_db_table.return_value
-        mock_db = self.mock_driver.db
+        mock_db_engine = self.mock_driver.db_engine
+        mock_db_conn = self.mock_driver.db_conn
         mock_connection = MagicMock(name='connection')
-        mock_db.connect.return_value \
-               .__enter__.return_value = mock_connection
+        mock_db_engine.connect.return_value.__enter__.return_value = mock_connection
         mock_column = Mock(name='column')
         mock_columns = [mock_column]
-        mock_db.dialect.get_columns.return_value = mock_columns
+        mock_db_engine.dialect.get_columns.return_value = mock_columns
         mock_quoted_table = mock_quote_schema_and_table.return_value
         mock_chunks = mock_read_sql.return_value
         with self.table_records_source.to_dataframes_source(mock_processing_instructions) as\
                 df_source:
             self.assertEqual(df_source, mock_DataframesRecordsSource.return_value)
-            mock_db.dialect.get_columns.assert_called_with(mock_db,
-                                                           self.mock_table_name,
-                                                           schema=self.mock_schema_name)
+            mock_db_engine.dialect.get_columns.assert_called_with(mock_db_conn,
+                                                                  self.mock_table_name,
+                                                                  schema=self.mock_schema_name)
             mock_RecordsSchema.from_db_table.assert_called_with(self.mock_schema_name,
                                                                 self.mock_table_name,
                                                                 driver=self.mock_driver)
             str_arg = str(mock_read_sql.call_args.args[0])
             self.assertEqual(str_arg, f"SELECT * FROM {mock_quoted_table}")
             kwargs = mock_read_sql.call_args.kwargs
-            self.assertEqual(kwargs['con'], mock_connection)
+            self.assertEqual(kwargs['con'], mock_db_conn)
             self.assertEqual(kwargs['chunksize'], 2000000)
             mock_DataframesRecordsSource.\
                 assert_called_with(dfs=ANY,

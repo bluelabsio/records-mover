@@ -132,7 +132,8 @@ f"""
                     connection.exec_driver_sql(statement)
 
     def quote_schema_and_table(self, schema, table):
-        return quote_schema_and_table(self.engine, schema, table)
+        return quote_schema_and_table(None, schema, table,
+                                      db_engine=self.engine)
 
     def drop_table_if_exists(self, schema, table):
         sql = f"DROP TABLE IF EXISTS {self.quote_schema_and_table(schema, table)}"
