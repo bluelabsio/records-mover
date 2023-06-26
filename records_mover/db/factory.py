@@ -1,10 +1,8 @@
 from .driver import GenericDBDriver, DBDriver
 import sqlalchemy
-from typing import Union
 
 
-def db_driver(db: Union[sqlalchemy.engine.Engine,
-                        sqlalchemy.engine.Connection],
+def db_driver(db: sqlalchemy.engine.Engine,
               **kwargs) -> DBDriver:
     engine: sqlalchemy.engine.Engine = db.engine
     engine_name: str = engine.name

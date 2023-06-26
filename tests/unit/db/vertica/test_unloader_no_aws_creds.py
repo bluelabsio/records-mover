@@ -29,11 +29,14 @@ class TestVerticaUnloaderNoAwsCreds(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open)
     def test_unload_with_no_aws_creds(self,
                                       mock_open):
-        mock_db = Mock(name='db')
+        mock_db = MagicMock(name='db')
         mock_s3_temp_base_loc = MagicMock(name='s3_temp_base_loc')
         mock_target_records_format = Mock(name='target_records_format', spec=DelimitedRecordsFormat)
         mock_target_records_format.hints = {}
-        mock_out = mock_db.execute.return_value
+        mock_connection = MagicMock(name='connection')
+        mock_db.connect.return_value \
+               .__enter__.return_value = mock_connection
+        mock_out = mock_connection.execute.return_value
         mock_out.fetchall.return_value = ['awslib']
         unloader = VerticaUnloader(db=mock_db, s3_temp_base_loc=mock_s3_temp_base_loc)
         mock_table = Mock(name='table')
@@ -56,11 +59,14 @@ class TestVerticaUnloaderNoAwsCreds(unittest.TestCase):
                             directory=mock_directory)
 
     def test_s3_export_available_false_no_awslib(self):
-        mock_db = Mock(name='db')
+        mock_db = MagicMock(name='db')
         mock_s3_temp_base_loc = Mock(name='s3_temp_base_loc')
         mock_target_records_format = Mock(name='target_records_format', spec=DelimitedRecordsFormat)
         mock_target_records_format.hints = {}
-        mock_out = mock_db.execute.return_value
+        mock_connection = MagicMock(name='connection')
+        mock_db.connect.return_value \
+               .__enter__.return_value = mock_connection
+        mock_out = mock_connection.execute.return_value
         mock_out.fetchall.return_value = []
         unloader = VerticaUnloader(db=mock_db, s3_temp_base_loc=mock_s3_temp_base_loc)
         self.assertEqual(False, unloader.s3_export_available())

@@ -1,8 +1,7 @@
-from sqlalchemy.engine import Engine, Connection
-from typing import Union
+from sqlalchemy.engine import Engine
 
 
-def quote_schema_and_table(db: Union[Connection, Engine],
+def quote_schema_and_table(db: Engine,
                            schema: str,
                            table: str) -> str:
     """
@@ -23,17 +22,17 @@ def quote_schema_and_table(db: Union[Connection, Engine],
             dialect.preparer(dialect).quote(table))
 
 
-def quote_table_only(db: Union[Connection, Engine], table: str) -> str:
+def quote_table_only(db: Engine, table: str) -> str:
     dialect = db.dialect
     return dialect.preparer(dialect).quote(table)
 
 
-def quote_column_name(db: Union[Connection, Engine], column_name: str) -> str:
+def quote_column_name(db: Engine, column_name: str) -> str:
     dialect = db.dialect
     return dialect.preparer(dialect).quote(column_name)
 
 
-def quote_value(db: Union[Connection, Engine], value: str) -> str:
+def quote_value(db: Engine, value: str) -> str:
     """
     Prevent SQL injection on literal string values in places when we're
     not able to use bind variables (e.g., using weird DB-specific
@@ -52,11 +51,11 @@ def quote_value(db: Union[Connection, Engine], value: str) -> str:
     return dialect.preparer(dialect, initial_quote="'").quote(value)
 
 
-def quote_user_name(db: Union[Connection, Engine], user_name: str) -> str:
+def quote_user_name(db: Engine, user_name: str) -> str:
     dialect = db.dialect
     return dialect.preparer(dialect).quote_identifier(user_name)
 
 
-def quote_group_name(db: Union[Connection, Engine], group_name: str) -> str:
+def quote_group_name(db: Engine, group_name: str) -> str:
     dialect = db.dialect
     return dialect.preparer(dialect).quote_identifier(group_name)

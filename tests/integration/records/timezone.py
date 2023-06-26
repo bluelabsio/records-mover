@@ -1,4 +1,6 @@
 import logging
+from sqlalchemy import text
+
 
 logger = logging.getLogger(__name__)
 
@@ -13,5 +15,5 @@ def set_session_tz(conn):
     # being of the session timezone.
     if conn.engine.name == 'vertica':
         tz = DB_SESSION_TIMEZONE
-        conn.execute('SET TIME ZONE TO :tz', tz=tz)
+        conn.execute(text('SET TIME ZONE TO :tz'), {'tz': tz})
         logger.info(f"Set database session timezone to {tz}")

@@ -12,7 +12,7 @@ from ...records.unload_plan import RecordsUnloadPlan
 from ...records.records_format import (
     BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
 )
-from typing import Union, Callable, Optional, List, Iterator
+from typing import Callable, Optional, List, Iterator
 from ...url.base import BaseDirectoryUrl
 from botocore.credentials import Credentials
 from ..errors import CredsDoNotSupportS3Export, NoTemporaryBucketConfiguration
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 class RedshiftUnloader(Unloader):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
+                 db: sqlalchemy.engine.Engine,
                  table: Callable[[str, str], Table],
                  s3_temp_base_loc: Optional[BaseDirectoryUrl],
                  **kwargs) -> None:
@@ -87,8 +87,10 @@ class RedshiftUnloader(Unloader):
                                       session_token=aws_creds.token, manifest=True,
                                       unload_location=directory.loc.url, **redshift_options)
             try:
-                self.db.execute(unload)
-                out = self.db.execute(text("SELECT pg_last_unload_count()"))
+                with self.db.connect() as connection:
+                    with connection.begin():
+                        connection.execute(unload)
+                        out = connection.execute(text("SELECT pg_last_unload_count()"))
                 rows: Optional[int] = out.scalar()
                 assert rows is not None
                 logger.info(f"Just unloaded {rows} rows")

@@ -60,7 +60,7 @@ which records can be copied, of type :class:`records_mover.records.targets.Recor
     "Alias of :meth:`records_mover.records.move`"
 
     def __init__(self,
-                 db_driver: Union[Callable[[Union['Engine', 'Connection']], 'DBDriver'],
+                 db_driver: Union[Callable[['Engine'], 'DBDriver'],
                                   PleaseInfer] = PleaseInfer.token,
                  url_resolver: Union[UrlResolver, PleaseInfer] = PleaseInfer.token,
                  session: Union['Session', PleaseInfer] = PleaseInfer.token) -> None:

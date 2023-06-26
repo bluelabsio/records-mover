@@ -1,6 +1,6 @@
 import sqlalchemy
 from contextlib import contextmanager
-from typing import List, Iterator, Optional, Union, Tuple
+from typing import List, Iterator, Optional, Tuple
 import logging
 from google.cloud.bigquery.dbapi.connection import Connection
 from google.cloud.bigquery.client import Client
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class BigQueryUnloader(Unloader):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
+                 db: sqlalchemy.engine.Engine,
                  url_resolver: UrlResolver,
                  gcs_temp_base_loc: Optional[BaseDirectoryUrl])\
             -> None:

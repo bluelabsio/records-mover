@@ -144,7 +144,7 @@ airflow_dependencies = [
 ]
 
 db_dependencies = [
-    'sqlalchemy>=1.4,<2.0',
+    'sqlalchemy>=1.4',
 ]
 
 smart_open_dependencies = [
@@ -224,10 +224,7 @@ cli_dependencies_base = [
 ]
 
 vertica_dependencies = [
-    # sqlalchemy-vertica-python 0.5.5 introduced
-    # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
-    # which fixed a bug pulling schema information from Vertica
-    'sqlalchemy-vertica-python>=0.5.5,<0.6',
+    'sqlalchemy-vertica-python>=0.5.5',
 ] + db_dependencies
 
 literally_every_single_database_binary_dependencies = (

@@ -4,14 +4,14 @@ from ..records.unload_plan import RecordsUnloadPlan
 from ..records.records_format import BaseRecordsFormat
 from ..records.records_directory import RecordsDirectory
 from records_mover.url.base import BaseDirectoryUrl
-from typing import Union, List, Optional, Iterator
+from typing import List, Optional, Iterator
 from abc import ABCMeta, abstractmethod
 import sqlalchemy
 
 
 class Unloader(metaclass=ABCMeta):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]) -> None:
+                 db: sqlalchemy.engine.Engine) -> None:
         self.db = db
         self.meta = MetaData()
 

@@ -6,12 +6,13 @@ from ...records.records_directory import RecordsDirectory
 from ...records.records_format import BaseRecordsFormat, DelimitedRecordsFormat, AvroRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 import sqlalchemy
+from sqlalchemy import text
 from sqlalchemy.schema import Table
 import logging
 from .records_copy import redshift_copy_options
 from ...records.load_plan import RecordsLoadPlan
 from ..errors import CredsDoNotSupportS3Import, NoTemporaryBucketConfiguration
-from typing import Optional, Union, List, Iterator
+from typing import Optional, List, Iterator
 from ...url import BaseDirectoryUrl
 from botocore.credentials import Credentials
 from ...records.delimited import complain_on_unhandled_hints
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class RedshiftLoader(LoaderFromRecordsDirectory):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
+                 db: sqlalchemy.engine.Engine,
                  meta: sqlalchemy.MetaData,
                  s3_temp_base_loc: Optional[BaseDirectoryUrl])\
             -> None:
@@ -91,7 +92,7 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
                                empty_as_null=True,
                                **redshift_options)  # type: ignore
             logger.info(f"Starting Redshift COPY from {directory}...")
-            redshift_pid: int = self.db.execute("SELECT pg_backend_pid();").scalar()
+            redshift_pid: int = self.db.execute(text("SELECT pg_backend_pid();")).scalar()
             try:
                 self.db.execute(copy)
             except sqlalchemy.exc.InternalError:

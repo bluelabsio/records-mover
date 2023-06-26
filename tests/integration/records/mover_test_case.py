@@ -27,7 +27,7 @@ class MoverTestCase:
         # timezone is stripped off without looking at it before the
         # timestamp itself is stored without any modifications to the
         # hour number.
-        return engine.name == 'mysql'
+        return engine.name == 'mysql' or engine.name is None
 
     def database_default_store_timezone_is_us_eastern(self) -> bool:
         """

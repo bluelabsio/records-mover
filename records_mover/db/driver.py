@@ -9,7 +9,7 @@ from sqlalchemy.schema import Table
 from records_mover.db.quoting import quote_group_name, quote_user_name, quote_schema_and_table
 from abc import ABCMeta, abstractmethod
 from records_mover.records import RecordsSchema
-from typing import Union, Dict, List, Tuple, Optional, TYPE_CHECKING
+from typing import Dict, List, Tuple, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from typing_extensions import Literal  # noqa
 
@@ -18,8 +18,7 @@ logger = logging.getLogger(__name__)
 
 class DBDriver(metaclass=ABCMeta):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Engine,
-                           sqlalchemy.engine.Connection], **kwargs) -> None:
+                 db: sqlalchemy.engine.Engine, **kwargs) -> None:
         self.db = db
         self.db_engine = db.engine
         self.meta = MetaData()
@@ -30,7 +29,7 @@ class DBDriver(metaclass=ABCMeta):
     def table(self,
               schema: str,
               table: str) -> Table:
-        return Table(table, self.meta, schema=schema, autoload=True, autoload_with=self.db_engine)
+        return Table(table, self.meta, schema=schema, autoload_with=self.db_engine)
 
     def schema_sql(self,
                    schema: str,
@@ -42,7 +41,7 @@ class DBDriver(metaclass=ABCMeta):
         """
         # http://docs.sqlalchemy.org/en/latest/core/reflection.html
         table_obj = self.table(schema, table)
-        return str(CreateTable(table_obj, bind=self.db))
+        return str(CreateTable(table_obj))
 
     def varchar_length_is_in_chars(self) -> bool:
         """True if the 'n' in VARCHAR(n) is represented in natural language
@@ -52,8 +51,7 @@ class DBDriver(metaclass=ABCMeta):
 
     def set_grant_permissions_for_groups(self, schema_name: str, table: str,
                                          groups: Dict[str, List[str]],
-                                         db: Union[sqlalchemy.engine.Engine,
-                                                   sqlalchemy.engine.Connection]) -> None:
+                                         db: sqlalchemy.engine.Engine) -> None:
         schema_and_table: str = quote_schema_and_table(self.db.engine, schema_name, table)
         for perm_type in groups:
             groups_list = groups[perm_type]
@@ -67,8 +65,7 @@ class DBDriver(metaclass=ABCMeta):
 
     def set_grant_permissions_for_users(self, schema_name: str, table: str,
                                         users: Dict[str, List[str]],
-                                        db: Union[sqlalchemy.engine.Engine,
-                                                  sqlalchemy.engine.Connection]) -> None:
+                                        db: sqlalchemy.engine.Engine) -> None:
         schema_and_table: str = quote_schema_and_table(self.db.engine, schema_name, table)
         for perm_type in users:
             user_list = users[perm_type]

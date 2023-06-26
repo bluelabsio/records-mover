@@ -134,7 +134,7 @@ class TestRedshiftLoader(unittest.TestCase):
         mock_s3_directory.loc.url = 's3://foo/bar/baz/'
 
         def db_execute(command):
-            if command == 'SELECT pg_backend_pid();':
+            if str(command) == 'SELECT pg_backend_pid();':
                 mock_result_proxy = Mock(name='result_proxy')
                 mock_result_proxy.scalar.return_value = 123
                 return mock_result_proxy

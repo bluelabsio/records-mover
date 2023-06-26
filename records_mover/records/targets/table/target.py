@@ -4,7 +4,7 @@ from records_mover.records.targets.base import (
     MightSupportMoveFromFileobjsSource,
     SupportsMoveFromDataframes,
 )
-from sqlalchemy.engine import Engine, Connection
+from sqlalchemy.engine import Engine
 from records_mover.records.prep import TablePrep, TargetTableDetails
 from records_mover.records.records_format import BaseRecordsFormat
 from records_mover.db import DBDriver
@@ -22,7 +22,7 @@ from records_mover.records.targets.table.move_from_temp_loc_after_filling_it imp
     DoMoveFromTempLocAfterFillingIt
 )
 import logging
-from typing import Callable, Union, Optional, Dict, List, TYPE_CHECKING
+from typing import Callable, Optional, Dict, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from records_mover.records.sources.dataframes import DataframesRecordsSource
 
@@ -39,7 +39,7 @@ class TableRecordsTarget(SupportsMoveFromRecordsDirectory,
                  schema_name: str,
                  table_name: str,
                  db_engine: Engine,
-                 db_driver: Callable[[Union[Engine, Connection]], DBDriver],
+                 db_driver: Callable[[Engine], DBDriver],
                  add_user_perms_for: Optional[Dict[str, List[str]]] = None,
                  add_group_perms_for: Optional[Dict[str, List[str]]] = None,
                  existing_table_handling: ExistingTableHandling =

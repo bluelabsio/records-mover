@@ -12,7 +12,7 @@ from ...utils.limits import (INT16_MIN, INT16_MAX,
                              num_digits)
 from .sql import schema_sql_from_admin_views
 import timeout_decorator
-from typing import Optional, Union, Dict, List, Tuple
+from typing import Optional, Dict, List, Tuple
 from ...url.base import BaseDirectoryUrl
 from records_mover.db.quoting import quote_group_name, quote_schema_and_table
 from .unloader import RedshiftUnloader
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 class RedshiftDBDriver(DBDriver):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
+                 db: sqlalchemy.engine.Engine,
                  s3_temp_base_loc: Optional[BaseDirectoryUrl] = None,
                  **kwargs) -> None:
         super().__init__(db)
@@ -66,12 +66,11 @@ class RedshiftDBDriver(DBDriver):
                 # There was some hang-wringing when they added it originally:
                 #  https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/commit/
                 #      94723ec6437c5e5197fcf785845499e81640b167
-                return Table(table, self.meta, schema=schema, autoload=True, autoload_with=conn)
+                return Table(table, self.meta, schema=schema, autoload_with=conn)
 
     def set_grant_permissions_for_groups(self, schema_name: str, table: str,
                                          groups: Dict[str, List[str]],
-                                         db: Union[sqlalchemy.engine.Engine,
-                                                   sqlalchemy.engine.Connection]) -> None:
+                                         db: sqlalchemy.engine.Engine) -> None:
         schema_and_table = quote_schema_and_table(self.db.engine, schema_name, table)
         for perm_type in groups:
             groups_list = groups[perm_type]

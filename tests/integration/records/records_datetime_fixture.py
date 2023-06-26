@@ -4,6 +4,7 @@ from .datetime_cases import (
     SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY,
     SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND, SAMPLE_OFFSET, SAMPLE_LONG_TZ
 )
+from sqlalchemy import text
 from sqlalchemy.engine import Engine
 import logging
 
@@ -22,7 +23,9 @@ class RecordsDatetimeFixture:
     @bigquery_retry()
     def drop_table_if_exists(self, schema, table):
         sql = f"DROP TABLE IF EXISTS {self.quote_schema_and_table(schema, table)}"
-        self.engine.execute(sql)
+        with self.engine.connect() as connection:
+            with connection.begin():
+                connection.execute(text(sql))
 
     def createDateTimeTzTable(self) -> None:
         if self.engine.name == 'redshift':
@@ -52,7 +55,9 @@ class RecordsDatetimeFixture:
 """  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
-        self.engine.execute(create_tables)
+        with self.engine.connect() as connection:
+            with connection.begin():
+                connection.exec_driver_sql(create_tables)
 
     def createDateTimeTable(self) -> None:
         if self.engine.name == 'redshift':
@@ -82,7 +87,9 @@ class RecordsDatetimeFixture:
 """  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
-        self.engine.execute(create_tables)
+        with self.engine.connect() as connection:
+            with connection.begin():
+                connection.exec_driver_sql(create_tables)
 
     @bigquery_retry()
     def createDateTable(self) -> None:
@@ -113,7 +120,9 @@ class RecordsDatetimeFixture:
 """  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
-        self.engine.execute(create_tables)
+        with self.engine.connect() as connection:
+            with connection.begin():
+                connection.exec_driver_sql(create_tables)
 
     @bigquery_retry()
     def createTimeTable(self):
@@ -144,7 +153,9 @@ class RecordsDatetimeFixture:
 """  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
-        self.engine.execute(create_tables)
+        with self.engine.connect() as connection:
+            with connection.begin():
+                connection.exec_driver_sql(create_tables)
 
     def drop_tables(self):
         logger.info('Dropping tables...')

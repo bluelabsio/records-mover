@@ -8,6 +8,7 @@ from ..processing_instructions import ProcessingInstructions
 from ..records_format import BaseRecordsFormat
 from ..unload_plan import RecordsUnloadPlan
 from ..results import MoveResult
+from sqlalchemy import text
 from sqlalchemy.engine import Engine
 from contextlib import contextmanager
 from ..schema import RecordsSchema
@@ -92,17 +93,19 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         logger.info(f"Exporting in chunks of up to {chunksize} rows by {num_columns} columns")
 
         quoted_table = quote_schema_and_table(db, self.schema_name, self.table_name)
-        chunks: Generator['DataFrame', None, None] = \
-            pandas.read_sql(f"SELECT * FROM {quoted_table}",
-                            con=db,
-                            chunksize=chunksize)
-        try:
-            yield DataframesRecordsSource(dfs=self.with_cast_dataframe_types(records_schema,
-                                                                             chunks),
-                                          records_schema=records_schema,
-                                          processing_instructions=processing_instructions)
-        finally:
-            chunks.close()
+        with db.connect() as connection:
+            with connection.begin():
+                chunks: Generator['DataFrame', None, None] = \
+                    pandas.read_sql(text(f"SELECT * FROM {quoted_table}"),
+                                    con=connection,
+                                    chunksize=chunksize)
+                try:
+                    yield DataframesRecordsSource(dfs=self.with_cast_dataframe_types(records_schema,
+                                                                                     chunks),
+                                                  records_schema=records_schema,
+                                                  processing_instructions=processing_instructions)
+                finally:
+                    chunks.close()
 
     def with_cast_dataframe_types(self,
                                   records_schema: RecordsSchema,

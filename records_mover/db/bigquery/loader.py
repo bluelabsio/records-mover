@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Union, List, IO, Tuple, Optional, Iterator
+from typing import List, IO, Tuple, Optional, Iterator
 from ...url import BaseDirectoryUrl
 from ...records.delimited import complain_on_unhandled_hints
 import pprint
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 class BigQueryLoader(LoaderFromFileobj):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
+                 db: sqlalchemy.engine.Engine,
                  url_resolver: UrlResolver,
                  gcs_temp_base_loc: Optional[BaseDirectoryUrl])\
             -> None:
