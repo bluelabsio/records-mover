@@ -14,8 +14,7 @@ class TestPrep(unittest.TestCase):
     def test_prep_table_exists_append_implicit(self, mock_quote_schema_and_table):
         mock_schema_sql = Mock(name='schema_sql')
         mock_driver = Mock(name='driver', spec=DBDriver)
-        mock_driver.db_conn = Mock(name='db')
-        mock_driver.db_engine = Mock(name='db_endine')
+        mock_driver.db = Mock(name='db')
 
         mock_driver.has_table.return_value = True
         how_to_prep = ExistingTableHandling.APPEND
@@ -27,8 +26,7 @@ class TestPrep(unittest.TestCase):
     def test_prep_table_exists_truncate_implicit(self, mock_quote_schema_and_table):
         mock_schema_sql = Mock(name='schema_sql')
         mock_driver = Mock(name='driver', spec=DBDriver)
-        mock_driver.db_conn = Mock(name='db')
-        mock_driver.db_engine = Mock(name='db_endine')
+        mock_driver.db = Mock(name='db')
 
         mock_quote_schema_and_table
         mock_driver.has_table.return_value = True
@@ -47,8 +45,7 @@ class TestPrep(unittest.TestCase):
     def test_prep_table_exists_delete_implicit(self, mock_quote_schema_and_table):
         mock_schema_sql = Mock(name='schema_sql')
         mock_driver = Mock(name='driver', spec=DBDriver)
-        mock_driver.db_conn = Mock(name='db')
-        mock_driver.db_engine = Mock(name='db_endine')
+        mock_driver.db = Mock(name='db')
 
         mock_quote_schema_and_table
         mock_driver.has_table.return_value = True
@@ -68,7 +65,7 @@ class TestPrep(unittest.TestCase):
         mock_schema_sql = Mock(name='schema_sql')
         mock_driver = Mock(name='driver', spec=DBDriver)
         mock_db = MagicMock(name='db')
-        mock_driver.db_conn = mock_db
+        mock_driver.db = mock_db
 
         mock_quote_schema_and_table
         mock_driver.has_table.return_value = True
@@ -102,7 +99,7 @@ class TestPrep(unittest.TestCase):
         mock_schema_sql = Mock(name='schema_sql')
         mock_driver = Mock(name='driver', spec=DBDriver)
         mock_db = MagicMock(name='db')
-        mock_driver.db_conn = mock_db
+        mock_driver.db = mock_db
 
         mock_quote_schema_and_table
         mock_driver.has_table.return_value = False
@@ -131,7 +128,7 @@ class TestPrep(unittest.TestCase):
         mock_schema_sql = Mock(name='schema_sql')
         mock_driver = Mock(name='driver', spec=DBDriver)
         mock_db = MagicMock(name='db')
-        mock_driver.db_conn = mock_db
+        mock_driver.db = mock_db
 
         mock_quote_schema_and_table
         mock_driver.has_table.return_value = True
