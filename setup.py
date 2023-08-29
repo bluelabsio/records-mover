@@ -239,7 +239,7 @@ literally_every_single_database_binary_dependencies = (
 )
 
 typecheck_dependencies = [
-    'mypy',
+    'mypy<1.5.0',  # https://github.com/python/mypy/issues/15891
     'lxml',  # needed by mypy HTML coverage reporting
     'sqlalchemy-stubs>=0.3',
     'types-pytz',
