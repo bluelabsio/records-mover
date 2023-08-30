@@ -204,7 +204,7 @@ class RecordsTableValidator:
                                             'YYYY-MM-DD HH24:MI:SS.US TZ') as timestamptzstr
                 FROM {schema_name}.{table_name}
                 """)
-            out = connection.execute(select_sql, **params)
+            out = connection.execute(select_sql, params)
             ret_all = out.fetchall()
         assert 1 == len(ret_all)
         ret = ret_all[0]

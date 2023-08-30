@@ -14,8 +14,11 @@ class TestBigQueryUnloader(unittest.TestCase):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
-        big_query_unloader = BigQueryUnloader(db=mock_db, url_resolver=mock_url_resolver,
-                                              gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_unloader = BigQueryUnloader(
+            db=None,
+            url_resolver=mock_url_resolver,
+            gcs_temp_base_loc=mock_gcs_temp_base_loc,
+            db_conn=mock_db)
         avro_format = AvroRecordsFormat()
         self.assertTrue(big_query_unloader.can_unload_format(avro_format))
 
@@ -23,8 +26,11 @@ class TestBigQueryUnloader(unittest.TestCase):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
-        big_query_unloader = BigQueryUnloader(db=mock_db, url_resolver=mock_url_resolver,
-                                              gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_unloader = BigQueryUnloader(
+            db=None,
+            url_resolver=mock_url_resolver,
+            gcs_temp_base_loc=mock_gcs_temp_base_loc,
+            db_conn=mock_db)
         delimited_format = DelimitedRecordsFormat()
         self.assertFalse(big_query_unloader.can_unload_format(delimited_format))
 
@@ -32,32 +38,44 @@ class TestBigQueryUnloader(unittest.TestCase):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
-        big_query_unloader = BigQueryUnloader(db=mock_db, url_resolver=mock_url_resolver,
-                                              gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_unloader = BigQueryUnloader(
+            db=None,
+            url_resolver=mock_url_resolver,
+            gcs_temp_base_loc=mock_gcs_temp_base_loc,
+            db_conn=mock_db)
         self.assertTrue(big_query_unloader.can_unload_to_scheme('gs'))
 
     def test_can_unload_to_scheme_other_with_temp_bucket_true(self):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
-        big_query_unloader = BigQueryUnloader(db=mock_db, url_resolver=mock_url_resolver,
-                                              gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_unloader = BigQueryUnloader(
+            db=None,
+            url_resolver=mock_url_resolver,
+            gcs_temp_base_loc=mock_gcs_temp_base_loc,
+            db_conn=mock_db)
         self.assertTrue(big_query_unloader.can_unload_to_scheme('blah'))
 
     def test_can_unload_to_scheme_other_with_no_temp_bucket_true(self):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = None
-        big_query_unloader = BigQueryUnloader(db=mock_db, url_resolver=mock_url_resolver,
-                                              gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_unloader = BigQueryUnloader(
+            db=None,
+            url_resolver=mock_url_resolver,
+            gcs_temp_base_loc=mock_gcs_temp_base_loc,
+            db_conn=mock_db)
         self.assertFalse(big_query_unloader.can_unload_to_scheme('blah'))
 
     def test_known_supported_records_formats_for_unload(self):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
-        big_query_unloader = BigQueryUnloader(db=mock_db, url_resolver=mock_url_resolver,
-                                              gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_unloader = BigQueryUnloader(
+            db=None,
+            url_resolver=mock_url_resolver,
+            gcs_temp_base_loc=mock_gcs_temp_base_loc,
+            db_conn=mock_db)
         self.assertEqual([type(format)
                           for format in
                           big_query_unloader.known_supported_records_formats_for_unload()],
@@ -67,8 +85,11 @@ class TestBigQueryUnloader(unittest.TestCase):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = None
-        big_query_unloader = BigQueryUnloader(db=mock_db, url_resolver=mock_url_resolver,
-                                              gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_unloader = BigQueryUnloader(
+            db=None,
+            url_resolver=mock_url_resolver,
+            gcs_temp_base_loc=mock_gcs_temp_base_loc,
+            db_conn=mock_db)
         with self.assertRaises(NoTemporaryBucketConfiguration):
             with big_query_unloader.temporary_unloadable_directory_loc():
                 pass
@@ -77,8 +98,11 @@ class TestBigQueryUnloader(unittest.TestCase):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
-        big_query_unloader = BigQueryUnloader(db=mock_db, url_resolver=mock_url_resolver,
-                                              gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_unloader = BigQueryUnloader(
+            db=None,
+            url_resolver=mock_url_resolver,
+            gcs_temp_base_loc=mock_gcs_temp_base_loc,
+            db_conn=mock_db)
         with big_query_unloader.temporary_unloadable_directory_loc() as temp_loc:
             self.assertEqual(temp_loc,
                              mock_gcs_temp_base_loc.temporary_directory.return_value.__enter__.
@@ -88,8 +112,11 @@ class TestBigQueryUnloader(unittest.TestCase):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
-        big_query_unloader = BigQueryUnloader(db=mock_db, url_resolver=mock_url_resolver,
-                                              gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_unloader = BigQueryUnloader(
+            db=None,
+            url_resolver=mock_url_resolver,
+            gcs_temp_base_loc=mock_gcs_temp_base_loc,
+            db_conn=mock_db)
         mock_schema = 'myproject.mydataset'
         mock_table = 'mytable'
         mock_unload_plan = Mock(name='unload_plan')

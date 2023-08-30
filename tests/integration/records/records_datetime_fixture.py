@@ -1,3 +1,5 @@
+# flake8: noqa
+
 from records_mover.db.quoting import quote_schema_and_table
 from records_mover.utils.retry import bigquery_retry
 from .datetime_cases import (
@@ -5,27 +7,34 @@ from .datetime_cases import (
     SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND, SAMPLE_OFFSET, SAMPLE_LONG_TZ
 )
 from sqlalchemy import text
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Engine, Connection
+from typing import Optional
+
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 class RecordsDatetimeFixture:
-    def __init__(self, engine: Engine, schema_name: str, table_name: str):
+    def __init__(self, engine: Engine, schema_name: str, table_name: str,
+                 connection: Optional[Connection] = None):
         self.engine = engine
         self.schema_name = schema_name
         self.table_name = table_name
+        self.connection = connection
 
     def quote_schema_and_table(self, schema, table):
-        return quote_schema_and_table(self.engine, schema, table)
+        return quote_schema_and_table(None, schema, table, db_engine=self.engine)
 
     @bigquery_retry()
     def drop_table_if_exists(self, schema, table):
         sql = f"DROP TABLE IF EXISTS {self.quote_schema_and_table(schema, table)}"
-        with self.engine.connect() as connection:
-            with connection.begin():
-                connection.execute(text(sql))
+        if not self.connection:
+            with self.engine.connect() as connection:
+                with connection.begin():
+                    connection.execute(text(sql))
+        else:
+            self.connection.execute(text(sql))
 
     def createDateTimeTzTable(self) -> None:
         if self.engine.name == 'redshift':
@@ -87,9 +96,13 @@ class RecordsDatetimeFixture:
 """  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
-        with self.engine.connect() as connection:
-            with connection.begin():
-                connection.exec_driver_sql(create_tables)
+        if not self.connection:
+            with self.engine.connect() as connection:
+                with connection.begin():
+                    connection.exec_driver_sql(create_tables)
+        else:
+            with self.connection.begin():
+                self.connection.exec_driver_sql(create_tables)  # type: ignore[attr-defined]
 
     @bigquery_retry()
     def createDateTable(self) -> None:
@@ -120,9 +133,13 @@ class RecordsDatetimeFixture:
 """  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
-        with self.engine.connect() as connection:
-            with connection.begin():
-                connection.exec_driver_sql(create_tables)
+        if not self.connection:
+            with self.engine.connect() as connection:
+                with connection.begin():
+                    connection.exec_driver_sql(create_tables)
+        else:
+            with self.connection.begin():
+                self.connection.exec_driver_sql(create_tables)  # type: ignore[attr-defined]
 
     @bigquery_retry()
     def createTimeTable(self):
@@ -153,9 +170,13 @@ class RecordsDatetimeFixture:
 """  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
-        with self.engine.connect() as connection:
-            with connection.begin():
-                connection.exec_driver_sql(create_tables)
+        if not self.connection:
+            with self.engine.connect() as connection:
+                with connection.begin():
+                    connection.exec_driver_sql(create_tables)
+        else:
+            with self.connection.begin():
+                self.connection.exec_driver_sql(create_tables)
 
     def drop_tables(self):
         logger.info('Dropping tables...')

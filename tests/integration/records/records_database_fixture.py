@@ -8,7 +8,10 @@ logger = logging.getLogger(__name__)
 
 class RecordsDatabaseFixture:
     def quote_schema_and_table(self, schema, table):
-        return quote_schema_and_table(self.engine, schema, table)
+        return quote_schema_and_table(None,
+                                      schema=schema,
+                                      table=table,
+                                      db_engine=self.engine)
 
     def __init__(self, db_engine, schema_name, table_name):
         self.engine = db_engine

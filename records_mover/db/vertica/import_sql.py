@@ -55,14 +55,14 @@ def vertica_import_sql(schema: str,
         return quote_value(db_engine, value)
 
     if rejected_data_table is not None and rejected_data_schema is not None:
-        rejected_target = quote_schema_and_table(db_engine,
-                                                 rejected_data_schema, rejected_data_table)
+        rejected_target = quote_schema_and_table(None, rejected_data_schema, rejected_data_table,
+                                                 db_engine=db_engine)
         rejected_data = f"REJECTED DATA AS TABLE {rejected_target}"
     else:
         rejected_data = ''
 
     import_sql = import_sql_template.format(
-        schema_and_table=quote_schema_and_table(db_engine, schema, table),
+        schema_and_table=quote_schema_and_table(None, schema, table, db_engine=db_engine),
         # https://forum.vertica.com/discussion/238556/reading-gzip-files-from-s3-into-vertica
         gzip='GZIP' if gzip else '',
         # The capital E in the next line specifies a string literal

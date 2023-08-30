@@ -4,10 +4,10 @@ from .sources import RecordsSources
 from .targets import RecordsTargets
 from .mover import move
 from enum import Enum
-from typing import Callable, Union, TYPE_CHECKING
+from typing import Callable, Union, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from sqlalchemy.engine import Engine, Connection  # noqa
-    from ..db import DBDriver  # noqa
+    from ..db import DBDriver # noqa
 
     from records_mover import Session  # noqa
 
@@ -60,7 +60,9 @@ which records can be copied, of type :class:`records_mover.records.targets.Recor
     "Alias of :meth:`records_mover.records.move`"
 
     def __init__(self,
-                 db_driver: Union[Callable[['Engine'], 'DBDriver'],
+                 db_driver: Union[Callable[[Union['Engine', 'Connection', None],
+                                            Optional['Connection'],
+                                            Optional['Engine']], 'DBDriver'],
                                   PleaseInfer] = PleaseInfer.token,
                  url_resolver: Union[UrlResolver, PleaseInfer] = PleaseInfer.token,
                  session: Union['Session', PleaseInfer] = PleaseInfer.token) -> None:

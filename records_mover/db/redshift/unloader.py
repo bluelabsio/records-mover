@@ -12,12 +12,13 @@ from ...records.unload_plan import RecordsUnloadPlan
 from ...records.records_format import (
     BaseRecordsFormat, DelimitedRecordsFormat, ParquetRecordsFormat
 )
-from typing import Callable, Optional, List, Iterator
+from typing import Union, Callable, Optional, List, Iterator
 from ...url.base import BaseDirectoryUrl
 from botocore.credentials import Credentials
 from ..errors import CredsDoNotSupportS3Export, NoTemporaryBucketConfiguration
 from ...records.delimited import complain_on_unhandled_hints
 from ..unloader import Unloader
+from ...check_db_conn_engine import check_db_conn_engine
 
 
 logger = logging.getLogger(__name__)
@@ -25,11 +26,14 @@ logger = logging.getLogger(__name__)
 
 class RedshiftUnloader(Unloader):
     def __init__(self,
-                 db: sqlalchemy.engine.Engine,
+                 db: Optional[Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection]],
                  table: Callable[[str, str], Table],
                  s3_temp_base_loc: Optional[BaseDirectoryUrl],
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None,
                  **kwargs) -> None:
-        super().__init__(db=db)
+        check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
+        super().__init__(db=db, db_conn=db_conn, db_engine=db_engine)
         self.table = table
         self.s3_temp_base_loc = s3_temp_base_loc
 
@@ -80,17 +84,17 @@ class RedshiftUnloader(Unloader):
             #
             register_secret(aws_creds.token)
             register_secret(aws_creds.secret_key)
-            select = text(f"SELECT * FROM {quote_schema_and_table(self.db, schema, table)}")
+            select = text(
+                "SELECT * FROM "
+                f"{quote_schema_and_table(None, schema, table, db_engine=self.db_engine)}")
             unload = UnloadFromSelect(select=select,
                                       access_key_id=aws_creds.access_key,
                                       secret_access_key=aws_creds.secret_key,
                                       session_token=aws_creds.token, manifest=True,
                                       unload_location=directory.loc.url, **redshift_options)
             try:
-                with self.db.connect() as connection:
-                    with connection.begin():
-                        connection.execute(unload)
-                        out = connection.execute(text("SELECT pg_last_unload_count()"))
+                self.db_conn.execute(unload)
+                out = self.db_conn.execute(text("SELECT pg_last_unload_count()"))
                 rows: Optional[int] = out.scalar()
                 assert rows is not None
                 logger.info(f"Just unloaded {rows} rows")

@@ -17,7 +17,7 @@ class TestSQL(unittest.TestCase):
         mock_connection.begin.return_value \
                        .__enter__.return_value = None
         mock_connection.execute.side_effect = sqlalchemy.exc.ProgrammingError('statement', {}, {})
-        out = schema_sql_from_admin_views(mock_schema, mock_table, mock_db)
+        out = schema_sql_from_admin_views(mock_schema, mock_table, None, db_conn=mock_connection)
         self.assertIsNone(out)
         mock_logger.debug.assert_called_with('Error while generating SQL', exc_info=True)
         mock_logger.warning.\

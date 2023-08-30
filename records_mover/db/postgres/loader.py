@@ -10,9 +10,10 @@ from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from .sqlalchemy_postgres_copy import copy_from
 from .copy_options import postgres_copy_from_options
-from typing import IO, List, Iterable
+from typing import IO, Union, List, Iterable, Optional
 from ..loader import LoaderFromFileobj
 import logging
+from ...check_db_conn_engine import check_db_conn_engine
 
 logger = logging.getLogger(__name__)
 
@@ -21,10 +22,32 @@ class PostgresLoader(LoaderFromFileobj):
     def __init__(self,
                  url_resolver: UrlResolver,
                  meta: MetaData,
-                 db: sqlalchemy.engine.Engine) -> None:
+                 db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
         self.url_resolver = url_resolver
         self.db = db
+        self._db_conn = db_conn
+        self.db_engine = db_engine
         self.meta = meta
+        self.conn_opened_here = False
+
+    def get_db_conn(self) -> sqlalchemy.engine.Connection:
+        if self._db_conn is None:
+            self._db_conn = self.db_engine.connect()
+            self.conn_opened_here = True
+            logger.debug(f"Opened connection to database within {self} because none was provided.")
+        return self._db_conn
+
+    def set_db_conn(self, db_conn: Optional[sqlalchemy.engine.Connection]) -> None:
+        self._db_conn = db_conn
+
+    def del_db_conn(self) -> None:
+        if self.conn_opened_here:
+            self.db_conn.close()
+
+    db_conn = property(get_db_conn, set_db_conn, del_db_conn)
 
     def load_from_fileobj(self,
                           schema: str,
@@ -59,31 +82,30 @@ class PostgresLoader(LoaderFromFileobj):
         table_obj = Table(table,
                           self.meta,
                           schema=schema,
-                          autoload_with=self.db)
+                          autoload_with=self.db_engine)
 
-        with self.db.engine.begin() as conn:
-            # https://www.postgresql.org/docs/8.3/sql-set.html
-            #
-            # The effects of SET LOCAL last only till the end of the
-            # current transaction, whether committed or not. A special
-            # case is SET followed by SET LOCAL within a single
-            # transaction: the SET LOCAL value will be seen until the end
-            # of the transaction, but afterwards (if the transaction is
-            # committed) the SET value will take effect.
-            date_style = f"ISO, {date_order_style}"
-            sql = f"SET LOCAL DateStyle = {quote_value(conn, date_style)}"
-            logger.info(sql)
-            conn.execute(text(sql))
+        # https://www.postgresql.org/docs/8.3/sql-set.html
+        #
+        # The effects of SET LOCAL last only till the end of the
+        # current transaction, whether committed or not. A special
+        # case is SET followed by SET LOCAL within a single
+        # transaction: the SET LOCAL value will be seen until the end
+        # of the transaction, but afterwards (if the transaction is
+        # committed) the SET value will take effect.
+        date_style = f"ISO, {date_order_style}"
+        sql = f"SET LOCAL DateStyle = {quote_value(None, date_style, db_engine=self.db_engine)}"
+        logger.info(sql)
+        self.db_conn.execute(text(sql))
 
-            for fileobj in fileobjs:
-                # Postgres COPY FROM defaults to appending data--we
-                # let the records Prep class decide what to do about
-                # the existing table, so it's safe to call this
-                # multiple times and append until done:
-                copy_from(fileobj,
-                          table_obj,
-                          conn,
-                          **postgres_options)
+        for fileobj in fileobjs:
+            # Postgres COPY FROM defaults to appending data--we
+            # let the records Prep class decide what to do about
+            # the existing table, so it's safe to call this
+            # multiple times and append until done:
+            copy_from(fileobj,
+                      table_obj,
+                      self.db_conn,
+                      **postgres_options)
         logger.info('Copy complete')
 
     def can_load_this_format(self, source_records_format: BaseRecordsFormat) -> bool:
@@ -130,3 +152,6 @@ class PostgresLoader(LoaderFromFileobj):
             DelimitedRecordsFormat(variant='bigquery',
                                    hints={'compression': None}),
         ]
+
+    def __del__(self) -> None:
+        self.del_db_conn()

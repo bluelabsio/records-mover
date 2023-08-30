@@ -9,7 +9,8 @@ class TestPostgresDBDriver(unittest.TestCase):
         self.mock_db_engine = MagicMock(name='db_engine')
         self.mock_url_resolver = Mock(name='url_resolver')
         self.mock_db_engine.engine = self.mock_db_engine
-        self.postgres_db_driver = PostgresDBDriver(db=self.mock_db_engine,
+        self.postgres_db_driver = PostgresDBDriver(None,
+                                                   db_engine=self.mock_db_engine,
                                                    url_resolver=self.mock_url_resolver)
 
     def test_integer_limits(self):

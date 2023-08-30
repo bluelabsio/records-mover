@@ -12,7 +12,7 @@ from .loader import PostgresLoader
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from .unloader import PostgresUnloader
 from ..unloader import Unloader
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 
 logger = logging.getLogger(__name__)
@@ -20,14 +20,20 @@ logger = logging.getLogger(__name__)
 
 class PostgresDBDriver(DBDriver):
     def __init__(self,
-                 db: sqlalchemy.engine.Engine,
+                 db: Optional[Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection]],
                  url_resolver: UrlResolver,
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None,
                  **kwargs) -> None:
-        super().__init__(db)
+        super().__init__(db=db, db_conn=db_conn, db_engine=db_engine)
         self._postgres_loader = PostgresLoader(url_resolver=url_resolver,
                                                meta=self.meta,
-                                               db=self.db)
-        self._postgres_unloader = PostgresUnloader(db=self.db)
+                                               db=db,
+                                               db_conn=db_conn,
+                                               db_engine=db_engine)
+        self._postgres_unloader = PostgresUnloader(db=db,
+                                                   db_engine=db_engine,
+                                                   db_conn=db_conn)
 
     def loader(self) -> Optional[LoaderFromRecordsDirectory]:
         return self._postgres_loader

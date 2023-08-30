@@ -62,7 +62,7 @@ class TestDoMoveFromDataframesSource(unittest.TestCase):
         mock_records_schema = self.mock_dfs_source.initial_records_schema.return_value
         mock_schema_sql = mock_records_schema.to_schema_sql.return_value
         out = self.algo.move()
-        self.mock_tbl.db_driver.assert_called_with(self.mock_tbl.db_engine)
+        self.mock_tbl.db_driver.assert_called_with(db=None, db_engine=self.mock_tbl.db_engine)
         self.mock_dfs_source.initial_records_schema.\
             assert_called_with(self.mock_processing_instructions)
         mock_records_schema.to_schema_sql.assert_called_with(mock_driver,

@@ -75,15 +75,11 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         from .dataframes import DataframesRecordsSource  # noqa
         import pandas
 
-        db = self.driver.db
+        db_conn = self.driver.db_conn
+        db_engine = self.driver.db_engine
         records_schema = self.pull_records_schema()
 
-        if isinstance(db, Engine):
-            connection = db.connect()
-            columns = db.dialect.get_columns(connection, self.table_name, schema=self.schema_name)
-            connection.close()
-        else:
-            columns = db.dialect.get_columns(db, self.table_name, schema=self.schema_name)
+        columns = db_engine.dialect.get_columns(db_conn, self.table_name, schema=self.schema_name)
 
         num_columns = len(columns)
         if num_columns == 0:
@@ -92,20 +88,19 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         chunksize = int(entries_per_chunk / num_columns)
         logger.info(f"Exporting in chunks of up to {chunksize} rows by {num_columns} columns")
 
-        quoted_table = quote_schema_and_table(db, self.schema_name, self.table_name)
-        with db.connect() as connection:
-            with connection.begin():
-                chunks: Generator['DataFrame', None, None] = \
-                    pandas.read_sql(text(f"SELECT * FROM {quoted_table}"),
-                                    con=connection,
-                                    chunksize=chunksize)
-                try:
-                    yield DataframesRecordsSource(dfs=self.with_cast_dataframe_types(records_schema,
-                                                                                     chunks),
-                                                  records_schema=records_schema,
-                                                  processing_instructions=processing_instructions)
-                finally:
-                    chunks.close()
+        quoted_table = quote_schema_and_table(None, self.schema_name,
+                                              self.table_name, db_engine=db_engine,)
+        chunks: Generator['DataFrame', None, None] = \
+            pandas.read_sql(text(f"SELECT * FROM {quoted_table}"),
+                            con=db_conn,
+                            chunksize=chunksize)
+        try:
+            yield DataframesRecordsSource(dfs=self.with_cast_dataframe_types(records_schema,
+                                                                             chunks),
+                                          records_schema=records_schema,
+                                          processing_instructions=processing_instructions)
+        finally:
+            chunks.close()
 
     def with_cast_dataframe_types(self,
                                   records_schema: RecordsSchema,

@@ -11,7 +11,8 @@ class TestDBDriver(unittest.TestCase):
         self.mock_url_resolver = Mock(name='url_resolver')
         self.mock_s3_temp_base_loc = MagicMock(name='s3_temp_base_loc')
         self.mock_s3_temp_base_loc.url = 's3://fakebucket/fakedir/fakesubdir/'
-        self.db_driver = GenericDBDriver(db=self.mock_db_engine,
+        self.db_driver = GenericDBDriver(db=None,
+                                         db_engine=self.mock_db_engine,
                                          s3_temp_base_loc=self.mock_s3_temp_base_loc,
                                          url_resolver=self.mock_url_resolver,
                                          text=fake_text)
@@ -69,10 +70,9 @@ class TestDBDriver(unittest.TestCase):
         mock_schema = Mock(name='schema')
         mock_table = Mock(name='table')
         out = self.db_driver.has_table(mock_schema, mock_table)
-        self.assertEqual(out, self.mock_db_engine.dialect.has_table.return_value)
-        self.mock_db_engine.dialect.has_table.assert_called_with(self.mock_db_engine,
-                                                                 schema=mock_schema,
-                                                                 table_name=mock_table)
+        self.assertEqual(out, self.mock_db_engine._sa_instance_state.has_table.return_value)
+        self.mock_db_engine._sa_instance_state.has_table.assert_called_with(mock_table,
+                                                                            schema=mock_schema)
 
     @patch('records_mover.db.driver.quote_group_name')
     @patch('records_mover.db.driver.quote_schema_and_table')
@@ -90,10 +90,12 @@ class TestDBDriver(unittest.TestCase):
         self.db_driver.set_grant_permissions_for_groups(mock_schema_name,
                                                         mock_table,
                                                         groups,
-                                                        mock_db)
-        mock_quote_schema_and_table.assert_called_with(self.mock_db_engine.engine,
+                                                        None,
+                                                        db_conn=mock_db)
+        mock_quote_schema_and_table.assert_called_with(None,
                                                        mock_schema_name,
-                                                       mock_table)
+                                                       mock_table,
+                                                       db_engine=self.mock_db_engine)
         mock_db.execute.assert_has_calls([
             call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_group_name}"),
             call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_group_name}"),
@@ -115,10 +117,12 @@ class TestDBDriver(unittest.TestCase):
         self.db_driver.set_grant_permissions_for_users(mock_schema_name,
                                                        mock_table,
                                                        users,
-                                                       mock_db)
-        mock_quote_schema_and_table.assert_called_with(self.mock_db_engine.engine,
+                                                       None,
+                                                       db_conn=mock_db)
+        mock_quote_schema_and_table.assert_called_with(None,
                                                        mock_schema_name,
-                                                       mock_table)
+                                                       mock_table,
+                                                       db_engine=self.mock_db_engine)
         mock_db.execute.assert_has_calls([
             call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_user_name}"),
             call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_user_name}"),
@@ -139,7 +143,8 @@ class TestDBDriver(unittest.TestCase):
             self.db_driver.set_grant_permissions_for_users(mock_schema_name,
                                                            mock_table,
                                                            users,
-                                                           mock_db)
+                                                           None,
+                                                           db_conn=mock_db)
 
     @patch('records_mover.db.driver.quote_user_name')
     @patch('records_mover.db.driver.quote_schema_and_table')
@@ -156,7 +161,8 @@ class TestDBDriver(unittest.TestCase):
             self.db_driver.set_grant_permissions_for_groups(mock_schema_name,
                                                             mock_table,
                                                             groups,
-                                                            mock_db)
+                                                            None,
+                                                            db_conn=mock_db)
 
     def test_tweak_records_schema_for_load_no_tweak(self):
         mock_records_schema = Mock(name='records_schema')

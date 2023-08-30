@@ -130,6 +130,7 @@ itest_dependencies = [
     'jsonschema',  # needed for directory_validator.py
     'pytz',
     'wheel',  # needed to support legacy 'setup.py install'
+    'parameterized',
 ] + (
     pytest_dependencies +
     # needed for records_database_fixture retrying drop/creates on
@@ -196,7 +197,7 @@ mysql_dependencies = [
 
 redshift_dependencies_base = [
     # sqlalchemy-redshift 0.7.7 introduced support for Parquet in UNLOAD
-    'sqlalchemy-redshift>=0.7.7,<0.8.13',
+    'sqlalchemy-redshift>=0.7.7',
 ] + aws_dependencies + db_dependencies
 
 redshift_dependencies_binary = [
@@ -301,7 +302,9 @@ setup(name='records-mover',
           # what we support
           #
           # https://github.com/aws/aws-cli/blob/develop/setup.py
-          'PyYAML>=3.10,<5.5',
+          # #### NEW UNFORTUNATE CONSTRAINTS #####
+          # https://github.com/yaml/pyyaml/issues/724
+          'PyYAML>=3.10,<=5.3.1',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
           'db-facts>=4,<5',

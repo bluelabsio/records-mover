@@ -16,12 +16,12 @@ class TestImportSQL(unittest.TestCase):
     def test_vertica_import_sql(self,
                                 mock_quote_value,
                                 mock_quote_schema_and_table):
-        def null_schema_table_quoter(db_engine, schema, table):
+        def null_schema_table_quoter(db, schema, table, db_engine=None):
             return f"{schema}.{table}"
 
         mock_quote_schema_and_table.side_effect = null_schema_table_quoter
 
-        def simple_value_quoter(db_engine, s):
+        def simple_value_quoter(db, s, db_engine=None):
             return f"'{s}'"
 
         mock_quote_value.side_effect = simple_value_quoter

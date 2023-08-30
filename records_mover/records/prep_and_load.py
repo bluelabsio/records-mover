@@ -16,24 +16,24 @@ def prep_and_load(tbl: TargetTableDetails,
                   load_exception_type: Type[Exception],
                   reset_before_reload: Callable[[], None] = lambda: None) -> MoveResult:
     logger.info("Connecting to database...")
-    with tbl.db_engine.begin() as db:
-        driver = tbl.db_driver(db)
+    with tbl.db_engine.begin() as db_conn:
+        driver = tbl.db_driver(db=None, db_conn=db_conn)
         prep.prep(schema_sql=schema_sql, driver=driver)
-    with tbl.db_engine.begin() as db:
+    with tbl.db_engine.begin() as db_conn:
         # This second transaction ensures the table has been created
         # before non-transactional statements like Redshift's COPY
         # take place.  Otherwise you'll get an error like:
         #
         #  Cannot COPY into nonexistent table
-        driver = tbl.db_driver(db)
+        driver = tbl.db_driver(db=None, db_conn=db_conn)
         try:
             import_count = load(driver)
         except load_exception_type:
             if not tbl.drop_and_recreate_on_load_error:
                 raise
             reset_before_reload()
-            with tbl.db_engine.begin() as db:
-                driver = tbl.db_driver(db)
+            with tbl.db_engine.begin() as db_conn:
+                driver = tbl.db_driver(db=None, db_conn=db_conn)
                 prep.prep(schema_sql=schema_sql,
                           driver=driver,
                           existing_table_handling=ExistingTableHandling.DROP_AND_RECREATE)

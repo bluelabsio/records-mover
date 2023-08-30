@@ -52,7 +52,8 @@ def is_optional_type(tp: PythonType) -> bool:
 def is_impractical_type(python_type: PythonType) -> bool:
     # can't write code and pass it around in JSON!
     return (is_callable_type(python_type) or
-            type(python_type) == enum.EnumMeta)
+            type(python_type) == enum.EnumMeta
+            or type(python_type) == typing.ForwardRef)
 
 
 def parse_python_parameter_type(name: str,

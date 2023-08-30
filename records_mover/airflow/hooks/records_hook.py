@@ -6,8 +6,9 @@ from records_mover.db.factory import db_driver
 from records_mover.db import DBDriver
 from records_mover.url.resolver import UrlResolver
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
-from typing import Optional, List, TYPE_CHECKING
+from typing import Optional, Union, List, TYPE_CHECKING
 import sqlalchemy
+from ...check_db_conn_engine import check_db_conn_engine
 
 try:
     # Works with Airflow 1
@@ -50,11 +51,15 @@ class RecordsHook(BaseHook):
                            gcs_client_getter=lambda: None,
                            gcp_credentials_getter=lambda: None)
 
-    def _db_driver(self, db: sqlalchemy.engine.Engine) -> DBDriver:
+    def _db_driver(self, db: Optional[Union[sqlalchemy.engine.Engine,
+                                      sqlalchemy.engine.Connection]] = None,
+                   db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                   db_engine: Optional[sqlalchemy.engine.Engine] = None) -> DBDriver:
         s3_temp_base_loc = (self._url_resolver.directory_url(self._s3_temp_base_url)
                             if self._s3_temp_base_url else None)
-
-        return db_driver(db=db, url_resolver=self._url_resolver, s3_temp_base_loc=s3_temp_base_loc)
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
+        return db_driver(db=db, db_conn=db_conn, db_engine=db_engine,
+                         url_resolver=self._url_resolver, s3_temp_base_loc=s3_temp_base_loc)
 
     @property
     def _s3_temp_base_url(self) -> Optional[str]:

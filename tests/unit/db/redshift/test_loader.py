@@ -12,9 +12,10 @@ class TestRedshiftLoader(unittest.TestCase):
         self.s3_temp_base_loc = MagicMock(name='s3_temp_base_loc')
 
         self.redshift_loader =\
-            RedshiftLoader(db=self.mock_db,
+            RedshiftLoader(db=None,
                            meta=self.mock_meta,
-                           s3_temp_base_loc=self.s3_temp_base_loc)
+                           s3_temp_base_loc=self.s3_temp_base_loc,
+                           db_conn=self.mock_db)
 
     @patch('records_mover.db.redshift.loader.redshift_copy_options')
     @patch('records_mover.db.redshift.loader.ProcessingInstructions')

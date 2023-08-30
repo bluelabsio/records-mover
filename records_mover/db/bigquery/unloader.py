@@ -1,6 +1,6 @@
 import sqlalchemy
 from contextlib import contextmanager
-from typing import List, Iterator, Optional, Tuple
+from typing import List, Iterator, Optional, Union, Tuple
 import logging
 from google.cloud.bigquery.dbapi.connection import Connection
 from google.cloud.bigquery.client import Client
@@ -12,20 +12,22 @@ from records_mover.url.resolver import UrlResolver
 from records_mover.records.unload_plan import RecordsUnloadPlan
 from records_mover.records.records_directory import RecordsDirectory
 from records_mover.db.errors import NoTemporaryBucketConfiguration
+from ...check_db_conn_engine import check_db_conn_engine
 
 logger = logging.getLogger(__name__)
 
 
 class BigQueryUnloader(Unloader):
     def __init__(self,
-                 db: sqlalchemy.engine.Engine,
+                 db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
                  url_resolver: UrlResolver,
-                 gcs_temp_base_loc: Optional[BaseDirectoryUrl])\
-            -> None:
-        self.db = db
+                 gcs_temp_base_loc: Optional[BaseDirectoryUrl],
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
         self.url_resolver = url_resolver
         self.gcs_temp_base_loc = gcs_temp_base_loc
-        super().__init__(db=db)
+        super().__init__(db=db, db_conn=db_conn, db_engine=db_engine)
 
     def can_unload_format(self, target_records_format: BaseRecordsFormat) -> bool:
         if isinstance(target_records_format, AvroRecordsFormat):
@@ -93,7 +95,7 @@ class BigQueryUnloader(Unloader):
         logger.info("Loading from records directory into BigQuery")
         # https://googleapis.github.io/google-cloud-python/latest/bigquery/usage/tables.html#creating-a-table
         connection: Connection =\
-            self.db.engine.raw_connection().connection
+            self.db_engine.raw_connection().connection
         # https://google-cloud.readthedocs.io/en/latest/bigquery/generated/google.cloud.bigquery.client.Client.html
         client: Client = connection._client
         project_id, dataset_id = self._parse_bigquery_schema_name(schema)

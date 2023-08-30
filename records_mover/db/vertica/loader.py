@@ -10,8 +10,9 @@ from ...records.delimited import complain_on_unhandled_hints
 from ...records.records_format import DelimitedRecordsFormat, BaseRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 from ..loader import LoaderFromFileobj
-from typing import IO, List, Type
+from typing import IO, Union, List, Type, Optional
 import logging
+from ...check_db_conn_engine import check_db_conn_engine
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +20,14 @@ logger = logging.getLogger(__name__)
 class VerticaLoader(LoaderFromFileobj):
     def __init__(self,
                  url_resolver: UrlResolver,
-                 db: sqlalchemy.engine.Engine) -> None:
+                 db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
         self.url_resolver = url_resolver
         self.db = db
+        self.db_conn = db_conn
+        self.db_engine = db_engine
 
     def load_from_fileobj(self,
                           schema: str,
@@ -41,11 +47,11 @@ class VerticaLoader(LoaderFromFileobj):
 
         # vertica_options isn't yet a TypedDict that matches the
         # vertica_import_sql options, so suppress type checking
-        import_sql = vertica_import_sql(db_engine=self.db.engine, table=table,
+        import_sql = vertica_import_sql(db_engine=self.db_engine, table=table,
                                         schema=schema, **vertica_options)   # type: ignore
         rawconn = None
         try:
-            rawconn = self.db.engine.raw_connection()
+            rawconn = self.db_engine.raw_connection()
             cursor = rawconn.cursor()
             logger.info(import_sql)
             if isinstance(fileobj, urllib.response.addinfourl):

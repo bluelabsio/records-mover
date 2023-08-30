@@ -11,7 +11,8 @@ class TestVerticaUnloaderNoAwsCreds(unittest.TestCase):
         mock_s3_temp_base_loc = Mock(name='s3_temp_base_loc')
         mock_out = mock_db.execute.return_value
         mock_out.fetchall.return_value = []
-        unloader = VerticaUnloader(db=mock_db, s3_temp_base_loc=mock_s3_temp_base_loc)
+        unloader = VerticaUnloader(db=None, s3_temp_base_loc=mock_s3_temp_base_loc,
+                                   db_conn=mock_db)
         mock_table = Mock(name='table')
         mock_unload_plan = Mock(name='unload_plan')
         mock_schema = Mock(name='schema')
@@ -38,7 +39,8 @@ class TestVerticaUnloaderNoAwsCreds(unittest.TestCase):
                .__enter__.return_value = mock_connection
         mock_out = mock_connection.execute.return_value
         mock_out.fetchall.return_value = ['awslib']
-        unloader = VerticaUnloader(db=mock_db, s3_temp_base_loc=mock_s3_temp_base_loc)
+        unloader = VerticaUnloader(db=None, s3_temp_base_loc=mock_s3_temp_base_loc,
+                                   db_conn=mock_db)
         mock_table = Mock(name='table')
         mock_unload_plan = Mock(name='unload_plan')
         mock_unload_plan.records_format = Mock(spec=DelimitedRecordsFormat)
@@ -68,5 +70,6 @@ class TestVerticaUnloaderNoAwsCreds(unittest.TestCase):
                .__enter__.return_value = mock_connection
         mock_out = mock_connection.execute.return_value
         mock_out.fetchall.return_value = []
-        unloader = VerticaUnloader(db=mock_db, s3_temp_base_loc=mock_s3_temp_base_loc)
+        unloader = VerticaUnloader(db=None, s3_temp_base_loc=mock_s3_temp_base_loc,
+                                   db_conn=mock_db)
         self.assertEqual(False, unloader.s3_export_available())

@@ -13,7 +13,8 @@ class TestPostgresCopyOptionsLoadKnown(unittest.TestCase):
         mock_db = Mock(name='db')
         loader = PostgresLoader(url_resolver=mock_url_resolver,
                                 meta=mock_meta,
-                                db=mock_db)
+                                db=None,
+                                db_conn=mock_db)
         known_load_formats = loader.known_supported_records_formats_for_load()
         for records_format in known_load_formats:
             unhandled_hints = set(records_format.hints)

@@ -15,8 +15,8 @@ class TestBigQueryLoader(unittest.TestCase):
     def test_load_with_bad_schema_name(self, mock_load_job_config):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
-        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                          gcs_temp_base_loc=None)
+        big_query_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=None, db_conn=mock_db)
         mock_schema = 'my_project.my_dataset.something_invalid'
         mock_table = Mock(name='mock_table')
         mock_load_plan = Mock(name='mock_load_plan')
@@ -38,8 +38,8 @@ class TestBigQueryLoader(unittest.TestCase):
     def test_load_with_default_project(self, mock_load_job_config):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
-        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                          gcs_temp_base_loc=None)
+        big_query_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=None, db_conn=mock_db)
         mock_schema = 'my_dataset'
         mock_table = 'my_table'
         mock_load_plan = Mock(name='mock_load_plan')
@@ -75,8 +75,8 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = None
-        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc, db_conn=mock_db)
         mock_schema = 'my_project.my_dataset'
         mock_table = 'mytable'
         mock_load_plan = Mock(name='mock_load_plan')
@@ -111,8 +111,8 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = None
-        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc, db_conn=mock_db)
         mock_schema = 'my_project.my_dataset'
         mock_table = 'mytable'
         mock_load_plan = Mock(name='mock_load_plan')
@@ -142,8 +142,8 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = None
-        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc, db_conn=mock_db)
         mock_schema = 'my_project.my_dataset'
         mock_table = 'mytable'
         mock_load_plan = Mock(name='mock_load_plan')
@@ -169,8 +169,8 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = None
-        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc, db_conn=mock_db)
         mock_schema = 'my_project.my_dataset'
         mock_table = 'mytable'
         mock_load_plan = Mock(name='mock_load_plan')
@@ -205,8 +205,8 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = None
-        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc, db_conn=mock_db)
         mock_schema = 'my_project.my_dataset'
         mock_table = 'mytable'
         mock_load_plan = Mock(name='mock_load_plan')
@@ -241,8 +241,8 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_db = Mock(name='mock_db')
         mock_url_resolver = MagicMock(name='mock_url_resolver')
         mock_gcs_temp_base_loc = None
-        big_query_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                          gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        big_query_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                          gcs_temp_base_loc=mock_gcs_temp_base_loc, db_conn=mock_db)
         mock_schema = 'my_project.my_dataset'
         mock_table = 'mytable'
         mock_load_plan = Mock(name='mock_load_plan')
@@ -282,8 +282,8 @@ class TestBigQueryLoader(unittest.TestCase):
     def test_known_supported_records_formats_for_load(self):
         mock_db = Mock(name='db')
         mock_url_resolver = Mock(name='url_resolver')
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                         gcs_temp_base_loc=None)
+        bigquery_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=None, db_conn=mock_db)
         out = bigquery_loader.known_supported_records_formats_for_load()
         self.assertEqual(3, len(out))
         delimited_records_format = out[0]
@@ -297,8 +297,8 @@ class TestBigQueryLoader(unittest.TestCase):
     def test_temporary_gcs_directory_loc_none(self):
         mock_db = Mock(name='db')
         mock_url_resolver = Mock(name='url_resolver')
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                         gcs_temp_base_loc=None)
+        bigquery_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=None, db_conn=mock_db)
         with self.assertRaises(NoTemporaryBucketConfiguration):
             with bigquery_loader.temporary_gcs_directory_loc():
                 pass
@@ -307,8 +307,8 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_db = Mock(name='db')
         mock_url_resolver = Mock(name='url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                         gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        bigquery_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=mock_gcs_temp_base_loc, db_conn=mock_db)
         with bigquery_loader.temporary_loadable_directory_loc() as loc:
             self.assertEqual(loc,
                              mock_gcs_temp_base_loc.temporary_directory.return_value.__enter__.
@@ -318,8 +318,8 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_db = Mock(name='db')
         mock_url_resolver = Mock(name='url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                         gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        bigquery_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=mock_gcs_temp_base_loc, db_conn=mock_db)
         with bigquery_loader.temporary_gcs_directory_loc() as loc:
             self.assertEqual(loc,
                              mock_gcs_temp_base_loc.temporary_directory.return_value.__enter__.
@@ -329,22 +329,22 @@ class TestBigQueryLoader(unittest.TestCase):
         mock_db = Mock(name='db')
         mock_url_resolver = Mock(name='url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                         gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        bigquery_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=mock_gcs_temp_base_loc, db_conn=mock_db)
         self.assertTrue(bigquery_loader.has_temporary_loadable_directory_loc())
 
     def test_temporary_loadable_directory_scheme(self):
         mock_db = Mock(name='db')
         mock_url_resolver = Mock(name='url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                         gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        bigquery_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=mock_gcs_temp_base_loc, db_conn=mock_db)
         self.assertEqual('gs', bigquery_loader.temporary_loadable_directory_scheme())
 
     def test_best_scheme_to_load_from(self):
         mock_db = Mock(name='db')
         mock_url_resolver = Mock(name='url_resolver')
         mock_gcs_temp_base_loc = MagicMock(name='gcs_temp_base_loc')
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                         gcs_temp_base_loc=mock_gcs_temp_base_loc)
+        bigquery_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=mock_gcs_temp_base_loc, db_conn=mock_db)
         self.assertEqual('gs', bigquery_loader.best_scheme_to_load_from())

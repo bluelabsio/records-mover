@@ -4,7 +4,7 @@ from ...records import RecordsSchema
 from ...records.records_format import BaseRecordsFormat, ParquetRecordsFormat, AvroRecordsFormat
 from ...utils.limits import INT64_MAX, INT64_MIN, FLOAT64_SIGNIFICAND_BITS, num_digits
 import re
-from typing import Optional, Tuple
+from typing import Union, Optional, Tuple
 from ...url.resolver import UrlResolver
 import sqlalchemy
 from .loader import BigQueryLoader
@@ -19,17 +19,23 @@ logger = logging.getLogger(__name__)
 
 class BigQueryDBDriver(DBDriver):
     def __init__(self,
-                 db: sqlalchemy.engine.Engine,
+                 db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
                  url_resolver: UrlResolver,
                  gcs_temp_base_loc: Optional[BaseDirectoryUrl] = None,
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None,
                  **kwargs: object) -> None:
-        super().__init__(db)
+        super().__init__(db, db_conn, db_engine)
         self._bigquery_loader =\
-            BigQueryLoader(db=self.db,
+            BigQueryLoader(db=db,
+                           db_conn=db_conn,
+                           db_engine=db_engine,
                            url_resolver=url_resolver,
                            gcs_temp_base_loc=gcs_temp_base_loc)
         self._bigquery_unloader =\
-            BigQueryUnloader(db=self.db,
+            BigQueryUnloader(db=db,
+                             db_conn=db_conn,
+                             db_engine=db_engine,
                              url_resolver=url_resolver,
                              gcs_temp_base_loc=gcs_temp_base_loc)
 

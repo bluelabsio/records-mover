@@ -44,29 +44,28 @@ class PostgresUnloader(Unloader):
         table_obj = Table(table,
                           self.meta,
                           schema=schema,
-                          autoload_with=self.db)
+                          autoload_with=self.db_engine)
 
-        with self.db.engine.begin() as conn:
-            # https://www.postgresql.org/docs/8.3/sql-set.html
-            #
-            # The effects of SET LOCAL last only till the end of the
-            # current transaction, whether committed or not. A special
-            # case is SET followed by SET LOCAL within a single
-            # transaction: the SET LOCAL value will be seen until the end
-            # of the transaction, but afterwards (if the transaction is
-            # committed) the SET value will take effect.
-            date_style = f"{date_output_style}, {date_order_style}"
-            sql = f"SET LOCAL DateStyle = {quote_value(conn, date_style)}"
-            logger.info(sql)
-            conn.execute(text(sql))
+        # https://www.postgresql.org/docs/8.3/sql-set.html
+        #
+        # The effects of SET LOCAL last only till the end of the
+        # current transaction, whether committed or not. A special
+        # case is SET followed by SET LOCAL within a single
+        # transaction: the SET LOCAL value will be seen until the end
+        # of the transaction, but afterwards (if the transaction is
+        # committed) the SET value will take effect.
+        date_style = f"{date_output_style}, {date_order_style}"
+        sql = f"SET LOCAL DateStyle = {quote_value(None, date_style, db_engine=self.db_engine)}"
+        logger.info(sql)
+        self.db_conn.execute(text(sql))
 
-            filename = unload_plan.records_format.generate_filename('data')
-            loc = directory.loc.file_in_this_directory(filename)
-            with loc.open(mode='wb') as fileobj:
-                copy_to(table_obj.select(),
-                        fileobj,
-                        conn,
-                        **postgres_options)
+        filename = unload_plan.records_format.generate_filename('data')
+        loc = directory.loc.file_in_this_directory(filename)
+        with loc.open(mode='wb') as fileobj:
+            copy_to(table_obj.select(),
+                    fileobj,
+                    self.db_conn,
+                    **postgres_options)
 
         logger.info('Copy complete')
         directory.save_preliminary_manifest()

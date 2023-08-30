@@ -18,9 +18,10 @@ class TestVerticaDBDriverLoad(BaseTestVerticaDBDriver):
         self.mock_s3_temp_base_loc = MagicMock(name='s3_temp_base_loc')
         self.mock_url_resolver = Mock(name='url_resolver')
         self.mock_s3_temp_base_loc.url = 's3://fakebucket/fakedir/fakesubdir/'
-        self.vertica_db_driver = VerticaDBDriver(db=self.mock_db_engine,
+        self.vertica_db_driver = VerticaDBDriver(db=None,
                                                  s3_temp_base_loc=self.mock_s3_temp_base_loc,
-                                                 url_resolver=self.mock_url_resolver)
+                                                 url_resolver=self.mock_url_resolver,
+                                                 db_conn=self.mock_db_engine)
 
         mock_records_unload_plan = create_autospec(RecordsUnloadPlan)
         mock_records_unload_plan.records_format = create_autospec(DelimitedRecordsFormat)

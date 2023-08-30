@@ -36,7 +36,7 @@ class TestSpectrum(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(self.target.records_format, self.records_format)
-        self.assertEqual(self.target.db, self.mock_db)
+        self.assertEqual(self.target.db_engine, self.mock_db)
 
     @patch('records_mover.records.targets.spectrum.quote_schema_and_table')
     def test_pre_load_hook_preps_bucket_with_default_prep(self, mock_quote_schema_and_table):
@@ -44,9 +44,10 @@ class TestSpectrum(unittest.TestCase):
         mock_cursor = self.target.driver.db_engine.connect.return_value.__enter__.return_value
 
         self.target.pre_load_hook()
-        mock_quote_schema_and_table.assert_called_with(self.target.db,
+        mock_quote_schema_and_table.assert_called_with(None,
                                                        self.target.schema_name,
-                                                       self.target.table_name)
+                                                       self.target.table_name,
+                                                       db_engine=self.target.db_engine)
         mock_cursor.execution_options.assert_called_with(isolation_level='AUTOCOMMIT')
         arg = mock_cursor.execute.call_args.args[0]
         arg_str = str(arg)

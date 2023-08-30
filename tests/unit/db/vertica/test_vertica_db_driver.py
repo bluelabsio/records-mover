@@ -1,5 +1,5 @@
 from .base_test_vertica_db_driver import BaseTestVerticaDBDriver
-from mock import Mock, MagicMock
+from mock import Mock
 from ...records.format_hints import (vertica_format_hints)
 import sqlalchemy
 
@@ -8,10 +8,7 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
     def test_unload(self):
         mock_result = Mock(name='result')
         mock_result.rows = 579
-        mock_connection = MagicMock(name='connection')
-        self.mock_db_engine.connect.return_value \
-            .__enter__.return_value = mock_connection
-        mock_connection.execute.return_value.fetchall.return_value = [mock_result]
+        self.mock_db_engine.execute.return_value.fetchall.return_value = [mock_result]
         self.mock_records_unload_plan.processing_instructions.fail_if_dont_understand = True
         self.mock_records_unload_plan.processing_instructions.fail_if_cant_handle_hint = True
 
@@ -28,10 +25,7 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
     def test_unload_to_non_s3(self):
         mock_result = Mock(name='result')
         mock_result.rows = 579
-        mock_connection = MagicMock(name='connection')
-        self.mock_db_engine.connect.return_value \
-            .__enter__.return_value = mock_connection
-        mock_connection.execute.return_value.fetchall.return_value = [mock_result]
+        self.mock_db_engine.execute.return_value.fetchall.return_value = [mock_result]
         self.mock_records_unload_plan.processing_instructions.fail_if_dont_understand = True
         self.mock_records_unload_plan.processing_instructions.fail_if_cant_handle_hint = True
 
@@ -52,7 +46,7 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
         mock_result = Mock(name='result')
         self.mock_db_engine.execute.return_value.fetchall.return_value = [mock_result]
         sql = self.vertica_db_driver.schema_sql('myschema', 'mytable')
-        self.assertEqual(sql, '\nCREATE TABLE myschema.mytable (\n)\n\n')
+        self.assertEqual(sql, mock_result.EXPORT_OBJECTS)
 
     def test_schema_sql_but_not_from_export_objects(self):
         self.mock_db_engine.execute.return_value.fetchall.return_value = []

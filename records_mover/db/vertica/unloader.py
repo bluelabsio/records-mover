@@ -1,3 +1,4 @@
+from ...check_db_conn_engine import check_db_conn_engine
 from records_mover.db.quoting import quote_value
 import sqlalchemy
 from sqlalchemy import text
@@ -13,7 +14,7 @@ from .records_export_options import vertica_export_options
 from ...records.delimited import complain_on_unhandled_hints
 from ..unloader import Unloader
 import logging
-from typing import Iterator, Optional, List, TYPE_CHECKING
+from typing import Iterator, Optional, Union, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from botocore.credentials import Credentials  # noqa
 
@@ -23,9 +24,12 @@ logger = logging.getLogger(__name__)
 
 class VerticaUnloader(Unloader):
     def __init__(self,
-                 db: sqlalchemy.engine.Engine,
-                 s3_temp_base_loc: Optional[BaseDirectoryUrl]) -> None:
-        super().__init__(db=db)
+                 db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
+                 s3_temp_base_loc: Optional[BaseDirectoryUrl],
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
+        super().__init__(db=db, db_conn=db_conn, db_engine=db_engine)
         self.s3_temp_base_loc = s3_temp_base_loc
 
     @contextmanager
@@ -41,8 +45,8 @@ class VerticaUnloader(Unloader):
         return """
             ALTER SESSION SET UDPARAMETER FOR awslib aws_id={aws_id};
             ALTER SESSION SET UDPARAMETER FOR awslib aws_secret={aws_secret};
-        """.format(aws_id=quote_value(self.db.engine, aws_id),
-                   aws_secret=quote_value(self.db.engine, aws_secret))
+        """.format(aws_id=quote_value(None, aws_id, db_engine=self.db_engine),
+                   aws_secret=quote_value(None, aws_secret, db_engine=self.db_engine))
 
     def unload(self,
                schema: str,
@@ -70,13 +74,11 @@ class VerticaUnloader(Unloader):
         return self.s3_temp_base_loc is not None
 
     def s3_export_available(self) -> bool:
-        with self.db.connect() as connection:
-            out = connection.execute(text("SELECT lib_name "
-                                          "from user_libraries "
-                                          "where lib_name = 'awslib'"))
-            available = len(list(out.fetchall())) == 1
-            if not available:
-                logger.info("Not attempting S3 export - no access to awslib in Vertica")
+        out = self.db_conn.execute(
+            text("SELECT lib_name from user_libraries where lib_name = 'awslib'"))
+        available = len(list(out.fetchall())) == 1
+        if not available:
+            logger.info("Not attempting S3 export - no access to awslib in Vertica")
         return available
 
     def unload_to_s3_directory(self,
@@ -101,9 +103,7 @@ class VerticaUnloader(Unloader):
         processing_instructions = unload_plan.processing_instructions
         try:
             s3_sql = self.aws_creds_sql(aws_creds.access_key, aws_creds.secret_key)
-            with self.db.connect() as connection:
-                with connection.begin():
-                    connection.execute(text(s3_sql))
+            self.db_conn.execute(text(s3_sql))
         except sqlalchemy.exc.ProgrammingError as e:
             raise DatabaseDoesNotSupportS3Export(str(e))
 
@@ -112,15 +112,13 @@ class VerticaUnloader(Unloader):
                                     unhandled_hints,
                                     unload_plan.records_format.hints)
 
-        export_sql = vertica_export_sql(db_engine=self.db.engine,
+        export_sql = vertica_export_sql(db_engine=self.db_engine,
                                         table=table,
                                         schema=schema,
                                         s3_url=directory.loc.url,
                                         **vertica_options)
         logger.info(export_sql)
-        with self.db.connect() as connection:
-            with connection.begin():
-                export_result = connection.execute(text(export_sql)).fetchall()
+        export_result = self.db_conn.execute(text(export_sql)).fetchall()
         directory.save_preliminary_manifest()
         export_count = 0
         for record in export_result:

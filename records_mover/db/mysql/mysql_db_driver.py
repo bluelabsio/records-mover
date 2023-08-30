@@ -7,7 +7,7 @@ from ...utils.limits import (IntegerType,
                              num_digits)
 from ..driver import DBDriver
 from .loader import MySQLLoader
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 from ..loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from ...url.resolver import UrlResolver
 
@@ -17,11 +17,16 @@ logger = logging.getLogger(__name__)
 
 class MySQLDBDriver(DBDriver):
     def __init__(self,
-                 db: sqlalchemy.engine.Engine,
                  url_resolver: UrlResolver,
+                 db: Optional[Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection]] = None,
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None,
                  **kwargs) -> None:
-        super().__init__(db)
+        self.conn_opened_here = False
+        super().__init__(db=db, db_conn=db_conn, db_engine=db_engine)
         self._mysql_loader = MySQLLoader(db=db,
+                                         db_conn=db_conn,
+                                         db_engine=db_engine,
                                          url_resolver=url_resolver)
 
     def loader(self) -> Optional[LoaderFromRecordsDirectory]:

@@ -1,3 +1,5 @@
+# flake8: noqa
+
 import pathlib
 from ..records_format import BaseRecordsFormat
 from ..schema import RecordsSchema
@@ -15,7 +17,7 @@ from typing import Mapping, IO, Callable, Optional, Union, Iterable, TYPE_CHECKI
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
     import google.auth.credentials  # noqa
-    from sqlalchemy.engine import Engine  # noqa
+    from sqlalchemy.engine import Engine, Connection  # noqa
     from ...db import DBDriver  # noqa
     from .google_sheets import GoogleSheetsRecordsSource  # noqa ditto
     # with pandas, which an optional addition for clients of this
@@ -50,7 +52,9 @@ class RecordsSources(object):
     """
 
     def __init__(self,
-                 db_driver: Callable[['Engine'], 'DBDriver'],
+                 db_driver: Callable[[Optional[Union['Engine', 'Connection']],
+                                      Optional['Connection'],
+                                      Optional['Engine']], 'DBDriver'],
                  url_resolver: UrlResolver) -> None:
         self.db_driver = db_driver
         self.url_resolver = url_resolver
@@ -158,18 +162,22 @@ class RecordsSources(object):
     def table(self,
               db_engine: 'Engine',
               schema_name: str,
-              table_name: str) -> 'TableRecordsSource':
+              table_name: str,
+              db_conn: Optional['Connection'] = None) -> 'TableRecordsSource':
         """Represents a SQLALchemy-accessible database table as as a source.
 
         :param db_engine: SQLAlchemy database engine to pull data from.
         :param schema_name: Schema name of a table to get data from.
         :param table_name: Table name of a table to get data from.
+        :param db_conn: SQLAlchemy database connection to use to pull data from.
         """
         from .table import TableRecordsSource  # noqa
-        return TableRecordsSource(schema_name=schema_name,
-                                  table_name=table_name,
-                                  url_resolver=self.url_resolver,
-                                  driver=self.db_driver(db_engine))
+        return TableRecordsSource(
+            schema_name=schema_name,
+            table_name=table_name,
+            url_resolver=self.url_resolver,
+            driver=self.db_driver(None, db_engine=db_engine,  # type: ignore[call-arg]
+                                  db_conn=db_conn))
 
     def directory_from_url(self,
                            url: str,

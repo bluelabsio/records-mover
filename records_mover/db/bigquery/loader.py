@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import List, IO, Tuple, Optional, Iterator
+from typing import Union, List, IO, Tuple, Optional, Iterator
 from ...url import BaseDirectoryUrl
 from ...records.delimited import complain_on_unhandled_hints
 import pprint
@@ -19,19 +19,41 @@ from .load_job_config_options import load_job_config
 import logging
 from ..loader import LoaderFromFileobj
 from ..errors import NoTemporaryBucketConfiguration
+from ...check_db_conn_engine import check_db_conn_engine
 
 logger = logging.getLogger(__name__)
 
 
 class BigQueryLoader(LoaderFromFileobj):
     def __init__(self,
-                 db: sqlalchemy.engine.Engine,
+                 db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
                  url_resolver: UrlResolver,
-                 gcs_temp_base_loc: Optional[BaseDirectoryUrl])\
-            -> None:
+                 gcs_temp_base_loc: Optional[BaseDirectoryUrl],
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
         self.db = db
+        self._db_conn = db_conn
+        self.db_engine = db_engine
         self.url_resolver = url_resolver
         self.gcs_temp_base_loc = gcs_temp_base_loc
+        self.conn_opened_here = False
+
+    def get_db_conn(self) -> sqlalchemy.engine.Connection:
+        if self._db_conn is None:
+            self._db_conn = self.db_engine.connect()
+            self.conn_opened_here = True
+            logger.debug(f"Opened connection to database within {self} because none was provided.")
+        return self._db_conn
+
+    def set_db_conn(self, db_conn: Optional[sqlalchemy.engine.Connection]) -> None:
+        self._db_conn = db_conn
+
+    def del_db_conn(self) -> None:
+        if self.conn_opened_here:
+            self.db_conn.close()
+
+    db_conn = property(get_db_conn, set_db_conn, del_db_conn)
 
     def best_scheme_to_load_from(self) -> str:
         return 'gs'
@@ -77,7 +99,7 @@ class BigQueryLoader(LoaderFromFileobj):
         logger.info("Loading from fileobj into BigQuery")
         # https://googleapis.github.io/google-cloud-python/latest/bigquery/usage/tables.html#creating-a-table
         connection: Connection =\
-            self.db.engine.raw_connection().connection
+            self.db_engine.raw_connection().connection
         # https://google-cloud.readthedocs.io/en/latest/bigquery/generated/google.cloud.bigquery.client.Client.html
         client: Client = connection._client
         project_id, dataset_id = self._parse_bigquery_schema_name(schema)
@@ -122,7 +144,7 @@ class BigQueryLoader(LoaderFromFileobj):
 
         logger.info("Loading from records directory into BigQuery")
         # https://googleapis.github.io/google-cloud-python/latest/bigquery/usage/tables.html#creating-a-table
-        connection: Connection = self.db.engine.raw_connection().connection
+        connection: Connection = self.db_engine.raw_connection().connection
         # https://google-cloud.readthedocs.io/en/latest/bigquery/generated/google.cloud.bigquery.client.Client.html
         client: Client = connection._client
         project_id, dataset_id = self._parse_bigquery_schema_name(schema)
@@ -187,3 +209,6 @@ class BigQueryLoader(LoaderFromFileobj):
             ParquetRecordsFormat(),
             AvroRecordsFormat()
         ]
+
+    def __del__(self) -> None:
+        self.del_db_conn()

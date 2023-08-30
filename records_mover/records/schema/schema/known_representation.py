@@ -60,7 +60,7 @@ class RecordsSchemaKnownRepresentation(metaclass=ABCMeta):
     def from_db_driver(driver: 'DBDriver',
                        schema_name: str,
                        table_name: str) -> 'RecordsSchemaSqlKnownRepresentation':
-        type = f"sql/{driver.db.dialect.name}"
+        type = f"sql/{driver.db_engine.dialect.name}"
         ddl = driver.schema_sql(schema_name, table_name)
         return RecordsSchemaSqlKnownRepresentation(type=type, table_ddl=ddl)
 

@@ -37,4 +37,4 @@ class TestTableFileObjects(unittest.TestCase):
         mock_loader = mock_driver.loader.return_value
         mock_loader.best_scheme_to_load_from.return_value = mock_scheme
         self.assertEqual(True, self.table.can_move_directly_from_scheme(mock_scheme))
-        self.mock_db_driver.assert_called_with(self.mock_db_engine)
+        self.mock_db_driver.assert_called_with(None, db_engine=self.mock_db_engine, db_conn=None)
