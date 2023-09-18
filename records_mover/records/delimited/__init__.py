@@ -46,7 +46,7 @@ from .types import (
     HintHeaderRow, HintCompression,
     HintDoublequote,
 )
-from .sniff import sniff_hints_from_fileobjs  # type: ignore[attr-defined]
+from .sniff import sniff_hints_from_fileobjs
 from .csv_streamer import stream_csv
 from .conversions import (
     python_encoding_from_hint, python_date_format_from_hints, python_time_format_from_hints
