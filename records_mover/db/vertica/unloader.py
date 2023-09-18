@@ -103,7 +103,11 @@ class VerticaUnloader(Unloader):
         processing_instructions = unload_plan.processing_instructions
         try:
             s3_sql = self.aws_creds_sql(aws_creds.access_key, aws_creds.secret_key)
-            self.db_conn.execute(text(s3_sql))
+            if not self.db_conn.in_transaction():
+                with self.db_conn.begin():
+                    self.db_conn.execute(text(s3_sql))
+            else:
+                self.db_conn.execute(text(s3_sql))
         except sqlalchemy.exc.ProgrammingError as e:
             raise DatabaseDoesNotSupportS3Export(str(e))
 
