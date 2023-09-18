@@ -135,7 +135,7 @@ class RecordsTableTimezoneValidator:
 
         if self.tc.raw_avro_types_written():
             assert timestamptzstr == '946834496789012'
-        elif (self.source_db_engine is None or
+        elif (self.source_db_engine is not None and
               self.tc.database_has_no_usable_timestamptz_type(self.source_db_engine)):
             # Depending on the capabilities of the target database, we
             # may not be able to get a rendered version that includes
