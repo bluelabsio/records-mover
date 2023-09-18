@@ -269,7 +269,7 @@ def sniff_hints(fileobj: IO[bytes],
         #
         out: PartialRecordsHints = {
             'compression': compression_hint,
-            **pandas_inferred_hints,  # type: ignore[misc]
+            **pandas_inferred_hints,
             **python_inferred_hints,
             'encoding': final_encoding_hint,
             **other_inferred_csv_hints,
