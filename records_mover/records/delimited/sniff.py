@@ -1,5 +1,4 @@
 # flake8: noqa
-
 import chardet
 from contextlib import contextmanager
 from . import PartialRecordsHints
