@@ -10,7 +10,7 @@ import os
 from ..records_database_fixture import RecordsDatabaseFixture
 from ..table_validator import RecordsTableValidator
 from ..purge_old_test_tables import purge_old_tables
-from parameterized import parameterized  # type: ignore[import]
+from parameterized import parameterized  # type: ignore[import-not-found]
 
 
 logger = logging.getLogger(__name__)

@@ -237,7 +237,7 @@ literally_every_single_database_binary_dependencies = (
 )
 
 typecheck_dependencies = [
-    "mypy@git+https://github.com/python/mypy#88ae1e4c1541e5b03d695cf63d1265b972e427d9"  
+    "mypy@git+https://github.com/python/mypy#88ae1e4c1541e5b03d695cf63d1265b972e427d9"
     # update to build from mypy without version qualifier soon
     'lxml',  # needed by mypy HTML coverage reporting
     'sqlalchemy-stubs>=0.3',
