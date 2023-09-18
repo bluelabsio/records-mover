@@ -273,7 +273,7 @@ def sniff_hints(fileobj: IO[bytes],
             **pandas_inferred_hints,
             **python_inferred_hints,
             'encoding': final_encoding_hint,
-            **other_inferred_csv_hints,  # type: ignore[typeddict-item]
+            **other_inferred_csv_hints,
             **initial_hints
         }
         logger.info(f"Inferred hints from combined sources: {out}")
