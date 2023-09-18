@@ -241,7 +241,7 @@ def sniff_hints(fileobj: IO[bytes],
         # csv.Sniffer() can teach us some things about how each field
         # is encoded and whether there's a header:
         #
-        other_inferred_csv_hints = {}
+        other_inferred_csv_hints = PartialRecordsHints()
         if record_terminator_hint is not None:
             other_inferred_csv_hints['record-terminator'] = record_terminator_hint
             python_inferred_hints = csv_hints_from_python(fileobj,
