@@ -52,9 +52,6 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
                                                              table_name=self.table_name)
         self.numeric_fixture.tear_down()
 
-    def tearDown(self):
-        ...
-
     def test_numeric_schema_fields_created(self) -> None:
         self.numeric_fixture.bring_up()
         with tempfile.TemporaryDirectory(prefix='test_records_numeric_schema') as tempdir:
