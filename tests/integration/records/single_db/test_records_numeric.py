@@ -60,7 +60,8 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
             processing_instructions = ProcessingInstructions()
             source = self.records.sources.table(schema_name=self.schema_name,
                                                 table_name=self.table_name,
-                                                db_engine=self.engine)
+                                                db_engine=self.engine,
+                                                db_conn=self.connection)
             target = self.records.targets.directory_from_url(output_url,
                                                              records_format=records_format)
             out = self.records.move(source, target, processing_instructions)
