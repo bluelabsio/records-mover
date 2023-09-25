@@ -29,7 +29,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
 
     def tearDown(self):
         self.datetime_fixture.drop_tables()
-        self.connection.close()
+        super().tearDown()
 
     def test_unload_date(self) -> None:
         self.datetime_fixture.createDateTable()

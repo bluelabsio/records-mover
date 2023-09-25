@@ -71,10 +71,9 @@ class BaseRecordsIntegrationTest(unittest.TestCase):
         self.records = self.session.records
 
     def tearDown(self):
+        self.connection.close()
         self.session = None
         self.fixture.tear_down()
-        if not self.connection.closed:
-            self.connection.close()
 
     def table(self, schema, table):
         return Table(table, self.meta, schema=schema, autoload_with=self.engine)
