@@ -356,7 +356,7 @@ jobs:
               # This is set by default in the CircleCI environment
               unset SCRATCH_GCS_URL
             fi
-            with-db <<parameters.db_name>> pytest <<parameters.pytest_flags>>
+            with-db <<parameters.db_name>> pytest -vv <<parameters.pytest_flags>>
       - store_test_results:
           path: test-reports
       - store_artifacts:
@@ -529,7 +529,7 @@ workflows:
             # scratch bucket config.
             #
             unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
-            with-db dockerized-vertica pytest
+            with-db dockerized-vertica pytest -vv
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -545,7 +545,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            with-db dockerized-postgres pytest
+            with-db dockerized-postgres pytest -vv
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -561,7 +561,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            with-db dockerized-mysql pytest
+            with-db dockerized-mysql pytest -vv
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -577,7 +577,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            with-db dockerized-vertica pytest
+            with-db dockerized-vertica pytest -vv
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
