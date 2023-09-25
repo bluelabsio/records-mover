@@ -19,7 +19,7 @@ commands:
         default: false
       python_version:
         type: string
-        description: "Version of python to test against."
+        description: "Version of python to test against"
       pandas_version:
         type: string
         description: "Version of pandas to test against, or empty string for none"
@@ -34,7 +34,7 @@ commands:
         default: ""
     steps:
       - restore_cache:
-          key: deps-v10-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v9-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
       - run:
           name: Install python deps in venv
           environment:
@@ -73,7 +73,7 @@ commands:
               fi
             fi
       - save_cache:
-          key: deps-v10-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          key: deps-v9-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
   wait_for_db:
