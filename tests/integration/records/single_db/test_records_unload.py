@@ -10,9 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
-    def tearDown(self):
-        self.connection.close()
-
     def test_unload_csv_format(self):
         self.unload_and_verify('delimited', 'csv')
 
