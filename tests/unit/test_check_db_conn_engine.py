@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from records_mover import check_db_conn_engine
+from records_mover.check_db_conn_engine import check_db_conn_engine
 import sqlalchemy
 
 
