@@ -6,8 +6,8 @@ from records_mover.records.targets.base import MightSupportMoveFromTempLocAfterF
 
 class TestTableRecordsSource(unittest.TestCase):
     def setUp(self):
-        self.mock_schema_name = Mock(name='schema_name')
-        self.mock_table_name = Mock(name='table_name')
+        self.mock_schema_name = 'mock_schema_name'
+        self.mock_table_name = 'mock_table_name'
         self.mock_driver = MagicMock(name='driver')
         self.mock_loader = self.mock_driver.loader.return_value
         self.mock_unloader = self.mock_driver.unloader.return_value
@@ -37,7 +37,6 @@ class TestTableRecordsSource(unittest.TestCase):
         mock_column = Mock(name='column')
         mock_columns = [mock_column]
         mock_db_engine.dialect.get_columns.return_value = mock_columns
-        mock_quoted_table = mock_quote_schema_and_table.return_value
         mock_chunks = mock_read_sql.return_value
         with self.table_records_source.to_dataframes_source(mock_processing_instructions) as\
                 df_source:
@@ -49,7 +48,8 @@ class TestTableRecordsSource(unittest.TestCase):
                                                                 self.mock_table_name,
                                                                 driver=self.mock_driver)
             str_arg = str(mock_read_sql.call_args.args[0])
-            self.assertEqual(str_arg, f"SELECT * FROM {mock_quoted_table}")
+            self.assertEqual(str_arg,
+                             f"SELECT * \nFROM {self.mock_schema_name}.{self.mock_table_name}")
             kwargs = mock_read_sql.call_args.kwargs
             self.assertEqual(kwargs['con'], mock_db_conn)
             self.assertEqual(kwargs['chunksize'], 2000000)

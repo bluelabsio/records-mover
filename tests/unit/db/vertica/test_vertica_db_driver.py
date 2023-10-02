@@ -54,14 +54,14 @@ class TestVerticaDBDriver(BaseTestVerticaDBDriver):
         self.assertTrue(sql is not None)
 
     def test_has_table_true(self):
-        mock_schema = Mock(name='schema')
-        mock_table = Mock(name='table')
+        mock_schema = 'myschema'
+        mock_table = 'mytable'
         self.assertEqual(True,
                          self.vertica_db_driver.has_table(mock_schema, mock_table))
 
     def test_has_table_false(self):
-        mock_schema = Mock(name='schema')
-        mock_table = Mock(name='table')
+        mock_schema = 'myschema'
+        mock_table = 'mytable'
         self.mock_db_engine.execute.side_effect = sqlalchemy.exc.ProgrammingError('statement', {},
                                                                                   'orig')
         self.assertEqual(False,

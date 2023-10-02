@@ -1,5 +1,6 @@
 from records_mover.db.quoting import quote_schema_and_table
-from sqlalchemy import text
+from sqlalchemy import Table, MetaData
+from sqlalchemy.schema import DropTable
 
 
 class RecordsNumericDatabaseFixture:
@@ -136,10 +137,10 @@ f"""
                                       db_engine=self.engine)
 
     def drop_table_if_exists(self, schema, table):
-        sql = f"DROP TABLE IF EXISTS {self.quote_schema_and_table(schema, table)}"
+        table_to_drop = Table(table, MetaData(), schema=schema)
         with self.engine.connect() as connection:
             with connection.begin():
-                connection.execute(text(sql))
+                connection.execute(DropTable(table_to_drop, if_exists=True))
 
     def tear_down(self):
         self.drop_table_if_exists(self.schema_name, self.table_name)

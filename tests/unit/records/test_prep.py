@@ -8,6 +8,8 @@ from records_mover.db import DBDriver
 class TestPrep(unittest.TestCase):
     def setUp(self):
         self.mock_tbl = Mock(name='target_table_details')
+        self.mock_tbl.schema_name = 'mock_schema_name'
+        self.mock_tbl.table_name = 'mock_table_name'
         self.prep = TablePrep(self.mock_tbl)
 
     @patch('records_mover.records.prep.quote_schema_and_table')
@@ -33,7 +35,6 @@ class TestPrep(unittest.TestCase):
         mock_quote_schema_and_table
         mock_driver.has_table.return_value = True
         how_to_prep = ExistingTableHandling.TRUNCATE_AND_OVERWRITE
-        mock_schema_and_table = mock_quote_schema_and_table.return_value
         self.mock_tbl.existing_table_handling = how_to_prep
 
         self.prep.prep(mock_schema_sql, mock_driver)
@@ -43,7 +44,8 @@ class TestPrep(unittest.TestCase):
                                                        self.mock_tbl.table_name,
                                                        db_engine=mock_driver.db_engine)
         str_arg = str(mock_driver.db_conn.execute.call_args.args[0])
-        self.assertEqual(str_arg, f"TRUNCATE TABLE {mock_schema_and_table}")
+        self.assertEqual(str_arg,
+                         f"DELETE FROM {self.mock_tbl.schema_name}.{self.mock_tbl.table_name}")
 
     @patch('records_mover.records.prep.quote_schema_and_table')
     def test_prep_table_exists_delete_implicit(self, mock_quote_schema_and_table):
@@ -79,7 +81,6 @@ class TestPrep(unittest.TestCase):
         mock_quote_schema_and_table
         mock_driver.has_table.return_value = True
         how_to_prep = ExistingTableHandling.DROP_AND_RECREATE
-        mock_schema_and_table = mock_quote_schema_and_table.return_value
         self.mock_tbl.existing_table_handling = how_to_prep
 
         self.prep.prep(mock_schema_sql, mock_driver)
@@ -91,7 +92,8 @@ class TestPrep(unittest.TestCase):
                                                        db_engine=mock_driver.db_engine)
         str_args = [str(call_arg.args[0]) for call_arg in mock_conn.execute.call_args_list]
         drop_table_str_arg, mock_schema_sql_str_arg = str_args[0], str_args[1]
-        self.assertEqual(drop_table_str_arg, f"DROP TABLE {mock_schema_and_table}")
+        self.assertEqual(drop_table_str_arg,
+                         f"\nDROP TABLE {self.mock_tbl.schema_name}.{self.mock_tbl.table_name}")
         self.assertEqual(mock_schema_sql_str_arg, mock_schema_sql)
         mock_driver.set_grant_permissions_for_groups.\
             assert_called_with(self.mock_tbl.schema_name,
@@ -151,7 +153,6 @@ class TestPrep(unittest.TestCase):
         mock_quote_schema_and_table
         mock_driver.has_table.return_value = True
         how_to_prep = ExistingTableHandling.DELETE_AND_OVERWRITE
-        mock_schema_and_table = mock_quote_schema_and_table.return_value
         self.mock_tbl.existing_table_handling = how_to_prep
 
         self.prep.prep(mock_schema_sql, mock_driver,
@@ -163,7 +164,8 @@ class TestPrep(unittest.TestCase):
                                                        db_engine=mock_driver.db_engine)
         str_args = [str(call_arg.args[0]) for call_arg in mock_conn.execute.call_args_list]
         drop_table_str_arg, mock_schema_sql_str_arg = str_args[0], str_args[1]
-        self.assertEqual(drop_table_str_arg, f"DROP TABLE {mock_schema_and_table}")
+        self.assertEqual(drop_table_str_arg,
+                         f"\nDROP TABLE {self.mock_tbl.schema_name}.{self.mock_tbl.table_name}")
         self.assertEqual(mock_schema_sql_str_arg, mock_schema_sql)
         mock_driver.set_grant_permissions_for_groups.\
             assert_called_with(self.mock_tbl.schema_name,

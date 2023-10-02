@@ -3,7 +3,8 @@
 from records_mover.db.quoting import quote_schema_and_table
 from records_mover import Session
 from datetime import datetime, timedelta
-from sqlalchemy import inspect
+from sqlalchemy import inspect, Table, MetaData
+from sqlalchemy.schema import DropTable
 from typing import Optional
 import sys
 
@@ -39,9 +40,10 @@ def purge_old_tables(schema_name: str, table_name_prefix: str,
             "DROP TABLE "
             f"{quote_schema_and_table(None, schema_name, table_name, db_engine=db_engine)}")
         print(sql)
+        table = Table(table_name, MetaData(), schema=schema_name)
         with db_engine.connect() as connection:
             with connection.begin():
-                connection.exec_driver_sql(sql)
+                connection.exec_driver_sql(DropTable(table))  # type: ignore[arg-type]
 
 
 if __name__ == '__main__':

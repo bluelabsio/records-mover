@@ -6,8 +6,9 @@ from .datetime_cases import (
     SAMPLE_YEAR, SAMPLE_MONTH, SAMPLE_DAY,
     SAMPLE_HOUR, SAMPLE_MINUTE, SAMPLE_SECOND, SAMPLE_OFFSET, SAMPLE_LONG_TZ
 )
-from sqlalchemy import text
+from sqlalchemy import text, Table, MetaData
 from sqlalchemy.engine import Engine, Connection
+from sqlalchemy.schema import DropTable
 from typing import Optional
 
 import logging
@@ -28,13 +29,13 @@ class RecordsDatetimeFixture:
 
     @bigquery_retry()
     def drop_table_if_exists(self, schema, table):
-        sql = f"DROP TABLE IF EXISTS {self.quote_schema_and_table(schema, table)}"
+        table_to_drop = Table(table, MetaData(), schema=schema)
         if not self.connection:
             with self.engine.connect() as connection:
                 with connection.begin():
-                    connection.execute(text(sql))
+                    connection.execute(DropTable(table_to_drop, if_exists=True))
         else:
-            self.connection.execute(text(sql))
+            self.connection.execute(DropTable(table_to_drop, if_exists=True))
 
     def createDateTimeTzTable(self) -> None:
         if self.engine.name == 'redshift':

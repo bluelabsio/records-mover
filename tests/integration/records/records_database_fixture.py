@@ -1,6 +1,7 @@
 from records_mover.db.quoting import quote_schema_and_table
 from records_mover.utils.retry import bigquery_retry
-from sqlalchemy import text
+from sqlalchemy import Table, MetaData
+from sqlalchemy.schema import DropTable
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,10 +21,10 @@ class RecordsDatabaseFixture:
 
     @bigquery_retry()
     def drop_table_if_exists(self, schema, table):
-        sql = f"DROP TABLE IF EXISTS {self.quote_schema_and_table(schema, table)}"
+        table_to_drop = Table(table, MetaData(), schema=schema)
         with self.engine.connect() as connection:
             with connection.begin():
-                connection.execute(text(sql))
+                connection.execute(DropTable(table_to_drop, if_exists=True))
 
     def tear_down(self):
         self.drop_table_if_exists(self.schema_name, f"{self.table_name}_frozen")

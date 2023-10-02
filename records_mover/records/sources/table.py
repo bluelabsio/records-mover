@@ -8,7 +8,7 @@ from ..processing_instructions import ProcessingInstructions
 from ..records_format import BaseRecordsFormat
 from ..unload_plan import RecordsUnloadPlan
 from ..results import MoveResult
-from sqlalchemy import text
+from sqlalchemy import Table, MetaData, select
 from sqlalchemy.engine import Engine
 from contextlib import contextmanager
 from ..schema import RecordsSchema
@@ -88,10 +88,13 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
         chunksize = int(entries_per_chunk / num_columns)
         logger.info(f"Exporting in chunks of up to {chunksize} rows by {num_columns} columns")
 
+        meta = MetaData()
+        table = Table(self.table_name, meta, schema=self.schema_name)
         quoted_table = quote_schema_and_table(None, self.schema_name,
                                               self.table_name, db_engine=db_engine,)
+        logger.info(f"Reading {quoted_table}...")
         chunks: Generator['DataFrame', None, None] = \
-            pandas.read_sql(text(f"SELECT * FROM {quoted_table}"),
+            pandas.read_sql(select('*', table),  # type: ignore[arg-type]
                             con=db_conn,
                             chunksize=chunksize)
         try:
