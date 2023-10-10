@@ -20,9 +20,9 @@ import logging
 from ..loader import LoaderFromFileobj
 from ..errors import NoTemporaryBucketConfiguration
 from ...check_db_conn_engine import check_db_conn_engine
-from ..db_conn_composition_methods import (composition_get_db_conn,
-                                           composition_set_db_conn,
-                                           composition_del_db_conn)
+from ..db_conn_composable_methods import (composable_get_db_conn,
+                                          composable_set_db_conn,
+                                          composable_del_db_conn)
 
 logger = logging.getLogger(__name__)
 
@@ -42,9 +42,9 @@ class BigQueryLoader(LoaderFromFileobj):
         self.gcs_temp_base_loc = gcs_temp_base_loc
         self.conn_opened_here = False
 
-    get_db_conn = composition_get_db_conn
-    set_db_conn = composition_set_db_conn
-    del_db_conn = composition_del_db_conn
+    get_db_conn = composable_get_db_conn
+    set_db_conn = composable_set_db_conn
+    del_db_conn = composable_del_db_conn
 
     db_conn = property(get_db_conn, set_db_conn, del_db_conn)
 

@@ -9,6 +9,9 @@ from abc import ABCMeta, abstractmethod
 import sqlalchemy
 from ..check_db_conn_engine import check_db_conn_engine
 import logging
+from .db_conn_composable_methods import (composable_get_db_conn,
+                                         composable_set_db_conn,
+                                         composable_del_db_conn)
 
 
 logger = logging.getLogger(__name__)
@@ -26,19 +29,9 @@ class Unloader(metaclass=ABCMeta):
         self.conn_opened_here = False
         self.meta = MetaData()
 
-    def get_db_conn(self) -> sqlalchemy.engine.Connection:
-        if self._db_conn is None:
-            self._db_conn = self.db_engine.connect()
-            self.conn_opened_here = True
-            logger.debug("Opened connection to database which will be closed inside this uploader.")
-        return self._db_conn
-
-    def set_db_conn(self, db_conn: Optional[sqlalchemy.engine.Connection]) -> None:
-        self._db_conn = db_conn
-
-    def del_db_conn(self) -> None:
-        if self.conn_opened_here:
-            self.db_conn.close()
+    get_db_conn = composable_get_db_conn
+    set_db_conn = composable_set_db_conn
+    del_db_conn = composable_del_db_conn
 
     db_conn = property(get_db_conn, set_db_conn, del_db_conn)
 
