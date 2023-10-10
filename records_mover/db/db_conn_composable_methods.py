@@ -20,3 +20,4 @@ def composable_set_db_conn(self, db_conn: Optional[sqlalchemy.engine.Connection]
 def composable_del_db_conn(self) -> None:
     if self.conn_opened_here:
         self.db_conn.close()
+        self.db_conn = None
