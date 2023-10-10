@@ -11,11 +11,11 @@ from records_mover.db.quoting import quote_group_name, quote_user_name, quote_sc
 from abc import ABCMeta, abstractmethod
 from records_mover.records import RecordsSchema
 from typing import Union, Dict, List, Tuple, Optional, TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing_extensions import Literal  # noqa
 from .db_conn_composable_methods import (composable_get_db_conn,
                                          composable_set_db_conn,
                                          composable_del_db_conn)
+if TYPE_CHECKING:
+    from typing_extensions import Literal  # noqa
 
 logger = logging.getLogger(__name__)
 
