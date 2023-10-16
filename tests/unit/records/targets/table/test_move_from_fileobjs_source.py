@@ -34,7 +34,7 @@ class TestDoMoveFromFileobjsSource(unittest.TestCase):
                                      processing_instructions=self.mock_processing_instructions)
 
     def test_move(self):
-        mock_db = self.mock_tbl.db_engine.begin.return_value.__enter__.return_value
+        mock_db = self.mock_tbl.db_engine.connect.return_value.__enter__.return_value
         mock_driver = self.mock_tbl.db_driver.return_value
         mock_tweaked_records_schema = mock_driver.tweak_records_schema_for_load.return_value
         mock_schema_sql = mock_tweaked_records_schema.to_schema_sql.return_value
@@ -62,7 +62,7 @@ class TestDoMoveFromFileobjsSource(unittest.TestCase):
         class MyException(Exception):
             pass
 
-        mock_db = self.mock_tbl.db_engine.begin.return_value.__enter__.return_value
+        mock_db = self.mock_tbl.db_engine.connect.return_value.__enter__.return_value
         mock_driver = self.mock_tbl.db_driver.return_value
         mock_tweaked_records_schema = mock_driver.tweak_records_schema_for_load.return_value
         mock_schema_sql = mock_tweaked_records_schema.to_schema_sql.return_value
@@ -95,7 +95,7 @@ class TestDoMoveFromFileobjsSource(unittest.TestCase):
         class MyException(Exception):
             pass
 
-        mock_db = self.mock_tbl.db_engine.begin.return_value.__enter__.return_value
+        mock_db = self.mock_tbl.db_engine.connect.return_value.__enter__.return_value
         mock_driver = self.mock_tbl.db_driver.return_value
         mock_tweaked_records_schema = mock_driver.tweak_records_schema_for_load.return_value
         mock_schema_sql = mock_tweaked_records_schema.to_schema_sql.return_value

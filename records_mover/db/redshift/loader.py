@@ -17,14 +17,12 @@ from ...url import BaseDirectoryUrl
 from botocore.credentials import Credentials
 from ...records.delimited import complain_on_unhandled_hints
 from ...check_db_conn_engine import check_db_conn_engine
-from ..db_conn_composable_methods import (composable_get_db_conn,
-                                          composable_set_db_conn,
-                                          composable_del_db_conn)
+from ..db_conn_mixin import DBConnMixin
 
 logger = logging.getLogger(__name__)
 
 
-class RedshiftLoader(LoaderFromRecordsDirectory):
+class RedshiftLoader(DBConnMixin, LoaderFromRecordsDirectory):
     def __init__(self,
                  meta: sqlalchemy.MetaData,
                  s3_temp_base_loc: Optional[BaseDirectoryUrl],
@@ -38,12 +36,6 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
         self.meta = meta
         self.s3_temp_base_loc = s3_temp_base_loc
         self.conn_opened_here = False
-
-    get_db_conn = composable_get_db_conn
-    set_db_conn = composable_set_db_conn
-    del_db_conn = composable_del_db_conn
-
-    db_conn = property(get_db_conn, set_db_conn, del_db_conn)
 
     @contextmanager
     def temporary_s3_directory_loc(self) -> Iterator[BaseDirectoryUrl]:

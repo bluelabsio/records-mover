@@ -25,7 +25,7 @@ class TestDoMoveFromRecordsDirectory(unittest.TestCase):
     def test_move_happy_path(self,
                              mock_RecordsLoadPlan):
 
-        mock_db = self.mock_tbl.db_engine.begin.return_value.__enter__.return_value
+        mock_db = self.mock_tbl.db_engine.connect.return_value.__enter__.return_value
         mock_driver = self.mock_tbl.db_driver.return_value
         mock_loader = mock_driver.loader.return_value
         mock_records_format = self.mock_override_records_format
@@ -54,7 +54,7 @@ class TestDoMoveFromRecordsDirectory(unittest.TestCase):
     @patch('records_mover.records.targets.table.move_from_records_directory.RecordsLoadPlan')
     def test_move_legacy_schema_sql(self,
                                     mock_RecordsLoadPlan):
-        mock_db = self.mock_tbl.db_engine.begin.return_value.__enter__.return_value
+        mock_db = self.mock_tbl.db_engine.connect.return_value.__enter__.return_value
         mock_driver = self.mock_tbl.db_driver.return_value
         mock_loader = mock_driver.loader.return_value
         mock_records_format = self.mock_override_records_format
@@ -87,7 +87,7 @@ class TestDoMoveFromRecordsDirectory(unittest.TestCase):
     @patch('records_mover.records.targets.table.move_from_records_directory.RecordsLoadPlan')
     def test_move_no_override(self,
                               mock_RecordsLoadPlan):
-        mock_db = self.mock_tbl.db_engine.begin.return_value.__enter__.return_value
+        mock_db = self.mock_tbl.db_engine.connect.return_value.__enter__.return_value
         mock_driver = self.mock_tbl.db_driver.return_value
         mock_loader = mock_driver.loader.return_value
         self.mock_directory.load_schema_json_obj.return_value = None

@@ -75,44 +75,43 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
         sources = records.sources
         source_engine = session.get_db_engine(source_dbname)
         target_engine = session.get_db_engine(target_dbname)
-        source_conn = source_engine.connect()
-        target_conn = target_engine.connect()
-        source_schema_name = schema_name(source_dbname)
-        target_schema_name = schema_name(target_dbname)
-        source_table_name = f'itest_source_{BUILD_NUM}_{CURRENT_EPOCH}'
-        records_database_fixture = RecordsDatabaseFixture(source_engine,
-                                                          source_schema_name,
-                                                          source_table_name)
+        with source_engine.connect() as source_conn:
+            with target_engine.connect() as target_conn:
+                source_schema_name = schema_name(source_dbname)
+                target_schema_name = schema_name(target_dbname)
+                source_table_name = f'itest_source_{BUILD_NUM}_{CURRENT_EPOCH}'
+                records_database_fixture = RecordsDatabaseFixture(source_engine,
+                                                                  source_schema_name,
+                                                                  source_table_name)
+                records_database_fixture.tear_down()
+                records_database_fixture.bring_up()
+
+                existing = ExistingTableHandling.DROP_AND_RECREATE
+                source = sources.table(schema_name=source_schema_name,
+                                    table_name=source_table_name,
+                                    db_engine=source_engine,
+                                    db_conn=source_conn)
+                target = targets.table(schema_name=target_schema_name,
+                                    table_name=TARGET_TABLE_NAME,
+                                    db_engine=target_engine,
+                                    existing_table_handling=existing,
+                                    db_conn=target_conn)
+                out = records.move(source, target)
+                # redshift doesn't give reliable info on load results, so this
+                # will be None or 1
+                self.assertNotEqual(0, out.move_count)
+                validator = RecordsTableValidator(target_engine,
+                                                source_db_engine=source_engine)
+                validator.validate(schema_name=target_schema_name,
+                                table_name=TARGET_TABLE_NAME)
+
+                quoted_target = quote_schema_and_table(None, target_schema_name, TARGET_TABLE_NAME,
+                                                    db_engine=target_engine)
+                sql = f"DROP TABLE {quoted_target}"
+                with target_conn.begin():
+                    target_conn.exec_driver_sql(sql)
         records_database_fixture.tear_down()
-        records_database_fixture.bring_up()
 
-        existing = ExistingTableHandling.DROP_AND_RECREATE
-        source = sources.table(schema_name=source_schema_name,
-                               table_name=source_table_name,
-                               db_engine=source_engine,
-                               db_conn=source_conn)
-        target = targets.table(schema_name=target_schema_name,
-                               table_name=TARGET_TABLE_NAME,
-                               db_engine=target_engine,
-                               existing_table_handling=existing,
-                               db_conn=target_conn)
-        out = records.move(source, target)
-        # redshift doesn't give reliable info on load results, so this
-        # will be None or 1
-        self.assertNotEqual(0, out.move_count)
-        validator = RecordsTableValidator(target_engine,
-                                          source_db_engine=source_engine)
-        validator.validate(schema_name=target_schema_name,
-                           table_name=TARGET_TABLE_NAME)
-
-        quoted_target = quote_schema_and_table(None, target_schema_name, TARGET_TABLE_NAME,
-                                               db_engine=target_engine)
-        sql = f"DROP TABLE {quoted_target}"
-        target_conn.exec_driver_sql(sql)  # type: ignore[attr-defined]
-
-        # records_database_fixture.tear_down()
-        source_conn.close()
-        target_conn.close()
 
     @parameterized.expand(SOURCE_TARGET_PAIRS, name_func=name_func)
     def test_move_and_verify(self, source, target):

@@ -9,15 +9,13 @@ from abc import ABCMeta, abstractmethod
 import sqlalchemy
 from ..check_db_conn_engine import check_db_conn_engine
 import logging
-from .db_conn_composable_methods import (composable_get_db_conn,
-                                         composable_set_db_conn,
-                                         composable_del_db_conn)
+from .db_conn_mixin import DBConnMixin
 
 
 logger = logging.getLogger(__name__)
 
 
-class Unloader(metaclass=ABCMeta):
+class Unloader(DBConnMixin, metaclass=ABCMeta):
     def __init__(self,
                  db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
                  db_conn: Optional[sqlalchemy.engine.Connection] = None,
@@ -28,12 +26,6 @@ class Unloader(metaclass=ABCMeta):
         self.db_engine = db_engine
         self.conn_opened_here = False
         self.meta = MetaData()
-
-    get_db_conn = composable_get_db_conn
-    set_db_conn = composable_set_db_conn
-    del_db_conn = composable_del_db_conn
-
-    db_conn = property(get_db_conn, set_db_conn, del_db_conn)
 
     @abstractmethod
     def unload(self,

@@ -11,16 +11,14 @@ from records_mover.db.quoting import quote_group_name, quote_user_name, quote_sc
 from abc import ABCMeta, abstractmethod
 from records_mover.records import RecordsSchema
 from typing import Union, Dict, List, Tuple, Optional, TYPE_CHECKING
-from .db_conn_composable_methods import (composable_get_db_conn,
-                                         composable_set_db_conn,
-                                         composable_del_db_conn)
+from .db_conn_mixin import DBConnMixin
 if TYPE_CHECKING:
     from typing_extensions import Literal  # noqa
 
 logger = logging.getLogger(__name__)
 
 
-class DBDriver(metaclass=ABCMeta):
+class DBDriver(DBConnMixin, metaclass=ABCMeta):
     def __init__(self,
                  db: Optional[Union[sqlalchemy.engine.Engine,
                               sqlalchemy.engine.Connection]],
@@ -33,12 +31,6 @@ class DBDriver(metaclass=ABCMeta):
         self._db_conn = db_conn
         self.conn_opened_here = False
         self.meta = MetaData()
-
-    get_db_conn = composable_get_db_conn
-    set_db_conn = composable_set_db_conn
-    del_db_conn = composable_del_db_conn
-
-    db_conn = property(get_db_conn, set_db_conn, del_db_conn)
 
     def has_table(self, schema: str, table: str) -> bool:
         return sqlalchemy.inspect(self.db_engine).has_table(table, schema=schema)

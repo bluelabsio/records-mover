@@ -13,14 +13,12 @@ from typing import Union, List, Optional
 import logging
 import tempfile
 from ...check_db_conn_engine import check_db_conn_engine
-from ..db_conn_composable_methods import (composable_get_db_conn,
-                                          composable_set_db_conn,
-                                          composable_del_db_conn)
+from ..db_conn_mixin import DBConnMixin
 
 logger = logging.getLogger(__name__)
 
 
-class MySQLLoader(LoaderFromRecordsDirectory):
+class MySQLLoader(DBConnMixin, LoaderFromRecordsDirectory):
     def __init__(self,
                  db: Optional[Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection]],
                  url_resolver: UrlResolver,
@@ -32,12 +30,6 @@ class MySQLLoader(LoaderFromRecordsDirectory):
         self._db_conn = db_conn
         self.db_engine = db_engine
         self.url_resolver = url_resolver
-
-    get_db_conn = composable_get_db_conn
-    set_db_conn = composable_set_db_conn
-    del_db_conn = composable_del_db_conn
-
-    db_conn = property(get_db_conn, set_db_conn, del_db_conn)
 
     def load(self,
              schema: str,

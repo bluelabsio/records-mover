@@ -83,10 +83,10 @@ class SpectrumRecordsTarget(SupportsRecordsDirectory):
                                                                self.table_name,
                                                                db_engine=self.db_engine)
                 logger.info(f"Dropping external table {schema_and_table}...")
-                with self.db_engine.connect() as cursor:
+                with self.db_engine.connect() as conn:
                     # See below note about fix from Spectrify
-                    cursor.execution_options(isolation_level='AUTOCOMMIT')
-                    cursor.execute(text(f"DROP TABLE IF EXISTS {schema_and_table}"))
+                    conn.execution_options(isolation_level='AUTOCOMMIT')
+                    conn.execute(text(f"DROP TABLE IF EXISTS {schema_and_table}"))
 
             logger.info(f"Deleting files in {self.output_loc}...")
             self.output_loc.purge_directory()
