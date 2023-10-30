@@ -22,7 +22,6 @@ class MySQLDBDriver(DBDriver):
                  db_conn: Optional[sqlalchemy.engine.Connection] = None,
                  db_engine: Optional[sqlalchemy.engine.Engine] = None,
                  **kwargs) -> None:
-        self.conn_opened_here = False
         super().__init__(db=db, db_conn=db_conn, db_engine=db_engine)
         self._mysql_loader = MySQLLoader(db=db,
                                          db_conn=db_conn,

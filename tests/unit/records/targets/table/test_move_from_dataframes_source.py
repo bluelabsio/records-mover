@@ -79,7 +79,7 @@ class TestDoMoveFromDataframesSource(unittest.TestCase):
         mock_df = Mock(name='df')
         mock_records_schema = self.mock_dfs_source.initial_records_schema.return_value
         self.mock_dfs_source.dfs = [mock_df]
-        mock_db = self.mock_tbl.db_engine.begin.return_value.__enter__.return_value
+        mock_db = self.mock_tbl.db_engine.connect.return_value.__enter__.return_value
         mock_df_1 = mock_purge_unnamed_unused_columns.return_value
         mock_df_2 = mock_records_schema.assign_dataframe_names.return_value
         mock_df_2.index = [1, 2, 3]

@@ -20,11 +20,12 @@ import logging
 from ..loader import LoaderFromFileobj
 from ..errors import NoTemporaryBucketConfiguration
 from ...check_db_conn_engine import check_db_conn_engine
+from ..db_conn_mixin import DBConnMixin
 
 logger = logging.getLogger(__name__)
 
 
-class BigQueryLoader(LoaderFromFileobj):
+class BigQueryLoader(DBConnMixin, LoaderFromFileobj):
     def __init__(self,
                  db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
                  url_resolver: UrlResolver,
@@ -38,22 +39,6 @@ class BigQueryLoader(LoaderFromFileobj):
         self.url_resolver = url_resolver
         self.gcs_temp_base_loc = gcs_temp_base_loc
         self.conn_opened_here = False
-
-    def get_db_conn(self) -> sqlalchemy.engine.Connection:
-        if self._db_conn is None:
-            self._db_conn = self.db_engine.connect()
-            self.conn_opened_here = True
-            logger.debug(f"Opened connection to database within {self} because none was provided.")
-        return self._db_conn
-
-    def set_db_conn(self, db_conn: Optional[sqlalchemy.engine.Connection]) -> None:
-        self._db_conn = db_conn
-
-    def del_db_conn(self) -> None:
-        if self.conn_opened_here:
-            self.db_conn.close()
-
-    db_conn = property(get_db_conn, set_db_conn, del_db_conn)
 
     def best_scheme_to_load_from(self) -> str:
         return 'gs'
