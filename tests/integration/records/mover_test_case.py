@@ -9,7 +9,7 @@ class MoverTestCase:
                  source_db_engine: Optional[Engine] = None,
                  file_variant: Optional[DelimitedVariant] = None) -> None:
         """
-        :param db_engine: Target database of the records move as a SQLAlchemy Engine object.
+        :param target_db_engine: Target database of the records move as a SQLAlchemy Engine object.
 
         :param source_data_db_engine: Source database of the records
         move.  None if we are loading from a file or a dataframe
@@ -27,7 +27,7 @@ class MoverTestCase:
         # timezone is stripped off without looking at it before the
         # timestamp itself is stored without any modifications to the
         # hour number.
-        return engine.name == 'mysql'
+        return engine.name == 'mysql' or engine.name is None
 
     def database_default_store_timezone_is_us_eastern(self) -> bool:
         """

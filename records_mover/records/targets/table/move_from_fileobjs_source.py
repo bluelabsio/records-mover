@@ -53,16 +53,17 @@ class DoMoveFromFileobjsSource(BaseTableMoveAlgorithm):
         self.fileobj.seek(0)
 
     def move(self) -> MoveResult:
-        with self.tbl.db_engine.begin() as db:
-            driver = self.tbl.db_driver(db)
-            schema_obj = self.fileobjs_source.records_schema
-            schema_sql = self.schema_sql_for_load(schema_obj, self.records_format, driver)
-            loader_from_fileobj = driver.loader_from_fileobj()
-            # This is only reached in move() when
-            # records_target.can_move_from_fileobjs_source() is true,
-            # which is only true when .load_from_fileobj() is not None.
-            assert loader_from_fileobj is not None
-            load_exception = loader_from_fileobj.load_failure_exception()
+        with self.tbl.db_engine.connect() as db_conn:
+            with db_conn.begin():
+                driver = self.tbl.db_driver(None, db_conn=db_conn)
+                schema_obj = self.fileobjs_source.records_schema
+                schema_sql = self.schema_sql_for_load(schema_obj, self.records_format, driver)
+                loader_from_fileobj = driver.loader_from_fileobj()
+                # This is only reached in move() when
+                # records_target.can_move_from_fileobjs_source() is true,
+                # which is only true when .load_from_fileobj() is not None.
+                assert loader_from_fileobj is not None
+                load_exception = loader_from_fileobj.load_failure_exception()
 
         return prep_and_load(self.tbl, self.prep, schema_sql, self.load,
                              load_exception,

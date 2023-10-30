@@ -24,5 +24,5 @@ class TestRecordsHook(unittest.TestCase):
         self.assertEqual(out, mock_Records.return_value)
         args, kwargs = mock_Records.call_args
         mock_db = Mock(name='db')
-        self.assertEqual(mock_db_driver.return_value, kwargs['db_driver'](mock_db))
+        self.assertEqual(mock_db_driver.return_value, kwargs['db_driver'](db_conn=mock_db))
         self.assertEqual(mock_UrlResolver.return_value, kwargs['url_resolver'])

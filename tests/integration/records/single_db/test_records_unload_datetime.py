@@ -24,11 +24,12 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
         super().setUp()
         self.datetime_fixture = RecordsDatetimeFixture(engine=self.engine,
                                                        table_name=self.table_name,
-                                                       schema_name=self.schema_name)
+                                                       schema_name=self.schema_name,
+                                                       connection=self.connection)
 
     def tearDown(self):
-        super().tearDown()
         self.datetime_fixture.drop_tables()
+        super().tearDown()
 
     def test_unload_date(self) -> None:
         self.datetime_fixture.createDateTable()
@@ -73,7 +74,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'dateformat': dateformat,
                                                'compression': None,
                                                'header-row': False,
-                                               **addl_hints,  # type: ignore
+                                               **addl_hints,
             })
             expect_pandas_failure = (not self.has_pandas()) and uses_pandas
             try:
@@ -141,7 +142,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'datetimeformat': datetimeformat,
                                                'compression': None,
                                                'header-row': False,
-                                               **addl_hints,  # type: ignore
+                                               **addl_hints,
             })
             expect_pandas_failure = (not self.has_pandas()) and uses_pandas
             try:
@@ -215,7 +216,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'datetimeformattz': datetimeformattz,
                                                'compression': None,
                                                'header-row': False,
-                                               **addl_hints,  # type: ignore
+                                               **addl_hints,
             })
             expect_pandas_failure = (not self.has_pandas()) and uses_pandas
             try:
@@ -284,7 +285,7 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                                                'timeonlyformat': timeonlyformat,
                                                'compression': None,
                                                'header-row': False,
-                                               **addl_hints,  # type: ignore
+                                               **addl_hints,
             })
             expect_pandas_failure = (not self.has_pandas()) and uses_pandas
             try:

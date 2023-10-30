@@ -1,5 +1,7 @@
+from ...check_db_conn_engine import check_db_conn_engine
 from records_mover.db.quoting import quote_value
 import sqlalchemy
+from sqlalchemy import text
 from contextlib import contextmanager
 from ...records.unload_plan import RecordsUnloadPlan
 from ...records.records_format import BaseRecordsFormat, DelimitedRecordsFormat
@@ -22,9 +24,12 @@ logger = logging.getLogger(__name__)
 
 class VerticaUnloader(Unloader):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
-                 s3_temp_base_loc: Optional[BaseDirectoryUrl]) -> None:
-        super().__init__(db=db)
+                 db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
+                 s3_temp_base_loc: Optional[BaseDirectoryUrl],
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
+        super().__init__(db=db, db_conn=db_conn, db_engine=db_engine)
         self.s3_temp_base_loc = s3_temp_base_loc
 
     @contextmanager
@@ -40,8 +45,8 @@ class VerticaUnloader(Unloader):
         return """
             ALTER SESSION SET UDPARAMETER FOR awslib aws_id={aws_id};
             ALTER SESSION SET UDPARAMETER FOR awslib aws_secret={aws_secret};
-        """.format(aws_id=quote_value(self.db.engine, aws_id),
-                   aws_secret=quote_value(self.db.engine, aws_secret))
+        """.format(aws_id=quote_value(None, aws_id, db_engine=self.db_engine),
+                   aws_secret=quote_value(None, aws_secret, db_engine=self.db_engine))
 
     def unload(self,
                schema: str,
@@ -69,7 +74,8 @@ class VerticaUnloader(Unloader):
         return self.s3_temp_base_loc is not None
 
     def s3_export_available(self) -> bool:
-        out = self.db.execute("SELECT lib_name from user_libraries where lib_name = 'awslib'")
+        out = self.db_conn.execute(
+            text("SELECT lib_name from user_libraries where lib_name = 'awslib'"))
         available = len(list(out.fetchall())) == 1
         if not available:
             logger.info("Not attempting S3 export - no access to awslib in Vertica")
@@ -97,7 +103,11 @@ class VerticaUnloader(Unloader):
         processing_instructions = unload_plan.processing_instructions
         try:
             s3_sql = self.aws_creds_sql(aws_creds.access_key, aws_creds.secret_key)
-            self.db.execute(s3_sql)
+            if not self.db_conn.in_transaction():
+                with self.db_conn.begin():
+                    self.db_conn.execute(text(s3_sql))
+            else:
+                self.db_conn.execute(text(s3_sql))
         except sqlalchemy.exc.ProgrammingError as e:
             raise DatabaseDoesNotSupportS3Export(str(e))
 
@@ -106,13 +116,13 @@ class VerticaUnloader(Unloader):
                                     unhandled_hints,
                                     unload_plan.records_format.hints)
 
-        export_sql = vertica_export_sql(db_engine=self.db.engine,
+        export_sql = vertica_export_sql(db_engine=self.db_engine,
                                         table=table,
                                         schema=schema,
                                         s3_url=directory.loc.url,
                                         **vertica_options)
         logger.info(export_sql)
-        export_result = self.db.execute(export_sql).fetchall()
+        export_result = self.db_conn.execute(text(export_sql)).fetchall()
         directory.save_preliminary_manifest()
         export_count = 0
         for record in export_result:

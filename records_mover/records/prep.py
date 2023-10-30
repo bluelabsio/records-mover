@@ -5,6 +5,7 @@ from records_mover.records.existing_table_handling import ExistingTableHandling
 from records_mover.db import DBDriver
 from records_mover.records.table import TargetTableDetails
 import logging
+from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 
@@ -14,16 +15,18 @@ class TablePrep:
         self.tbl = target_table_details
 
     def add_permissions(self, conn: Connection, driver: DBDriver) -> None:
-        schema_and_table: str = quote_schema_and_table(driver.db,
+        schema_and_table: str = quote_schema_and_table(None,
                                                        self.tbl.schema_name,
-                                                       self.tbl.table_name)
+                                                       self.tbl.table_name,
+                                                       db_engine=driver.db_engine)
         if self.tbl.add_group_perms_for is not None:
             logger.info(f"Adding permissions for {schema_and_table} "
                         f"to group {self.tbl.add_group_perms_for}")
             driver.set_grant_permissions_for_groups(self.tbl.schema_name,
                                                     self.tbl.table_name,
                                                     self.tbl.add_group_perms_for,
-                                                    conn)
+                                                    None,
+                                                    db_conn=conn)
         if self.tbl.add_user_perms_for is not None:
             logger.info(f"Adding permissions for {schema_and_table} "
                         f"to {self.tbl.add_user_perms_for}")
@@ -31,11 +34,12 @@ class TablePrep:
                 set_grant_permissions_for_users(self.tbl.schema_name,
                                                 self.tbl.table_name,
                                                 self.tbl.add_user_perms_for,
-                                                conn)
+                                                None,
+                                                db_conn=conn)
 
     def create_table(self, schema_sql: str, conn: Connection, driver: DBDriver) -> None:
         logger.info('Creating table...')
-        conn.execute(schema_sql)
+        conn.execute(text(schema_sql))
         logger.info(f"Just ran {schema_sql}")
         self.add_permissions(conn, driver)
         logger.info("Table prepped")
@@ -45,28 +49,31 @@ class TablePrep:
                             existing_table_handling: ExistingTableHandling,
                             driver: DBDriver) -> None:
         logger.info("Looking for existing table..")
-        db = driver.db
+        db_engine = driver.db_engine
+        db_conn = driver.db_conn
 
         if driver.has_table(table=self.tbl.table_name, schema=self.tbl.schema_name):
             logger.info("Table already exists.")
             how_to_prep = existing_table_handling
-            schema_and_table: str = quote_schema_and_table(db,
+            schema_and_table: str = quote_schema_and_table(None,
                                                            self.tbl.schema_name,
-                                                           self.tbl.table_name)
+                                                           self.tbl.table_name,
+                                                           db_engine=db_engine,)
             if (how_to_prep == ExistingTableHandling.TRUNCATE_AND_OVERWRITE):
                 logger.info("Truncating...")
-                db.execute(f"TRUNCATE TABLE {schema_and_table}")
+                db_conn.execute(text(f"TRUNCATE TABLE {schema_and_table}"))
                 logger.info("Truncated.")
             elif (how_to_prep == ExistingTableHandling.DELETE_AND_OVERWRITE):
                 logger.info("Deleting rows...")
-                db.execute(f"DELETE FROM {schema_and_table} WHERE true")
+                db_conn.execute(text(f"DELETE FROM {schema_and_table} WHERE true"))
                 logger.info("Deleted")
             elif (how_to_prep == ExistingTableHandling.DROP_AND_RECREATE):
-                with db.engine.connect() as conn:
+                with db_engine.connect() as conn:
                     with conn.begin():
+                        logger.info(f"The connection object is: {conn}")
                         logger.info("Dropping and recreating...")
                         drop_table_sql = f"DROP TABLE {schema_and_table}"
-                        conn.execute(drop_table_sql)
+                        conn.execute(text(drop_table_sql))
                         logger.info(f"Just ran {drop_table_sql}")
                         self.create_table(schema_sql, conn, driver)
             elif (how_to_prep == ExistingTableHandling.APPEND):
@@ -74,7 +81,7 @@ class TablePrep:
             else:
                 raise ValueError(f"Don't know how to handle {how_to_prep}")
         else:
-            with db.engine.connect() as conn:
+            with db_engine.connect() as conn:
                 with conn.begin():
                     self.create_table(schema_sql, conn, driver)
 

@@ -19,6 +19,7 @@ from .unloader import RedshiftUnloader
 from ..unloader import Unloader
 from .loader import RedshiftLoader
 from ..loader import LoaderFromRecordsDirectory
+from ...check_db_conn_engine import check_db_conn_engine
 
 
 logger = logging.getLogger(__name__)
@@ -26,22 +27,28 @@ logger = logging.getLogger(__name__)
 
 class RedshiftDBDriver(DBDriver):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
+                 db: Optional[Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection]],
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None,
                  s3_temp_base_loc: Optional[BaseDirectoryUrl] = None,
                  **kwargs) -> None:
-        super().__init__(db)
+        super().__init__(db=db, db_conn=db_conn, db_engine=db_engine)
         self.s3_temp_base_loc = s3_temp_base_loc
         self._redshift_loader =\
             RedshiftLoader(db=db,
+                           db_conn=db_conn,
+                           db_engine=db_engine,
                            meta=self.meta,
                            s3_temp_base_loc=s3_temp_base_loc)
         self._redshift_unloader =\
             RedshiftUnloader(db=db,
+                             db_conn=db_conn,
+                             db_engine=db_engine,
                              table=self.table,
                              s3_temp_base_loc=s3_temp_base_loc)
 
     def schema_sql(self, schema: str, table: str) -> str:
-        out = schema_sql_from_admin_views(schema, table, self.db)
+        out = schema_sql_from_admin_views(schema, table, None, db_conn=self.db_conn)
         if out is None:
             return super().schema_sql(schema=schema, table=table)
         else:
@@ -52,7 +59,7 @@ class RedshiftDBDriver(DBDriver):
     # tables and columns filled up memory in the job.
     @timeout_decorator.timeout(80)
     def table(self, schema: str, table: str) -> Table:
-        with self.db.engine.connect() as conn:
+        with self.db_engine.connect() as conn:
             with conn.begin():
                 # The code in the Redshift SQLAlchemy driver relies on 'SET
                 # LOCAL search_path' in order to do reflection and pull back
@@ -66,22 +73,32 @@ class RedshiftDBDriver(DBDriver):
                 # There was some hang-wringing when they added it originally:
                 #  https://github.com/sqlalchemy-redshift/sqlalchemy-redshift/commit/
                 #      94723ec6437c5e5197fcf785845499e81640b167
-                return Table(table, self.meta, schema=schema, autoload=True, autoload_with=conn)
+                return Table(table, self.meta, schema=schema, autoload_with=conn)
 
-    def set_grant_permissions_for_groups(self, schema_name: str, table: str,
+    def set_grant_permissions_for_groups(self,
+                                         schema_name: str,
+                                         table: str,
                                          groups: Dict[str, List[str]],
-                                         db: Union[sqlalchemy.engine.Engine,
-                                                   sqlalchemy.engine.Connection]) -> None:
-        schema_and_table = quote_schema_and_table(self.db.engine, schema_name, table)
+                                         db: Optional[Union[sqlalchemy.engine.Engine,
+                                                      sqlalchemy.engine.Connection]],
+                                         db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                                         db_engine: Optional[sqlalchemy.engine.Engine] = None
+                                         ) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
+        schema_and_table = quote_schema_and_table(None, schema_name, table, db_engine=db_engine)
         for perm_type in groups:
             groups_list = groups[perm_type]
             for group in groups_list:
-                group_name: str = quote_group_name(self.db.engine, group)
+                group_name: str = quote_group_name(None, group, db_engine=self.db_engine)
                 if not perm_type.isalpha():
                     raise TypeError("Please make sure your permission types"
                                     " are an acceptable value.")
                 perms_sql = f'GRANT {perm_type} ON TABLE {schema_and_table} TO GROUP {group_name}'
-                db.execute(perms_sql)
+                if db_conn:
+                    db_conn.execute(perms_sql)
+                else:
+                    with db_engine.connect() as conn:
+                        conn.execute(perms_sql)
         return None
 
     def supports_time_type(self) -> bool:

@@ -23,9 +23,10 @@ class TestRedshiftUnloader(unittest.TestCase):
         mock_target_records_format.hints = {}
 
         redshift_unloader =\
-            RedshiftUnloader(db=mock_db,
+            RedshiftUnloader(db=None,
                              table=mock_table,
-                             s3_temp_base_loc=mock_s3_temp_base_loc)
+                             s3_temp_base_loc=mock_s3_temp_base_loc,
+                             db_conn=mock_db)
         out = redshift_unloader.can_unload_format(mock_target_records_format)
         mock_RecordsUnloadPlan.\
             assert_called_with(records_format=mock_target_records_format)
@@ -53,9 +54,10 @@ class TestRedshiftUnloader(unittest.TestCase):
         mock_redshift_unload_options.side_effect = NotImplementedError
 
         redshift_unloader =\
-            RedshiftUnloader(db=mock_db,
+            RedshiftUnloader(db=None,
                              table=mock_table,
-                             s3_temp_base_loc=mock_s3_temp_base_loc)
+                             s3_temp_base_loc=mock_s3_temp_base_loc,
+                             db_conn=mock_db)
         out = redshift_unloader.can_unload_format(mock_target_records_format)
         mock_RecordsUnloadPlan.\
             assert_called_with(records_format=mock_target_records_format)
@@ -70,9 +72,10 @@ class TestRedshiftUnloader(unittest.TestCase):
         mock_table = Mock(name='table')
 
         redshift_unloader =\
-            RedshiftUnloader(db=mock_db,
+            RedshiftUnloader(db=None,
                              table=mock_table,
-                             s3_temp_base_loc=None)
+                             s3_temp_base_loc=None,
+                             db_conn=mock_db)
         self.assertTrue(redshift_unloader.can_unload_to_scheme('s3'))
 
     def test_can_unload_to_scheme_file_without_temp_bucket_true(self):
@@ -80,9 +83,10 @@ class TestRedshiftUnloader(unittest.TestCase):
         mock_table = Mock(name='table')
 
         redshift_unloader =\
-            RedshiftUnloader(db=mock_db,
+            RedshiftUnloader(db=None,
                              table=mock_table,
-                             s3_temp_base_loc=None)
+                             s3_temp_base_loc=None,
+                             db_conn=mock_db)
         self.assertFalse(redshift_unloader.can_unload_to_scheme('file'))
 
     def test_can_unload_to_scheme_file_with_temp_bucket_true(self):
@@ -91,9 +95,10 @@ class TestRedshiftUnloader(unittest.TestCase):
         mock_s3_temp_base_loc = Mock(name='s3_temp_base_loc')
 
         redshift_unloader =\
-            RedshiftUnloader(db=mock_db,
+            RedshiftUnloader(db=None,
                              table=mock_table,
-                             s3_temp_base_loc=mock_s3_temp_base_loc)
+                             s3_temp_base_loc=mock_s3_temp_base_loc,
+                             db_conn=mock_db)
         self.assertTrue(redshift_unloader.can_unload_to_scheme('file'))
 
     def test_known_supported_records_formats_for_unload(self):
@@ -102,9 +107,10 @@ class TestRedshiftUnloader(unittest.TestCase):
         mock_s3_temp_base_loc = Mock(name='s3_temp_base_loc')
 
         redshift_unloader =\
-            RedshiftUnloader(db=mock_db,
+            RedshiftUnloader(db=None,
                              table=mock_table,
-                             s3_temp_base_loc=mock_s3_temp_base_loc)
+                             s3_temp_base_loc=mock_s3_temp_base_loc,
+                             db_conn=mock_db)
         formats = redshift_unloader.known_supported_records_formats_for_unload()
 
         self.assertEqual([f.__class__ for f in formats],
@@ -116,9 +122,10 @@ class TestRedshiftUnloader(unittest.TestCase):
         mock_s3_temp_base_loc = MagicMock(name='s3_temp_base_loc')
 
         redshift_unloader =\
-            RedshiftUnloader(db=mock_db,
+            RedshiftUnloader(db=None,
                              table=mock_table,
-                             s3_temp_base_loc=mock_s3_temp_base_loc)
+                             s3_temp_base_loc=mock_s3_temp_base_loc,
+                             db_conn=mock_db)
         with redshift_unloader.temporary_unloadable_directory_loc() as loc:
             self.assertEqual(loc,
                              mock_s3_temp_base_loc.temporary_directory.return_value.__enter__.
@@ -130,9 +137,10 @@ class TestRedshiftUnloader(unittest.TestCase):
         mock_s3_temp_base_loc = None
 
         redshift_unloader =\
-            RedshiftUnloader(db=mock_db,
+            RedshiftUnloader(db=None,
                              table=mock_table,
-                             s3_temp_base_loc=mock_s3_temp_base_loc)
+                             s3_temp_base_loc=mock_s3_temp_base_loc,
+                             db_conn=mock_db)
         with self.assertRaises(NoTemporaryBucketConfiguration):
             with redshift_unloader.temporary_unloadable_directory_loc():
                 pass

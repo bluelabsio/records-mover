@@ -180,8 +180,8 @@ expected_column_types = {
         'uint64': 'NUMERIC(20, 0)',
         'float16': 'REAL',
         'float32': 'REAL',
-        'float64': 'DOUBLE_PRECISION',
-        'float128': 'DOUBLE_PRECISION',  # Postgres doesn't support >float64
+        'float64': 'DOUBLE PRECISION',
+        'float128': 'DOUBLE PRECISION',  # Postgres doesn't support >float64
         'fixed_6_2': 'NUMERIC(6, 2)',
         'fixed_38_9': 'NUMERIC(38, 9)',
         'fixed_100_4': 'NUMERIC(100, 4)',

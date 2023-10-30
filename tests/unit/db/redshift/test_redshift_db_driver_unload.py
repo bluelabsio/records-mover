@@ -23,7 +23,9 @@ class TestRedshiftDBDriverUnload(BaseTestRedshiftDBDriver):
             DelimitedRecordsFormat(variant='bluelabs',
                                    hints=bluelabs_format_hints)
         self.mock_directory.scheme = 'mumble'
-        self.mock_db_engine.execute.return_value.scalar.return_value = 456
+        self.mock_db_engine.connect.return_value \
+            .execute.return_value \
+            .scalar.return_value = 456
         rows = self.redshift_db_driver.unloader().\
             unload(schema='myschema',
                    table='mytable',
@@ -61,7 +63,9 @@ class TestRedshiftDBDriverUnload(BaseTestRedshiftDBDriver):
             DelimitedRecordsFormat(variant='bluelabs',
                                    hints=bluelabs_format_hints)
         self.mock_directory.scheme = 's3'
-        self.mock_db_engine.execute.return_value.scalar.return_value = 456
+        self.mock_db_engine.connect.return_value \
+            .execute.return_value \
+            .scalar.return_value = 456
         rows = self.redshift_db_driver.unloader().\
             unload(schema='myschema',
                    table='mytable',

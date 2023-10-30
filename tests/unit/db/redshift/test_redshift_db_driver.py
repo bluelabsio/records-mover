@@ -7,10 +7,8 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
     maxDiff = None
 
     def test_schema_sql(self):
-        self.mock_db_engine.execute.return_value.fetchall.return_value =\
-            [{}, {'ddl': 'real line 1'}, {'ddl': 'real line 2'}]
         sql = self.redshift_db_driver.schema_sql('myschema', 'mytable')
-        self.assertEqual(sql, "real line 1\nreal line 2")
+        self.assertEqual(sql, '\nCREATE TABLE myschema.mytable (\n)\n\n')
 
     def test_schema_sql_no_admin_views(self):
         self.mock_db_engine.execute.return_value.fetchall.return_value = []
@@ -28,8 +26,11 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
         mock_quote_group_name.return_value = '"a_group"'
         groups = {'all': ['a_group']}
         mock_conn = self.mock_db_engine.engine.connect.return_value.__enter__.return_value
-        self.redshift_db_driver.set_grant_permissions_for_groups(mock_schema, mock_table,
-                                                                 groups, mock_conn)
+        self.redshift_db_driver.set_grant_permissions_for_groups(mock_schema,
+                                                                 mock_table,
+                                                                 groups,
+                                                                 None,
+                                                                 db_conn=mock_conn)
         mock_conn.execute.assert_called_with(
             f'GRANT all ON TABLE {mock_schema}.{mock_table} TO GROUP "a_group"')
 

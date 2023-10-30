@@ -7,12 +7,24 @@ from records_mover.url.base import BaseDirectoryUrl
 from typing import Union, List, Optional, Iterator
 from abc import ABCMeta, abstractmethod
 import sqlalchemy
+from ..check_db_conn_engine import check_db_conn_engine
+import logging
+from .db_conn_mixin import DBConnMixin
 
 
-class Unloader(metaclass=ABCMeta):
+logger = logging.getLogger(__name__)
+
+
+class Unloader(DBConnMixin, metaclass=ABCMeta):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]) -> None:
+                 db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
         self.db = db
+        self._db_conn = db_conn
+        self.db_engine = db_engine
+        self.conn_opened_here = False
         self.meta = MetaData()
 
     @abstractmethod
@@ -65,3 +77,6 @@ class Unloader(metaclass=ABCMeta):
         if len(supported_formats) == 0:
             return None
         return supported_formats[0]
+
+    def __del__(self) -> None:
+        self.del_db_conn()

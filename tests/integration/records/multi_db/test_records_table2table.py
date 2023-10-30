@@ -1,5 +1,7 @@
+# flake8: noqa
+
 from records_mover.db.quoting import quote_schema_and_table
-from records_mover import Session, set_stream_logging
+from records_mover import Session
 from records_mover.records import ExistingTableHandling
 import logging
 import time
@@ -8,6 +10,8 @@ import os
 from ..records_database_fixture import RecordsDatabaseFixture
 from ..table_validator import RecordsTableValidator
 from ..purge_old_test_tables import purge_old_tables
+from parameterized import parameterized  # type: ignore[import-not-found]
+
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +46,14 @@ def schema_name(db_name):
         raise NotImplementedError('Teach me how to determine a schema name for ' + db_name)
 
 
+def name_func(testcase_func, param_num, param):
+    source, target = param[0]
+    return f"test_move_and_verify_from_{source}_to_{target}"
+
+
+SOURCE_TARGET_PAIRS = [(source, target) for source in DB_TYPES for target in DB_TYPES]
+
+
 class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
     #
     # actual test methods are defined dynamically after the class
@@ -63,60 +75,47 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
         sources = records.sources
         source_engine = session.get_db_engine(source_dbname)
         target_engine = session.get_db_engine(target_dbname)
-        source_schema_name = schema_name(source_dbname)
-        target_schema_name = schema_name(target_dbname)
-        source_table_name = f'itest_source_{BUILD_NUM}_{CURRENT_EPOCH}'
-        records_database_fixture = RecordsDatabaseFixture(source_engine,
-                                                          source_schema_name,
-                                                          source_table_name)
+        with source_engine.connect() as source_conn:
+            with target_engine.connect() as target_conn:
+                source_schema_name = schema_name(source_dbname)
+                target_schema_name = schema_name(target_dbname)
+                source_table_name = f'itest_source_{BUILD_NUM}_{CURRENT_EPOCH}'
+                records_database_fixture = RecordsDatabaseFixture(source_engine,
+                                                                  source_schema_name,
+                                                                  source_table_name)
+                records_database_fixture.tear_down()
+                records_database_fixture.bring_up()
+
+                existing = ExistingTableHandling.DROP_AND_RECREATE
+                source = sources.table(schema_name=source_schema_name,
+                                    table_name=source_table_name,
+                                    db_engine=source_engine,
+                                    db_conn=source_conn)
+                target = targets.table(schema_name=target_schema_name,
+                                    table_name=TARGET_TABLE_NAME,
+                                    db_engine=target_engine,
+                                    existing_table_handling=existing,
+                                    db_conn=target_conn)
+                out = records.move(source, target)
+                # redshift doesn't give reliable info on load results, so this
+                # will be None or 1
+                self.assertNotEqual(0, out.move_count)
+                validator = RecordsTableValidator(target_engine,
+                                                source_db_engine=source_engine)
+                validator.validate(schema_name=target_schema_name,
+                                table_name=TARGET_TABLE_NAME)
+
+                quoted_target = quote_schema_and_table(None, target_schema_name, TARGET_TABLE_NAME,
+                                                    db_engine=target_engine)
+                sql = f"DROP TABLE {quoted_target}"
+                with target_conn.begin():
+                    target_conn.exec_driver_sql(sql)
         records_database_fixture.tear_down()
-        records_database_fixture.bring_up()
-
-        existing = ExistingTableHandling.DROP_AND_RECREATE
-        source = sources.table(schema_name=source_schema_name,
-                               table_name=source_table_name,
-                               db_engine=source_engine)
-        target = targets.table(schema_name=target_schema_name,
-                               table_name=TARGET_TABLE_NAME,
-                               db_engine=target_engine,
-                               existing_table_handling=existing)
-        out = records.move(source, target)
-        # redshift doesn't give reliable info on load results, so this
-        # will be None or 1
-        self.assertNotEqual(0, out.move_count)
-        validator = RecordsTableValidator(target_engine,
-                                          source_db_engine=source_engine)
-        validator.validate(schema_name=target_schema_name,
-                           table_name=TARGET_TABLE_NAME)
-
-        quoted_target = quote_schema_and_table(target_engine, target_schema_name, TARGET_TABLE_NAME)
-        sql = f"DROP TABLE {quoted_target}"
-        target_engine.execute(sql)
-
-        records_database_fixture.tear_down()
 
 
-def create_test_func(source_name, target_name):
-    def source2target(self):
+    @parameterized.expand(SOURCE_TARGET_PAIRS, name_func=name_func)
+    def test_move_and_verify(self, source, target):
+        source_name = DB_NAMES[source]
+        target_name = DB_NAMES[target]
+        print(f"Moving from {source_name} to {target_name}")
         self.move_and_verify(source_name, target_name)
-    return source2target
-
-
-if __name__ == '__main__':
-    set_stream_logging(level=logging.DEBUG)
-    logging.getLogger('botocore').setLevel(logging.INFO)
-    logging.getLogger('boto3').setLevel(logging.INFO)
-    logging.getLogger('urllib3').setLevel(logging.INFO)
-
-    for source in DB_TYPES:
-        for target in DB_TYPES:
-            source_name = DB_NAMES[source]
-            target_name = DB_NAMES[target]
-            f = create_test_func(source_name, target_name)
-            func_name = f"test_{source}2{target}"
-
-            setattr(RecordsMoverTable2TableIntegrationTest,
-                    func_name,
-                    f)
-
-    unittest.main()

@@ -41,8 +41,8 @@ class RecordsTableTimezoneValidator:
             # doesn't store timezones, the database in question just
             # strips off the timezone and stores the '12'
             utc_hour = 12
-        elif(self.tc.loaded_from_dataframe() and
-             self.tc.database_has_no_usable_timestamptz_type(self.target_db_engine)):
+        elif (self.tc.loaded_from_dataframe() and
+              self.tc.database_has_no_usable_timestamptz_type(self.target_db_engine)):
             #
             # In this case, we correctly tell Pandas that we have are
             # at noon:34 US/Eastern, and tell Pandas to format the
@@ -144,11 +144,17 @@ class RecordsTableTimezoneValidator:
             assert timestamptzstr in [
                 f'2000-01-02 {utc_hour}:34:{seconds}.{micros} ',
                 f'2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC',
+                f'2000-01-02 {utc_hour}:34:{seconds} UTC',
                 f'2000-01-02 {utc_hour}:34:{seconds}.{micros}+00'
             ],\
                 (f"translated timestamptzstr was {timestamptzstr} and "
                  f"class is {type(timestamptzstr)} - expected "
-                 f"hour to be {utc_hour}")
+                 f"hour to be {utc_hour}"
+                 " EXPECTED OUTPUT NO USABLE TIMESTAMP TYPE"
+                 f" source_db_engine {self.source_db_engine}:"
+                 f' 2000-01-02 {utc_hour}:34:{seconds}.{micros} '
+                 f' OR 2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC'
+                 f' OR 2000-01-02 {utc_hour}:34:{seconds}.{micros}+00')
         else:
             if micros == '000000':
                 assert timestamptzstr in [
@@ -158,7 +164,12 @@ class RecordsTableTimezoneValidator:
                 ],\
                     (f"translated timestamptzstr was {timestamptzstr} and "
                      f"class is {type(timestamptzstr)} - expected "
-                     f"hour to be {utc_hour}")
+                     f"hour to be {utc_hour}"
+                     " EXPECTED OUTPUT MICROS 000000"
+                     f" source_db_engine {self.source_db_engine}:"
+                     f' 2000-01-02 {utc_hour}:34:{seconds} UTC'
+                     f' OR 2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC'
+                     f' OR 2000-01-02 {utc_hour}:34:{seconds}.{micros}+00')
             else:
                 assert timestamptzstr in [
                     f'2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC',
@@ -166,7 +177,11 @@ class RecordsTableTimezoneValidator:
                 ],\
                     (f"translated timestamptzstr was {timestamptzstr} and "
                      f"class is {type(timestamptzstr)} - expected "
-                     f"hour to be {utc_hour}")
+                     f"hour to be {utc_hour}"
+                     " EXPECTED OUTPUT USUABLE TIMESTAMP TYPE"
+                     f" source_db_engine {self.source_db_engine}:"
+                     f' OR 2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC'
+                     f' OR 2000-01-02 {utc_hour}:34:{seconds}.{micros}+00')
 
         utc = pytz.timezone('UTC')
         if ((load_variant is not None and

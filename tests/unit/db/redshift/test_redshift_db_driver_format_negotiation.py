@@ -23,8 +23,9 @@ class TestRedshiftDBDriverFormatNegotiation(unittest.TestCase):
             quote.return_value.\
             __add__.return_value.\
             __add__.return_value = 'myschema.mytable'
-        self.redshift_db_driver = RedshiftDBDriver(db=mock_db_engine,
-                                                   s3_temp_base_loc=mock_s3_temp_base_loc)
+        self.redshift_db_driver = RedshiftDBDriver(db=None,
+                                                   s3_temp_base_loc=mock_s3_temp_base_loc,
+                                                   db_engine=mock_db_engine,)
 
     def test_can_load_this_format(self):
         mock_source_records_format = Mock(name='source_records_format', spec=DelimitedRecordsFormat)

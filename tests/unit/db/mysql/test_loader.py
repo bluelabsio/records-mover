@@ -10,8 +10,9 @@ class TestLoader(unittest.TestCase):
         self.mock_url_resolver = Mock(name='url_resolver')
         self.mock_db_engine = MagicMock(name='db_engine')
         self.mock_db_engine.engine = self.mock_db_engine
-        self.loader = MySQLLoader(db=self.mock_db_engine,
-                                  url_resolver=self.mock_url_resolver)
+        self.loader = MySQLLoader(db=None,
+                                  url_resolver=self.mock_url_resolver,
+                                  db_engine=self.mock_db_engine)
 
     @patch('records_mover.db.mysql.loader.complain_on_unhandled_hints')
     @patch('records_mover.db.mysql.loader.mysql_load_options')
@@ -67,5 +68,5 @@ class TestLoader(unittest.TestCase):
                                mock_table,
                                mock_load_plan,
                                mock_directory)
-        self.mock_db_engine.execute.assert_called_with(mock_sql)
+        self.mock_db_engine.connect.return_value.execute.assert_called_with(mock_sql)
         self.assertEqual(out, None)

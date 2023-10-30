@@ -1,4 +1,5 @@
 from records_mover.db.quoting import quote_schema_and_table
+from sqlalchemy import text
 
 
 class RecordsNumericDatabaseFixture:
@@ -126,14 +127,19 @@ f"""
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
         print(f"Creating: {create_tables}")
         for statement in create_tables:
-            self.engine.execute(statement)
+            with self.engine.connect() as connection:
+                with connection.begin():
+                    connection.exec_driver_sql(statement)
 
     def quote_schema_and_table(self, schema, table):
-        return quote_schema_and_table(self.engine, schema, table)
+        return quote_schema_and_table(None, schema, table,
+                                      db_engine=self.engine)
 
     def drop_table_if_exists(self, schema, table):
         sql = f"DROP TABLE IF EXISTS {self.quote_schema_and_table(schema, table)}"
-        self.engine.execute(sql)
+        with self.engine.connect() as connection:
+            with connection.begin():
+                connection.execute(text(sql))
 
     def tear_down(self):
         self.drop_table_if_exists(self.schema_name, self.table_name)

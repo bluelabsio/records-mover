@@ -29,8 +29,8 @@ class TestBigQueryLoaderCanLoadThisFormat(unittest.TestCase):
         mock_load_plan.records_format = mock_source_records_format
         mock_url_resolver = Mock(name='url_resolver')
         mock_source_records_format.hints = {}
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                         gcs_temp_base_loc=None)
+        bigquery_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=None, db_conn=mock_db)
         out = bigquery_loader.can_load_this_format(mock_source_records_format)
         mock_ProcessingInstructions.assert_called_with()
         mock_RecordsLoadPlan.\
@@ -55,8 +55,8 @@ class TestBigQueryLoaderCanLoadThisFormat(unittest.TestCase):
         mock_url_resolver = Mock(name='url_resolver')
         mock_load_job_config.side_effect = NotImplementedError
         mock_source_records_format.hints = {}
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                         gcs_temp_base_loc=None)
+        bigquery_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=None, db_conn=mock_db)
         out = bigquery_loader.can_load_this_format(mock_source_records_format)
         mock_ProcessingInstructions.assert_called_with()
         mock_RecordsLoadPlan.\
@@ -80,8 +80,8 @@ class TestBigQueryLoaderCanLoadThisFormat(unittest.TestCase):
         mock_load_plan.records_format = mock_source_records_format
         mock_url_resolver = Mock(name='url_resolver')
         mock_source_records_format.hints = {}
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                         gcs_temp_base_loc=None)
+        bigquery_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=None, db_conn=mock_db)
         out = bigquery_loader.can_load_this_format(mock_source_records_format)
         mock_ProcessingInstructions.assert_called_with()
         mock_RecordsLoadPlan.\
@@ -104,8 +104,8 @@ class TestBigQueryLoaderCanLoadThisFormat(unittest.TestCase):
         mock_load_plan.records_format = mock_source_records_format
         mock_url_resolver = Mock(name='url_resolver')
         mock_source_records_format.hints = {}
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                         gcs_temp_base_loc=None)
+        bigquery_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=None, db_conn=mock_db)
         out = bigquery_loader.can_load_this_format(mock_source_records_format)
         mock_ProcessingInstructions.assert_called_with()
         mock_RecordsLoadPlan.\
@@ -128,8 +128,8 @@ class TestBigQueryLoaderCanLoadThisFormat(unittest.TestCase):
         mock_load_plan.records_format = mock_source_records_format
         mock_url_resolver = Mock(name='url_resolver')
         mock_source_records_format.hints = {}
-        bigquery_loader = BigQueryLoader(db=mock_db, url_resolver=mock_url_resolver,
-                                         gcs_temp_base_loc=None)
+        bigquery_loader = BigQueryLoader(db=None, url_resolver=mock_url_resolver,
+                                         gcs_temp_base_loc=None, db_conn=mock_db)
         out = bigquery_loader.can_load_this_format(mock_source_records_format)
         mock_ProcessingInstructions.assert_called_with()
         mock_RecordsLoadPlan.\

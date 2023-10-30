@@ -19,17 +19,23 @@ logger = logging.getLogger(__name__)
 
 class BigQueryDBDriver(DBDriver):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
+                 db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
                  url_resolver: UrlResolver,
                  gcs_temp_base_loc: Optional[BaseDirectoryUrl] = None,
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None,
                  **kwargs: object) -> None:
-        super().__init__(db)
+        super().__init__(db, db_conn, db_engine)
         self._bigquery_loader =\
-            BigQueryLoader(db=self.db,
+            BigQueryLoader(db=db,
+                           db_conn=db_conn,
+                           db_engine=db_engine,
                            url_resolver=url_resolver,
                            gcs_temp_base_loc=gcs_temp_base_loc)
         self._bigquery_unloader =\
-            BigQueryUnloader(db=self.db,
+            BigQueryUnloader(db=db,
+                             db_conn=db_conn,
+                             db_engine=db_engine,
                              url_resolver=url_resolver,
                              gcs_temp_base_loc=gcs_temp_base_loc)
 

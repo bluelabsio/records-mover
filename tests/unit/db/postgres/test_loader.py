@@ -12,7 +12,8 @@ class TestPostgresLoader(unittest.TestCase):
         self.mock_db = MagicMock(name='db')
         self.loader = PostgresLoader(self.mock_url_resolver,
                                      self.mock_meta,
-                                     self.mock_db)
+                                     None,
+                                     db_conn=self.mock_db)
 
     @patch('records_mover.db.postgres.loader.quote_value')
     @patch('records_mover.db.postgres.loader.copy_from')
@@ -57,11 +58,12 @@ class TestPostgresLoader(unittest.TestCase):
         mock_Table.assert_called_with(mock_table,
                                       self.mock_meta,
                                       schema=mock_schema,
-                                      autoload=True,
-                                      autoload_with=self.mock_db)
-        mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
-        mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_ORDER_STYLE')
-        mock_conn.execute.assert_called_with('SET LOCAL DateStyle = ABC')
+                                      autoload_with=self.mock_db.engine)
+        mock_conn = self.mock_db
+        mock_quote_value.assert_called_with(None, 'ISO, DATE_ORDER_STYLE',
+                                            db_engine=mock_conn.engine)
+        str_arg = str(mock_conn.execute.call_args.args[0])
+        self.assertEqual(str_arg, 'SET LOCAL DateStyle = ABC')
         mock_copy_from.assert_called_with(mock_fileobj,
                                           mock_table_obj,
                                           mock_conn,
@@ -110,11 +112,11 @@ class TestPostgresLoader(unittest.TestCase):
         mock_Table.assert_called_with(mock_table,
                                       self.mock_meta,
                                       schema=mock_schema,
-                                      autoload=True,
-                                      autoload_with=self.mock_db)
-        mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
-        mock_quote_value.assert_called_with(mock_conn, 'ISO, MDY')
-        mock_conn.execute.assert_called_with('SET LOCAL DateStyle = ABC')
+                                      autoload_with=self.mock_db.engine)
+        mock_conn = self.mock_db
+        mock_quote_value.assert_called_with(None, 'ISO, MDY', db_engine=mock_conn.engine)
+        str_arg = str(mock_conn.execute.call_args.args[0])
+        self.assertEqual(str_arg, 'SET LOCAL DateStyle = ABC')
         mock_copy_from.assert_called_with(mock_fileobj,
                                           mock_table_obj,
                                           mock_conn,
@@ -172,11 +174,12 @@ class TestPostgresLoader(unittest.TestCase):
         mock_Table.assert_called_with(mock_table,
                                       self.mock_meta,
                                       schema=mock_schema,
-                                      autoload=True,
-                                      autoload_with=self.mock_db)
-        mock_conn = self.mock_db.engine.begin.return_value.__enter__.return_value
-        mock_quote_value.assert_called_with(mock_conn, 'ISO, DATE_ORDER_STYLE')
-        mock_conn.execute.assert_called_with('SET LOCAL DateStyle = ABC')
+                                      autoload_with=self.mock_db.engine)
+        mock_conn = self.mock_db
+        mock_quote_value.assert_called_with(None, 'ISO, DATE_ORDER_STYLE',
+                                            db_engine=mock_conn.engine)
+        str_arg = str(mock_conn.execute.call_args.args[0])
+        self.assertEqual(str_arg, 'SET LOCAL DateStyle = ABC')
         mock_copy_from.assert_called_with(mock_loc.open.return_value.__enter__.return_value,
                                           mock_table_obj,
                                           mock_conn,

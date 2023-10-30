@@ -71,21 +71,22 @@ class DoMoveFromDataframesSource(BaseTableMoveAlgorithm):
 
     def load(self, driver: DBDriver) -> int:
         rows_loaded = 0
-        with self.tbl.db_engine.begin() as db:
-            for df in self.dfs_source.dfs:
-                df = purge_unnamed_unused_columns(df)
-                df = self.records_schema.\
-                    assign_dataframe_names(include_index=self.dfs_source.include_index, df=df)
-                df.to_sql(name=self.tbl.table_name,
-                          con=db,
-                          schema=self.tbl.schema_name,
-                          index=self.dfs_source.include_index,
-                          if_exists='append')
-                rows_loaded += len(df.index)
+        with self.tbl.db_engine.connect() as conn:
+            with conn.begin():
+                for df in self.dfs_source.dfs:
+                    df = purge_unnamed_unused_columns(df)
+                    df = self.records_schema.\
+                        assign_dataframe_names(include_index=self.dfs_source.include_index, df=df)
+                    df.to_sql(name=self.tbl.table_name,
+                              con=conn,
+                              schema=self.tbl.schema_name,
+                              index=self.dfs_source.include_index,
+                              if_exists='append')
+                    rows_loaded += len(df.index)
         return rows_loaded
 
     def move_from_dataframes_source_via_insert(self) -> MoveResult:
-        driver = self.tbl.db_driver(self.tbl.db_engine)
+        driver = self.tbl.db_driver(db=None, db_engine=self.tbl.db_engine)
         schema_sql = self.records_schema.to_schema_sql(driver,
                                                        self.tbl.schema_name,
                                                        self.tbl.table_name)

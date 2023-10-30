@@ -74,7 +74,8 @@ class RecordsUnloadIntegrationTest(BaseRecordsIntegrationTest):
         sources = self.records.sources
         source = sources.table(schema_name=self.schema_name,
                                table_name=self.table_name,
-                               db_engine=self.engine)
+                               db_engine=self.engine,
+                               db_conn=self.connection)
         target = targets.directory_from_url(output_url=directory_url,
                                             records_format=records_format)
         out = self.records.move(source, target)

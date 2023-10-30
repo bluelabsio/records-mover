@@ -130,6 +130,7 @@ itest_dependencies = [
     'jsonschema',  # needed for directory_validator.py
     'pytz',
     'wheel',  # needed to support legacy 'setup.py install'
+    'parameterized',
 ] + (
     pytest_dependencies +
     # needed for records_database_fixture retrying drop/creates on
@@ -144,7 +145,7 @@ airflow_dependencies = [
 ]
 
 db_dependencies = [
-    'sqlalchemy>=1.4,<2.0',
+    'sqlalchemy>=1.4',
 ]
 
 smart_open_dependencies = [
@@ -196,7 +197,7 @@ mysql_dependencies = [
 
 redshift_dependencies_base = [
     # sqlalchemy-redshift 0.7.7 introduced support for Parquet in UNLOAD
-    'sqlalchemy-redshift>=0.7.7,<0.8.13',
+    'sqlalchemy-redshift>=0.7.7',
 ] + aws_dependencies + db_dependencies
 
 redshift_dependencies_binary = [
@@ -224,10 +225,7 @@ cli_dependencies_base = [
 ]
 
 vertica_dependencies = [
-    # sqlalchemy-vertica-python 0.5.5 introduced
-    # https://github.com/bluelabsio/sqlalchemy-vertica-python/pull/7
-    # which fixed a bug pulling schema information from Vertica
-    'sqlalchemy-vertica-python>=0.5.5,<0.6',
+    'sqlalchemy-vertica-python>=0.5.5',
 ] + db_dependencies
 
 literally_every_single_database_binary_dependencies = (
@@ -239,7 +237,8 @@ literally_every_single_database_binary_dependencies = (
 )
 
 typecheck_dependencies = [
-    'mypy<1.5.0',  # https://github.com/python/mypy/issues/15891
+    "mypy@git+https://github.com/python/mypy#88ae1e4c1541e5b03d695cf63d1265b972e427d9"
+    # update to build from mypy without version qualifier soon
     'lxml',  # needed by mypy HTML coverage reporting
     'sqlalchemy-stubs>=0.3',
     'types-pytz',

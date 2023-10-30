@@ -12,9 +12,10 @@ class TestRedshiftLoader(unittest.TestCase):
         self.s3_temp_base_loc = MagicMock(name='s3_temp_base_loc')
 
         self.redshift_loader =\
-            RedshiftLoader(db=self.mock_db,
+            RedshiftLoader(db=None,
                            meta=self.mock_meta,
-                           s3_temp_base_loc=self.s3_temp_base_loc)
+                           s3_temp_base_loc=self.s3_temp_base_loc,
+                           db_conn=self.mock_db)
 
     @patch('records_mover.db.redshift.loader.redshift_copy_options')
     @patch('records_mover.db.redshift.loader.ProcessingInstructions')
@@ -134,7 +135,7 @@ class TestRedshiftLoader(unittest.TestCase):
         mock_s3_directory.loc.url = 's3://foo/bar/baz/'
 
         def db_execute(command):
-            if command == 'SELECT pg_backend_pid();':
+            if str(command) == 'SELECT pg_backend_pid();':
                 mock_result_proxy = Mock(name='result_proxy')
                 mock_result_proxy.scalar.return_value = 123
                 return mock_result_proxy

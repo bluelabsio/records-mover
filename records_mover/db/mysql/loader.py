@@ -9,18 +9,26 @@ from records_mover.records.records_format import BaseRecordsFormat, DelimitedRec
 from .load_options import mysql_load_options
 from ...records.delimited import complain_on_unhandled_hints
 from ...url.resolver import UrlResolver
-from typing import Union, List
+from typing import Union, List, Optional
 import logging
 import tempfile
+from ...check_db_conn_engine import check_db_conn_engine
+from ..db_conn_mixin import DBConnMixin
 
 logger = logging.getLogger(__name__)
 
 
-class MySQLLoader(LoaderFromRecordsDirectory):
+class MySQLLoader(DBConnMixin, LoaderFromRecordsDirectory):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
-                 url_resolver: UrlResolver) -> None:
+                 db: Optional[Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection]],
+                 url_resolver: UrlResolver,
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
+        self.conn_opened_here = False
         self.db = db
+        self._db_conn = db_conn
+        self.db_engine = db_engine
         self.url_resolver = url_resolver
 
     def load(self,
@@ -61,7 +69,7 @@ class MySQLLoader(LoaderFromRecordsDirectory):
                                                       schema_name=schema)
             logger.info(f"Loading to MySQL with options: {load_options}")
             logger.info(str(sql))
-            self.db.execute(sql)
+            self.db_conn.execute(sql)
             logger.info("MySQL LOAD DATA complete.")
         return None
 
@@ -101,3 +109,6 @@ class MySQLLoader(LoaderFromRecordsDirectory):
                                        'compression': None
                                    }),
         ]
+
+    def __del__(self) -> None:
+        self.del_db_conn()

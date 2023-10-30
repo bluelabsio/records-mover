@@ -32,7 +32,7 @@ class BaseTestSqlAlchemyFieldFromSqlalchemyColumn(unittest.TestCase):
         out = field_from_sqlalchemy_column(self.mock_column, self.mock_driver, self.mock_rep_type)
         mock_RecordsSchemaFieldRepresentation.from_sqlalchemy_column.\
             assert_called_with(self.mock_column,
-                               self.mock_driver.db.dialect,
+                               self.mock_driver.db_engine.dialect,
                                self.mock_rep_type)
         expected = mock_RecordsSchemaField.return_value
         self.mock_field_type = field_type

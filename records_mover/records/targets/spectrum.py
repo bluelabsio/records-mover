@@ -1,3 +1,5 @@
+# flake8: noqa
+
 from .base import SupportsRecordsDirectory
 from records_mover.db.quoting import quote_schema_and_table
 from ...db import DBDriver
@@ -11,6 +13,7 @@ from ..existing_table_handling import ExistingTableHandling
 from typing import Optional, Callable, Union
 import logging
 import sqlalchemy
+from sqlalchemy import text
 
 
 logger = logging.getLogger(__name__)
@@ -21,14 +24,19 @@ class SpectrumRecordsTarget(SupportsRecordsDirectory):
                  schema_name: str,
                  table_name: str,
                  db_engine: Engine,
-                 db_driver: Callable[[Union[Engine, Connection]], DBDriver],
+                 db_driver: Callable[[Optional[Union['Engine', 'Connection']],
+                                      Optional[Connection],
+                                      Optional[Engine]], DBDriver],
                  url_resolver: UrlResolver,
                  spectrum_base_url: Optional[str],
                  spectrum_rdir_url: Optional[str],
                  existing_table_handling: ExistingTableHandling =
                  ExistingTableHandling.TRUNCATE_AND_OVERWRITE) -> None:
-        self.db = db_engine
-        self.driver = db_driver(db_engine)
+        self.db = None
+        self.db_engine = db_engine
+        self.driver = db_driver(db=None,  # type: ignore[call-arg]
+                                db_conn=None,
+                                db_engine=db_engine)
         self.schema_name = schema_name
         self.table_name = table_name
         self.url_resolver = url_resolver
@@ -70,14 +78,15 @@ class SpectrumRecordsTarget(SupportsRecordsDirectory):
             if self.existing_table_handling == ExistingTableHandling.DELETE_AND_OVERWRITE:
                 logger.warning('Redshift Spectrum does not support transactional delete.')
             if self.existing_table_handling == ExistingTableHandling.DROP_AND_RECREATE:
-                schema_and_table: str = quote_schema_and_table(self.db,
+                schema_and_table: str = quote_schema_and_table(None,
                                                                self.schema_name,
-                                                               self.table_name)
+                                                               self.table_name,
+                                                               db_engine=self.db_engine)
                 logger.info(f"Dropping external table {schema_and_table}...")
-                with self.db.connect() as cursor:
+                with self.db_engine.connect() as conn:
                     # See below note about fix from Spectrify
-                    cursor.execution_options(isolation_level='AUTOCOMMIT')
-                    cursor.execute(f"DROP TABLE IF EXISTS {schema_and_table}")
+                    conn.execution_options(isolation_level='AUTOCOMMIT')
+                    conn.execute(text(f"DROP TABLE IF EXISTS {schema_and_table}"))
 
             logger.info(f"Deleting files in {self.output_loc}...")
             self.output_loc.purge_directory()

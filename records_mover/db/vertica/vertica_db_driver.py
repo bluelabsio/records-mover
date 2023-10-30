@@ -14,6 +14,7 @@ from ..unloader import Unloader
 from ...utils.limits import (INT64_MIN, INT64_MAX,
                              FLOAT64_SIGNIFICAND_BITS,
                              num_digits)
+from ...check_db_conn_engine import check_db_conn_engine
 
 
 logger = logging.getLogger(__name__)
@@ -21,13 +22,18 @@ logger = logging.getLogger(__name__)
 
 class VerticaDBDriver(DBDriver):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine],
+                 db: Optional[Union[sqlalchemy.engine.Connection, sqlalchemy.engine.Engine]],
                  url_resolver: UrlResolver,
                  s3_temp_base_loc: Optional[BaseDirectoryUrl] = None,
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None,
                  **kwargs: object) -> None:
-        super().__init__(db)
-        self._vertica_loader = VerticaLoader(url_resolver=url_resolver, db=self.db)
-        self._vertica_unloader = VerticaUnloader(s3_temp_base_loc=s3_temp_base_loc, db=db)
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
+        super().__init__(db=db, db_conn=db_conn, db_engine=db_engine)
+        self._vertica_loader = VerticaLoader(url_resolver=url_resolver, db=db, db_conn=db_conn,
+                                             db_engine=db_engine)
+        self._vertica_unloader = VerticaUnloader(s3_temp_base_loc=s3_temp_base_loc, db=db,
+                                                 db_conn=db_conn, db_engine=db_engine)
         self.url_resolver = url_resolver
 
     def loader(self) -> Optional[LoaderFromRecordsDirectory]:
@@ -41,15 +47,17 @@ class VerticaDBDriver(DBDriver):
 
     def has_table(self, schema: str, table: str) -> bool:
         try:
-            sql = f"SELECT 1 from {quote_schema_and_table(self.db, schema, table)} limit 0;"
-            self.db.execute(sql)
+            sql = ("SELECT 1 "
+                   f"from {quote_schema_and_table(None, schema, table, db_engine=self.db_engine)} "
+                   "limit 0;")
+            self.db_conn.execute(text(sql))
             return True
         except sqlalchemy.exc.ProgrammingError:
             return False
 
     def schema_sql(self, schema: str, table: str) -> str:
-        sql = text("SELECT EXPORT_OBJECTS('', :schema_and_table, false)")
-        result = self.db.execute(sql, schema_and_table=f"{schema}.{table}").fetchall()
+        sql = text("SELECT EXPORT_OBJECTS('', :schema_and_table , false)")
+        result = self.db_conn.execute(sql, {'schema_and_table': f"{schema}.{table}"}).fetchall()
 
         if len(result) == 1:
             return result[0].EXPORT_OBJECTS
@@ -72,7 +80,7 @@ class VerticaDBDriver(DBDriver):
                           nullable=colinfo['nullable'],
                           default=colinfo['default'],
                           **colinfo.get('attrs', {}))
-                   for colinfo in self.db_engine.dialect.get_columns(self.db_engine,
+                   for colinfo in self.db_engine.dialect.get_columns(self.db_conn,
                                                                      table,
                                                                      schema=schema)]
         t = Table(table, self.meta, schema=schema, *columns)

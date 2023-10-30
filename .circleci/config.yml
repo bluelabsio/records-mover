@@ -28,6 +28,10 @@ commands:
         type: string
         description: "Version of numpy to test against, if specific version required"
         default: ""
+      sqlalchemy_version:
+        type: string
+        description: "Version of sqlalchemy to test against, if specific version required"
+        default: ""
     steps:
       - restore_cache:
           key: deps-v9-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
@@ -35,7 +39,7 @@ commands:
           name: Install python deps in venv
           environment:
             PYENV_VERSION: <<parameters.python_version>>
-            SQLALCHEMY_SILENCE_UBER_WARNING: 1
+            SQLALCHEMY_WARN_20: 1
           command: |
             if [ -f venv/bin/activate ]
             then
@@ -61,6 +65,11 @@ commands:
                 pip install --upgrade --progress-bar=off 'pandas<<parameters.pandas_version>>'
               else
                 pip uninstall -y pandas
+              fi
+              if [ '<<parameters.sqlalchemy_version>>' != '' ]
+              then
+                pip cache purge
+                pip install --force-reinstall -v --progress-bar=off 'sqlalchemy<<parameters.sqlalchemy_version>>'
               fi
             fi
       - save_cache:
@@ -105,6 +114,10 @@ jobs:
         type: string
         description: "Version of pandas to test against"
         default: '>=1.5.3,<2'
+      sqlalchemy_version:
+        type: string
+        description: "Version of sqlalchemy to test against"
+        default: ''
       coverage:
         type: boolean
         # The python and pandas versions can affect the mypy and test
@@ -115,7 +128,7 @@ jobs:
     docker:
       - image: cimg/python:<<parameters.python_version>>
     environment:
-            SQLALCHEMY_SILENCE_UBER_WARNING: 1
+            SQLALCHEMY_WARN_20: 1
     steps:
       - checkout
       - add_ssh_keys:
@@ -126,6 +139,7 @@ jobs:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
+          sqlalchemy_version: <<parameters.sqlalchemy_version>>
           # includes numpy-stubs - should be obsolete and unneeded
           # starting with numpy 1.20
           include_dev_dependencies: true
@@ -185,11 +199,15 @@ jobs:
         type: string
         description: "Version of pandas to test against"
         default: '>=1.5.3,<2'
+      sqlalchemy_version:
+        type: string
+        description: "Version of sqlalchemy to test against"
+        default: ''
       command:
         type: string
         description: "Command to run in records-mover venv"
     environment:
-            SQLALCHEMY_SILENCE_UBER_WARNING: 1
+            SQLALCHEMY_WARN_20: 1
     docker:
       - image: cimg/python:<<parameters.python_version>>
       - image: jbfavre/vertica:8.1.1-16_centos-7
@@ -219,6 +237,7 @@ jobs:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
+          sqlalchemy_version: <<parameters.sqlalchemy_version>>
       - run:
           name: Install gcloud
           command: |
@@ -304,7 +323,7 @@ jobs:
         description: "Any flags you'd like to add to the pytest call"
         default: ""
     environment:
-            SQLALCHEMY_SILENCE_UBER_WARNING: 1
+            SQLALCHEMY_WARN_20: 1
     docker:
       - image: cimg/python:<<parameters.python_version>>
     steps:
@@ -337,7 +356,7 @@ jobs:
               # This is set by default in the CircleCI environment
               unset SCRATCH_GCS_URL
             fi
-            with-db <<parameters.db_name>> pytest <<parameters.pytest_flags>>
+            with-db <<parameters.db_name>> pytest -vv <<parameters.pytest_flags>>
       - store_test_results:
           path: test-reports
       - store_artifacts:
@@ -362,7 +381,7 @@ jobs:
     docker:
       - image: cimg/python:<<parameters.python_version>>
     environment:
-            SQLALCHEMY_SILENCE_UBER_WARNING: 1
+            SQLALCHEMY_WARN_20: 1
     steps:
       - checkout
       - installvenv:
@@ -413,7 +432,7 @@ jobs:
     docker:
       - image: cimg/python:3.9
     environment:
-      SQLALCHEMY_SILENCE_UBER_WARNING: 1
+      SQLALCHEMY_WARN_20: 1
     steps:
       - checkout
       - installvenv:
@@ -449,15 +468,6 @@ workflows:
       #
       # https://devguide.python.org/devcycle/#end-of-life-branches
       - test:
-          name: test-3.7
-          extras: '[unittest,typecheck]'
-          python_version: "3.7"
-          pandas_version: ">=1.3.5,<2"
-          context: slack-secrets
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - test:
           name: test-3.8
           extras: '[unittest,typecheck]'
           python_version: "3.8"
@@ -492,6 +502,16 @@ workflows:
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.11-old-sqlalchemy
+          extras: '[unittest,typecheck]'
+          python_version: "3.11"
+          sqlalchemy_version: "==1.4"
+          context: slack-secrets
+          coverage: true
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: vertica-no-s3-itest
           extras: '[vertica,itest]'
@@ -509,7 +529,7 @@ workflows:
             # scratch bucket config.
             #
             unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
-            with-db dockerized-vertica pytest
+            with-db dockerized-vertica pytest -vv
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -525,7 +545,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            with-db dockerized-postgres pytest
+            with-db dockerized-postgres pytest -vv
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -541,7 +561,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            with-db dockerized-mysql pytest
+            with-db dockerized-mysql pytest -vv
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -557,7 +577,7 @@ workflows:
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
             cd tests/integration/records/single_db
-            with-db dockerized-vertica pytest
+            with-db dockerized-vertica pytest -vv
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
@@ -661,8 +681,35 @@ workflows:
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
+            cd tests/integration/records/multi_db
+            pytest -vvv test_records_table2table.py
+      - integration_test_with_dbs:
+          name: tbl2tbl-itest-old-sqlalchemy
+          extras: '[literally_every_single_database_binary,itest]'
+          python_version: "3.9"
+          sqlalchemy_version: "==1.4"
+          context: slack-secrets
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export RECORDS_MOVER_SESSION_TYPE=env
+            mkdir -p test-reports/itest
+            cd tests/integration/records/multi_db
+            pytest -vvv test_records_table2table.py
+      - integration_test_with_dbs:
+          name: redshift-test-dataframe-schema-sql-creation
+          extras: '[redshift-binary,itest]'
+          python_version: "3.9"
+          context: slack-secrets
+          command: |
+            . venv/bin/activate
+            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
+            export RECORDS_MOVER_SESSION_TYPE=env
+            mkdir -p test-reports/itest
             cd tests/integration
-            python3 -m records.multi_db.test_records_table2table
+            python3 -m records.multi_db.test_dataframe_schema_sql_creation
       - integration_test:
           name: bigquery-no-gcs-itest
           extras: '[bigquery,itest]'
@@ -690,7 +737,6 @@ workflows:
             - PyPI
             - slack-secrets
           requires:
-            - test-3.7
             - test-3.8
             - test-3.9
             - cli-extra-test

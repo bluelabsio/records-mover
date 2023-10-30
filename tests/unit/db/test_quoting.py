@@ -8,7 +8,7 @@ class TestQuoting(unittest.TestCase):
         mock_engine = Mock()
         quotable_value = Mock()
         mock_preparer = mock_engine.dialect.preparer.return_value
-        quoted = quoting.quote_table_only(mock_engine, quotable_value)
+        quoted = quoting.quote_table_only(None, quotable_value, db_engine=mock_engine)
         self.assertEqual(mock_preparer.quote.return_value, quoted)
         mock_preparer.quote.assert_called_with(quotable_value)
 
@@ -16,7 +16,7 @@ class TestQuoting(unittest.TestCase):
         mock_engine = Mock()
         quotable_value = Mock()
         mock_preparer = mock_engine.dialect.preparer.return_value
-        quoted = quoting.quote_column_name(mock_engine, quotable_value)
+        quoted = quoting.quote_column_name(None, quotable_value, db_engine=mock_engine)
         self.assertEqual(mock_preparer.quote.return_value, quoted)
         mock_preparer.quote.assert_called_with(quotable_value)
 
@@ -26,9 +26,10 @@ class TestQuoting(unittest.TestCase):
         quotable_schema = Mock()
         mock_preparer = mock_engine.dialect.preparer.return_value
         mock_preparer.quote.return_value = '"foo"'
-        quoted = quoting.quote_schema_and_table(mock_engine,
+        quoted = quoting.quote_schema_and_table(None,
                                                 quotable_schema,
-                                                quotable_table)
+                                                quotable_table,
+                                                db_engine=mock_engine)
         self.assertEqual(mock_preparer.quote.return_value + "." +
                          mock_preparer.quote.return_value,
                          quoted)
@@ -39,7 +40,7 @@ class TestQuoting(unittest.TestCase):
         mock_engine = Mock()
         quotable_value = Mock()
         mock_preparer = mock_engine.dialect.preparer.return_value
-        quoted = quoting.quote_value(mock_engine, quotable_value)
+        quoted = quoting.quote_value(None, quotable_value, db_engine=mock_engine)
         self.assertEqual(mock_preparer.quote.return_value, quoted)
         mock_preparer.quote.assert_called_with(quotable_value)
         mock_engine.dialect.preparer.assert_called_with(mock_engine.dialect,

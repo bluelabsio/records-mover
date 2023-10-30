@@ -6,6 +6,7 @@ from ...records.records_directory import RecordsDirectory
 from ...records.records_format import BaseRecordsFormat, DelimitedRecordsFormat, AvroRecordsFormat
 from ...records.processing_instructions import ProcessingInstructions
 import sqlalchemy
+from sqlalchemy import text
 from sqlalchemy.schema import Table
 import logging
 from .records_copy import redshift_copy_options
@@ -15,19 +16,26 @@ from typing import Optional, Union, List, Iterator
 from ...url import BaseDirectoryUrl
 from botocore.credentials import Credentials
 from ...records.delimited import complain_on_unhandled_hints
+from ...check_db_conn_engine import check_db_conn_engine
+from ..db_conn_mixin import DBConnMixin
 
 logger = logging.getLogger(__name__)
 
 
-class RedshiftLoader(LoaderFromRecordsDirectory):
+class RedshiftLoader(DBConnMixin, LoaderFromRecordsDirectory):
     def __init__(self,
-                 db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection],
                  meta: sqlalchemy.MetaData,
-                 s3_temp_base_loc: Optional[BaseDirectoryUrl])\
-            -> None:
+                 s3_temp_base_loc: Optional[BaseDirectoryUrl],
+                 db: Optional[Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection]],
+                 db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                 db_engine: Optional[sqlalchemy.engine.Engine] = None) -> None:
+        db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
         self.db = db
+        self._db_conn = db_conn
+        self.db_engine = db_engine
         self.meta = meta
         self.s3_temp_base_loc = s3_temp_base_loc
+        self.conn_opened_here = False
 
     @contextmanager
     def temporary_s3_directory_loc(self) -> Iterator[BaseDirectoryUrl]:
@@ -91,9 +99,9 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
                                empty_as_null=True,
                                **redshift_options)  # type: ignore
             logger.info(f"Starting Redshift COPY from {directory}...")
-            redshift_pid: int = self.db.execute("SELECT pg_backend_pid();").scalar()
+            redshift_pid: int = self.db_conn.execute(text("SELECT pg_backend_pid();")).scalar()
             try:
-                self.db.execute(copy)
+                self.db_conn.execute(copy)
             except sqlalchemy.exc.InternalError:
                 # Upon a load erorr, we receive:
                 #
@@ -173,3 +181,6 @@ class RedshiftLoader(LoaderFromRecordsDirectory):
 
     def has_temporary_loadable_directory_loc(self) -> bool:
         return self.s3_temp_base_loc is not None
+
+    def __del__(self) -> None:
+        self.del_db_conn()

@@ -43,7 +43,9 @@ class RecordsTargets(object):
 
     def __init__(self,
                  url_resolver: UrlResolver,
-                 db_driver: Callable[[Union['Engine', 'Connection']], 'DBDriver']) -> None:
+                 db_driver: Callable[[Optional[Union['Engine', 'Connection']],
+                                      Optional['Connection'],
+                                      Optional['Engine']], 'DBDriver']) -> None:
         self.url_resolver = url_resolver
         self.db_driver = db_driver
 
@@ -73,7 +75,8 @@ class RecordsTargets(object):
               ExistingTableHandling.DELETE_AND_OVERWRITE,
               drop_and_recreate_on_load_error: bool = False,
               add_user_perms_for: Optional[Dict[str, List[str]]] = None,
-              add_group_perms_for: Optional[Dict[str, List[str]]] = None) -> \
+              add_group_perms_for: Optional[Dict[str, List[str]]] = None,
+              db_conn: Optional['Connection'] = None) -> \
             'TableRecordsTarget':
         """Represents a SQLALchemy-accessible database table as as a target.
 
@@ -97,6 +100,9 @@ class RecordsTargets(object):
         :param add_group_perms_for: If specified, a table's permissions will be set for the
            specified group. Format should be like {'all': ['group1', 'group2'], 'select': ['group3',
            'group4']}
+
+        :param db_conn: SQLAlchemy database connection to write data to.  If not specified, one
+           will be created from the db_engine.
         """
         from .table import TableRecordsTarget  # noqa
         return TableRecordsTarget(schema_name=schema_name,
@@ -106,7 +112,8 @@ class RecordsTargets(object):
                                   existing_table_handling=existing_table_handling,
                                   drop_and_recreate_on_load_error=drop_and_recreate_on_load_error,
                                   add_user_perms_for=add_user_perms_for,
-                                  add_group_perms_for=add_group_perms_for)
+                                  add_group_perms_for=add_group_perms_for,
+                                  db_conn=db_conn)
 
     def google_sheet(self,
                      spreadsheet_id: str,

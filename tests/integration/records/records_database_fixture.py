@@ -1,5 +1,6 @@
 from records_mover.db.quoting import quote_schema_and_table
 from records_mover.utils.retry import bigquery_retry
+from sqlalchemy import text
 import logging
 
 logger = logging.getLogger(__name__)
@@ -7,7 +8,10 @@ logger = logging.getLogger(__name__)
 
 class RecordsDatabaseFixture:
     def quote_schema_and_table(self, schema, table):
-        return quote_schema_and_table(self.engine, schema, table)
+        return quote_schema_and_table(None,
+                                      schema=schema,
+                                      table=table,
+                                      db_engine=self.engine)
 
     def __init__(self, db_engine, schema_name, table_name):
         self.engine = db_engine
@@ -17,7 +21,9 @@ class RecordsDatabaseFixture:
     @bigquery_retry()
     def drop_table_if_exists(self, schema, table):
         sql = f"DROP TABLE IF EXISTS {self.quote_schema_and_table(schema, table)}"
-        self.engine.execute(sql)
+        with self.engine.connect() as connection:
+            with connection.begin():
+                connection.execute(text(sql))
 
     def tear_down(self):
         self.drop_table_if_exists(self.schema_name, f"{self.table_name}_frozen")
@@ -102,4 +108,6 @@ class RecordsDatabaseFixture:
 """  # noqa
         else:
             raise NotImplementedError(f"Please teach me how to integration test {self.engine.name}")
-        self.engine.execute(create_tables)
+        with self.engine.connect() as connection:
+            with connection.begin():
+                connection.exec_driver_sql(create_tables)

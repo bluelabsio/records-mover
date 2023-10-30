@@ -1,7 +1,10 @@
+# flake8: noqa
+
 import sqlalchemy
 import logging
 from typing import Union, Optional
 from sqlalchemy.sql import text
+from ...check_db_conn_engine import check_db_conn_engine
 
 logger = logging.getLogger(__name__)
 
@@ -19,11 +22,15 @@ select_load_errors = """
 
 def schema_sql_from_admin_views(schema: str,
                                 table: str,
-                                db: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection])\
+                                db: Optional[Union[sqlalchemy.engine.Engine,
+                                             sqlalchemy.engine.Connection]],
+                                db_conn: Optional[sqlalchemy.engine.Connection] = None,
+                                db_engine: Optional[sqlalchemy.engine.Engine] = None)\
         -> Optional[str]:
     # The default behavior in current sqlalchemy driver seems to
     # map "DOUBLE PRECISION" to "DOUBLE_PRECISION", so lean back
     # on admin views for now:
+    db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
     sql = text("""
 SELECT ddl
 FROM admin.v_generate_tbl_ddl
@@ -32,12 +39,14 @@ AND tablename = :table_name
 """)
     out: Optional[str]
     try:
-        result = db.execute(sql, schema_name=schema, table_name=table).fetchall()
+        result = db_conn.execute(sql,  # type: ignore[union-attr]
+                                 {'schema_name': schema,
+                                  'table_name': table}).fetchall()
         if len(result) == 0:
             out = None
         else:
             # First line is a commented-out drop table, don't need that.
-            out = "\n".join(map(lambda r: r['ddl'], result[1:]))
+            out = "\n".join(map(lambda r: r.ddl, result[1:]))
     except sqlalchemy.exc.ProgrammingError:
         logger.debug("Error while generating SQL", exc_info=True)
         out = None

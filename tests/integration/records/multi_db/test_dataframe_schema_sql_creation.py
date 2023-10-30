@@ -1,10 +1,10 @@
+import unittest
+from pandas import DataFrame
 from records_mover.records.sources.dataframes import DataframesRecordsSource
 from records_mover.db.redshift.redshift_db_driver import RedshiftDBDriver
 from records_mover.records.processing_instructions import ProcessingInstructions
-from sqlalchemy_redshift.dialect import RedshiftDialect
-import unittest
-from unittest.mock import Mock
-from pandas import DataFrame
+from records_mover import Session, set_stream_logging
+import logging
 
 
 class TestDataframeSchemaSqlCreation(unittest.TestCase):
@@ -15,6 +15,8 @@ class TestDataframeSchemaSqlCreation(unittest.TestCase):
         # limitation:
         #
         # https://github.com/bluelabsio/records-mover/pull/103
+        session = Session()
+        db_engine = session.get_db_engine('demo-itest')
         data = {'Population': [11190846, 1303171035, 207847528]}
         df = DataFrame(data, columns=['Population'])
 
@@ -24,10 +26,7 @@ class TestDataframeSchemaSqlCreation(unittest.TestCase):
         source = DataframesRecordsSource(dfs=[df])
         processing_instructions = ProcessingInstructions()
         schema = source.initial_records_schema(processing_instructions)
-        dialect = RedshiftDialect()
-        mock_engine = Mock(name='engine')
-        mock_engine.dialect = dialect
-        driver = RedshiftDBDriver(db=mock_engine)
+        driver = RedshiftDBDriver(None, db_engine=db_engine)
         schema_sql = schema.to_schema_sql(driver=driver,
                                           schema_name='my_schema_name',
                                           table_name='my_table_name')
@@ -38,3 +37,12 @@ CREATE TABLE my_schema_name.my_table_name (
 
 """
         self.assertEqual(schema_sql, expected_schema_sql)
+
+
+if __name__ == '__main__':
+    set_stream_logging(level=logging.DEBUG)
+    logging.getLogger('botocore').setLevel(logging.INFO)
+    logging.getLogger('boto3').setLevel(logging.INFO)
+    logging.getLogger('urllib3').setLevel(logging.INFO)
+
+    unittest.main()

@@ -10,9 +10,10 @@ class TestRedshiftLoaderTemporaryBucket(unittest.TestCase):
         mock_meta = Mock(name='meta')
 
         redshift_loader =\
-            RedshiftLoader(db=mock_db,
+            RedshiftLoader(db=None,
                            meta=mock_meta,
-                           s3_temp_base_loc=None)
+                           s3_temp_base_loc=None,
+                           db_conn=mock_db)
 
         with self.assertRaises(NoTemporaryBucketConfiguration):
             with redshift_loader.temporary_s3_directory_loc():
