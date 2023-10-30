@@ -1,5 +1,6 @@
 from ..check_db_conn_engine import check_db_conn_engine
 from sqlalchemy.schema import CreateTable
+from sqlalchemy_privileges import GrantPrivileges  # type: ignore[import-untyped]
 from ..records.records_format import BaseRecordsFormat
 from .loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from .unloader import Unloader
@@ -7,7 +8,6 @@ import logging
 import sqlalchemy
 from sqlalchemy import MetaData
 from sqlalchemy.schema import Table
-from records_mover.db.quoting import quote_group_name, quote_user_name, quote_schema_and_table
 from abc import ABCMeta, abstractmethod
 from records_mover.records import RecordsSchema
 from typing import Union, Dict, List, Tuple, Optional, TYPE_CHECKING
@@ -68,16 +68,14 @@ class DBDriver(DBConnMixin, metaclass=ABCMeta):
                                          db_engine: Optional[sqlalchemy.engine.Engine] = None
                                          ) -> None:
         db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
-        schema_and_table: str = quote_schema_and_table(None, schema_name, table,
-                                                       db_engine=self.db_engine)
         for perm_type in groups:
             groups_list = groups[perm_type]
             for group in groups_list:
-                group_name: str = quote_group_name(None, group, db_engine=self.db_engine)
                 if not perm_type.isalpha():
                     raise TypeError("Please make sure your permission types"
                                     " are an acceptable value.")
-                perms_sql = f'GRANT {perm_type} ON TABLE {schema_and_table} TO {group_name}'
+                table_obj = Table(table, MetaData(), schema=schema_name)
+                perms_sql = str(GrantPrivileges(perm_type, table_obj, group))
                 if db_conn:
                     db_conn.execute(perms_sql)
                 else:
@@ -92,16 +90,14 @@ class DBDriver(DBConnMixin, metaclass=ABCMeta):
                                         db_engine: Optional[sqlalchemy.engine.Engine] = None
                                         ) -> None:
         db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
-        schema_and_table: str = quote_schema_and_table(None, schema_name, table,
-                                                       db_engine=self.db_engine)
         for perm_type in users:
             user_list = users[perm_type]
             for user in user_list:
-                user_name: str = quote_user_name(self.db_engine, user)
                 if not perm_type.isalpha():
                     raise TypeError("Please make sure your permission types"
                                     " are an acceptable value.")
-                perms_sql = f'GRANT {perm_type} ON TABLE {schema_and_table} TO {user_name}'
+                table_obj = Table(table, MetaData(), schema=schema_name)
+                perms_sql = str(GrantPrivileges(perm_type, table_obj, user))
                 if db_conn:
                     db_conn.execute(perms_sql)
                 else:

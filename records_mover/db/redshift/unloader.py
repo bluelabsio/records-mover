@@ -84,9 +84,9 @@ class RedshiftUnloader(Unloader):
             #
             register_secret(aws_creds.token)
             register_secret(aws_creds.secret_key)
-            table_obj = Table(table, MetaData(), autoload_with=self.db_engine, schema=schema)
-            select = sqlalchemy.select(table_obj)
-            unload = UnloadFromSelect(select=select,
+            table_obj = Table(table, MetaData(), schema=schema)
+            select = str(sqlalchemy.select('*', table_obj))  # type: ignore[arg-type]  # noqa: F821
+            unload = UnloadFromSelect(select=text(select),
                                       access_key_id=aws_creds.access_key,
                                       secret_access_key=aws_creds.secret_key,
                                       session_token=aws_creds.token, manifest=True,

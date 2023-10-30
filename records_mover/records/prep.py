@@ -5,7 +5,7 @@ from records_mover.records.existing_table_handling import ExistingTableHandling
 from records_mover.db import DBDriver
 from records_mover.records.table import TargetTableDetails
 import logging
-from sqlalchemy import text, Table, MetaData
+from sqlalchemy import text, Table, MetaData, delete
 from sqlalchemy.schema import DropTable
 
 logger = logging.getLogger(__name__)
@@ -64,11 +64,12 @@ class TablePrep:
                 logger.info("Truncating...")
                 meta = MetaData()
                 table = Table(self.tbl.table_name, meta, schema=self.tbl.schema_name)
-                db_conn.execute(table.delete())
+                db_conn.execute(table.delete().where(True))
                 logger.info("Truncated.")
             elif (how_to_prep == ExistingTableHandling.DELETE_AND_OVERWRITE):
                 logger.info("Deleting rows...")
-                db_conn.execute(text(f"DELETE FROM {schema_and_table} WHERE true"))
+                table_obj = Table(self.tbl.table_name, MetaData(), schema=self.tbl.schema_name)
+                db_conn.execute(delete(table_obj).where(True))
                 logger.info("Deleted")
             elif (how_to_prep == ExistingTableHandling.DROP_AND_RECREATE):
                 with db_engine.connect() as conn:
@@ -78,7 +79,7 @@ class TablePrep:
                         meta = MetaData()
                         table = Table(self.tbl.table_name, meta, schema=self.tbl.schema_name)
                         drop_table_sql = f"DROP TABLE {schema_and_table}"
-                        conn.execute(DropTable(table))  # type: ignore[arg-type]
+                        conn.execute(DropTable(table))  # type: ignore[arg-type]  # noqa: F821
                         logger.info(f"Just ran {drop_table_sql}")
                         self.create_table(schema_sql, conn, driver)
             elif (how_to_prep == ExistingTableHandling.APPEND):

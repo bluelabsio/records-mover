@@ -44,8 +44,9 @@ class TestPrep(unittest.TestCase):
                                                        self.mock_tbl.table_name,
                                                        db_engine=mock_driver.db_engine)
         str_arg = str(mock_driver.db_conn.execute.call_args.args[0])
-        self.assertEqual(str_arg,
-                         f"DELETE FROM {self.mock_tbl.schema_name}.{self.mock_tbl.table_name}")
+        self.assertEqual(
+            str_arg,
+            f"DELETE FROM {self.mock_tbl.schema_name}.{self.mock_tbl.table_name} WHERE true")
 
     @patch('records_mover.records.prep.quote_schema_and_table')
     def test_prep_table_exists_delete_implicit(self, mock_quote_schema_and_table):
@@ -57,7 +58,6 @@ class TestPrep(unittest.TestCase):
         mock_quote_schema_and_table
         mock_driver.has_table.return_value = True
         how_to_prep = ExistingTableHandling.DELETE_AND_OVERWRITE
-        mock_schema_and_table = mock_quote_schema_and_table.return_value
         self.mock_tbl.existing_table_handling = how_to_prep
 
         self.prep.prep(mock_schema_sql, mock_driver)
@@ -67,7 +67,9 @@ class TestPrep(unittest.TestCase):
                                                        self.mock_tbl.table_name,
                                                        db_engine=mock_driver.db_engine)
         str_arg = str(mock_driver.db_conn.execute.call_args.args[0])
-        self.assertEqual(str_arg, f"DELETE FROM {mock_schema_and_table} WHERE true")
+        self.assertEqual(
+            str_arg,
+            f"DELETE FROM {self.mock_tbl.schema_name}.{self.mock_tbl.table_name} WHERE true")
 
     @patch('records_mover.records.prep.quote_schema_and_table')
     def test_prep_table_exists_drop_implicit(self, mock_quote_schema_and_table):

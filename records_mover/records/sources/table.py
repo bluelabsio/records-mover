@@ -94,7 +94,7 @@ class TableRecordsSource(SupportsMoveToRecordsDirectory,
                                               self.table_name, db_engine=db_engine,)
         logger.info(f"Reading {quoted_table}...")
         chunks: Generator['DataFrame', None, None] = \
-            pandas.read_sql(select('*', table),  # type: ignore[arg-type]
+            pandas.read_sql(select('*', table),  # type: ignore[arg-type]  # noqa: F821
                             con=db_conn,
                             chunksize=chunksize)
         try:

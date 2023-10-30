@@ -1,6 +1,6 @@
 from .fakes import fake_text
 import unittest
-from mock import Mock, MagicMock, patch, call
+from mock import Mock, MagicMock, call
 from records_mover.db.driver import GenericDBDriver
 import sqlalchemy
 
@@ -74,65 +74,49 @@ class TestDBDriver(unittest.TestCase):
         self.mock_db_engine._sa_instance_state.has_table.assert_called_with(mock_table,
                                                                             schema=mock_schema)
 
-    @patch('records_mover.db.driver.quote_group_name')
-    @patch('records_mover.db.driver.quote_schema_and_table')
-    def test_set_grant_permissions_for_groups(self,
-                                              mock_quote_schema_and_table,
-                                              mock_quote_group_name):
-        mock_schema_name = Mock(name='schema_name')
-        mock_table = Mock(name='table')
+    def test_set_grant_permissions_for_groups(self):
+        mock_schema_name = 'schema_name'
+        mock_table = 'table'
         mock_db = Mock(name='db')
         groups = {
-            'write': ['group_a', 'group_b']
+            'insert': ['group_a', 'group_b']
         }
-        mock_schema_and_table = mock_quote_schema_and_table.return_value
-        mock_group_name = mock_quote_group_name.return_value
         self.db_driver.set_grant_permissions_for_groups(mock_schema_name,
                                                         mock_table,
                                                         groups,
                                                         None,
                                                         db_conn=mock_db)
-        mock_quote_schema_and_table.assert_called_with(None,
-                                                       mock_schema_name,
-                                                       mock_table,
-                                                       db_engine=self.mock_db_engine)
         mock_db.execute.assert_has_calls([
-            call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_group_name}"),
-            call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_group_name}"),
+            call(
+             f"GRANT INSERT ON {mock_schema_name}.\"{mock_table}\" "
+             f"TO \"{groups['insert'][0]}\"\n"),
+            call(
+             f"GRANT INSERT ON {mock_schema_name}.\"{mock_table}\" "
+             f"TO \"{groups['insert'][1]}\"\n"),
         ])
 
-    @patch('records_mover.db.driver.quote_user_name')
-    @patch('records_mover.db.driver.quote_schema_and_table')
-    def test_set_grant_permissions_for_users(self,
-                                             mock_quote_schema_and_table,
-                                             mock_quote_user_name):
-        mock_schema_name = Mock(name='schema_name')
-        mock_table = Mock(name='table')
+    def test_set_grant_permissions_for_users(self):
+        mock_schema_name = 'schema_name'
+        mock_table = 'my_table'
         mock_db = Mock(name='db')
         users = {
-            'write': ['user_a', 'user_b']
+            'insert': ['user_a', 'user_b']
         }
-        mock_schema_and_table = mock_quote_schema_and_table.return_value
-        mock_user_name = mock_quote_user_name.return_value
         self.db_driver.set_grant_permissions_for_users(mock_schema_name,
                                                        mock_table,
                                                        users,
                                                        None,
                                                        db_conn=mock_db)
-        mock_quote_schema_and_table.assert_called_with(None,
-                                                       mock_schema_name,
-                                                       mock_table,
-                                                       db_engine=self.mock_db_engine)
         mock_db.execute.assert_has_calls([
-            call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_user_name}"),
-            call(f"GRANT write ON TABLE {mock_schema_and_table} TO {mock_user_name}"),
+            call(
+                f"GRANT INSERT ON {mock_schema_name}.{mock_table} "
+                f"TO \"{users['insert'][0]}\"\n"),
+            call(
+                f"GRANT INSERT ON {mock_schema_name}.{mock_table} "
+                f"TO \"{users['insert'][1]}\"\n"),
         ])
 
-    @patch('records_mover.db.driver.quote_user_name')
-    @patch('records_mover.db.driver.quote_schema_and_table')
-    def test_set_grant_permissions_for_users_bobby_tables(self,
-                                                          mock_quote_schema_and_table,
-                                                          mock_quote_user_name):
+    def test_set_grant_permissions_for_users_bobby_tables(self):
         mock_schema_name = Mock(name='schema_name')
         mock_table = Mock(name='table')
         mock_db = Mock(name='db')
@@ -146,11 +130,7 @@ class TestDBDriver(unittest.TestCase):
                                                            None,
                                                            db_conn=mock_db)
 
-    @patch('records_mover.db.driver.quote_user_name')
-    @patch('records_mover.db.driver.quote_schema_and_table')
-    def test_set_grant_permissions_for_groups_bobby_tables(self,
-                                                           mock_quote_schema_and_table,
-                                                           mock_quote_user_name):
+    def test_set_grant_permissions_for_groups_bobby_tables(self):
         mock_schema_name = Mock(name='schema_name')
         mock_table = Mock(name='table')
         mock_db = Mock(name='db')

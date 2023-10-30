@@ -48,7 +48,8 @@ class VerticaDBDriver(DBDriver):
     def has_table(self, schema: str, table: str) -> bool:
         try:
             table_to_check = Table(table, self.meta, schema=schema)
-            self.db_conn.execute(select(text("1"), table_to_check))
+            self.db_conn.execute(
+                select(text("1"), table_to_check))  # type: ignore[arg-type]  # noqa: F821
             return True
         except sqlalchemy.exc.ProgrammingError:
             return False

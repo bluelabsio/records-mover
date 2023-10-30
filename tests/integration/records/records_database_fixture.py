@@ -34,7 +34,7 @@ class RecordsDatabaseFixture:
     def bring_up(self):
         if self.engine.name == 'redshift':
             create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
               SELECT 123 AS num,
                      '123' AS numstr,
                      'foo' AS str,
@@ -49,7 +49,7 @@ class RecordsDatabaseFixture:
 """  # noqa
         elif self.engine.name == 'vertica':
             create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
               SELECT 123 AS num,
                     '123' AS numstr,
                     'foo' AS str,
@@ -64,7 +64,7 @@ class RecordsDatabaseFixture:
 """  # noqa
         elif self.engine.name == 'bigquery':
             create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
               SELECT 123 AS num,
                     '123' AS numstr,
                     'foo' AS str,
@@ -79,7 +79,7 @@ class RecordsDatabaseFixture:
 """  # noqa
         elif self.engine.name == 'postgresql':
             create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
               SELECT 123 AS num,
                      '123' AS numstr,
                      'foo' AS str,
@@ -94,7 +94,7 @@ class RecordsDatabaseFixture:
 """  # noqa
         elif self.engine.name == 'mysql':
             create_tables = f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
               SELECT 123 AS num,
                      '123' AS numstr,
                      'foo' AS str,

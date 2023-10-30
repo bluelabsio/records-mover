@@ -1,5 +1,4 @@
 from .base_test_redshift_db_driver import BaseTestRedshiftDBDriver
-from unittest.mock import patch
 import sqlalchemy
 
 
@@ -16,14 +15,9 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
         sql = self.redshift_db_driver.schema_sql('myschema', 'mytable')
         self.assertEqual(sql, mock_schema_sql)
 
-    @patch('records_mover.db.redshift.redshift_db_driver.quote_group_name')
-    @patch('records_mover.db.redshift.redshift_db_driver.quote_schema_and_table')
-    def test_set_grant_permissions_for_group(self, mock_quote_schema_and_table,
-                                             mock_quote_group_name):
+    def test_set_grant_permissions_for_group(self):
         mock_schema = 'mock_schema'
         mock_table = 'mock_table'
-        mock_quote_schema_and_table.return_value = 'mock_schema.mock_table'
-        mock_quote_group_name.return_value = '"a_group"'
         groups = {'all': ['a_group']}
         mock_conn = self.mock_db_engine.engine.connect.return_value.__enter__.return_value
         self.redshift_db_driver.set_grant_permissions_for_groups(mock_schema,
@@ -32,7 +26,7 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
                                                                  None,
                                                                  db_conn=mock_conn)
         mock_conn.execute.assert_called_with(
-            f'GRANT all ON TABLE {mock_schema}.{mock_table} TO GROUP "a_group"')
+            f'GRANT ALL ON {mock_schema}.{mock_table} TO "a_group"\n')
 
     def test_best_scheme_to_load_from(self):
         out = self.redshift_db_driver.loader().best_scheme_to_load_from()
@@ -95,7 +89,7 @@ class TestRedshiftDBDriver(BaseTestRedshiftDBDriver):
             (64, 49): 49,
             (100, 80): 53,
         }
-        for (input_fp_total_bits, input_fp_significand_bits),\
+        for (input_fp_total_bits, input_fp_significand_bits), \
                 expected_fp_significand_bits in expectations.items():
             actual_col_type =\
                 self.redshift_db_driver.type_for_floating_point(input_fp_total_bits,
