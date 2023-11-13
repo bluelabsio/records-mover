@@ -151,25 +151,3 @@ In particular, note:
 * [targets factory methods](https://records-mover.readthedocs.io/en/latest/records_mover.records.targets.html)
 * [move() method](https://records-mover.readthedocs.io/en/latest/records_mover.records.html#records_mover.records.move)
 * [BaseRecordsFormat](https://records-mover.readthedocs.io/en/latest/records_mover.records.html#records_mover.records.base_records_format.BaseRecordsFormat)
-
-## Local Development
-
-The included Dockerfile can be used to build a docker image that is suitable for local development. Mount
-the directory containing your local copy of the repository to have it override what's in the container.
-```
-docker run -it --mount src="$(pwd)/records_mover",target=/records-mover/records_mover,type=bind records-mover
-```
-This will mount your local src overtop of the same directory in the container. Mount any additional directories you
-are working on with additional --mount entries
-
-Alternatively, you can launch the container using docker-compose.
-Alternatively, use `docker-compose up -d` to leverage the docker-compose file to start the container with pre-defined
-mounts.
-```
-docker-comppose up -d
-```
-This will build the container image as necessary, launch it, and mount the most relevant volumes for local dev. 
-The container is hosting a bash shell and will run until you manually shut it down.
-
-Note, if you have to add a dependency to requirements.txt and want to test it locally, add the line
-`COPY requirements.txt .` after `RUN git clone ...` in the Dockerfile and rebuild the container.
