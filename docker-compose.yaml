@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  records-mover:
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./records_mover:/records-mover/records_mover
+      - ./setup.py:/records-mover/setup.py
