@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  records-mover:
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./records_mover:/records-mover/records_mover
+      - ./setup.py:/records-mover/setup.py
+  test:
+      build:
+        context: .
+        dockerfile: Dockerfile.dev
+      command: >
+        bash -c "source venv/bin/activate &&
+        make citest &&
+        make cicoverage &&
+        make typecheck &&
+        make citypecoverage"
