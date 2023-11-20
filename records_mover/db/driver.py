@@ -6,7 +6,7 @@ from .loader import LoaderFromFileobj, LoaderFromRecordsDirectory
 from .unloader import Unloader
 import logging
 import sqlalchemy
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, text
 from sqlalchemy.schema import Table
 from abc import ABCMeta, abstractmethod
 from records_mover.records import RecordsSchema
@@ -75,7 +75,7 @@ class DBDriver(DBConnMixin, metaclass=ABCMeta):
                     raise TypeError("Please make sure your permission types"
                                     " are an acceptable value.")
                 table_obj = Table(table, MetaData(), schema=schema_name)
-                perms_sql = str(GrantPrivileges(perm_type, table_obj, group))
+                perms_sql = text(str(GrantPrivileges(perm_type, table_obj, group)))
                 if db_conn:
                     db_conn.execute(perms_sql)
                 else:
@@ -97,7 +97,7 @@ class DBDriver(DBConnMixin, metaclass=ABCMeta):
                     raise TypeError("Please make sure your permission types"
                                     " are an acceptable value.")
                 table_obj = Table(table, MetaData(), schema=schema_name)
-                perms_sql = str(GrantPrivileges(perm_type, table_obj, user))
+                perms_sql = text(str(GrantPrivileges(perm_type, table_obj, user)))
                 if db_conn:
                     db_conn.execute(perms_sql)
                 else:
