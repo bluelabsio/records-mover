@@ -151,3 +151,78 @@ In particular, note:
 * [targets factory methods](https://records-mover.readthedocs.io/en/latest/records_mover.records.targets.html)
 * [move() method](https://records-mover.readthedocs.io/en/latest/records_mover.records.html#records_mover.records.move)
 * [BaseRecordsFormat](https://records-mover.readthedocs.io/en/latest/records_mover.records.html#records_mover.records.base_records_format.BaseRecordsFormat)
+
+## Local Development
+
+The included Dockerfile can be used to build a docker image that is
+suitable for local development.
+
+```bash
+docker build Dockerfile.dev -t records-mover:latest .
+```
+
+Or, using docker compose,
+```bash
+docker compose build
+```
+
+The following commands assume the records-mover container has been
+named `records-mover`.
+
+Mount the directory containing your local copy of the repository to
+have it override what's in the container.
+
+```bash
+docker run -it --mount src="$(pwd)/records_mover",target=/records-mover/records_mover,type=bind records-mover
+```
+This will mount your local src overtop of the same directory in the
+container. Mount any additional directories you are working on with
+additional --mount entries
+
+Alternatively, you can launch the container using docker-compose.
+This will start the container with pre-defined mounts.
+```
+docker-compose up -d
+```
+This will build the container image as necessary, launch it, and
+mount the most relevant volumes for local dev.
+The container is hosting a bash shell and will run until you
+manually shut it down.
+
+Note, if you have to add a dependency to requirements.txt and want
+to test it locally, add the line `COPY requirements.txt .` after
+`RUN git clone ...` in the Dockerfile and rebuild the container.
+
+### Working within the container
+
+The container presumes you're still working with python
+virtual environments when working with it. This could possibly
+be considered a "hat on a hat" situation.
+The practical consequence of this is that if you do open a shell
+in the container, ensure you activate the `venv` virtual
+environment. Otherwise, you will not have all the dependencies
+you'll need.
+
+After you've started a shell with the `docker run...` command above,
+you can activate the virtual environment with:
+```
+source venv/bin/activate
+```
+
+### Running unit and type tests
+
+Unit and type tests can be run within the container by running:
+```
+make citest
+make cicoverage
+make typecheck
+make citypecoverage
+```
+
+The tests can be run from outside the container using docker-compose.
+```bash
+docker compose run test
+```
+It's theoretically possible to build sufficient additional
+containers to support running integration tests locally but
+that has not been planned yet.
