@@ -1,5 +1,6 @@
 from records_mover.db.quoting import quote_schema_and_table
-from sqlalchemy import text
+from sqlalchemy import Table, MetaData
+from sqlalchemy.schema import DropTable
 
 
 class RecordsNumericDatabaseFixture:
@@ -18,7 +19,7 @@ class RecordsNumericDatabaseFixture:
         if self.engine.name == 'redshift':
             # Redshift supports a number of different numeric types
             create_tables = [f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
               SELECT 32767::smallint AS int16,
                      2147483647::INTEGER AS int32,
                      9223372036854775807::BIGINT AS int64,
@@ -30,7 +31,7 @@ class RecordsNumericDatabaseFixture:
         elif self.engine.name == 'vertica':
             # Vertica only supports a few large numeric types
             create_tables = [f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
               SELECT 9223372036854775807::BIGINT AS int64,
                      1234.56::NUMERIC(6, 2) AS fixed_6_2,
                      19223372036854775807.78::FLOAT AS float64;
@@ -39,20 +40,20 @@ class RecordsNumericDatabaseFixture:
         elif self.engine.name == 'bigquery':
             # BigQuery only supports a few large numeric types
             create_tables = [f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} (
+              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} (
                      `int64` INT64,
                      `fixed_6_2` NUMERIC(6, 2),
                      `float64` FLOAT64);
 """,  # noqa
               f"""
-              INSERT INTO {self.schema_name}.{self.table_name} (`int64`, `fixed_6_2`, `float64`)
+              INSERT INTO {self.quote_schema_and_table(self.schema_name, self.table_name)} (`int64`, `fixed_6_2`, `float64`)
               VALUES (9223372036854775807, 1234.56, 19223372036854775807.78);
 """,  # noqa
                              ]
         elif self.engine.name == 'postgresql':
             # Postgres supports a number of different numeric types
             create_tables = [f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} AS
+              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
               SELECT 32767::smallint AS int16,
                      2147483647::INTEGER AS int32,
                      9223372036854775807::BIGINT AS int64,
@@ -66,7 +67,7 @@ class RecordsNumericDatabaseFixture:
             # https://dev.mysql.com/doc/refman/8.0/en/numeric-types.html
             #
             create_tables = [f"""
-              CREATE TABLE {self.schema_name}.{self.table_name} (
+              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} (
                  `int8` TINYINT,
                  `uint8` TINYINT UNSIGNED,
                  `int16` SMALLINT,
@@ -85,7 +86,7 @@ class RecordsNumericDatabaseFixture:
               );
 """,  # noqa
 f"""
-              INSERT INTO {self.schema_name}.{self.table_name}
+              INSERT INTO {self.quote_schema_and_table(self.schema_name, self.table_name)}
               (
                  `int8`,
                  `uint8`,
@@ -136,10 +137,10 @@ f"""
                                       db_engine=self.engine)
 
     def drop_table_if_exists(self, schema, table):
-        sql = f"DROP TABLE IF EXISTS {self.quote_schema_and_table(schema, table)}"
+        table_to_drop = Table(table, MetaData(), schema=schema)
         with self.engine.connect() as connection:
             with connection.begin():
-                connection.execute(text(sql))
+                connection.execute(DropTable(table_to_drop, if_exists=True))
 
     def tear_down(self):
         self.drop_table_if_exists(self.schema_name, self.table_name)

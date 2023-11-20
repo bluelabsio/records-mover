@@ -21,7 +21,7 @@ class TestMySQLLoadOptionsClass(unittest.TestCase):
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'my_filename.txt'
-INTO TABLE myschema.mytable
+INTO TABLE `myschema`.`mytable`
 CHARACTER SET 'utf8'
 FIELDS
     TERMINATED BY '\t'
@@ -51,7 +51,7 @@ IGNORE 0 LINES
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'another_filename.txt'
-INTO TABLE myschema.mytable
+INTO TABLE `myschema`.`mytable`
 CHARACTER SET 'utf16'
 FIELDS
     TERMINATED BY ','
@@ -81,7 +81,7 @@ IGNORE 1 LINES
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'another_filename.txt'
-INTO TABLE myschema.mytable
+INTO TABLE `myschema`.`mytable`
 CHARACTER SET 'utf16'
 FIELDS
     TERMINATED BY ','
@@ -110,7 +110,7 @@ IGNORE 1 LINES
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'another_filename.txt'
-INTO TABLE myschema.mytable
+INTO TABLE `myschema`.`mytable`
 CHARACTER SET 'utf16'
 FIELDS
     TERMINATED BY ','
@@ -160,7 +160,7 @@ IGNORE 1 LINES
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'c:\\\\Some Path\\\\OH GOD LET IT END~1.CSV'
-INTO TABLE myschema.mytable
+INTO TABLE `myschema`.`mytable`
 CHARACTER SET 'utf16'
 FIELDS
     TERMINATED BY ','
@@ -190,7 +190,7 @@ IGNORE 1 LINES
         expected_sql = """\
 LOAD DATA
 LOCAL INFILE 'another_filename.txt'
-INTO TABLE myschema.mytable
+INTO TABLE `myschema`.`mytable`
 CHARACTER SET 'utf16'
 FIELDS
     TERMINATED BY '\002'

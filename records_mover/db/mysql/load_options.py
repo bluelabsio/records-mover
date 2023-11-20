@@ -69,10 +69,12 @@ class MySqlLoadOptions(NamedTuple):
                                filename: str,
                                schema_name: str,
                                table_name: str) -> TextClause:
+        remove_backticks_schema_name = schema_name.replace('`', '')
+        remove_backticks_table_name = table_name.replace('`', '')
         sql = f"""\
 LOAD DATA
 LOCAL INFILE :filename
-INTO TABLE {schema_name}.{table_name}
+INTO TABLE `{remove_backticks_schema_name}`.`{remove_backticks_table_name}`
 CHARACTER SET :character_set
 FIELDS
     TERMINATED BY :fields_terminated_by

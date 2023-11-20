@@ -1,6 +1,7 @@
 from ..driver import DBDriver
 import sqlalchemy
-from sqlalchemy.schema import Table
+from sqlalchemy_privileges import GrantPrivileges  # type: ignore[import-untyped]
+from sqlalchemy.schema import Table, MetaData
 from records_mover.records import RecordsSchema
 from records_mover.records.records_format import BaseRecordsFormat, AvroRecordsFormat
 import logging
@@ -14,7 +15,6 @@ from .sql import schema_sql_from_admin_views
 import timeout_decorator
 from typing import Optional, Union, Dict, List, Tuple
 from ...url.base import BaseDirectoryUrl
-from records_mover.db.quoting import quote_group_name, quote_schema_and_table
 from .unloader import RedshiftUnloader
 from ..unloader import Unloader
 from .loader import RedshiftLoader
@@ -85,15 +85,14 @@ class RedshiftDBDriver(DBDriver):
                                          db_engine: Optional[sqlalchemy.engine.Engine] = None
                                          ) -> None:
         db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
-        schema_and_table = quote_schema_and_table(None, schema_name, table, db_engine=db_engine)
         for perm_type in groups:
             groups_list = groups[perm_type]
             for group in groups_list:
-                group_name: str = quote_group_name(None, group, db_engine=self.db_engine)
                 if not perm_type.isalpha():
                     raise TypeError("Please make sure your permission types"
                                     " are an acceptable value.")
-                perms_sql = f'GRANT {perm_type} ON TABLE {schema_and_table} TO GROUP {group_name}'
+                table_obj = Table(table, MetaData(), schema=schema_name)
+                perms_sql = str(GrantPrivileges(perm_type, table_obj, group))
                 if db_conn:
                     db_conn.execute(perms_sql)
                 else:

@@ -8,7 +8,7 @@ from ..datetime_cases import (
 )
 from records_mover.records import RecordsSchema, RecordsFormat, PartialRecordsHints
 from records_mover.records.schema.field.field_types import FieldType
-from sqlalchemy import text
+from sqlalchemy import Table, MetaData, select, text
 
 logger = logging.getLogger(__name__)
 
@@ -59,11 +59,11 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
 
     def pull_result(self,
                     column_name: str) -> datetime.datetime:
+        table_obj = Table(self.table_name, MetaData(), schema=self.schema_name)
         with self.engine.connect() as connection:
             with connection.begin():
-                out = connection.execute(text(
-                        f'SELECT {column_name} '
-                        f'from {self.schema_name}.{self.table_name}'))
+                out = connection.execute(
+                    select(text(column_name), table_obj))  # type: ignore[arg-type]  # noqa: F821
                 ret_all = out.fetchall()
         assert 1 == len(ret_all)
         ret = ret_all[0]

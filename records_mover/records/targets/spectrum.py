@@ -14,6 +14,7 @@ from typing import Optional, Callable, Union
 import logging
 import sqlalchemy
 from sqlalchemy import text
+from sqlalchemy.schema import DropTable
 
 
 logger = logging.getLogger(__name__)
@@ -84,10 +85,10 @@ class SpectrumRecordsTarget(SupportsRecordsDirectory):
                                                                db_engine=self.db_engine)
                 logger.info(f"Dropping external table {schema_and_table}...")
                 with self.db_engine.connect() as conn:
+                    table = Table(self.table_name, MetaData(), schema=self.schema_name)
                     # See below note about fix from Spectrify
                     conn.execution_options(isolation_level='AUTOCOMMIT')
-                    conn.execute(text(f"DROP TABLE IF EXISTS {schema_and_table}"))
-
+                    conn.execute(DropTable(table, if_exists=True))  # type: ignore[call-arg, arg-type]
             logger.info(f"Deleting files in {self.output_loc}...")
             self.output_loc.purge_directory()
         elif self.existing_table_handling == ExistingTableHandling.APPEND:

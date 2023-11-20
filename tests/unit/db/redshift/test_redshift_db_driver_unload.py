@@ -44,7 +44,7 @@ class TestRedshiftDBDriverUnload(BaseTestRedshiftDBDriver):
             'gzip': True,
             'manifest': True,
             'secret_access_key': mock_secret_key,
-            'select': ('SELECT * FROM myschema.mytable',),
+            'select': ('SELECT * \nFROM myschema.mytable',),
             'session_token': mock_token,
             'unload_location': self.mock_s3_temp_base_loc.temporary_directory().__enter__().url
         }
@@ -80,7 +80,7 @@ class TestRedshiftDBDriverUnload(BaseTestRedshiftDBDriver):
             'gzip': True,
             'manifest': True,
             'secret_access_key': 'fake_aws_secret',
-            'select': ('SELECT * FROM myschema.mytable',),
+            'select': ('SELECT * \nFROM myschema.mytable',),
             'session_token': 'fake_aws_token',
             'unload_location': 's3://mybucket/myparent/mychild/'
         }

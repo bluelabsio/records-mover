@@ -1,7 +1,7 @@
 from ..driver import DBDriver
 import sqlalchemy
 from sqlalchemy.sql import text
-from records_mover.db.quoting import quote_schema_and_table
+from sqlalchemy import select
 from sqlalchemy.schema import Table, Column
 import logging
 from typing import Optional, Union, Tuple
@@ -47,10 +47,9 @@ class VerticaDBDriver(DBDriver):
 
     def has_table(self, schema: str, table: str) -> bool:
         try:
-            sql = ("SELECT 1 "
-                   f"from {quote_schema_and_table(None, schema, table, db_engine=self.db_engine)} "
-                   "limit 0;")
-            self.db_conn.execute(text(sql))
+            table_to_check = Table(table, self.meta, schema=schema)
+            self.db_conn.execute(
+                select(text("1"), table_to_check))  # type: ignore[arg-type]  # noqa: F821
             return True
         except sqlalchemy.exc.ProgrammingError:
             return False

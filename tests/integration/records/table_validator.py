@@ -11,6 +11,7 @@ from .expected_column_types import (
     expected_table2table_column_types
 )
 from records_mover.records import DelimitedVariant
+from records_mover.db.quoting import quote_schema_and_table
 from .mover_test_case import MoverTestCase
 from .table_timezone_validator import RecordsTableTimezoneValidator
 
@@ -127,7 +128,7 @@ class RecordsTableValidator:
                                                             self.target_db_engine.name)),
                      expected_single_database_column_types[self.source_db_engine.name],
                      expected_single_database_column_types[self.target_db_engine.name],
-                     expected_df_loaded_database_column_types.get(self.target_db_engine.name))),\
+                     expected_df_loaded_database_column_types.get(self.target_db_engine.name))), \
                 f'Could not find column types filed under '\
                 f"{(self.source_db_engine.name, self.target_db_engine.name)} "\
                 'or either individually: '\
@@ -137,6 +138,11 @@ class RecordsTableValidator:
                              schema_name: str,
                              table_name: str) -> None:
         params = {}
+
+        quoted_schema_and_table = quote_schema_and_table(None,
+                                                         schema=schema_name,
+                                                         table=table_name,
+                                                         db_engine=self.target_db_engine)
 
         load_variant = self.tc.determine_load_variant()
 
@@ -170,7 +176,7 @@ class RecordsTableValidator:
                        timestamptz,
                        format_timestamp(:tzformatstr, CAST(`timestamptz` as timestamp))
                        as timestamptzstr
-                FROM {schema_name}.{table_name}
+                FROM {quoted_schema_and_table}
                 """)
                 params = {
                     "tzformatstr": "%E4Y-%m-%d %H:%M:%E*S %Z",
@@ -183,7 +189,7 @@ class RecordsTableValidator:
                        DATE_FORMAT(`timestamp`, '%Y-%m-%d %H:%i:%s.%f') as timestampstr,
                        timestamptz,
                        DATE_FORMAT(timestamptz, '%Y-%m-%d %H:%i:%s.%f+00') as timestamptzstr
-                FROM {schema_name}.{table_name}
+                FROM {quoted_schema_and_table}
                 """)
             elif self.tc.raw_avro_types_written():
                 # no real date/time column types used, so can't cast types
@@ -193,7 +199,7 @@ class RecordsTableValidator:
                        "timestamp" as timestampstr,
                        timestamptz,
                        timestamptz as timestamptzstr
-                FROM {schema_name}.{table_name}
+                FROM {quoted_schema_and_table}
                 """)
             else:
                 select_sql = text(f"""
@@ -202,7 +208,7 @@ class RecordsTableValidator:
                        to_char("timestamp", 'YYYY-MM-DD HH24:MI:SS.US') as timestampstr,
                        timestamptz, to_char(timestamptz,
                                             'YYYY-MM-DD HH24:MI:SS.US TZ') as timestamptzstr
-                FROM {schema_name}.{table_name}
+                FROM {quoted_schema_and_table}
                 """)
             out = connection.execute(select_sql, params)
             ret_all = out.fetchall()
@@ -217,17 +223,17 @@ class RecordsTableValidator:
         if self.tc.raw_avro_types_written():
             assert ret.date == 10957, ret.date
         else:
-            assert ret.date == datetime.date(2000, 1, 1),\
+            assert ret.date == datetime.date(2000, 1, 1), \
                 f"Expected datetime.date(2000, 1, 1), got {ret.date}"
 
         if self.tc.raw_avro_types_written():
             assert ret.time == 0, ret.time
         elif self.tc.supports_time_without_date():
             if self.tc.selects_time_types_as_timedelta():
-                assert ret.time == datetime.timedelta(0, 0),\
+                assert ret.time == datetime.timedelta(0, 0), \
                     f"Incorrect time: {ret.time} (of type {type(ret.time)})"
             else:
-                assert ret.time == datetime.time(0, 0),\
+                assert ret.time == datetime.time(0, 0), \
                     f"Incorrect time: {ret.time} (of type {type(ret.time)})"
         else:
             # fall back to storing as string
@@ -243,11 +249,11 @@ class RecordsTableValidator:
               ((self.file_variant is not None) and
               self.tc.variant_doesnt_support_seconds(self.file_variant))):
             assert ret.timestamp ==\
-                datetime.datetime(2000, 1, 2, 12, 34),\
+                datetime.datetime(2000, 1, 2, 12, 34), \
                 f"Found timestamp {ret.timestamp}"
 
         else:
-            assert (ret.timestamp == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)),\
+            assert (ret.timestamp == datetime.datetime(2000, 1, 2, 12, 34, 56, 789012)), \
                 f"ret.timestamp was {ret.timestamp} of type {type(ret.timestamp)}"
         print("ROW OUTPUT VALUES:", ret)
         print("ROW OUTPUT AS DICTIONARY:", ret._asdict())

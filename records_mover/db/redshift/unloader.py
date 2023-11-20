@@ -2,10 +2,10 @@ from contextlib import contextmanager
 from sqlalchemy_redshift.commands import UnloadFromSelect
 from ...records.records_directory import RecordsDirectory
 import sqlalchemy
+from sqlalchemy import MetaData
 from sqlalchemy.sql import text
 from sqlalchemy.schema import Table
 import logging
-from records_mover.db.quoting import quote_schema_and_table
 from records_mover.logging import register_secret
 from .records_unload import redshift_unload_options
 from ...records.unload_plan import RecordsUnloadPlan
@@ -84,10 +84,9 @@ class RedshiftUnloader(Unloader):
             #
             register_secret(aws_creds.token)
             register_secret(aws_creds.secret_key)
-            select = text(
-                "SELECT * FROM "
-                f"{quote_schema_and_table(None, schema, table, db_engine=self.db_engine)}")
-            unload = UnloadFromSelect(select=select,
+            table_obj = Table(table, MetaData(), schema=schema)
+            select = str(sqlalchemy.select('*', table_obj))  # type: ignore[arg-type]  # noqa: F821
+            unload = UnloadFromSelect(select=text(select),
                                       access_key_id=aws_creds.access_key,
                                       secret_access_key=aws_creds.secret_key,
                                       session_token=aws_creds.token, manifest=True,
