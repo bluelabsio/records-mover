@@ -1,6 +1,6 @@
 from .fakes import fake_text
 import unittest
-from mock import Mock, MagicMock, call
+from mock import Mock, MagicMock
 from records_mover.db.driver import GenericDBDriver
 import sqlalchemy
 
@@ -86,14 +86,11 @@ class TestDBDriver(unittest.TestCase):
                                                         groups,
                                                         None,
                                                         db_conn=mock_db)
-        mock_db.execute.assert_has_calls([
-            call(
-             f"GRANT INSERT ON {mock_schema_name}.\"{mock_table}\" "
-             f"TO \"{groups['insert'][0]}\"\n"),
-            call(
-             f"GRANT INSERT ON {mock_schema_name}.\"{mock_table}\" "
-             f"TO \"{groups['insert'][1]}\"\n"),
-        ])
+        str_args = [str(arg[0][0]) for arg in mock_db.execute.call_args_list]
+        self.assertEqual([
+            f"GRANT INSERT ON {mock_schema_name}.\"{mock_table}\" TO \"{groups['insert'][0]}\"\n",
+            f"GRANT INSERT ON {mock_schema_name}.\"{mock_table}\" TO \"{groups['insert'][1]}\"\n",
+        ], str_args)
 
     def test_set_grant_permissions_for_users(self):
         mock_schema_name = 'schema_name'
@@ -107,14 +104,11 @@ class TestDBDriver(unittest.TestCase):
                                                        users,
                                                        None,
                                                        db_conn=mock_db)
-        mock_db.execute.assert_has_calls([
-            call(
-                f"GRANT INSERT ON {mock_schema_name}.{mock_table} "
-                f"TO \"{users['insert'][0]}\"\n"),
-            call(
-                f"GRANT INSERT ON {mock_schema_name}.{mock_table} "
-                f"TO \"{users['insert'][1]}\"\n"),
-        ])
+        str_args = [str(arg[0][0]) for arg in mock_db.execute.call_args_list]
+        self.assertEqual([
+            f"GRANT INSERT ON {mock_schema_name}.{mock_table} TO \"{users['insert'][0]}\"\n",
+            f"GRANT INSERT ON {mock_schema_name}.{mock_table} TO \"{users['insert'][1]}\"\n",
+        ], str_args)
 
     def test_set_grant_permissions_for_users_bobby_tables(self):
         mock_schema_name = Mock(name='schema_name')
