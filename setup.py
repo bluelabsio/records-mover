@@ -118,7 +118,7 @@ google_api_client_dependencies = [
     # However, downgrading pip does not seem to resolve it, so it
     # doesn't seem to have been caused by a pip upgrade.  For now
     # we'll explicitly state the dependency for force the install:
-    'grpcio<2.0dev,>=1.29.0',
+    'grpcio>=1.29.0',
 ]
 
 pytest_dependencies = [
