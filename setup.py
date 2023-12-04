@@ -171,7 +171,7 @@ bigquery_dependencies = [
 
 
 aws_dependencies = [
-    'awscli>=1,<2',
+    'awscli>=1',
     'boto>=2,<3',
     'boto3',
     's3-concat>=0.1.7,<0.2'
