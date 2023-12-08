@@ -3,7 +3,6 @@ setuptools>34.3.0
 wheel
 twine
 flake8
-# https://github.com/pallets/markupsafe/issues/284
-markupsafe==2.0.1
+markupsafe
 google-cloud-storage
 boto3
