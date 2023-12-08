@@ -2,7 +2,7 @@ from db_facts import db
 import os
 import base64
 import json
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Any, Dict
 from .base_creds import BaseCreds
 from typing import TYPE_CHECKING
 from db_facts.db_facts_types import DBFacts
@@ -13,9 +13,19 @@ if TYPE_CHECKING:
 
 
 class CredsViaEnv(BaseCreds):
-    def _gcp_creds_from_env(self,
-                            scopes: Iterable[str]) ->\
-            Optional['google.auth.credentials.Credentials']:
+    def _infer_airbyte_creds(self) -> Dict[str, Any]:
+        if 'AIRBYTE_CONNECTION' not in os.environ:
+            return {}
+        return {
+            'user': 'username',
+            'host': 'host',
+            'port': 0,
+            'endpoint': 'endpoint',
+            'password': 'password',
+        }
+
+    def _gcp_creds_from_env(self, scopes: Iterable[str]) \
+            -> Optional['google.auth.credentials.Credentials']:
         if 'GCP_SERVICE_ACCOUNT_JSON_BASE64' not in os.environ:
             return None
         import google.oauth2.service_account

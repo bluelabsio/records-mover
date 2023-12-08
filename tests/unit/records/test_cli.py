@@ -1,4 +1,6 @@
 import unittest
+
+import mock
 from mock import patch, call, Mock
 from records_mover.records.cli import main
 
@@ -26,6 +28,9 @@ class TestCLI(unittest.TestCase):
         mock_google_auth_default.return_value = (mock_credentials, mock_project)
         mock_parser = mock_argparse.ArgumentParser.return_value
         mock_subparsers = mock_parser.add_subparsers.return_value
+        mock_args = mock.MagicMock()
+        mock_args.healthcheck = False
+        mock_parser.parse_args.return_value = mock_args
         main()
         # pick an example
         mock_subparsers.add_parser.assert_has_calls([call('table2recordsdir',
