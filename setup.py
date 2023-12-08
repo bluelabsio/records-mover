@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 
 import os
-from setuptools import setup, find_packages
-from setuptools.command.install import install
-from typing import Optional
-from decimal import Decimal
-from distutils.cmd import Command
 import os.path
 import sys
 import warnings
+from decimal import Decimal
+from distutils.cmd import Command
+from typing import Optional
 
+from setuptools import setup
+from setuptools.command.install import install
+
+# NOTE: This is left here as legacy. It's unclear as of 12/23 if there's a way to
+# move these commands to the pyproject.toml file
 __version__: Optional[str] = None
 # Read in and set version variable without the overhead/requirements
 # of the rest of the package.
@@ -100,252 +103,10 @@ class MypyCoverageRatchetCommand(CoverageRatchetCommand):
         self.coverage_source_file = "typecover/cobertura.xml"
 
 
-google_api_client_dependencies = [
-    # 1.8 seems to be required to use application default creds with
-    # 'googleapiclient.discovery.build':
-    #
-    # https://github.com/googleapis/google-auth-library-python/issues/190
-    'google-api-python-client>=1.8.0',
-    #
-    # For some reason this issue started happening consistently around 2020-10:
-    #
-    #  https://app.circleci.com/pipelines/github/bluelabsio/records-mover/1134/workflows/267ca651-def1-4f60-bdfb-0f857a9e0c60/jobs/9770
-    #
-    # This seems to be a clue:
-    #
-    #  https://github.com/pypa/pip/issues/8407
-    #
-    # However, downgrading pip does not seem to resolve it, so it
-    # doesn't seem to have been caused by a pip upgrade.  For now
-    # we'll explicitly state the dependency for force the install:
-    'grpcio>=1.29.0',
-]
-
-pytest_dependencies = [
-    'pytest',
-    'pytest-cov'
-]
-
-itest_dependencies = [
-    'jsonschema',  # needed for directory_validator.py
-    'pytz',
-    'wheel',  # needed to support legacy 'setup.py install'
-    'parameterized',
-] + (
-    pytest_dependencies +
-    # needed for records_database_fixture retrying drop/creates on
-    # BigQuery
-    google_api_client_dependencies
-)
-
-airflow_dependencies = [
-    'apache-airflow>=2',
-    'apache-airflow-providers-amazon',
-    'apache-airflow-providers-google',
-]
-
-db_dependencies = [
-    'sqlalchemy>=1.4',
-    'sqlalchemy_privileges>=0.2.0',
-]
-
-smart_open_dependencies = [
-    'smart_open>=2',
-]
-
-gcs_dependencies = [
-    'google-cloud-storage'
-] + smart_open_dependencies
-
-bigquery_dependencies = [
-    # This is currently vendored in
-    # records_mover/db/postgres/sqlalchemy_postgres_copy.py but
-    # once this PR is merged and a new version published, we can
-    # use the new upstream version:
-    #
-    # https://github.com/jmcarp/sqlalchemy-postgres-copy/pull/14
-    #
-    # 'sqlalchemy-postgres-copy>=0.5,<0.6',
-    'sqlalchemy-bigquery',
-] + gcs_dependencies + db_dependencies
-
-
-aws_dependencies = [
-    'awscli>=1',
-    'boto>=2,<3',
-    'boto3',
-    's3-concat>=0.1.7'
-] + smart_open_dependencies
-
-gsheet_dependencies = [
-    'google',
-    'google_auth_httplib2',
-    'PyOpenSSL'
-] + google_api_client_dependencies
-
-parquet_dependencies = [
-    'pyarrow'
-]
-
-pandas_dependencies = [
-    'pandas>=1.3.5',
-]
-
-mysql_dependencies = [
-    'pymysql'
-] + db_dependencies
-
-redshift_dependencies_base = [
-    # sqlalchemy-redshift 0.7.7 introduced support for Parquet in UNLOAD
-    'sqlalchemy-redshift>=0.7.7',
-] + aws_dependencies + db_dependencies
-
-redshift_dependencies_binary = [
-    'psycopg2-binary',
-] + redshift_dependencies_base
-
-redshift_dependencies_source = [
-    'psycopg2',
-] + redshift_dependencies_base
-
-postgres_depencencies_base = db_dependencies
-
-postgres_dependencies_binary = [
-    'psycopg2-binary',
-] + postgres_depencencies_base
-
-postgres_dependencies_source = [
-    'psycopg2',
-] + postgres_depencencies_base
-
-cli_dependencies_base = [
-    'odictliteral',
-    'jsonschema',
-    'docstring_parser',
-]
-
-vertica_dependencies = [
-    'sqlalchemy-vertica-python>=0.5.5',
-] + db_dependencies
-
-literally_every_single_database_binary_dependencies = (
-    vertica_dependencies +
-    postgres_dependencies_binary +
-    redshift_dependencies_binary +
-    bigquery_dependencies +
-    mysql_dependencies
-)
-
-typecheck_dependencies = [
-    "mypy>=1.7.1",
-    'lxml',  # needed by mypy HTML coverage reporting
-    'sqlalchemy-stubs>=0.3',
-    'types-pytz',
-    'types-mock',
-]
-
-unittest_dependencies = [
-    'coverage',
-    'mock',
-] + (
-    pytest_dependencies +
-    cli_dependencies_base +
-    airflow_dependencies +
-    gsheet_dependencies +
-    literally_every_single_database_binary_dependencies +
-    aws_dependencies +
-    pandas_dependencies +
-    gcs_dependencies
-)
-
-docs_dependencies = [
-    'sphinx>=5',  # used to generate and upload docs -
-                  # need 5.0 or later for compatibility with other packages
-    'sphinx-rtd-theme>=1',  # used to style docs for readthedocs.io
-    'sphinx-argparse',  # used to generate documentation of CLI options
-    'readthedocs-sphinx-ext>=2',  # also used by readthedocs
-    'recommonmark',  # used to be able to use sphinx with markdown
-] + (
-    # needed for readthedocs.io to be able to evaluate modules with
-    # sqlalchemy imports
-    db_dependencies +
-    # Same with Airflow
-    airflow_dependencies +
-    # Also boto
-    aws_dependencies +
-    # Needed to generate docs for CLI options
-    cli_dependencies_base
-)
-
-this_directory = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
-
-setup(name='records-mover',
-      version=__version__,  # read right above  # noqa
-      description=('Library and CLI to move relational data from one place to another - '
-                   'DBs/CSV/gsheets/dataframes/...'),
-      long_description=long_description,
-      long_description_content_type="text/markdown",
-      download_url=f'https://github.com/bluelabsio/records-mover/tarball/{__version__}',  # noqa
-      author='Vince Broz',
-      author_email='opensource@bluelabs.com',
-      packages=find_packages(),
-      package_data={
-          'records_mover': ['py.typed']
-      },
-      install_requires=[
-          'timeout_decorator',
-          'PyYAML>=3.10',
-          'db-facts>=4',
-          'chardet>=3',
-          'tenacity>=8.0.1',
-          # v5.0.1 resolves https://github.com/exhuma/config_resolver/issues/69
-          'config-resolver>=5.0.1',
-          'typing_inspect',
-          'typing-extensions',
-      ],
-      extras_require={
-          'airflow': airflow_dependencies,
-          'db': db_dependencies,
-          'gsheets': gsheet_dependencies,
-          'cli': cli_dependencies_base,
-          'bigquery': bigquery_dependencies,
-          'aws': aws_dependencies,
-          'mysql': mysql_dependencies,
-          'redshift-binary': redshift_dependencies_binary,
-          'redshift-source': redshift_dependencies_source,
-          'postgres-binary': postgres_dependencies_binary,
-          'postgres-source': postgres_dependencies_source,
-          'vertica': vertica_dependencies,
-          'pandas': pandas_dependencies,
-          # don't let it be said we didn't warn you.
-          'literally_every_single_database_binary':
-          literally_every_single_database_binary_dependencies,
-          'itest': itest_dependencies,
-          'unittest': unittest_dependencies,
-          'typecheck': typecheck_dependencies,
-          'gcs': gcs_dependencies,
-          'parquet': parquet_dependencies,
-          'docs': docs_dependencies,
-      },
-      entry_points={
-          'console_scripts': 'mvrec = records_mover.records.cli:main',
-      },
+setup(version=__version__,
       cmdclass={
           'coverage_ratchet': TestCoverageRatchetCommand,
           'mypy_ratchet': MypyCoverageRatchetCommand,
           'verify': VerifyVersionCommand,
       },
-      license='Apache Software License',
-      classifiers=[
-          'Development Status :: 4 - Beta',
-          'Intended Audience :: Developers',
-          'Topic :: Database :: Front-Ends',
-          'License :: OSI Approved :: Apache Software License',
-          'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.6',
-          'Programming Language :: Python :: 3.7',
-          'Programming Language :: Python :: 3.8',
-          'Programming Language :: Python :: 3.9',
-      ])
+      )

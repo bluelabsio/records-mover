@@ -681,7 +681,7 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: tbl2tbl-itest
-          extras: '[literally_every_single_database_binary,itest]'
+          extras: '[alldb,itest]'
           python_version: "3.9"
           context: slack-secrets
           command: |
@@ -694,7 +694,7 @@ workflows:
             pytest -vvv test_records_table2table.py
       - integration_test_with_dbs:
           name: tbl2tbl-itest-old-sqlalchemy
-          extras: '[literally_every_single_database_binary,itest]'
+          extras: '[alldb,itest]'
           python_version: "3.9"
           sqlalchemy_version: "==1.4"
           context: slack-secrets
