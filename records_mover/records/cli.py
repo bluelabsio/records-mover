@@ -1,6 +1,8 @@
 """CLI to move records from place to place"""
 import argparse
 from odictliteral import odict
+
+from .airbyte.airbyte import airbyte_healthcheck
 from .job.schema import method_to_json_schema
 from .job.mover import run_records_mover_job
 from ..utils.json_schema import method_signature_to_json_schema
@@ -12,9 +14,11 @@ from ..mover_types import JsonSchema, JobConfig
 from ..version import __version__
 import sys
 from typing import Callable, Dict, Any, TYPE_CHECKING
+import logging
 if TYPE_CHECKING:
     from records_mover import Session
 
+logger = logging.getLogger("test")
 
 def populate_subparser(bootstrap_session: 'Session',
                        sub_parser: argparse.ArgumentParser,
@@ -82,6 +86,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     # https://stackoverflow.com/questions/15405636/pythons-argparse-to-show-programs-version-with-prog-and-version-string-formatt
     parser.add_argument('-V', '--version', action='version', version="%(prog)s ("+__version__+")")
+    parser.add_argument('-hc', '--healthcheck', action='store_true', required=False, help='Returns health of the '
+                                                                                          'configured airbyte instance')
     subparsers = parser.add_subparsers(help='subcommand_help')
     from records_mover import Session
     bootstrap_session = Session()
@@ -114,7 +120,12 @@ def main() -> None:
     args = parser.parse_args()
     raw_config = vars(args)
     func = getattr(args, 'func', None)
-    if func is None:
+    if args.healthcheck:
+        try:
+            airbyte_healthcheck()
+        except Exception:
+            sys.exit(1)
+    elif func is None:
         parser.print_help()
     else:
         set_stream_logging()

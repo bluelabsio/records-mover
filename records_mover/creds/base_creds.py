@@ -67,6 +67,9 @@ class BaseCreds():
         self._scratch_s3_url = scratch_s3_url
         self._scratch_gcs_url = scratch_gcs_url
 
+    def airbyte(self, cred_name: str) -> bool:
+        raise NotImplementedError
+
     def google_sheets(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
         scopes = _GSHEETS_SCOPES
         return self._gcp_creds(gcp_creds_name, scopes)

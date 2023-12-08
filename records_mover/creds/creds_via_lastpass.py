@@ -1,3 +1,5 @@
+import logging
+
 from db_facts import db
 from db_facts.lpass import lpass_field
 from db_facts.db_facts_types import DBFacts
@@ -12,6 +14,15 @@ if TYPE_CHECKING:
 
 
 class CredsViaLastPass(BaseCreds):
+    def airbyte(self, cred_name: str) -> dict:
+        return {
+            'user': lpass_field(cred_name, 'username'),
+            'host': lpass_field(cred_name, 'host'),
+            'port': int(lpass_field(cred_name, 'port')),
+            'endpoint': lpass_field(cred_name, 'endpoint'),
+            'password': lpass_field(cred_name, 'password'),
+        }
+
     def _gcp_creds(self, gcp_creds_name: str,
                    scopes: Iterable[str]) -> 'google.auth.credentials.Credentials':
         import google.oauth2.service_account

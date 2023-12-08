@@ -96,10 +96,10 @@ bigquery = [
 
 aws = [
     # pip seems to struggle to find the latest version. Give it some help
-    "awscli>=1.32.13",
+    "awscli>=1.32.13,<2",
+    "boto3",
     # NOTE: Last update was in 2018. We don't want to be surprised by a new version
     "boto>=2,<3",
-    "boto3",
     "s3-concat>=0.1.7",
     "records-mover[smart-open]",
 ]

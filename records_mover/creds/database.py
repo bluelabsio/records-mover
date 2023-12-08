@@ -31,7 +31,7 @@ def db_facts_from_env() -> DBFacts:
         }
 
         db_facts.update(redshift_base_url_values)
-
+        
         if None in db_facts.values():
             raise NotImplementedError("Please run with with-db or set DB_* environment variables")
     return db_facts  # type: ignore
