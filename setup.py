@@ -298,15 +298,7 @@ setup(name='records-mover',
       },
       install_requires=[
           'timeout_decorator',
-          # awscli pins PyYAML. We have seen issues at
-          # run-time if we don't constrain things here as well. So
-          # this tracks the awscli req for python >= 3.6 which is
-          # what we support
-          #
-          # https://github.com/aws/aws-cli/blob/develop/setup.py
-          # #### NEW UNFORTUNATE CONSTRAINTS #####
-          # https://github.com/yaml/pyyaml/issues/724
-          'PyYAML>=3.10,<=5.3.1',
+          'PyYAML>=3.10',
           # Not sure how/if interface will change in db-facts, so
           # let's be conservative about what we're specifying for now.
           'db-facts>=4,<5',
