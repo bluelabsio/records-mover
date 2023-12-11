@@ -300,11 +300,7 @@ setup(name='records-mover',
           'timeout_decorator',
           'PyYAML>=3.10',
           'db-facts>=4',
-          # Version 4.0.0 is not yet compatible with requests, and pip
-          # 20.3 is not smart enough to pay attention to that,
-          # resulting in runtime complaints.  Can be removed once 20.4
-          # is proven to work.
-          'chardet>=3,<4',
+          'chardet>=3',
           'tenacity>=8.0.1',
           # v5.0.1 resolves https://github.com/exhuma/config_resolver/issues/69
           'config-resolver>=5.0.1,<6',
