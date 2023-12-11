@@ -21,13 +21,20 @@ def _convert_series_or_index(series_or_index: T,
                              field: RecordsSchemaField,
                              records_format: DelimitedRecordsFormat,
                              processing_instructions: ProcessingInstructions) -> Optional[T]:
+    if isinstance(series_or_index, pd.Series):
+        try:
+            first_item = series_or_index.iloc[0]
+        except IndexError:
+            first_item = series_or_index.dtype.type()
+    else:
+        first_item = series_or_index[0]
     if field.field_type == 'date':
-        if (isinstance(series_or_index[0], pd.Timestamp) or
-           isinstance(series_or_index[0], datetime.date)):
+        if (isinstance(first_item, pd.Timestamp) or
+           isinstance(first_item, datetime.date)):
             logger.info(f"Converting {series_or_index.name} from np.datetime64 to "
                         "string in CSV's format")
             logger.debug("Dtype is %s, first element type %s", series_or_index.dtype,
-                         type(series_or_index[0]))
+                         type(first_item))
             hint_date_format = records_format.hints['dateformat']
             assert isinstance(hint_date_format, str)
             pandas_date_format = python_date_format_from_hints.get(hint_date_format)
@@ -36,7 +43,7 @@ def _convert_series_or_index(series_or_index: T,
                                  'dateformat',
                                  records_format.hints)
                 pandas_date_format = '%Y-%m-%d'
-            if isinstance(series_or_index[0], pd.Timestamp):
+            if isinstance(first_item, pd.Timestamp):
                 if isinstance(series_or_index, pd.Series):
                     return series_or_index.dt.strftime(pandas_date_format)
                 else:
@@ -44,15 +51,15 @@ def _convert_series_or_index(series_or_index: T,
             else:
                 return series_or_index.apply(pd.Timestamp).dt.strftime(pandas_date_format)
     elif field.field_type == 'time':
-        if (not (isinstance(series_or_index[0], pd.Timestamp) or
-                 isinstance(series_or_index[0], datetime.time))):
+        if (not (isinstance(first_item, pd.Timestamp) or
+                 isinstance(first_item, datetime.time))):
             logger.warning(f"Found {series_or_index.name} as unexpected "
-                           f"type {type(series_or_index[0])}")
+                           f"type {type(first_item)}")
         else:
             logger.info(f"Converting {series_or_index.name} from np.datetime64 to string "
                         "in CSV's format")
             logger.debug("Dtype is %s, first element type %s", series_or_index.dtype,
-                         type(series_or_index[0]))
+                         type(first_item))
             hint_time_format = records_format.hints['timeonlyformat']
             assert isinstance(hint_time_format, str)
             pandas_time_format = python_time_format_from_hints.get(hint_time_format)
@@ -62,7 +69,7 @@ def _convert_series_or_index(series_or_index: T,
                                  records_format.hints)
                 pandas_time_format = '%H:%M:%S'
 
-            if isinstance(series_or_index[0], datetime.time):
+            if isinstance(first_item, datetime.time):
                 return series_or_index.apply(lambda d: d.strftime(pandas_time_format))
             elif isinstance(series_or_index, pd.Series):
                 return series_or_index.dt.strftime(pandas_time_format)
