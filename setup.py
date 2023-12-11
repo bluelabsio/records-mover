@@ -303,7 +303,7 @@ setup(name='records-mover',
           'chardet>=3',
           'tenacity>=8.0.1',
           # v5.0.1 resolves https://github.com/exhuma/config_resolver/issues/69
-          'config-resolver>=5.0.1,<6',
+          'config-resolver>=5.0.1',
           'typing_inspect',
           'typing-extensions',
       ],
