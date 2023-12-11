@@ -174,7 +174,7 @@ aws_dependencies = [
     'awscli>=1',
     'boto>=2,<3',
     'boto3',
-    's3-concat>=0.1.7,<0.2'
+    's3-concat>=0.1.7'
 ] + smart_open_dependencies
 
 gsheet_dependencies = [
