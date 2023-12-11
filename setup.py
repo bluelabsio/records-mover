@@ -105,7 +105,7 @@ google_api_client_dependencies = [
     # 'googleapiclient.discovery.build':
     #
     # https://github.com/googleapis/google-auth-library-python/issues/190
-    'google-api-python-client>=1.8.0,<1.9.0',
+    'google-api-python-client>=1.8.0',
     #
     # For some reason this issue started happening consistently around 2020-10:
     #

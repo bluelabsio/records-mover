@@ -11,6 +11,6 @@ class TestGoogleCloudCredentialsHook(unittest.TestCase):
         mock_init.return_value = None
         hook = GoogleCloudCredentialsHook()
         mock_get_credentials = Mock('get_credentials')
-        hook._get_credentials = mock_get_credentials
+        hook.get_credentials = mock_get_credentials
         conn = hook.get_conn()
         self.assertEqual(conn, mock_get_credentials.return_value)
