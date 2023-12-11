@@ -107,9 +107,14 @@ class RecordsMoverTable2TableIntegrationTest(unittest.TestCase):
 
                 quoted_target = quote_schema_and_table(None, target_schema_name, TARGET_TABLE_NAME,
                                                     db_engine=target_engine)
-                sql = f"DROP TABLE {quoted_target}"
+                drop_target_sql = f"DROP TABLE {quoted_target}"
                 with target_conn.begin():
-                    target_conn.exec_driver_sql(sql)
+                    target_conn.exec_driver_sql(drop_target_sql)
+                quoted_source = quote_schema_and_table(None, source_schema_name, source_table_name,
+                                                       db_engine=source_engine)
+                drop_source_sql = f"DROP TABLE {quoted_source}"
+                with source_conn.begin():
+                    source_conn.exec_driver_sql(drop_source_sql)
         records_database_fixture.tear_down()
 
 
