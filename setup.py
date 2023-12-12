@@ -180,7 +180,7 @@ aws_dependencies = [
 gsheet_dependencies = [
     'google',
     'google_auth_httplib2',
-    'oauth2client>=2.0.2,<2.1.0',
+    'oauth2client>=2.0.2',
     'PyOpenSSL'
 ] + google_api_client_dependencies
 
