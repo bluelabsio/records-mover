@@ -113,7 +113,7 @@ jobs:
       pandas_version:
         type: string
         description: "Version of pandas to test against"
-        default: '>=1.5.3,<2'
+        default: '>=1.5.3'
       sqlalchemy_version:
         type: string
         description: "Version of sqlalchemy to test against"
@@ -198,7 +198,7 @@ jobs:
       pandas_version:
         type: string
         description: "Version of pandas to test against"
-        default: '>=1.5.3,<2'
+        default: '>=1.5.3'
       sqlalchemy_version:
         type: string
         description: "Version of sqlalchemy to test against"
@@ -241,11 +241,20 @@ jobs:
       - run:
           name: Install gcloud
           command: |
-            # Add the Cloud SDK distribution URI as a package source
-            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-
             # Import the Google Cloud Platform public key
             curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+            
+            # Use keyring to store gpg key
+            sudo mkdir -m 0755 -p /etc/apt/keyrings/
+            wget -O- https://packages.cloud.google.com/apt/doc/apt-key.gpg |
+            gpg --dearmor |
+            sudo tee /etc/apt/keyrings/google-cloud.gpg > /dev/null
+            sudo chmod 644 /etc/apt/keyrings/google-cloud.gpg
+
+            # Add the Cloud SDK distribution URI as a package source
+            echo "deb [signed-by=/etc/apt/keyrings/google-cloud.gpg] http://packages.cloud.google.com/apt cloud-sdk main" |
+            sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+            sudo chmod 644 /etc/apt/sources.list.d/google-cloud-sdk.list
 
             # Update the package list and install the Cloud SDK
             sudo apt-get update -y && sudo apt-get install -y google-cloud-sdk
@@ -303,7 +312,7 @@ jobs:
         description: "Version of Python to test against"
       pandas_version:
         type: string
-        default: '>=1.5.3,<2'
+        default: '>=1.5.3'
       numpy_version:
         type: string
         default: ""
@@ -387,7 +396,7 @@ jobs:
       - installvenv:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
-          pandas_version: '>=1.5.3,<2'
+          pandas_version: '>=1.5.3'
           # requirements.txt includes twine and other release packages
           include_dev_dependencies: true
       - run:
