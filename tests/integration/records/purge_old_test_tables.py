@@ -43,7 +43,7 @@ def purge_old_tables(schema_name: str, table_name_prefix: str,
         table = Table(table_name, MetaData(), schema=schema_name)
         with db_engine.connect() as connection:
             with connection.begin():
-                connection.exec_driver_sql(DropTable(table))  # type: ignore[arg-type]  # noqa: F821
+                connection.execute(DropTable(table))  # type: ignore[arg-type]  # noqa: F821
 
 
 if __name__ == '__main__':
