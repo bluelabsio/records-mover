@@ -1,10 +1,10 @@
 from db_facts import db
-from .lpass import lpass_field
+from db_facts.lpass import lpass_field
+from db_facts.db_facts_types import DBFacts
 import json
 from typing import Iterable
 from .base_creds import BaseCreds
 from typing import TYPE_CHECKING
-from db_facts.db_facts_types import DBFacts
 if TYPE_CHECKING:
     # see the 'gsheets' extras_require option in setup.py - needed for this!
     import google.auth.credentials  # noqa

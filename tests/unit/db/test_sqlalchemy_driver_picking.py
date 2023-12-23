@@ -4,11 +4,11 @@ from records_mover.db import connect
 
 
 class TestSQLAlchemyDriverPicking(unittest.TestCase):
-    @patch('records_mover.db.connect.db_facts_from_lpass')
+    @patch('records_mover.db.connect.db_info_from_lpass')
     @patch('records_mover.db.connect.sa.create_engine')
     def test_create_sqlalchemy_url(self,
                                    mock_create_engine,
-                                   mock_db_facts_from_lpass):
+                                   mock_db_info_from_lpass):
         expected_mappings = {
             'psql (redshift)':
             'redshift://myuser:hunter1@myhost:123/analyticsdb?keepalives=1&keepalives_idle=30',
@@ -42,11 +42,11 @@ class TestSQLAlchemyDriverPicking(unittest.TestCase):
             self.assertEqual(actual_url_str, expected_url, "{}!={}".format(actual_url_str,
                                                                            expected_url))
 
-    @patch('records_mover.db.connect.db_facts_from_lpass')
+    @patch('records_mover.db.connect.db_info_from_lpass')
     @patch('records_mover.db.connect.sa.create_engine')
     def test_create_sqlalchemy_url_odbc_preferred(self,
                                                   mock_create_engine,
-                                                  mock_db_facts_from_lpass):
+                                                  mock_db_info_from_lpass):
         expected_mappings = {
             'psql (redshift)':
             'redshift://myuser:hunter1@myhost:123/analyticsdb?keepalives=1&keepalives_idle=30',
