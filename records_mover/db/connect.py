@@ -2,7 +2,9 @@ import logging
 import json
 import sqlalchemy as sa
 from urllib.parse import quote_plus
-from records_mover.creds.lpass import db_facts_from_lpass
+
+from db_facts.lpass import db_info_from_lpass
+
 from records_mover.db.db_type import canonicalize_db_type
 from db_facts.db_facts_types import DBFacts
 from typing import Union
@@ -124,7 +126,7 @@ def create_sqlalchemy_url(db_facts: DBFacts,
 
 
 def engine_from_lpass_entry(lpass_entry_name: str) -> sa.engine.Engine:
-    db_facts = db_facts_from_lpass(lpass_entry_name)
+    db_facts = db_info_from_lpass(lpass_entry_name)
     return engine_from_db_facts(db_facts)
 
 
