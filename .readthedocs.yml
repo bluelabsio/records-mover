@@ -16,7 +16,6 @@ python:
       path: .
       extra_requirements:
         - docs
-  system_packages: true
 
 sphinx:
   fail_on_warning: false
