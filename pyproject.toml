@@ -1,0 +1,197 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+version_file = "records_mover/version.py"
+
+[tools.setuptools]
+py_modules = ["records_mover"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+records_mover = ["py.typed"]
+
+[project]
+name = "records-mover"
+urls = { Repository = "https://github.com/bluelabsio/records-mover" }
+description = "Records mover is a command-line tool and Python library you can use to move relational data from one place to another."
+dynamic = ["version"]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Database :: Front-Ends",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+]
+
+dependencies = [
+    "timeout_decorator",
+    "PyYAML>=3.10",
+    "db-facts>=4",
+    "chardet>=3",
+    "tenacity>=8.0.1",
+    # NOTE: library no longer under active development, don't want to be surprised
+    "config-resolver>=5.0.1,<6",
+    "typing_inspect",
+    "typing-extensions",
+]
+
+[project.scripts]
+mvrec = "records_mover.records.cli:main"
+
+
+[project.optional-dependencies]
+google-api-client = [
+    'google-api-python-client>=1.8.0',
+    'grpcio<2.0dev,>=1.29.0',
+]
+
+pytest = [
+    "pytest",
+    "pytest-cov",
+]
+
+itest = [
+    "jsonschema",
+    "pytz",
+    "wheel",
+    "parameterized",
+    "records-mover[pytest,google-api-client]",
+]
+
+airflow = [
+    "apache-airflow>=2",
+    "apache-airflow-providers-amazon",
+    "apache-airflow-providers-google"
+]
+
+db = [
+    "sqlalchemy>=1.4",
+    "sqlalchemy_privileges>=0.2.0",
+]
+
+smart-open = [
+    "smart_open>=2",
+]
+
+gcs = [
+    "google-cloud-storage",
+    "records-mover[smart-open]",
+]
+
+bigquery = [
+    "sqlalchemy-bigquery",
+    "records-mover[gcs,db]",
+]
+
+aws = [
+    # pip seems to struggle to find the latest version. Give it some help
+    "awscli>=1.32.14",
+    "boto3",
+    "s3-concat>=0.1.7",
+    "records-mover[smart-open]",
+]
+
+gsheets = [
+    "google",
+    "google_auth_httplib2",
+    "PyOpenSSL",
+    "records-mover[google-api-client]",
+]
+
+parquet = [
+    "pyarrow",
+]
+
+pandas = [
+    # This was pinned to <2, perhaps this will be some new form of hell?!
+    # Notes:  Dockerfile does not currently have this pinned. Thus this
+    # causes a pandas uninstall to something <2. We're not ready for it yet, dockerfile probably
+    # shouldn't have it either
+    "pandas>=1.3.5,<2",
+]
+
+mysql = [
+    "pymysql",
+    "records-mover[db]",
+]
+
+redshift-base = [
+    "sqlalchemy-redshift>=0.7.7",
+    "records-mover[aws,db]",
+]
+
+redshift-binary = [
+    "psycopg2-binary",
+    "records-mover[redshift-base]",
+]
+
+redshift-source = [
+    "psycopg2",
+    "records-mover[redshift-base]",
+]
+
+postgres-base = [
+    "records-mover[db]",
+]
+
+postgres-binary = [
+    "psycopg2-binary",
+    "records-mover[postgres-base]",
+]
+
+postgres-source = [
+    "psycopg2",
+    "records-mover[postgres-base]",
+]
+
+cli = [
+    "odictliteral",
+    "jsonschema",
+    "docstring_parser",
+]
+
+vertica = [
+    "sqlalchemy-vertica-python>=0.5.5",
+    "records-mover[db]",
+]
+
+alldb = [
+    "records-mover[vertica,postgres-binary,redshift-binary,bigquery,mysql]",
+]
+
+typecheck = [
+    "mypy@git+https://github.com/python/mypy#88ae1e4c1541e5b03d695cf63d1265b972e427d9",
+    # update to build from mypy without version qualifier soon
+    "lxml", # needed by mypy HTML coverage reporting
+    "sqlalchemy-stubs>=0.3",
+    "types-pytz",
+    "types-mock",
+]
+
+unittest = [
+    "coverage",
+    "mock",
+    "records-mover[pytest,cli,airflow,gsheets,alldb,aws,pandas,gcs]"
+]
+
+docs = [
+    "sphinx>=5", # used to generate and upload docs -
+    # need 5.0 or later for compatibility with other packages
+    "sphinx-rtd-theme>=1", # used to style docs for readthedocs.io
+    "sphinx-argparse", # used to generate documentation of CLI options
+    "readthedocs-sphinx-ext>=2", # also used by readthedocs
+    "recommonmark", # used to be able to use sphinx with markdown
+    # Needed for readthedocs.io to evaluate modules and generate docs
+    "records-mover[db,airflow,aws,cli]",
+]
