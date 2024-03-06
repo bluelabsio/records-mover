@@ -54,6 +54,7 @@ mvrec = "records_mover.records.cli:main"
 google-api-client = [
     'google-api-python-client<2',
     'grpcio<2.0dev,>=1.29.0',
+    'oauth2client',
 ]
 
 pytest = [
