@@ -22,6 +22,9 @@ class GCSFileUrl(BaseFileUrl):
         self.credentials = gcp_credentials
         self.bucket_obj = self.client.bucket(self.bucket)
 
+    def exists(self) -> bool:
+        return self.bucket_obj.blob(self.blob).exists()
+
     def open(self, mode: str = "rb") -> IO[bytes]:
         try:
             return gs_open(bucket_id=self.bucket,
