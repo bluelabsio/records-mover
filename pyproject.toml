@@ -37,7 +37,7 @@ classifiers = [
 dependencies = [
     "timeout_decorator",
     "PyYAML>=3.10",
-    "db-facts>=4",
+    "db-facts>=5",
     "chardet>=3",
     "tenacity>=8.0.1",
     # NOTE: library no longer under active development, don't want to be surprised
@@ -159,6 +159,7 @@ cli = [
     "odictliteral",
     "jsonschema",
     "docstring_parser",
+    "requests",
 ]
 
 vertica = [

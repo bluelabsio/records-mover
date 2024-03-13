@@ -6,12 +6,22 @@ from typing import Iterable
 from .base_creds import BaseCreds
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    # see the 'gsheets' extras_require option in setup.py - needed for this!
     import google.auth.credentials  # noqa
     import boto3  # noqa
 
 
 class CredsViaLastPass(BaseCreds):
+    def _infer_airbyte_creds(self) -> dict:
+        # Magic string! Huzzah. Assumes you have this entry in your local password manager
+        cred_name = 'airbyte'
+        return {
+            'user': lpass_field(cred_name, 'username'),
+            'host': lpass_field(cred_name, 'host'),
+            'port': int(lpass_field(cred_name, 'port')),
+            'endpoint': lpass_field(cred_name, 'endpoint'),
+            'password': lpass_field(cred_name, 'password'),
+        }
+
     def _gcp_creds(self, gcp_creds_name: str,
                    scopes: Iterable[str]) -> 'google.auth.credentials.Credentials':
         import google.oauth2.service_account

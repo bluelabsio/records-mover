@@ -226,3 +226,13 @@ docker compose run test
 It's theoretically possible to build sufficient additional
 containers to support running integration tests locally but
 that has not been planned yet.
+
+### In-progress airbyte integration
+
+Currently in progress integration airbyte as an alternative engine for executing
+source <-> destination transfers. This functionality is currently behind a
+feature flag. To enable all airbyte features in your environment, set the
+following environment variable:
+```bash
+export RECORDS_MOVER_AIRBYTE_ENABLED=1
+```

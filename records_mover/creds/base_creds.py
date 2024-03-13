@@ -6,7 +6,6 @@ from config_resolver import get_config
 import os
 import logging
 if TYPE_CHECKING:
-    # see the 'gsheets' extras_require option in setup.py - needed for this!
     import google.auth.credentials  # noqa
     import boto3  # noqa
 
@@ -54,7 +53,10 @@ class BaseCreds():
                                        None] = PleaseInfer.token,
                  scratch_gcs_url: Union[PleaseInfer,
                                         str,
-                                        None] = PleaseInfer.token) -> None:
+                                        None] = PleaseInfer.token,
+                 default_airbyte_creds: Union[PleaseInfer,
+                                              Dict[str, Any],
+                                              None] = PleaseInfer.token) -> None:
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
         self._default_gcp_creds_name = default_gcp_creds_name
@@ -66,6 +68,8 @@ class BaseCreds():
 
         self._scratch_s3_url = scratch_s3_url
         self._scratch_gcs_url = scratch_gcs_url
+
+        self._default_airbyte_creds = default_airbyte_creds
 
     def google_sheets(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
         scopes = _GSHEETS_SCOPES
@@ -266,3 +270,11 @@ class BaseCreds():
         if self._scratch_gcs_url is PleaseInfer.token:
             self._scratch_gcs_url = self._infer_scratch_gcs_url()
         return self._scratch_gcs_url
+
+    def _infer_airbyte_creds(self) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def airbyte(self) -> Optional[Dict[str, Any]]:
+        if self._default_airbyte_creds is PleaseInfer.token:
+            self._default_airbyte_creds = self._infer_airbyte_creds()
+        return self._default_airbyte_creds
