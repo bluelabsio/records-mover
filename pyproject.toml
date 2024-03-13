@@ -52,7 +52,7 @@ mvrec = "records_mover.records.cli:main"
 
 [project.optional-dependencies]
 google-api-client = [
-    'google-api-python-client==2.117.0',
+    'google-api-python-client==2.108.0',
     'grpcio<2.0dev,>=1.29.0',
 ]
 
