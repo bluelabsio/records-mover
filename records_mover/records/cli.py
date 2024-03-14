@@ -122,8 +122,8 @@ def main() -> None:
     args = parser.parse_args()
     raw_config = vars(args)
     func = getattr(args, 'func', None)
-
-    if "healthcheck" in args:
+    healthcheck = getattr(args, 'healthcheck', False)
+    if healthcheck:
         from records_mover import Session
         session = Session()
         engine = AirbyteEngine(session)
