@@ -146,3 +146,10 @@ class SupportsToDataframesSource(RecordsSource, metaclass=ABCMeta):
             -> Iterator['DataframesRecordsSource']:
         """Convert current source to a DataframeSource and present it in a context manager"""
         pass
+
+
+class SupportsAirbyte(RecordsSource, metaclass=ABCMeta):
+    @abstractmethod
+    @contextmanager
+    def not_sure_yet(self) -> Iterator['FileobjsSource']:
+        yield FileobjsSource()

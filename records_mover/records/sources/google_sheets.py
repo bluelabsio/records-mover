@@ -1,4 +1,4 @@
-from .base import SupportsToDataframesSource
+from .base import SupportsToDataframesSource, SupportsAirbyte
 from contextlib import contextmanager
 import itertools
 import google.auth.credentials
@@ -13,7 +13,8 @@ from ..processing_instructions import ProcessingInstructions
 SheetsService = Any
 
 
-class GoogleSheetsRecordsSource(SupportsToDataframesSource):
+class GoogleSheetsRecordsSource(SupportsToDataframesSource, SupportsAirbyte):
+
     def __init__(self,
                  spreadsheet_id: str,
                  sheet_name_or_range: str,
@@ -104,3 +105,6 @@ class GoogleSheetsRecordsSource(SupportsToDataframesSource):
         )
         yield DataframesRecordsSource(dfs=[df],
                                       processing_instructions=processing_instructions)
+
+    def not_sure_yet(self) -> Iterator['FileobjsSource']:
+        pass
