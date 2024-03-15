@@ -25,7 +25,7 @@ def nest_dict(d: Dict[str, V]) -> Dict[str, Union[V, Dict[str, Any]]]:
             if not isinstance(msg[keys[0]], dict):
                 import logging
                 logger = logging.getLogger(__name__)
-                message = f"Type error; expected dict, got {msg[keys[0]].type()}"
+                message = f"Type error; expected dict"
                 logger.error(message)
                 raise TypeError(message)
             insert_into_dict(msg[keys[0]], keys[1:], value)  # type: ignore

@@ -152,4 +152,4 @@ class SupportsAirbyte(RecordsSource, metaclass=ABCMeta):
     @abstractmethod
     @contextmanager
     def not_sure_yet(self) -> Iterator['FileobjsSource']:
-        yield FileobjsSource()
+        yield None
