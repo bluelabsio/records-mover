@@ -2,7 +2,7 @@ import logging
 from ..url.resolver import UrlResolver
 from .sources import RecordsSources
 from .targets import RecordsTargets
-from .mover import move
+from .mover import move, move_via_airbyte
 from enum import Enum
 from typing import Callable, Union, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -59,6 +59,9 @@ which records can be copied, of type :class:`records_mover.records.targets.Recor
     move: Callable
     "Alias of :meth:`records_mover.records.move`"
 
+    move_via_airbyte: Callable
+    "Alias of :meth:`records_mover.records.move_via_airbyte`"
+
     def __init__(self,
                  db_driver: Union[Callable[[Union['Engine', 'Connection', None],
                                             Optional['Connection'],
@@ -76,6 +79,7 @@ which records can be copied, of type :class:`records_mover.records.targets.Recor
             if url_resolver is PleaseInfer.token:
                 url_resolver = session.url_resolver
         self.move = move
+        self.move_via_airbyte = move_via_airbyte
         self.sources = RecordsSources(db_driver=db_driver,
                                       url_resolver=url_resolver)
         self.targets = RecordsTargets(url_resolver=url_resolver,

@@ -33,7 +33,7 @@ _GCS_SCOPES = ('https://www.googleapis.com/auth/devstorage.full_control',
 # situation, let the session pick which backend we're using for
 # creds based on out of band information, like how it was constructed
 # or environment variables).
-class BaseCreds():
+class BaseCreds:
     def __init__(self,
                  default_db_creds_name: Optional[str] = None,
                  default_aws_creds_name: Optional[str] = None,
@@ -48,15 +48,15 @@ class BaseCreds():
                  default_gcs_client: Union[PleaseInfer,
                                            'google.cloud.storage.Client',
                                            None] = PleaseInfer.token,
+                 default_airbyte_creds: Union[PleaseInfer,
+                                              Dict[str, Any],
+                                              None] = PleaseInfer.token,
                  scratch_s3_url: Union[PleaseInfer,
                                        str,
                                        None] = PleaseInfer.token,
                  scratch_gcs_url: Union[PleaseInfer,
                                         str,
-                                        None] = PleaseInfer.token,
-                 default_airbyte_creds: Union[PleaseInfer,
-                                              Dict[str, Any],
-                                              None] = PleaseInfer.token) -> None:
+                                        None] = PleaseInfer.token) -> None:
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
         self._default_gcp_creds_name = default_gcp_creds_name
@@ -65,11 +65,10 @@ class BaseCreds():
         self.__default_gcs_creds = default_gcp_creds
         self.__default_gcs_client = default_gcs_client
         self.__default_boto3_session = default_boto3_session
+        self._default_airbyte_creds = default_airbyte_creds
 
         self._scratch_s3_url = scratch_s3_url
         self._scratch_gcs_url = scratch_gcs_url
-
-        self._default_airbyte_creds = default_airbyte_creds
 
     def google_sheets(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
         scopes = _GSHEETS_SCOPES
@@ -193,6 +192,14 @@ class BaseCreds():
             self.__default_db_facts = self.db_facts(self._default_db_creds_name)
         return self.__default_db_facts
 
+    def _infer_airbyte_creds(self) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def airbyte(self) -> Optional[Dict[str, Any]]:
+        if self._default_airbyte_creds is PleaseInfer.token:
+            self._default_airbyte_creds = self._infer_airbyte_creds()
+        return self._default_airbyte_creds
+
     def _append_aws_username_to_bucket(self,
                                        prefix: str,
                                        boto3_session: 'boto3.session.Session') -> Optional[str]:
@@ -270,11 +277,3 @@ class BaseCreds():
         if self._scratch_gcs_url is PleaseInfer.token:
             self._scratch_gcs_url = self._infer_scratch_gcs_url()
         return self._scratch_gcs_url
-
-    def _infer_airbyte_creds(self) -> Dict[str, Any]:
-        raise NotImplementedError
-
-    def airbyte(self) -> Optional[Dict[str, Any]]:
-        if self._default_airbyte_creds is PleaseInfer.token:
-            self._default_airbyte_creds = self._infer_airbyte_creds()
-        return self._default_airbyte_creds

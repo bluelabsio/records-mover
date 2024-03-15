@@ -22,7 +22,12 @@ def nest_dict(d: Dict[str, V]) -> Dict[str, Union[V, Dict[str, Any]]]:
         else:
             if keys[0] not in msg:
                 msg[keys[0]] = {}
-            assert isinstance(msg[keys[0]], dict)
+            if not isinstance(msg[keys[0]], dict):
+                import logging
+                logger = logging.getLogger(__name__)
+                message = f"Type error; expected dict"
+                logger.error(message)
+                raise TypeError(message)
             insert_into_dict(msg[keys[0]], keys[1:], value)  # type: ignore
     msg: Dict[str, Union[V, Dict[str, Any]]] = {}
     for key, val in d.items():

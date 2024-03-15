@@ -130,7 +130,7 @@ def _infer_creds(session_type: str,
                          f"{session_type}.")
 
 
-class Session():
+class Session:
     def __init__(self,
                  default_db_creds_name: Optional[str] = None,
                  default_aws_creds_name: Union[None, str, PleaseInfer] = PleaseInfer.token,

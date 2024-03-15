@@ -90,6 +90,8 @@ def build_parser() -> argparse.ArgumentParser:
     if airbyte_feature_flag is not None:
         parser.add_argument('-hc', '--healthcheck', action='store_true', required=False,
                             help='Returns health of the configured airbyte instance')
+        parser.add_argument('-a', '--airbyte', action='store_true', required=False,
+                            help='Enables usage of the airbyte engine to run data movement')
 
     subparsers = parser.add_subparsers(help='subcommand_help')
     from records_mover import Session

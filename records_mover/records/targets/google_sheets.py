@@ -1,5 +1,5 @@
 from ...utils.retry import google_sheets_retry
-from .base import SupportsMoveFromDataframes
+from .base import SupportsMoveFromDataframes, SupportsAirbyte
 import math
 import google.auth.credentials
 import numpy as np
@@ -19,7 +19,7 @@ SheetsService = Any
 CellData = Union[int, str, float]
 
 
-class GoogleSheetsRecordsTarget(SupportsMoveFromDataframes):
+class GoogleSheetsRecordsTarget(SupportsMoveFromDataframes, SupportsAirbyte):
     def __init__(self,
                  spreadsheet_id: str,
                  sheet_name: str,
@@ -130,3 +130,6 @@ class GoogleSheetsRecordsTarget(SupportsMoveFromDataframes):
         self._naive_load_to_sheet(service, self.spreadsheet_id, self.sheet_name,
                                   json_encodable_data)
         return MoveResult(move_count=len(data), output_urls=None)
+
+    def not_sure_yet(self) -> bool:
+        return True

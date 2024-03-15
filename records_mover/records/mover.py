@@ -15,6 +15,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def move_via_airbyte(records_source: RecordsSource, records_target: RecordsTarget,
+                     processing_instructions: ProcessingInstructions = ProcessingInstructions()) \
+        -> MoveResult:
+    if (isinstance(records_source, sources_base.SupportsAirbyte) and
+            isinstance(records_target, targets_base.SupportsAirbyte)):
+        raise NotImplementedError("Not yet! But for a different reason")
+    else:
+        raise NotImplementedError("Source and target must support airbyte")
+
+
 def move(records_source: RecordsSource,
          records_target: RecordsTarget,
          processing_instructions: ProcessingInstructions = ProcessingInstructions()) -> MoveResult:
@@ -60,18 +70,19 @@ def move(records_source: RecordsSource,
     # See documentation for RecordsSource in sources.py and
     # RecordsTarget in targets.py for the semantics of the methods
     # being called.
-    if (isinstance(records_source, sources_base.SupportsRecordsDirectory) and
-        isinstance(records_target, SupportsMoveFromRecordsDirectory) and
-       records_target.
-        can_move_directly_from_scheme(records_source.records_directory().loc.scheme) and
-       records_target.can_move_from_format(records_source.records_format)):
+    if (isinstance(records_source, sources_base.SupportsRecordsDirectory)
+            and isinstance(records_target, SupportsMoveFromRecordsDirectory)
+            and records_target.can_move_directly_from_scheme(
+                records_source.records_directory().loc.scheme
+            )
+            and records_target.can_move_from_format(records_source.records_format)):
         # Tell the destination to load directly from wherever the
         # source is, without needing to make any copies of the data or
         # streaming it through the current box.
         directory = records_source.records_directory()
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     f"by moving from records directory in {directory}...")
-        return records_target.\
+        return records_target. \
             move_from_records_directory(directory=directory,
                                         override_records_format=records_source.records_format,
                                         processing_instructions=processing_instructions)
@@ -98,7 +109,7 @@ def move(records_source: RecordsSource,
         records_format = records_source.compatible_format(records_target)
         assert records_format is not None  # we checked compatibility above
         records_target.pre_load_hook()
-        out = records_source.\
+        out = records_source. \
             move_to_records_directory(records_directory=directory,
                                       records_format=records_format,
                                       processing_instructions=pi)
@@ -110,7 +121,7 @@ def move(records_source: RecordsSource,
         directory = records_source.records_directory()
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     "by loading from {directory.scheme} directory...")
-        return records_target.\
+        return records_target. \
             move_from_records_directory(directory=directory,
                                         override_records_format=records_source.records_format,
                                         processing_instructions=processing_instructions)
@@ -118,20 +129,21 @@ def move(records_source: RecordsSource,
         # Incompatible types in assignment (expression has type "Optional[Any]",
         #     variable has type "BaseRecordsFormat")
         target_records_format: BaseRecordsFormat \
-          = getattr(records_target, "records_format", None)  # type: ignore
+            = getattr(records_target, "records_format", None)  # type: ignore
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     f"by first writing {records_source} to {target_records_format} "
                     "records format (if easy to rewrite)...")
-        with records_source.\
+        with records_source. \
                 to_fileobjs_source(processing_instructions=processing_instructions,
-                                   records_format_if_possible=target_records_format)\
+                                   records_format_if_possible=target_records_format) \
                 as fileobjs_source:
             return move(fileobjs_source, records_target, processing_instructions)
     elif (isinstance(records_source, SupportsMoveToRecordsDirectory) and
           isinstance(records_target, MightSupportMoveFromTempLocAfterFillingIt) and
           records_source.has_compatible_format(records_target) and
-          records_source.
-            can_move_to_scheme(records_target.temporary_loadable_directory_scheme()) and
+          records_source.can_move_to_scheme(
+              records_target.temporary_loadable_directory_scheme()
+          ) and
           records_target.can_move_from_temp_loc_after_filling_it()):
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     f"by filling in a temporary location...")
@@ -142,7 +154,7 @@ def move(records_source: RecordsSource,
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     f"by converting to dataframe...")
         with records_source.to_dataframes_source(processing_instructions) as dataframes_source:
-            return records_target.\
+            return records_target. \
                 move_from_dataframes_source(dfs_source=dataframes_source,
                                             processing_instructions=processing_instructions)
     elif (isinstance(records_source, SupportsToDataframesSource)):

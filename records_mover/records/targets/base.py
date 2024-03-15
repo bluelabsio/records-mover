@@ -164,3 +164,9 @@ class SupportsMoveFromDataframes(RecordsTarget, metaclass=ABCMeta):
         ProcessingInstructions provided.
         """
         pass
+
+
+class SupportsAirbyte(RecordsTarget, metaclass=ABCMeta):
+    @abstractmethod
+    def not_sure_yet(self) -> bool:
+        pass
