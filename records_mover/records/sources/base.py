@@ -150,6 +150,5 @@ class SupportsToDataframesSource(RecordsSource, metaclass=ABCMeta):
 
 class SupportsAirbyte(RecordsSource, metaclass=ABCMeta):
     @abstractmethod
-    @contextmanager
-    def not_sure_yet(self) -> Iterator['FileobjsSource']:
+    def not_sure_yet(self):
         yield None

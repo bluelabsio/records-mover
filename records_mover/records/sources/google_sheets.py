@@ -106,5 +106,5 @@ class GoogleSheetsRecordsSource(SupportsToDataframesSource, SupportsAirbyte):
         yield DataframesRecordsSource(dfs=[df],
                                       processing_instructions=processing_instructions)
 
-    def not_sure_yet(self) -> Iterator['FileobjsSource']:
+    def not_sure_yet(self):
         pass

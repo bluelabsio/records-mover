@@ -46,7 +46,7 @@ def run_records_mover_job(source_method_name: str,
             run_legacy = True
         if run_legacy:
             return records.move(source, target, processing_instructions)
-        return None
+        return MoveResult()
     except Exception:
         logger.error('', exc_info=True)
         raise
