@@ -70,11 +70,12 @@ def move(records_source: RecordsSource,
     # See documentation for RecordsSource in sources.py and
     # RecordsTarget in targets.py for the semantics of the methods
     # being called.
-    if (isinstance(records_source, sources_base.SupportsRecordsDirectory) and
-            isinstance(records_target, SupportsMoveFromRecordsDirectory) and
-            records_target.
-                    can_move_directly_from_scheme(records_source.records_directory().loc.scheme) and
-            records_target.can_move_from_format(records_source.records_format)):
+    if (isinstance(records_source, sources_base.SupportsRecordsDirectory)
+            and isinstance(records_target, SupportsMoveFromRecordsDirectory)
+            and records_target.can_move_directly_from_scheme(
+                records_source.records_directory().loc.scheme
+            )
+            and records_target.can_move_from_format(records_source.records_format)):
         # Tell the destination to load directly from wherever the
         # source is, without needing to make any copies of the data or
         # streaming it through the current box.
@@ -140,8 +141,9 @@ def move(records_source: RecordsSource,
     elif (isinstance(records_source, SupportsMoveToRecordsDirectory) and
           isinstance(records_target, MightSupportMoveFromTempLocAfterFillingIt) and
           records_source.has_compatible_format(records_target) and
-          records_source.
-                  can_move_to_scheme(records_target.temporary_loadable_directory_scheme()) and
+          records_source.can_move_to_scheme(
+              records_target.temporary_loadable_directory_scheme()
+          ) and
           records_target.can_move_from_temp_loc_after_filling_it()):
         logger.info(f"Mover: copying from {records_source} to {records_target} "
                     f"by filling in a temporary location...")

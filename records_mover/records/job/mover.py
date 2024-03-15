@@ -1,6 +1,4 @@
 """Create and run jobs to convert between different sources and targets"""
-import sys
-
 from records_mover import Session
 from ..processing_instructions import ProcessingInstructions
 from ..results import MoveResult
@@ -43,7 +41,7 @@ def run_records_mover_job(source_method_name: str,
             else:
                 run_legacy = True
         except NotImplementedError as e:
-            logger.warning(f"""WARNING: This type of move not yet supported in air byte engine. 
+            logger.warning(f"""WARNING: This type of move not yet supported in air byte engine.
                            Falling back to legacy engine. Message: {e}""")
             run_legacy = True
         if run_legacy:
