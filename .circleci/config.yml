@@ -33,8 +33,26 @@ commands:
         description: "Version of sqlalchemy to test against, if specific version required"
         default: ""
     steps:
+      - run:
+          name: Install python in venv
+          environment:
+            PYENV_VERSION: <<parameters.python_version>>
+            SQLALCHEMY_WARN_20: 1
+          command: |
+            if [ -f venv/bin/activate ]
+            then
+              . venv/bin/activate
+              # venv/ dir doesn't seem to save enough info to keep the
+              # editable installation
+            else
+              python -m venv venv
+              . venv/bin/activate
+            fi
+      - run:
+          name: Generate python version
+          command: python --version > python_version
       - restore_cache:
-          key: deps-v11-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}-{{ checksum "pyproject.toml" }}
+          key: deps-v9-{{ checksum "python_version" }}-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}-{{ checksum "pyproject.toml" }}
       - run:
           name: Install python deps in venv
           environment:
@@ -73,7 +91,7 @@ commands:
               fi
             fi
       - save_cache:
-          key: deps-v11-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}-{{ checksum "pyproject.toml" }}
+          key: deps-v9-{{ checksum "python_version" }}-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}-{{ checksum "pyproject.toml" }}
           paths:
             - "venv"
   wait_for_db:
