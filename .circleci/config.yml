@@ -505,7 +505,7 @@ workflows:
       - test:
           name: test-3.11
           extras: '[unittest,typecheck]'
-          python_version: "3.10"
+          python_version: "3.11"
           context: slack-secrets
           coverage: true
           filters:
