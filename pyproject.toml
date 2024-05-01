@@ -57,7 +57,7 @@ google-api-client = [
 ]
 
 pytest = [
-    "pytest",
+    "pytest<8.2",
     "pytest-cov",
 ]
 
@@ -76,7 +76,7 @@ airflow = [
 ]
 
 db = [
-    "sqlalchemy>=1.4",
+    "sqlalchemy>=1.4,<2",
     "sqlalchemy_privileges>=0.2.0",
 ]
 

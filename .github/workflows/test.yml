@@ -20,6 +20,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
+          sudo apt-get install -y xmlsec1 libxmlsec1-dev
           pip install --upgrade pip
           pip install -e '.[unittest,typecheck]'
           pip install --progress-bar=off -r requirements.txt
@@ -38,6 +39,9 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.8
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y xmlsec1 libxmlsec1-dev
       - name: Test docs build
         run: |
           tests/integration/test_docs_build.sh --no-pyenv
