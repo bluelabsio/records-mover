@@ -36,7 +36,7 @@ classifiers = [
 
 dependencies = [
     "timeout_decorator",
-    "PyYAML>=3.10",
+    "PyYAML>=6.0",
     "db-facts>=5",
     "chardet>=3",
     "tenacity>=8.0.1",
