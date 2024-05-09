@@ -274,7 +274,7 @@ class Session():
                 s3_temp_base_loc = self.directory_url(scratch_s3_url)
                 kwargs['s3_temp_base_loc'] = s3_temp_base_loc
             except NotImplementedError:
-                logger.debug('boto3 not installed', exc_info=True)
+                logger.debug('boto3 not installed', exc_info=False)
 
         scratch_gcs_url = self.creds.default_scratch_gcs_url()
         if scratch_gcs_url is not None:
@@ -282,7 +282,7 @@ class Session():
                 gcs_temp_base_loc = self.directory_url(scratch_gcs_url)
                 kwargs['gcs_temp_base_loc'] = gcs_temp_base_loc
             except NotImplementedError:
-                logger.debug('google.cloud.storage not installed', exc_info=True)
+                logger.debug('google.cloud.storage not installed', exc_info=False)
 
         return db_driver(db=db,
                          db_conn=db_conn,

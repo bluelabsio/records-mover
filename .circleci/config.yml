@@ -33,8 +33,6 @@ commands:
         description: "Version of sqlalchemy to test against, if specific version required"
         default: ""
     steps:
-      - restore_cache:
-          key: deps-v11-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}-{{ checksum "pyproject.toml" }}
       - run:
           name: Install python deps in venv
           environment:
@@ -72,10 +70,11 @@ commands:
                 pip install --force-reinstall -v --progress-bar=off 'sqlalchemy<<parameters.sqlalchemy_version>>'
               fi
             fi
-      - save_cache:
-          key: deps-v11-<<parameters.python_version>>-<<parameters.pandas_version>>-<<parameters.extras>>-<<parameters.include_dev_dependencies>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}-{{ checksum "pyproject.toml" }}
-          paths:
-            - "venv"
+            echo "***********************************************"
+            echo "REQUIREMENTS **********************************"
+            echo "***********************************************"
+            pip freeze
+
   wait_for_db:
     description: "Pause until database answers allowing time to startup.  Abort if startup got hung in CircleCI."
     parameters:
