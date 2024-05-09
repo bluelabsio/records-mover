@@ -79,7 +79,8 @@ quality:
 	       "apiology/quality:$${quality_gem_version}" ${QUALITY_TOOL}
 
 package:
-	python3 setup.py sdist bdist_wheel
+	python3 -m build
+	twine check dist/*
 
 docker:
 	docker build -f tests/integration/Dockerfile --progress=plain -t records-mover .
