@@ -2,6 +2,7 @@
 setuptools>34.3.0
 wheel
 twine
+build
 flake8
 markupsafe
 google-cloud-storage
