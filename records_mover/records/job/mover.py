@@ -34,7 +34,19 @@ def run_records_mover_job(source_method_name: str,
         records = session.records
         source = source_method(**source_kwargs)
         target = target_method(**target_kwargs)
-        return records.move(source, target, processing_instructions)
+        # To be fancy, if airbyte fails, we fall back to the old method
+        try:
+            if 'airbyte' in config and config['airbyte']:
+                return records.move_via_airbyte(source, target, processing_instructions)
+            else:
+                run_legacy = True
+        except NotImplementedError as e:
+            logger.warning(f"""WARNING: This type of move not yet supported in air byte engine.
+                           Falling back to legacy engine. Message: {e}""")
+            run_legacy = True
+        if run_legacy:
+            return records.move(source, target, processing_instructions)
+        return MoveResult(move_count=0, output_urls=None)
     except Exception:
         logger.error('', exc_info=True)
         raise

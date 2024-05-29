@@ -139,6 +139,12 @@ class ConfigToArgs:
         if 'db_name' in kwargs:
             # Already used to feed different args above
             del kwargs['db_name']
+        # We'll have these and they are meaningless in this context so buhleted!
+        if 'airbyte' in kwargs:
+            del kwargs['airbyte']
+        if 'healthcheck' in kwargs:
+            del kwargs['healthcheck']
+
         # for unit test coverage stability, this needs to be a list
         # comprehension (which maintains the order of the kwargs keys)
         # instead of subtracting possible_args from kwargs.keys(),

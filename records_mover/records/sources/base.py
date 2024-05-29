@@ -146,3 +146,9 @@ class SupportsToDataframesSource(RecordsSource, metaclass=ABCMeta):
             -> Iterator['DataframesRecordsSource']:
         """Convert current source to a DataframeSource and present it in a context manager"""
         pass
+
+
+class SupportsAirbyte(RecordsSource, metaclass=ABCMeta):
+    @abstractmethod
+    def not_sure_yet(self):
+        yield None
