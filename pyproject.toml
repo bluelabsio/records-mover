@@ -119,6 +119,7 @@ pandas = [
     # causes a pandas uninstall to something <2. We're not ready for it yet, dockerfile probably
     # shouldn't have it either
     "pandas>=1.3.5,<2",
+    "numpy<2",  # RM-133: once pandas supports numpy 2+ remove this
 ]
 
 mysql = [
