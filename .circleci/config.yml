@@ -24,10 +24,8 @@ commands:
         type: string
         description: "Version of pandas to test against, or empty string for none"
       numpy_version:
-        # only needed for old-pandas itest
         type: string
         description: "Version of numpy to test against, if specific version required"
-        default: ""
       sqlalchemy_version:
         type: string
         description: "Version of sqlalchemy to test against, if specific version required"
@@ -113,6 +111,9 @@ jobs:
         type: string
         description: "Version of pandas to test against"
         default: '>=1.5.3,<2'
+      numpy_version:
+        type: string
+        default: "<2"
       sqlalchemy_version:
         type: string
         description: "Version of sqlalchemy to test against"
@@ -138,6 +139,7 @@ jobs:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
+          numpy_version: <<parameters.numpy_version>>
           sqlalchemy_version: <<parameters.sqlalchemy_version>>
           # includes numpy-stubs - should be obsolete and unneeded
           # starting with numpy 1.20
@@ -198,6 +200,9 @@ jobs:
         type: string
         description: "Version of pandas to test against"
         default: '>=1.5.3,<2'
+      numpy_version:
+        type: string
+        default: "<2"
       sqlalchemy_version:
         type: string
         description: "Version of sqlalchemy to test against"
@@ -236,6 +241,7 @@ jobs:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: <<parameters.pandas_version>>
+          numpy_version: <<parameters.numpy_version>>
           sqlalchemy_version: <<parameters.sqlalchemy_version>>
       - run:
           name: Install gcloud
@@ -314,7 +320,7 @@ jobs:
         default: '>=1.5.3,<2'
       numpy_version:
         type: string
-        default: ""
+        default: "<2"
       db_name:
         type: string
         description: "Database to run inside"
@@ -396,6 +402,7 @@ jobs:
           extras: <<parameters.extras>>
           python_version: <<parameters.python_version>>
           pandas_version: '>=1.5.3,<2'
+          numpy_version: '<2'
           # requirements.txt includes twine and other release packages
           include_dev_dependencies: true
       - run:
@@ -447,6 +454,7 @@ jobs:
           extras: '[cli]'
           python_version: '3.9'
           pandas_version: ''
+          numpy_version: ''
           # we want this just like a user would install it, not with
           # dev tools installed
           include_dev_dependencies: false
@@ -673,6 +681,7 @@ workflows:
           extras: '[redshift-binary,itest]'
           python_version: "3.9"
           pandas_version: ""
+          numpy_version: ""
           context: slack-secrets
           db_name: demo-itest
           filters:
