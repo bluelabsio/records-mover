@@ -70,6 +70,7 @@ The goal is a green, smaller codebase before any upgrade, plus a test suite that
   - Removed session types (`lpass`, `airflow`) found in machine config now fall back to `env`.
   - `RecordsSchemaFieldRepresentation.from_index` was broken.
   - Unit tests no longer read machine config.
+  - Removed CircleCI (it had stopped reporting to GitHub). CI is GitHub Actions only, and PyPI publishing is deferred to Phase 6.
 
 ### Phase 2: Modernize the runtime (first survival test)
 
@@ -123,7 +124,7 @@ The goal is a green, smaller codebase before any upgrade, plus a test suite that
 ### Phase 6: DS usability and release (end state)
 
 1. Clean up the CLI (`mvrec`) for DS workflows and write examples for common moves.
-2. Consolidate CI onto GitHub Actions: unit and component tests on each PR, the live suite on a schedule or manual trigger with scoped credentials, and retire CircleCI.
+2. Build out CI on GitHub Actions: unit and component tests on each PR (already there), the dockerized Postgres/MySQL integration tests, and the live suite on a schedule or manual trigger with scoped credentials. CircleCI was removed in Phase 1; it had stopped reporting and depended on retired BlueLabs credentials.
 3. Package and distribute internally: versioning and publishing, either to an internal index or pinned git installs.
 4. Write docs: an install guide, a credentials guide, the support matrix, and a troubleshooting page.
 

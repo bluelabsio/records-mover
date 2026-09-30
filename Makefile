@@ -1,4 +1,4 @@
-all: typecheck typecoverage coverageclean test coverage quality
+all: typecheck typecoverage coverageclean test coverage flake8
 
 test-reports:
 	mkdir test-reports
@@ -64,23 +64,6 @@ cicoverage: coverage
 
 flake8:
 	flake8 --filename='*.py,*.pyi' records_mover tests types
-
-quality-flake8:
-	make QUALITY_TOOL=flake8 quality
-
-quality-punchlist:
-	make QUALITY_TOOL=punchlist quality
-
-quality-mdl:
-	make QUALITY_TOOL=mdl quality
-
-# to run a single item, you can do: make QUALITY_TOOL=flake8 quality
-quality:
-	@quality_gem_version=$$(python -c 'import yaml; print(yaml.safe_load(open(".circleci/config.yml","r"))["quality_gem_version"])'); \
-	docker run --rm \
-	       -v "$$(pwd):/usr/app"  \
-	       -v "$$(pwd)/Rakefile.quality:/usr/quality/Rakefile"  \
-	       "apiology/quality:$${quality_gem_version}" ${QUALITY_TOOL}
 
 package:
 	python3 -m build
