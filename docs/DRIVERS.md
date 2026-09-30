@@ -49,30 +49,10 @@ future, add them to this document!
     somewhere else (e.g., a Python package not being installed or a
     test failing most likely)
   * Push up your changes to the feature branch.
-2. Now work to get the same failure out of CircleCI:
-  * Replicate the current `postgres_itest` in `.circleci/config.yml`,
-    including matching all of the references to it.
-  * Be sure to change the `with-db dockerized-postgres` line to refer
-    to your database type.
-  * Push up changes and verify that tests fail because your new
-    database "is not a valid DB name".
-  * Note that you can (temporarily!) allow your new integration test
-    to run without waiting for unit and Redshift tests to run by
-    commenting out the dependency like this - just be sure to leave an
-    annotation comment reminding you to fix it before the PR is
-    merged!
-    ```yaml
-    #          requires:  # T ODO restore this
-    #            - redshift-itest
-    ```
-  * Modify the `integration_test_with_dbs` job to include a Docker
-    image for your new database, similar to `docker-compose.yml`
-    above.
-  * Modify `tests/integration/circleci-dbfacts.yml` to point to your
-    new integration test database account, whether in Docker or
-    cloud-hosted.
-  * Iterate on the errors until you get the same errors you got in
-    your `./itest` runs.
+2. There is currently no CI for integration tests (CircleCI was
+   retired in the revival; porting the dockerized database tests to
+   GitHub Actions is tracked in `docs/ROADMAP.md`), so keep iterating
+   with `./itest` locally.
 3. Fix these "singledb" tests!  Now that you have tests running (and
    failing), you can address the problems one by one.  Here are things
    you are likely to need to do--I'd suggest waiting for the problem

@@ -34,7 +34,7 @@ Notes:
 - The dependency set is still pinned to Python 3.9-era versions until Phase 2 of the roadmap. Install with `pip install --prefer-binary --only-binary pandas,numpy,pyarrow,psycopg2-binary -e '.[unittest,typecheck]' -r requirements.txt`. Python 3.12+ cannot install the pinned `pandas<2` yet.
 - When passing pytest options from zsh, write them out literally. zsh does not split an unquoted `$VAR`, so options stored in a variable arrive as one malformed argument.
 - The live suite (`tests/integration/live/`) defines "works as expected" for the revival. Every statement passes through a SQL/S3 guard, so writes stay within `rm_test_*` tables in the allowed schemas and S3 access stays under the configured prefix. Records-mover gets only 15-minute STS credentials, never long-lived keys, because it embeds AWS credentials in `COPY`/`UNLOAD` SQL. Cleanup always runs.
-- Integration tests use docker-compose databases (MySQL, Postgres). The Redshift and BigQuery suites need BlueLabs cloud accounts. `make quality` runs the `apiology/quality` Docker image.
+- Integration tests use docker-compose databases (MySQL, Postgres). The Redshift and BigQuery suites need BlueLabs cloud accounts. CI is GitHub Actions only (`.github/workflows/test.yml`: typecheck, unit/component tests, docs build); CircleCI has been removed, so integration tests currently run only locally.
 
 ## Test suites (see `tests/README.md`)
 
