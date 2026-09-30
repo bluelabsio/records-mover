@@ -49,22 +49,6 @@ class TestFactory(unittest.TestCase):
                                db_conn=None)
         self.assertEqual(table, mock_TableRecordsTarget.return_value)
 
-    @patch('records_mover.records.targets.google_sheets.GoogleSheetsRecordsTarget')
-    def test_google_sheet(self, mock_GoogleSheetsRecordsTarget):
-        mock_spreadsheet_id = Mock(name='spreadsheet_id')
-        mock_sheet_name = Mock(name='sheet_name')
-        mock_google_cloud_creds = Mock(name='google_cloud_creds')
-
-        google_sheets_target = self.records_targets.\
-            google_sheet(spreadsheet_id=mock_spreadsheet_id,
-                         sheet_name=mock_sheet_name,
-                         google_cloud_creds=mock_google_cloud_creds)
-        mock_GoogleSheetsRecordsTarget.\
-            assert_called_with(spreadsheet_id=mock_spreadsheet_id,
-                               sheet_name=mock_sheet_name,
-                               google_cloud_creds=mock_google_cloud_creds)
-        self.assertEqual(google_sheets_target, mock_GoogleSheetsRecordsTarget.return_value)
-
     @patch('records_mover.records.targets.factory.FileobjTarget')
     def test_fileobj(self, mock_FileobjTarget):
         mock_output_fileobj = Mock(name='output_fileobj')

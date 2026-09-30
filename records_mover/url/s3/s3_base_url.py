@@ -62,7 +62,7 @@ class S3BaseUrl:
             return None
         return creds.get_frozen_credentials()
 
-    def containing_directory(self) -> BaseDirectoryUrl:
+    def containing_directory(self) -> 'S3DirectoryUrl':
         parent_url = '/'.join(self.url.split('/')[:-1]) + '/'
         return self._directory(parent_url)
 

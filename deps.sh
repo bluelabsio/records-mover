@@ -1,9 +1,5 @@
 #!/bin/bash -e
 
-# don't use GPLed dependency
-# https://medium.com/datareply/apache-airflow-1-10-0-released-highlights-6bbe7a37a8e1
-export SLUGIFY_USES_TEXT_UNIDECODE=yes
-
 brew update && ( brew upgrade pyenv || true )
 pyenv rehash  # needed if pyenv is updated
 

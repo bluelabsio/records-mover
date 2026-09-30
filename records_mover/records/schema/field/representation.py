@@ -7,8 +7,7 @@ from typing import Optional, Dict, Union, Any, cast, TYPE_CHECKING
 if TYPE_CHECKING:
     from sqlalchemy.engine.interfaces import Dialect
     from sqlalchemy import Column
-    from typing_extensions import Literal
-    from mypy_extensions import TypedDict
+    from typing_extensions import Literal, TypedDict
     import pandas
 
     class FieldRepresentationDict(TypedDict):
@@ -65,11 +64,14 @@ class RecordsSchemaFieldRepresentation(metaclass=ABCMeta):
 
     @staticmethod
     def from_index(index: 'pandas.Index') -> 'RecordsSchemaFieldRepresentation':
-        dtype_json_str = pandas.io.json.dumps(index.dtype)
+        import pandas
+
+        dtype_json_str = pandas.io.json.dumps(index.dtype, default_handler=str)
         dtype_numpy_rep = json.loads(dtype_json_str)
+        ftype = getattr(index, 'ftype', None)
         return RecordsSchemaPandasFieldRepresentation(pd_df_coltype='index',
                                                       pd_df_dtype=dtype_numpy_rep,
-                                                      pd_df_ftype=index.ftype)
+                                                      pd_df_ftype=ftype)
 
     @staticmethod
     def from_sqlalchemy_column(column: 'Column', dialect: 'Dialect',

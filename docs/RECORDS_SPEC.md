@@ -14,7 +14,7 @@ for each column of data.
 This format aims to represent this data, and:
 
 * Be loaded from and loaded into as quickly and easily as possible via
-  analytics databases like BigQuery, Redshift and Vertica, as well as
+  analytics databases like BigQuery and Redshift, as well as
   data science platforms like Pandas, Spark and Hadoop using vendor
   conventions and tools.
 * Build upon existing formats, especially when they have native bulk
@@ -306,7 +306,7 @@ could be applied to parse many of these rows.
 #### `csv` variant
 
 This pseudo-standard is defined by the best effort towards what
-spreadsheets like Excel and Google Sheets imports/exports.  Example:
+spreadsheets like Excel imports/exports.  Example:
 
 ```csv
 foo,",","""","* SQL unload would generate multiple files (one for each slice/part)
@@ -330,9 +330,7 @@ Default hints (may be overridden):
 This is the best shot at a multi-database-capable variant we have so
 far.
 
-While Redshift can both import and export this flawlessly, Vertica can
-ingest this, but cannot produce it.  If you need to export from
-Vertica, use the `vertica` variant below.
+Redshift can both import and export this flawlessly.
 
 Default hints (may be overridden):
 
@@ -345,10 +343,10 @@ Default hints (may be overridden):
 
 #### `vertica` variant
 
-This represents the a format which is less likely to be ambiguous
-and can be imported and exported by Vertica.  Unfortunately this
-format can't be imported by Redshift without first converting it to
-another format; it doesn't support alternate record terminators.
+This represents a format which is less likely to be ambiguous.
+Unfortunately this format can't be imported by Redshift without first
+converting it to another format; it doesn't support alternate record
+terminators.
 
 * `field-delimiter`: `"\001"`
 * `record-terminator`: `"\002"`
@@ -364,7 +362,7 @@ completely unambiguous (meaning no arbitrary binary columns).
 
 Google BigQuery as of 2019-06-13 has some limitations on import:
 
-* It supports escaping like Google Sheets does, by double quoting
+* It supports escaping by double quoting
   things and representing " in a string as "", like the CSV variant.
 
 * It does not support escaping strings with backslashes, so using the

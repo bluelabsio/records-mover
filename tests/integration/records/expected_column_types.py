@@ -1,11 +1,6 @@
 # Note that Redshift doesn't support TIME type:
 # https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
 expected_single_database_column_types = {
-    'vertica': [
-        'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
-        'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME',
-        'TIMESTAMP', 'TIMESTAMP'
-    ],
     'redshift': [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
         'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
@@ -35,11 +30,6 @@ expected_df_loaded_database_column_types = {
     'mysql': [
         'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
         'VARCHAR(111)', 'DATE', 'TIME', 'DATETIME', 'DATETIME'
-    ],
-    'vertica': [
-        'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
-        'VARCHAR(12)', 'VARCHAR(444)', 'DATE', 'TIME',
-        'TIMESTAMP', 'TIMESTAMP'
     ],
     'redshift': [
         'BIGINT', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)',
@@ -75,9 +65,9 @@ expected_table2table_column_types = {
     #
     #
     #
-    # vertica2, bigquery2:
+    # bigquery2:
     #
-    # Both Vertica and BigQuery only support a single 64-bit
+    # BigQuery only supports a single 64-bit
     # integer type.  When copying to Redshift, this becomes
     # 'BIGINT', as RecordsMover doesn't currently generate
     # types from numeric statistics it pulls from the source
@@ -119,11 +109,6 @@ expected_table2table_column_types = {
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME',
         'TIMESTAMP', 'TIMESTAMP'
     ],
-    ('postgresql', 'vertica'): [
-        'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
-        'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME',
-        'TIMESTAMP', 'TIMESTAMP'
-    ],
     ('postgresql', 'redshift'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'VARCHAR(8)',
@@ -132,11 +117,6 @@ expected_table2table_column_types = {
     ('postgresql', 'bigquery'): [
         'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME', 'DATETIME', 'TIMESTAMP'
-    ],
-    ('redshift', 'vertica'): [
-        'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
-        'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP', 'TIMESTAMP'
     ],
     ('redshift', 'postgresql'): [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
@@ -156,10 +136,6 @@ expected_table2table_column_types = {
         'BIGINT', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
         'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME',
         'TIMESTAMP', 'TIMESTAMP'
-    ],
-    ('bigquery', 'vertica'): [
-        'INTEGER', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)', 'VARCHAR(256)',
-        'VARCHAR(256)', 'VARCHAR(256)', 'DATE', 'TIME', 'TIMESTAMP', 'TIMESTAMP'
     ],
     ('redshift', 'bigquery'): [
         'INTEGER', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)', 'VARCHAR(3)',
@@ -192,15 +168,5 @@ expected_table2table_column_types = {
         'INTEGER', 'VARCHAR(12)', 'VARCHAR(12)', 'VARCHAR(4)', 'VARCHAR(4)', 'VARCHAR(12)',
         'VARCHAR(444)', 'DATE', 'VARCHAR(8)', 'TIMESTAMP',
         'TIMESTAMP'
-    ],
-    ('vertica', 'postgresql'): [
-        'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
-        'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'TIME',
-        'TIMESTAMP', 'TIMESTAMP'
-    ],
-    ('vertica', 'redshift'): [
-        'BIGINT', 'VARCHAR(3)', 'VARCHAR(3)', 'VARCHAR(1)', 'VARCHAR(1)',
-        'VARCHAR(3)', 'VARCHAR(111)', 'DATE', 'VARCHAR(8)',
-        'TIMESTAMP', 'TIMESTAMPTZ'
     ],
 }

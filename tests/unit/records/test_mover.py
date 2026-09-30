@@ -1,7 +1,6 @@
 import unittest
 from mock import Mock, MagicMock
 from records_mover.records.mover import move
-from records_mover.records.sources.google_sheets import GoogleSheetsRecordsSource
 from records_mover.records.sources.dataframes import DataframesRecordsSource
 from records_mover.records.sources.fileobjs import FileobjsSource
 from records_mover.records.sources.base import (SupportsMoveToRecordsDirectory)
@@ -83,11 +82,11 @@ class TestMover(unittest.TestCase):
 
     def test_to_dataframe(self):
         mock_processing_instructions = Mock(name='processing_instructions')
-        mock_google_sheets_source = MagicMock(name='google_sheets_source',
-                                              spec=GoogleSheetsRecordsSource)
+        mock_other_source = MagicMock(name='other_source',
+                                      spec=sources.SupportsToDataframesSource)
         mock_dataframes_source = MagicMock(name='dataframes_source',
                                            spec=DataframesRecordsSource)
-        mock_google_sheets_source.to_dataframes_source.return_value.__enter__.return_value =\
+        mock_other_source.to_dataframes_source.return_value.__enter__.return_value =\
             mock_dataframes_source
         mock_fileobjs_source = MagicMock(name='fileobjs_source',
                                          spec=FileobjsSource)
@@ -95,11 +94,11 @@ class TestMover(unittest.TestCase):
             mock_fileobjs_source
         mock_target = MagicMock(name='target', spec=targets.SupportsRecordsDirectory)
         mock_directory = mock_target.records_directory.return_value
-        mock_google_sheets_source.validate = Mock(name='validate')
+        mock_other_source.validate = Mock(name='validate')
         mock_dataframes_source.validate = Mock(name='validate')
-        mock_google_sheets_source.validate = Mock(name='validate')
+        mock_other_source.validate = Mock(name='validate')
         mock_target.validate = Mock(name='validate')
-        out = move(mock_google_sheets_source, mock_target, mock_processing_instructions)
+        out = move(mock_other_source, mock_target, mock_processing_instructions)
         mock_fileobjs_source.move_to_records_directory.\
             assert_called_with(processing_instructions=mock_processing_instructions,
                                records_directory=mock_directory,

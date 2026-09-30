@@ -2,7 +2,7 @@ import json
 import logging
 import gzip
 import os
-import urllib
+import urllib.parse
 import subprocess
 import jsonschema
 from subprocess import CalledProcessError
@@ -87,7 +87,7 @@ class RecordsDirectoryValidator:
                 if actual_field_types == acceptable_field_types_by_db.get(self.source_db_type):
                     field_types_are_ok = True
 
-            assert field_types_are_ok,\
+            assert field_types_are_ok, \
                 (f"\nreceived {actual_field_types}, "
                  f"\nsource database types: {self.source_db_type}")
 

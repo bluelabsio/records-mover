@@ -1,32 +1,8 @@
-from googleapiclient.errors import HttpError
 from sqlalchemy.exc import DatabaseError
 import tenacity
 import logging
 
 logger = logging.getLogger(__name__)
-
-
-def google_sheets_retry():
-    # Example raised when we exceed Google Sheets API rate limits:
-    #
-    # googleapiclient.errors.HttpError:
-    # <HttpError 429 when requesting
-    # https://sheets.googleapis.com/v4/spreadsheets/...:clear?alt=json returned "Quota
-    # exceeded for quota group 'WriteGroup' and limit 'Write requests per user per 100
-    # seconds' of service 'sheets.googleapis.com' for consumer 'project_number:...'.">
-    #
-    # https://tenacity.readthedocs.io/en/latest/
-    #
-    # 'max' below is in seconds
-    return tenacity.retry(wait=tenacity.wait_random_exponential(multiplier=2, max=120),
-                          stop=tenacity.stop_after_attempt(10),
-                          before_sleep=tenacity.before_sleep_log(logger, logging.WARNING),
-                          retry=(tenacity.retry_if_exception_type(HttpError) &
-                                 # Wish the http code were exported as a type of the exception:
-                                 #
-                                 # https://github.com/googleapis/google-api-python-client/blob/master/googleapiclient/errors.py
-                                 tenacity.retry_if_exception(lambda e: 'Quota exceeded' in str(e))),
-                          reraise=True)
 
 
 def bigquery_retry():

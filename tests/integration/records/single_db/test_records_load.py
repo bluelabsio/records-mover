@@ -20,8 +20,6 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
             return
         if broken:
             expected_exception = 'sqlalchemy.exc.SQLAlchemyError'
-            if self.engine.name == 'vertica':
-                expected_exception = 'vertica_python.errors.CopyRejected'
             try:
                 self.load(format_type, variant, hints, broken=broken)
                 self.fail("No exception raised when loading bogus file")
@@ -97,7 +95,7 @@ class RecordsLoadIntegrationTest(BaseRecordsIntegrationTest):
             raise ValueError(f"Teach me how to handle compression type {hints['compression']}")
 
     def gives_exact_load_count(self):
-        return self.engine.name != 'redshift' and self.engine.name != 'vertica'
+        return self.engine.name != 'redshift'
 
     def pull_schema_sql(self):
         with open(self.resources_dir +

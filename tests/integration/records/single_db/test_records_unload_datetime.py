@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 VARIANT_FOR_DB = {
     'redshift': 'bluelabs',
-    'vertica': 'vertica',
     'postgresql': 'bluelabs',
     'mysql': 'bluelabs',
     'bigquery': 'bigquery',
@@ -57,11 +56,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                         'datetimeformat': 'YYYY-MM-DD HH:MI:SS',
                     }
                 else:
-                    uses_pandas = True
-            elif self.engine.name == 'vertica':
-                # Make sure our '\n' strings below are valid when comparing output
-                addl_hints['record-terminator'] = '\n'
-                if dateformat != 'YYYY-MM-DD':
                     uses_pandas = True
             elif self.engine.name == 'bigquery':
                 # All current export is via Avro
@@ -123,12 +117,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                         'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
                     }
                 else:
-                    uses_pandas = True
-            elif self.engine.name == 'vertica':
-                # Make sure our '\n' strings below are valid when comparing output
-                addl_hints['record-terminator'] = '\n'
-                if datetimeformat not in ['YYYY-MM-DD HH:MI:SS',
-                                          'YYYY-MM-DD HH24:MI:SS']:
                     uses_pandas = True
             elif self.engine.name == 'bigquery':
                 # All current export is via Avro
@@ -197,12 +185,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                     }
                 else:
                     uses_pandas = True
-            elif self.engine.name == 'vertica':
-                # Make sure our '\n' strings below are valid when comparing output
-                addl_hints['record-terminator'] = '\n'
-                if datetimeformattz not in ['YYYY-MM-DD HH:MI:SSOF',
-                                            'YYYY-MM-DD HH24:MI:SSOF']:
-                    uses_pandas = True
             elif self.engine.name == 'bigquery':
                 # All current export is via Avro
                 uses_pandas = True
@@ -268,11 +250,6 @@ class RecordsUnloadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
                         'datetimeformattz': 'YYYY-MM-DD HH:MI:SSOF',
                     }
                 else:
-                    uses_pandas = True
-            elif self.engine.name == 'vertica':
-                # Make sure our '\n' strings below are valid when comparing output
-                addl_hints['record-terminator'] = '\n'
-                if timeonlyformat not in ['HH:MI:SS', 'HH24:MI:SS']:
                     uses_pandas = True
             elif self.engine.name == 'bigquery':
                 # All current export is via Avro

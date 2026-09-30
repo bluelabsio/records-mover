@@ -5,7 +5,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Dict, Any, cast, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from ....db import DBDriver  # noqa
-    from mypy_extensions import TypedDict
+    from typing_extensions import TypedDict
     from pandas import DataFrame
 
     class KnownRepresentationDict(TypedDict):

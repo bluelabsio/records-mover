@@ -63,8 +63,8 @@ class FileobjsSource(SupportsMoveToRecordsDirectory,
                     sniff_hints_from_fileobjs(list(target_names_to_input_fileobjs.values()),
                                               initial_hints=initial_hints)
                 # 'csv' isn't the most precise variant or fastest
-                # variant to read, but given it's the default for Excel
-                # and Google Sheets, it's the most common on import.  So,
+                # variant to read, but given it's the default for Excel,
+                # it's the most common on import.  So,
                 # if the specific variant isn't specified by the user,
                 # let's assume 'csv'.
                 records_format = DelimitedRecordsFormat(variant='csv',

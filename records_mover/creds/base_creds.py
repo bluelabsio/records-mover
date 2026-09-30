@@ -12,27 +12,15 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_GSHEETS_SCOPES = ('https://www.googleapis.com/auth/spreadsheets',)
-
 _GCS_SCOPES = ('https://www.googleapis.com/auth/devstorage.full_control',
                'https://www.googleapis.com/auth/devstorage.read_only',
                'https://www.googleapis.com/auth/devstorage.read_write')
 
 
-# this interfaces here are probably unstable until we figure out how
-# best to integrate airflow hooks and connections (and maybe
-# Kubernetes secrets) in with it.  The current (unfinalized and
-# untested) thought is to use the *_creds_name argument to reflect the
-# Airflow connection name, so a generic job can call
-# session.creds.cred_type(some_name_from_its_arguments) and get a
-# valid cred both on the command line and in Airflow.
-#
-# If this seems to work, we can extend this idea out to Kubernetes
-# secrets by writing a separate backend for it (and if we need to
-# support both Airflow and Kubernetes secrets depending on the
-# situation, let the session pick which backend we're using for
-# creds based on out of band information, like how it was constructed
-# or environment variables).
+# this interfaces here are probably unstable.  The *_creds_name
+# arguments reflect a name for a set of credentials, so a generic job
+# can call session.creds.cred_type(some_name_from_its_arguments) and
+# get a valid cred.
 class BaseCreds():
     def __init__(self,
                  default_db_creds_name: Optional[str] = None,
@@ -53,10 +41,7 @@ class BaseCreds():
                                        None] = PleaseInfer.token,
                  scratch_gcs_url: Union[PleaseInfer,
                                         str,
-                                        None] = PleaseInfer.token,
-                 default_airbyte_creds: Union[PleaseInfer,
-                                              Dict[str, Any],
-                                              None] = PleaseInfer.token) -> None:
+                                        None] = PleaseInfer.token) -> None:
         self._default_db_creds_name = default_db_creds_name
         self._default_aws_creds_name = default_aws_creds_name
         self._default_gcp_creds_name = default_gcp_creds_name
@@ -68,12 +53,6 @@ class BaseCreds():
 
         self._scratch_s3_url = scratch_s3_url
         self._scratch_gcs_url = scratch_gcs_url
-
-        self._default_airbyte_creds = default_airbyte_creds
-
-    def google_sheets(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
-        scopes = _GSHEETS_SCOPES
-        return self._gcp_creds(gcp_creds_name, scopes)
 
     def gcs(self, gcp_creds_name: str) -> 'google.auth.credentials.Credentials':
         scopes = _GCS_SCOPES
@@ -270,11 +249,3 @@ class BaseCreds():
         if self._scratch_gcs_url is PleaseInfer.token:
             self._scratch_gcs_url = self._infer_scratch_gcs_url()
         return self._scratch_gcs_url
-
-    def _infer_airbyte_creds(self) -> Dict[str, Any]:
-        raise NotImplementedError
-
-    def airbyte(self) -> Optional[Dict[str, Any]]:
-        if self._default_airbyte_creds is PleaseInfer.token:
-            self._default_airbyte_creds = self._infer_airbyte_creds()
-        return self._default_airbyte_creds

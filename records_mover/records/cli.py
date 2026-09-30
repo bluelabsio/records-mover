@@ -1,7 +1,6 @@
 """CLI to move records from place to place"""
 import argparse
 from odictliteral import odict
-from .airbyte.airbyte import AirbyteEngine
 from .job.schema import method_to_json_schema
 from .job.mover import run_records_mover_job
 from ..utils.json_schema import method_signature_to_json_schema
@@ -13,7 +12,6 @@ from records_mover.logging import set_stream_logging
 from ..mover_types import JsonSchema, JobConfig
 from ..version import __version__
 import sys
-import os
 from typing import Callable, Dict, Any, TYPE_CHECKING
 if TYPE_CHECKING:
     from records_mover import Session
@@ -57,13 +55,11 @@ def build_parser() -> argparse.ArgumentParser:
     # sense from the command-line
     source_method_name_by_cli_name = {
         'table': 'table',
-        'gsheet': 'google_sheet',
         'recordsdir': 'directory_from_url',
         'url': 'data_url',
         'file': 'local_file'
     }
     target_method_name_by_cli_name = {
-        'gsheet': 'google_sheet',
         'table': 'table',
         'recordsdir': 'directory_from_url',
         'url': 'data_url',
@@ -85,11 +81,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     # https://stackoverflow.com/questions/15405636/pythons-argparse-to-show-programs-version-with-prog-and-version-string-formatt
     parser.add_argument('-V', '--version', action='version', version="%(prog)s ("+__version__+")")
-
-    airbyte_feature_flag = os.getenv('RECORDS_MOVER_AIRBYTE_ENABLED')
-    if airbyte_feature_flag is not None:
-        parser.add_argument('-hc', '--healthcheck', action='store_true', required=False,
-                            help='Returns health of the configured airbyte instance')
 
     subparsers = parser.add_subparsers(help='subcommand_help')
     from records_mover import Session
@@ -122,17 +113,7 @@ def main() -> None:
     args = parser.parse_args()
     raw_config = vars(args)
     func = getattr(args, 'func', None)
-    healthcheck = getattr(args, 'healthcheck', False)
-    if healthcheck:
-        from records_mover import Session
-        session = Session()
-        engine = AirbyteEngine(session)
-        result = engine.healthcheck()
-        if result:
-            print("Airbyte Status: OK!")
-        else:
-            print("Airbyte Status: Unhealthy")
-    elif func is None:
+    if func is None:
         parser.print_help()
     else:
         set_stream_logging()

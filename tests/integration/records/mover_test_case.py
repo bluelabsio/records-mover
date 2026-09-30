@@ -35,13 +35,7 @@ class MoverTestCase:
         database assign the US/Eastern timezone when it's stored?
         """
 
-        # We've seen this for some Vertica servers in the past, but it
-        # doesn't affect our current integration test targets.
-
-        # This seems to be controlled in Vertica by what timezone is
-        # set on the cluster servers at Vertica install-time.  The
-        # Docker image (jbfavre/vertica) uses UTC, but our physical
-        # servers when integration tests are run by hand does not.
+        # This doesn't affect our current integration test targets.
         return False
 
     def selects_time_types_as_timedelta(self) -> bool:
@@ -70,8 +64,6 @@ class MoverTestCase:
     def supported_load_variants(self, db_engine: Engine) -> List[DelimitedVariant]:
         if db_engine.name == 'bigquery':
             return ['bigquery']
-        elif db_engine.name == 'vertica':
-            return ['bluelabs', 'vertica']
         elif db_engine.name == 'redshift':
             # This isn't really true, but is good enough to make the
             # tests pass for now.  We need to create a new named

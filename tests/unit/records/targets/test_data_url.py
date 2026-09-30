@@ -116,3 +116,17 @@ class TestDataUrlTarget(unittest.TestCase):
                                            })
         mock_records_format.generate_filename.assert_called_with('data')
         self.assertEqual(out, mock_MoveResult.return_value)
+
+
+class TestDataUrlTargetUnsupportedFormat(unittest.TestCase):
+    def test_move_from_dataframe_parquet_fails_without_opening_output(self):
+        from records_mover.records.records_format import ParquetRecordsFormat
+        mock_output_loc = MagicMock(name='output_loc', spec=BaseFileUrl)
+        mock_output_loc.url = 'whatever://foo/foo.parquet'
+        data_url_target = DataUrlTarget(output_loc=mock_output_loc,
+                                        records_format=ParquetRecordsFormat())
+        with self.assertRaises(NotImplementedError) as cm:
+            data_url_target.move_from_dataframes_source(Mock(name='dfs_source'),
+                                                        Mock(name='processing_instructions'))
+        self.assertIn('parquet', str(cm.exception))
+        mock_output_loc.open.assert_not_called()

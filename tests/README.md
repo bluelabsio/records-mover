@@ -52,8 +52,7 @@
   against different databases with different formats of data, this is
   an important suite than can reveal complex interaction issues.
   Records Mover doesn't comply with a traditional test pyramid in that
-  sense, but uses extensive parallelism in CircleCI to minimize test
-  time.  Despite the provocative title,
+  sense.  Despite the provocative title,
   [Unit testing is overrated](https://tyrrrz.me/blog/unit-testing-is-overrated)
   describes the trade-offs and rationale to this approach.
 
@@ -70,3 +69,9 @@
   Consider adding tests first at the unit level for detailed class
   behavior, or ideally at the component level if the behavior can
   exercised with minimal use of mocking.
+
+* live: Opt-in acceptance tests in `tests/integration/live/` that move
+  real data through real Redshift and S3 (`make live`, needs
+  `RECORDS_MOVER_LIVE=1` and environment configuration).  They are
+  skipped otherwise and are not part of `make unit`/`make component`.  See
+  [tests/integration/live/README.md](integration/live/README.md).

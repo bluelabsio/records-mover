@@ -74,7 +74,7 @@ def field_from_sqlalchemy_column(column: Column,
         # former, DATETIME for the latter, without setting the
         # 'timezone' variable.
         #
-        # Redshift and Vertica use DateTime for both with the
+        # Redshift uses DateTime for both with the
         # 'timezone' variable set appropriately.
         #
         if not isinstance(date_plus_time_with_timezone, type(date_plus_time_no_timezone)):
