@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from .field_types import FieldType
     from .pandas import Dtype
 
-    from mypy_extensions import TypedDict
+    from typing_extensions import TypedDict
 
     class MandatoryFieldDict(TypedDict):
         type: FieldType
@@ -182,7 +182,7 @@ class RecordsSchemaField:
                 # gets turned into a CSV later, it'll look really
                 # goofy - 1pm will come out as: "0 days 01:00:00".
                 #
-                if type(series[0]) == pd.Timedelta:
+                if type(series[0]) is pd.Timedelta:
                     # https://stackoverflow.com/questions/34501930/how-to-convert-timedelta-to-time-of-day-in-pandas
 
                     # Convert from "0 days 12:34:56.000000000" to "12:34:56"

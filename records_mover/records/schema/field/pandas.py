@@ -70,7 +70,7 @@ def field_from_index(index: Index,
         'origin': RecordsSchemaFieldRepresentation.from_index(index)
     }
 
-    return RecordsSchemaField(name=index.name,
+    return RecordsSchemaField(name='index' if index.name is None else str(index.name),
                               field_type=field_type,
                               constraints=constraints,
                               statistics=None,  # call refine_from_dataframe() for stats
@@ -85,7 +85,7 @@ def field_from_series(series: Series,
         'origin': RecordsSchemaFieldRepresentation.from_series(series)
     }
 
-    return RecordsSchemaField(name=series.name,
+    return RecordsSchemaField(name=str(series.name),
                               field_type=field_type,
                               constraints=constraints,
                               statistics=None,  # call refine_from_dataframe() for stats

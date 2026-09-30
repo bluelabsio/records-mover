@@ -28,7 +28,9 @@ Every source must be able to move to every target. Cross-cloud moves (Redshift �
 
 **Kept only if they survive the upgrades:** MySQL (RDS) and Redshift Spectrum.
 
-**Removed in Phase 1 (outside AWS/GCP, or not a data location):** Vertica, Google Sheets, the Airflow hooks and credentials, LastPass credentials, and the Airbyte feature flag.
+**Removed in Phase 1 (outside AWS/GCP, or not a data location):** Vertica, Google Sheets, the Airflow hooks and credentials, LastPass credentials (14th has fully moved to 1Password, and LastPass is deprecated), and the Airbyte feature flag.
+
+**Planned later:** Google Drive / Google Sheets (see [After Phase 6](#after-phase-6-google-drive-and-google-sheets)). The old Sheets code was removed because it didn't fit the current phases, not because Sheets is out of scope.
 
 ## Phases
 
@@ -41,7 +43,7 @@ Every source must be able to move to every target. Cross-cloud moves (Redshift �
 
 **Exit criteria:** everyone understands the baseline, and the scope is agreed. ✅
 
-### Phase 1: Prune and stabilize on the current stack
+### Phase 1: Prune and stabilize on the current stack ✅ (done 2026-09-29)
 
 The goal is a green, smaller codebase before any upgrade, plus a test suite that defines "works".
 
@@ -58,6 +60,17 @@ The goal is a green, smaller codebase before any upgrade, plus a test suite that
 - `make typecheck`, unit, and component tests pass on Python 3.9 with **no** warning overrides.
 - The live suite passes against Redshift and S3.
 - No references to the removed backends remain.
+
+**Result (2026-09-29, branch `phase-1-prune-stabilize`):**
+
+- `make typecheck` and `make flake8` are clean.
+- 470 unit tests and 227 component tests pass with no warning overrides.
+- The live suite passed against a development Redshift cluster and S3, with 55 passed and 1 strict xfail (the Decimal/date type gap).
+- Also fixed:
+  - Removed session types (`lpass`, `airflow`) found in machine config now fall back to `env`.
+  - `RecordsSchemaFieldRepresentation.from_index` was broken.
+  - Unit tests no longer read machine config.
+  - Removed CircleCI (it had stopped reporting to GitHub). CI is GitHub Actions only, and PyPI publishing is deferred to Phase 6.
 
 ### Phase 2: Modernize the runtime (first survival test)
 
@@ -76,6 +89,7 @@ The goal is a green, smaller codebase before any upgrade, plus a test suite that
 3. Fix connection lifetime. Stop holding long-lived `db_conn` connections that leave `AccessShareLock`s behind (see the assessment).
 4. Fix reflection cost: cache `get_columns`, or query `information_schema` directly for a single table. Right now each call costs about 7 seconds on Redshift.
 5. Fix type fidelity: DataFrame `Decimal`/`date` values of the `object` dtype currently land in `varchar`; they should map to `numeric`/`date`.
+6. Report row counts for Redshift `COPY` loads (for example via `pg_last_copy_count()`). Today `MoveResult.move_count` is `None` for every S3 load. Once this is fixed, tighten the `move_count in (N, None)` assertions in `tests/integration/live/test_s3.py`.
 
 **Exit criteria:**
 
@@ -88,7 +102,7 @@ The goal is a green, smaller codebase before any upgrade, plus a test suite that
 1. Support Redshift `COPY`/`UNLOAD` with `IAM_ROLE` and make it the default, so credentials are never embedded in SQL.
 2. Make GCP auth use Application Default Credentials or service accounts for BigQuery and GCS.
 3. Handle connections through a SQL access proxy: TLS with `sslmode=verify-full` and the system/certifi CA bundle, plus a documented identity model.
-4. Document the credentials and config setup for DS. Decide whether db-facts stays or is replaced by a simpler config.
+4. Document the credentials and config setup for DS. Decide whether db-facts stays or is replaced by a simpler config. 14th uses **1Password** (LastPass is deprecated), so evaluate reading credentials from 1Password, for example with the `op` CLI or 1Password service accounts, instead of storing them in config files.
 
 **Exit criteria:**
 
@@ -110,11 +124,19 @@ The goal is a green, smaller codebase before any upgrade, plus a test suite that
 ### Phase 6: DS usability and release (end state)
 
 1. Clean up the CLI (`mvrec`) for DS workflows and write examples for common moves.
-2. Consolidate CI onto GitHub Actions: unit and component tests on each PR, the live suite on a schedule or manual trigger with scoped credentials, and retire CircleCI.
+2. Build out CI on GitHub Actions: unit and component tests on each PR (already there), the dockerized Postgres/MySQL integration tests, and the live suite on a schedule or manual trigger with scoped credentials. CircleCI was removed in Phase 1; it had stopped reporting and depended on retired BlueLabs credentials.
 3. Package and distribute internally: versioning and publishing, either to an internal index or pinned git installs.
 4. Write docs: an install guide, a credentials guide, the support matrix, and a troubleshooting page.
 
 **Exit criteria (the goal):** a DS user can install the tool and move data between any two 14th AWS/GCP locations in the matrix, with one command or one Python call, using their own scoped credentials.
+
+### After Phase 6: Google Drive and Google Sheets
+
+14th will want Google Drive and Google Sheets as sources and targets, for example Sheets → Redshift and query results → Sheets for DS. When this phase starts, decide whether to revive the old implementation or start over. Don't decide earlier.
+
+- The old code (`records_mover/records/sources/google_sheets.py`, `records/targets/google_sheets.py`, and the `gsheets` extra) is still on `main` and can be recovered with `git show main:<path>`. It used `google-api-python-client` and predates the Phase 4 GCP auth work.
+- Starting over may be simpler. It could be built on the Phase 4 ADC/service-account auth and the current Sheets API, or on a library such as `gspread`.
+- Either way, it has to pass the live suite like every other location.
 
 ## Execution notes
 

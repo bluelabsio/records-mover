@@ -78,23 +78,6 @@ class TestFactory(unittest.TestCase):
                                                    url_resolver=self.mock_url_resolver)
         self.assertEqual(out, mock_TableRecordsSource.return_value)
 
-    @patch('records_mover.records.sources.google_sheets.GoogleSheetsRecordsSource')
-    def test_google_sheet(self, mock_GoogleSheetsRecordsSource):
-        mock_spreadsheet_id = Mock(name='spreadsheet_id')
-        mock_sheet_name_or_range = Mock(name='sheet_name_or_range')
-        mock_google_cloud_creds = Mock(name='google_cloud_creds')
-        out = self.records_sources.\
-            google_sheet(spreadsheet_id=mock_spreadsheet_id,
-                         sheet_name_or_range=mock_sheet_name_or_range,
-                         google_cloud_creds=mock_google_cloud_creds)
-        mock_GoogleSheetsRecordsSource.\
-            assert_called_with(spreadsheet_id=mock_spreadsheet_id,
-                               sheet_name_or_range=mock_sheet_name_or_range,
-                               google_cloud_creds=mock_google_cloud_creds,
-                               header_translator=None,
-                               out_of_band_column_headers=None)
-        self.assertEqual(out, mock_GoogleSheetsRecordsSource.return_value)
-
     @patch('records_mover.records.delimited.compression.os')
     @patch('records_mover.records.delimited.compression.urlparse')
     @patch('records_mover.records.sources.factory.pathlib')

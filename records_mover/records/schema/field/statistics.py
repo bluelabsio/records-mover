@@ -1,7 +1,7 @@
 import logging
 from typing import Optional, Union, cast, TYPE_CHECKING
 if TYPE_CHECKING:
-    from mypy_extensions import TypedDict
+    from typing_extensions import TypedDict
 
     from .field_types import FieldType  # noqa
 

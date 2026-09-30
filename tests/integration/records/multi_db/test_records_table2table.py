@@ -20,10 +20,9 @@ BUILD_NUM = os.environ.get("CIRCLE_BUILD_NUM", "local")
 TARGET_TABLE_NAME_PREFIX = "itest_target"
 TARGET_TABLE_NAME = f'{TARGET_TABLE_NAME_PREFIX}_{BUILD_NUM}_{CURRENT_EPOCH}'
 
-DB_TYPES = ['vertica', 'redshift', 'bigquery', 'postgres', 'mysql']
+DB_TYPES = ['redshift', 'bigquery', 'postgres', 'mysql']
 
 DB_NAMES = {
-    'vertica': 'dockerized-vertica',
     'redshift': 'demo-itest',
     'bigquery': 'bltoolsdevbq-bq_itest',
     'postgres': 'dockerized-postgres',
@@ -34,8 +33,6 @@ DB_NAMES = {
 def schema_name(db_name):
     if db_name == 'demo-itest':
         return 'itest'
-    elif db_name == 'dockerized-vertica':
-        return 'public'
     elif db_name == 'dockerized-mysql':
         return 'mysqlitest'
     elif db_name == 'dockerized-postgres':

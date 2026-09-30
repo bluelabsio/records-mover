@@ -1,7 +1,3 @@
-verticadb:
-  image: jbfavre/vertica:8.1.1-16_centos-7
-  ports:
-    - 5433
 postgresdb:
   # https://hub.docker.com/_/postgres
   image: postgres:latest
@@ -28,7 +24,6 @@ mysqldb:
 records_mover:
   image: records-mover:${BUILD_TAG}
   links:
-    - verticadb:verticadb
     - postgresdb:postgresdb
     - mysqldb:mysqldb
   volumes:
@@ -51,4 +46,4 @@ records_mover:
     - RECORDS_MOVER_SESSION_TYPE=itest
     # /usr/local/bin has the real python3 that we want (not the
     # ancient version in /usr/bin), so we'll put that first in PATH
-    - PATH=/usr/local/bin:/usr/src/app/tests/integration/bin:/opt/vertica/bin:/bin:/usr/bin:/sbin/:/usr/sbin:/usr/local/sbin
+    - PATH=/usr/local/bin:/usr/src/app/tests/integration/bin:/bin:/usr/bin:/sbin/:/usr/sbin:/usr/local/sbin

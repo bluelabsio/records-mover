@@ -43,11 +43,6 @@ class RecordsDatetimeFixture:
               CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
               SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d} {SAMPLE_LONG_TZ}'::TIMESTAMPTZ as timestamptz;
 """  # noqa
-        elif self.engine.name == 'vertica':
-            create_tables = f"""
-              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
-              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d} {SAMPLE_LONG_TZ}'::TIMESTAMPTZ as timestamptz;
-"""  # noqa
         elif self.engine.name == 'bigquery':
             create_tables = f"""
               CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
@@ -71,11 +66,6 @@ class RecordsDatetimeFixture:
 
     def createDateTimeTable(self) -> None:
         if self.engine.name == 'redshift':
-            create_tables = f"""
-              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
-              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIMESTAMP AS timestamp;
-"""  # noqa
-        elif self.engine.name == 'vertica':
             create_tables = f"""
               CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
               SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY} {SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIMESTAMP AS timestamp;
@@ -112,11 +102,6 @@ class RecordsDatetimeFixture:
               CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
               SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}'::DATE AS date;
 """  # noqa
-        elif self.engine.name == 'vertica':
-            create_tables = f"""
-              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
-              SELECT '{SAMPLE_YEAR}-{SAMPLE_MONTH}-{SAMPLE_DAY}'::DATE AS date;
-"""  # noqa
         elif self.engine.name == 'bigquery':
             create_tables = f"""
               CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
@@ -148,11 +133,6 @@ class RecordsDatetimeFixture:
             create_tables = f"""
               CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
               SELECT '{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}' AS "time";
-"""  # noqa
-        elif self.engine.name == 'vertica':
-            create_tables = f"""
-              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
-              SELECT '{SAMPLE_HOUR:02d}:{SAMPLE_MINUTE:02d}:{SAMPLE_SECOND:02d}'::TIME AS "time";
 """  # noqa
         elif self.engine.name == 'bigquery':
             create_tables = f"""

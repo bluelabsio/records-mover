@@ -123,14 +123,14 @@ class RecordsTableTimezoneValidator:
             # Some databases on rendering this as a string will just
             # drop the microseconds if they're all zeros.
             assert timestampstr in [f'2000-01-02 12:34:{seconds}.{micros}',
-                                    f'2000-01-02 12:34:{seconds}'],\
+                                    f'2000-01-02 12:34:{seconds}'], \
                 f"expected '2000-01-02 12:34:{seconds}.{micros}' got '{timestampstr}'"
 
         else:
             seconds = '56'
             micros = '789012'
 
-            assert timestampstr == f'2000-01-02 12:34:{seconds}.{micros}',\
+            assert timestampstr == f'2000-01-02 12:34:{seconds}.{micros}', \
                 f"expected '2000-01-02 12:34:{seconds}.{micros}' got '{timestampstr}'"
 
         if self.tc.raw_avro_types_written():
@@ -146,7 +146,7 @@ class RecordsTableTimezoneValidator:
                 f'2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC',
                 f'2000-01-02 {utc_hour}:34:{seconds} UTC',
                 f'2000-01-02 {utc_hour}:34:{seconds}.{micros}+00'
-            ],\
+            ], \
                 (f"translated timestamptzstr was {timestamptzstr} and "
                  f"class is {type(timestamptzstr)} - expected "
                  f"hour to be {utc_hour}"
@@ -161,7 +161,7 @@ class RecordsTableTimezoneValidator:
                     f'2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC',
                     f'2000-01-02 {utc_hour}:34:{seconds} UTC',
                     f'2000-01-02 {utc_hour}:34:{seconds}.{micros}+00'
-                ],\
+                ], \
                     (f"translated timestamptzstr was {timestamptzstr} and "
                      f"class is {type(timestamptzstr)} - expected "
                      f"hour to be {utc_hour}"
@@ -174,7 +174,7 @@ class RecordsTableTimezoneValidator:
                 assert timestamptzstr in [
                     f'2000-01-02 {utc_hour}:34:{seconds}.{micros} UTC',
                     f'2000-01-02 {utc_hour}:34:{seconds}.{micros}+00'
-                ],\
+                ], \
                     (f"translated timestamptzstr was {timestamptzstr} and "
                      f"class is {type(timestamptzstr)} - expected "
                      f"hour to be {utc_hour}"
@@ -200,10 +200,10 @@ class RecordsTableTimezoneValidator:
         if self.tc.raw_avro_types_written():
             pass
         elif actual_time.tzinfo is None:
-            assert actual_time - utc_naive_expected_time == datetime.timedelta(0),\
+            assert actual_time - utc_naive_expected_time == datetime.timedelta(0), \
                 f"Delta is {actual_time - utc_naive_expected_time}, " \
                 f"actual_time is {actual_time}, tz-naive expected time is {utc_naive_expected_time}"
         else:
-            assert actual_time - utc_expected_time == datetime.timedelta(0),\
+            assert actual_time - utc_expected_time == datetime.timedelta(0), \
                 f"Delta is {actual_time - utc_expected_time}, " \
                 f"actual_time is {actual_time}, expected time is {utc_expected_time}"

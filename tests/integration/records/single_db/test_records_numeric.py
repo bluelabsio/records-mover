@@ -86,7 +86,7 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
             column['name']: str(column['type']) for column in columns
         }
         assert actual_column_types ==\
-            expected_column_types[self.engine.name],\
+            expected_column_types[self.engine.name], \
             f'Could not find column types filed under {self.engine.name}: ' +\
             f'{actual_column_types}'
 
@@ -96,7 +96,6 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
         preferred_records_format = {
             'redshift': 'bluelabs',
             'bigquery': 'bigquery',
-            'vertica': 'vertica',
             'postgresql': 'bluelabs',
             'mysql': 'bluelabs',
         }

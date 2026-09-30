@@ -61,7 +61,7 @@ class LoadJobConfig:
     autodetect: bool
     clustering_fields: Union[List[str], None]
     create_disposition: str
-    destination_encryption_configuration:\
+    destination_encryption_configuration: \
         Optional[google.cloud.bigquery.encryption_configuration.EncryptionConfiguration]
     destination_table_description: Union[str, None]
     destination_table_friendly_name: Union[str, None]

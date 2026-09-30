@@ -1,6 +1,6 @@
 import unittest
 from pandas import DataFrame
-from mock import Mock, MagicMock, patch
+from mock import Mock, patch
 import numpy as np
 import pandas as pd
 from records_mover.records.schema.schema.pandas import (schema_from_dataframe,
@@ -49,21 +49,29 @@ class TestPandas(unittest.TestCase):
 
     def test_refine_schema_from_dataframe_large_sample(self):
         mock_records_schema = Mock(name='records_schema')
-        mock_df = MagicMock(name='df')
+        df = DataFrame.from_dict([{'a': 1}, {'a': 2}])
         mock_processing_instructions = Mock(name='processing_instructions')
         mock_processing_instructions.max_inference_rows = 200
-        mock_total_rows = 100
-        mock_df.index.__len__.return_value = mock_total_rows
-        mock_rows_sampled = 100
         mock_field = Mock(name='field')
+        mock_field.name = 'a'
         mock_records_schema.fields = [mock_field]
         refine_schema_from_dataframe(mock_records_schema,
-                                     mock_df,
+                                     df,
                                      mock_processing_instructions)
-        mock_df.sample.assert_not_called()
-        mock_field.refine_from_series.assert_called_with(mock_df.__getitem__.return_value,
-                                                         rows_sampled=mock_rows_sampled,
-                                                         total_rows=mock_total_rows)
+        (series,), kwargs = mock_field.refine_from_series.call_args
+        self.assertEqual(list(series), [1, 2])
+        self.assertEqual(kwargs, {'rows_sampled': 2, 'total_rows': 2})
+
+    def test_schema_from_dataframe_with_non_string_column_names_to_json(self):
+        import json
+        # e.g., what you get when a CSV is read with header=None
+        df = DataFrame({np.int64(0): [1, 2], np.int64(1): ['x', 'y']})
+        pi = ProcessingInstructions()
+        schema = RecordsSchema.from_dataframe(df, pi, include_index=False)
+        self.assertEqual([f.name for f in schema.fields], ['0', '1'])
+        self.assertTrue(all(type(f.name) is str for f in schema.fields))
+        refined = schema.refine_from_dataframe(df, pi)
+        self.assertEqual(list(json.loads(refined.to_json())['fields'].keys()), ['0', '1'])
 
     def test_pandas_numeric_types_and_constraints(self):
         self.maxDiff = None

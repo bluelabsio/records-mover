@@ -16,7 +16,6 @@ HINT_PARAMETERS = [
 
 def method_to_json_schema(method: Callable[..., Any]) -> JsonSchema:
     special_handling: Dict[str, List[JsonParameter]] = {
-        'google_cloud_creds': [JsonParameter('gcp_creds_name', JsonSchemaDocument('string'))],
         'db_engine': [JsonParameter('db_name', JsonSchemaDocument('string'))],
         'records_format': ([JsonParameter('variant',
                                           JsonSchemaDocument('string',

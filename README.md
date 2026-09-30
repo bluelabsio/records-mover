@@ -4,7 +4,7 @@
 
 [![Documentation Status](https://readthedocs.org/projects/records-mover/badge/?version=latest)](https://records-mover.readthedocs.io/en/latest/?badge=latest)
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/bluelabsio/records-mover/tree/main.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/bluelabsio/records-mover/tree/main)
+[![Tests](https://github.com/bluelabsio/records-mover/actions/workflows/test.yml/badge.svg)](https://github.com/bluelabsio/records-mover/actions/workflows/test.yml)
 
 Records mover is a command-line tool and Python library you can
 use to move relational data from one place to another.
@@ -13,11 +13,10 @@ Relational data here means anything roughly "rectangular" - with
 columns and rows.  For example, it supports reading and writing from:
 
 * Databases, including using native high-speed methods of
-  import/export of bulk data.  Redshift, Vertica and PostgreSQL are
+  import/export of bulk data.  Redshift and PostgreSQL are
   well-supported, with some support for BigQuery and MySQL.
 * CSV files
 * Parquet files (initial support)
-* Google Sheets
 * Pandas DataFrames
 * Records directories - a structured directory of CSV/Parquet/etc
   files containing some JSON metadata about their format and origins.
@@ -226,13 +225,3 @@ docker compose run test
 It's theoretically possible to build sufficient additional
 containers to support running integration tests locally but
 that has not been planned yet.
-
-### In-progress airbyte integration
-
-Currently in progress integration airbyte as an alternative engine for executing
-source <-> destination transfers. This functionality is currently behind a
-feature flag. To enable all airbyte features in your environment, set the
-following environment variable:
-```bash
-export RECORDS_MOVER_AIRBYTE_ENABLED=1
-```

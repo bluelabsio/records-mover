@@ -2,7 +2,6 @@
 
 def canonicalize_db_type(db_type: str) -> str:
     canonical_db_type = {
-        'vsql': 'vertica',
         'postgresql': 'postgres',
         'psql (redshift)': 'redshift',
         'psql': 'postgres',

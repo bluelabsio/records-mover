@@ -1,4 +1,4 @@
-all: typecheck typecoverage coverageclean test coverage quality
+all: typecheck typecoverage coverageclean test coverage flake8
 
 test-reports:
 	mkdir test-reports
@@ -32,6 +32,10 @@ component:
 	ENV=test pytest --cov=records_mover tests/component
 	mv .coverage .coverage-component
 
+live:
+	# Opt-in; needs RECORDS_MOVER_LIVE=1 plus env config (see tests/integration/live/README.md)
+	ENV=test pytest tests/integration/live -rs
+
 test: unit component
 	coverage combine .coverage-unit .coverage-component # https://stackoverflow.com/questions/7352319/pytest-combined-coverage
 	coverage html --directory=cover
@@ -60,23 +64,6 @@ cicoverage: coverage
 
 flake8:
 	flake8 --filename='*.py,*.pyi' records_mover tests types
-
-quality-flake8:
-	make QUALITY_TOOL=flake8 quality
-
-quality-punchlist:
-	make QUALITY_TOOL=punchlist quality
-
-quality-mdl:
-	make QUALITY_TOOL=mdl quality
-
-# to run a single item, you can do: make QUALITY_TOOL=flake8 quality
-quality:
-	@quality_gem_version=$$(python -c 'import yaml; print(yaml.safe_load(open(".circleci/config.yml","r"))["quality_gem_version"])'); \
-	docker run --rm \
-	       -v "$$(pwd):/usr/app"  \
-	       -v "$$(pwd)/Rakefile.quality:/usr/quality/Rakefile"  \
-	       "apiology/quality:$${quality_gem_version}" ${QUALITY_TOOL}
 
 package:
 	python3 -m build

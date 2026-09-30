@@ -125,7 +125,7 @@ class JobConfigSchemaAsArgsParser():
             return "--" + self.formatted_key_name(key)
 
     def add_enum_arg(self, key, arg_name, value, kwargs):
-        enum_values: Iterable[Any] = value['enum']  # type: ignore
+        enum_values: Iterable[Any] = value['enum']
         non_none_values: Iterable[Any] = [v for v in enum_values if v is not None]
         kwargs['choices'] = non_none_values
         if None in enum_values:

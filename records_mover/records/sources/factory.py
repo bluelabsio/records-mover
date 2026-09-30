@@ -15,13 +15,9 @@ from .base import (SupportsRecordsDirectory, SupportsMoveToRecordsDirectory,  # 
                    SupportsToFileobjsSource, RecordsSource)
 from typing import Mapping, IO, Callable, Optional, Union, Iterable, TYPE_CHECKING
 if TYPE_CHECKING:
-    # see the 'gsheets' extras_require option in setup.py - needed for this!
-    import google.auth.credentials  # noqa
     from sqlalchemy.engine import Engine, Connection  # noqa
     from ...db import DBDriver  # noqa
-    from .google_sheets import GoogleSheetsRecordsSource  # noqa ditto
-    # with pandas, which an optional addition for clients of this
-    # library
+    # pandas is an optional addition for clients of this library
     from pandas import DataFrame  # noqa
     from .dataframes import DataframesRecordsSource  # noqa
     from .table import TableRecordsSource  # noqa
@@ -223,32 +219,3 @@ class RecordsSources(object):
                              records_format=records_format,
                              records_schema=records_schema,
                              initial_hints=initial_hints)
-
-    def google_sheet(self,
-                     spreadsheet_id: str,
-                     sheet_name_or_range: str,
-                     google_cloud_creds:
-                     'google.auth.credentials.Credentials',
-                     out_of_band_column_headers: Optional[Iterable[str]] = None,
-                     header_translator: Optional[Callable[[str], str]] = None) ->\
-            'GoogleSheetsRecordsSource':
-        """Represents a sheet or range in a Google Sheets spreadsheet as a
-        source, via the Google Sheets API.
-
-        :param spreadsheet_id: This is the xyz in
-           https://docs.google.com/spreadsheets/d/xyz/edit?ts=5be5b383#gid=abc
-        :param sheet_name_or_range: This is the label of the particular tab within the Google
-           Sheets spreadsheet where the data should go, or a valid Google Sheets-style range formula
-        :param google_cloud_creds: This is an object representing Google Cloud Platform access
-           credentials.
-        :param out_of_band_column_headers: If provided, we'll use these column names instead of the
-           first row of the spreadsheet.  If set, the first row will be treated as data.
-        :param header_translator: If provided, header names pulled from the sheet will be
-           translated through this function.  Not used if out_of_band_column_headers is set.
-        """
-        from .google_sheets import GoogleSheetsRecordsSource  # noqa
-        return GoogleSheetsRecordsSource(spreadsheet_id=spreadsheet_id,
-                                         sheet_name_or_range=sheet_name_or_range,
-                                         google_cloud_creds=google_cloud_creds,
-                                         out_of_band_column_headers=out_of_band_column_headers,
-                                         header_translator=header_translator)

@@ -13,8 +13,6 @@ Packages inside include:
   other connection details.
 * [pandas](../records_mover/pandas/), which adds functionality on top
   of the Pandas data science framework.
-* [airflow](../records_mover/airflow/), which helps interface parts
-  of this library to DAGS running under Airflow.
 * [utils](../records_mover/utils/), which is the usual junk drawer of
   things that haven't grown enough mass to be exported into their own
   package.
@@ -67,13 +65,6 @@ To run the same suite with mover itself in a Docker image:
    ```
 
 ### Common issues with integration tests
-
-```vertica
-(vertica_python.errors.InsufficientResources) Severity: b'ERROR', Message: b'Insufficient resources to execute plan on pool general [Request Too Large:Memory(KB) Exceeded: Requested = 5254281, Free = 1369370 (Limit = 1377562, Used = 8192)]', Sqlstate: b'53000', Routine: b'Exec_compilePlan', File: b'/scratch_a/release/svrtar2409/vbuild/vertica/Dist/Dist.cpp', Line: b'1540', Error Code: b'3587', SQL: "         SELECT S3EXPORT( * USING PARAMETERS url='s3://vince-scratch/PA6ViIBMMWk/records.csv', chunksize=5368709120, to_charset='UTF8', delimiter='\x01', record_terminator='\x02')         OVER(PARTITION BEST) FROM public.test_table1     "
-```
-
-Try expanding your Docker for Mac memory size to 8G.  Vertica is
-memory intensive, even under Docker.
 
 ### Documentation
 

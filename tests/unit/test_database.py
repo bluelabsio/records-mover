@@ -10,8 +10,8 @@ class TestDatabase(unittest.TestCase):
         'DB_HOST': 'db.host',
         'DB_USERNAME': 'username',
         'DB_PASSWORD': 'password',
-        'DB_TYPE': 'vertica',
-        'DB_PORT': '5433',
+        'DB_TYPE': 'redshift',
+        'DB_PORT': '5439',
         'DB_DATABASE': 'analytics',
     })
     def test_db_facts_from_env(self):
@@ -19,9 +19,9 @@ class TestDatabase(unittest.TestCase):
             "host": "db.host",
             "user": "username",
             "password": "password",
-            "port": "5433",
+            "port": "5439",
             "database": "analytics",
-            "type": "vertica"
+            "type": "redshift"
         }
 
         actual_db_facts = db_facts_from_env()

@@ -63,10 +63,6 @@ def local_dockerized_dbfacts():
     _environ = dict(os.environ)
     try:
         with NamedTemporaryFile() as f:
-            vertica_port =\
-                subprocess.check_output([
-                    './itest-dc', 'port', 'verticadb', '5433'
-                ]).decode('utf8').rstrip().split(':')[1]
             postgres_port =\
                 subprocess.check_output([
                     './itest-dc', 'port', 'postgresdb', '5432'
@@ -77,17 +73,6 @@ def local_dockerized_dbfacts():
                 ]).decode('utf8').rstrip().split(':')[1]
             db_facts = {
                 'dbs': {
-                    'dockerized-vertica': {
-                        'exports': {
-                            'host': 'localhost',
-                            'port': vertica_port,
-                            'database': 'docker',
-                            'type': 'vertica',
-                            'protocol': 'vertica',
-                            'user': 'dbadmin',
-                            'password': "",
-                        }
-                    },
                     'dockerized-postgres': {
                         'exports': {
                             'host': 'localhost',
@@ -155,11 +140,9 @@ def docker_compose_shell() -> None:
 
 
 def docker_compose_start() -> None:
-    print("Running docker_compose start verticadb postgresdb mysqldb...", file=sys.stderr)
+    print("Running docker_compose start postgresdb mysqldb...", file=sys.stderr)
     docker_compose(["up", "--no-start"])
-    docker_compose(["start", "verticadb", "postgresdb", "mysqldb"])
-    docker_compose_run(['tests/integration/wait-for-vertica.sh'])
-    print("Verified Vertica is up and listening", file=sys.stderr)
+    docker_compose(["start", "postgresdb", "mysqldb"])
     docker_compose_run(['tests/integration/wait-for-postgres.sh'])
     print("Verified Postgres is up and listening", file=sys.stderr)
     docker_compose_run(['tests/integration/wait-for-mysql.sh'])
@@ -213,35 +196,6 @@ def run_test_cli(args):
                 subprocess.check_call(["with-aws-creds", "circleci",
                                        "./cli-tests.sh"],
                                       cwd="cli")
-
-
-def run_test_vertica_no_s3(args):
-    with dockerized_dbs():
-        if (args.docker):
-            docker_compose_run(['with-db', 'dockerized-vertica',
-                                'pytest', '--xunit-file=pytest.xml', '.'],
-                               cwd="/usr/src/app/tests/integration/records/single_db")
-
-        else:
-            with local_dockerized_dbfacts():
-                subprocess.check_call(['with-db', 'dockerized-vertica',
-                                       'pytest', '--xunit-file=pytest.xml', '.'],
-                                      cwd=f"{script_dir}/records/single_db")
-
-
-def run_test_vertica_s3(args):
-    with dockerized_dbs(), set_s3_scratch_bucket():
-        if (args.docker):
-            docker_compose_run(['with-db', 'dockerized-vertica',
-                                'pytest', '--xunit-file=pytest.xml', '.'],
-                               prefixes=["with-aws-creds", "circleci"],
-                               cwd="/usr/src/app/tests/integration/records/single_db")
-        else:
-            with local_dockerized_dbfacts():
-                subprocess.check_call(["with-db", "dockerized-vertica",
-                                       "with-aws-creds", "circleci",
-                                       "pytest", "--xunit-file=pytest.xml", "."],
-                                      cwd=f"{script_dir}/records/single_db")
 
 
 def run_test_mysql(args):
@@ -346,8 +300,6 @@ def run_test(args, target, parser):
         'ps': run_test_ps,
         'shell': run_test_shell,
         'cli': run_test_cli,
-        'vertica-no-s3': run_test_vertica_no_s3,
-        'vertica-s3': run_test_vertica_s3,
         'mysql': run_test_mysql,
         'postgres': run_test_postgres,
         'redshift-s3': run_test_redshift_s3,
@@ -370,8 +322,6 @@ def main():
         'cli': 'Run bash-based multi-source/target copy tests',
         'mysql': 'Run load/unload suite against Dockerized MySQL',
         'postgres': 'Run load/unload suite against Dockerized PostgreSQL',
-        'vertica-s3': 'Run load/unload suite against Dockerized Vertica, using S3',
-        'vertica-no-s3': 'Run load/unload suite against Dockerized Vertica, using streams',
         'redshift-s3': 'Run load/unload suite against BlueLabs Demo Redshift, using S3',
         'redshift-no-s3': 'Run load/unload suite against BlueLabs Demo Redshift, using '
         'INSERT/SELECT',

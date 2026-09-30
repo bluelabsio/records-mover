@@ -47,21 +47,6 @@ class RecordsDatabaseFixture:
                      '2000-01-02 12:34:56.789012'::TIMESTAMP AS timestamp,
                      '2000-01-02 12:34:56.789012 US/Eastern'::TIMESTAMPTZ as timestamptz;
 """  # noqa
-        elif self.engine.name == 'vertica':
-            create_tables = f"""
-              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
-              SELECT 123 AS num,
-                    '123' AS numstr,
-                    'foo' AS str,
-                    ',' AS comma,
-                    '"' AS doublequote,
-                    '","' AS quotecommaquote,
-                    E'* SQL unload would generate multiple files (one for each slice/part)\n* Filecat would produce a single data file' AS newlinestr,
-                    '2000-01-01'::DATE AS date,
-                    '00:00:00'::TIME AS "time",
-                    '2000-01-02 12:34:56.789012'::TIMESTAMP AS timestamp,
-                    '2000-01-02 12:34:56.789012 US/Eastern'::TIMESTAMPTZ as timestamptz;
-"""  # noqa
         elif self.engine.name == 'bigquery':
             create_tables = f"""
               CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS

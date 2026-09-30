@@ -50,7 +50,7 @@ timezones in timestamps are expressed.
 * the timestamp sent into the database with a timezone comes out in
   UTC time, generally because either the database didn't store the
   timezone (after converting the input to UTC) or because some step in
-  output (e.g., older Vertica S3 output code?) didn't preserve the two
+  output (e.g., some database's bulk output code) didn't preserve the two
   separate bits of information.
 
   When combined the format variant like 'CSV' that doesn't include a

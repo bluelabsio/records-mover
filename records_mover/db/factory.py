@@ -14,11 +14,7 @@ def db_driver(db: Optional[Union[sqlalchemy.engine.Engine,
     db, db_conn, db_engine = check_db_conn_engine(db=db, db_conn=db_conn, db_engine=db_engine)
     engine_name: str = db_engine.name
 
-    if engine_name == 'vertica':
-        from .vertica.vertica_db_driver import VerticaDBDriver
-
-        return VerticaDBDriver(db=db, db_conn=db_conn, db_engine=db_engine, **kwargs)
-    elif engine_name == 'redshift':
+    if engine_name == 'redshift':
         from .redshift.redshift_db_driver import RedshiftDBDriver
 
         return RedshiftDBDriver(db=db, db_conn=db_conn, db_engine=db_engine, **kwargs)

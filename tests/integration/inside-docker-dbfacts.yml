@@ -1,14 +1,5 @@
 ---
 dbs:
-  dockerized-vertica:
-    exports:
-      host: verticadb
-      port: 5433
-      database: docker
-      type: vertica
-      protocol: vertica
-      user: dbadmin
-      password: ""
   dockerized-postgres:
     exports:
       host: postgresdb

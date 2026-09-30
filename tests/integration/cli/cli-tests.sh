@@ -8,25 +8,18 @@ records_schema_json_schema="${DIR}/../records/records_schema_v1_schema.json"
 
 current_epoch=$(date +%s)
 
-source_db_name=dockerized-vertica
-source_schema_name=dbadmin
+source_db_name=dockerized-postgres
+source_schema_name=public
 source_table_name=test_cli_source_table
 source_schema_and_table=${source_schema_name}.${source_table_name}
 
-target_db_name=dockerized-vertica
-target_schema_name=dbadmin
+target_db_name=dockerized-postgres
+target_schema_name=public
 target_table_name_prefix=test_cli_target_table
 
 # add CIRCLE_BUILD_NUM as a salt for uniqueness if it's available
 target_table_name=${target_table_name_prefix}_${CIRCLE_BUILD_NUM:-local}_${current_epoch}
 target_schema_and_table=${target_schema_name}.${target_table_name}
-
-target_sheet_name="target_${CIRCLE_BUILD_NUM:-local}_${current_epoch}"
-target_spreadsheet_id="15Q9yNnrMg5_b8bXVRz01cV7MZ0rm7AkyNDXc3WEX2a0"
-# To make one of these, follow the instructions here and upload
-# (e.g. to a LastPass note) the credentials.json file:
-# https://developers.google.com/sheets/api/quickstart/python
-gcp_creds_name="bq_itest Google Service Account"
 
 source_csv_path="$(pwd)/data.csv"
 source_csv_url="file://${source_csv_path}"
@@ -40,20 +33,12 @@ target_recordsdir_url="file://${target_recordsdir_path}"
 target_csv_path="$(pwd)/target.csv"
 target_csv_url="file://${target_csv_path}"
 
-source_sheet_name="source"
-source_spreadsheet_id="15Q9yNnrMg5_b8bXVRz01cV7MZ0rm7AkyNDXc3WEX2a0"
-
 clear_target_csv() {
   rm -fr "${target_csv_path}" || true
 }
 
 clear_tables() {
   db "${target_db_name:?}" <<< "DROP TABLE IF EXISTS ${target_schema_and_table};"
-}
-
-clear_sheets() {
-  mvrec file2gsheet empty.csv "${target_spreadsheet_id:?}" "${target_sheet_name:?}" "${gcp_creds_name:?}"
-
 }
 
 clear_rdir() {
@@ -66,13 +51,11 @@ one_time_setup() {
   # generate manifest of source_rdir with correct paths
   data_file="${source_recordsdir_path}/data.csv.gz"
   echo '{"entries": [{"url": "file://'"${data_file}"'", "mandatory": true}]}' > "${source_recordsdir_path}/_manifest"
-  "${DIR:?}/../records/purge_old_test_sheets.py" "${gcp_creds_name}" "${target_spreadsheet_id}"
   "${DIR:?}/../records/purge_old_test_tables.py" "${target_schema_name}" "${target_table_name_prefix}"
 }
 
 setup() {
   clear_tables
-  clear_sheets
   clear_rdir
   clear_target_csv
   mkdir "${target_recordsdir_path}"
@@ -85,7 +68,6 @@ setup() {
 
 teardown() {
   clear_tables
-  clear_sheets
   clear_rdir
 }
 
@@ -122,11 +104,6 @@ assert_target_table_is_valid() {
   assert_target_recordsdir_is_valid
 }
 
-assert_target_gsheet_is_valid() {
-  mvrec gsheet2recordsdir --source.out_of_band_column_headers="a" "${target_spreadsheet_id}" "${target_sheet_name}" "${gcp_creds_name}" "${target_recordsdir_url}"
-  assert_target_recordsdir_is_valid
-}
-
 . individual_tests.sh
 
 one_time_setup
@@ -134,7 +111,7 @@ one_time_setup
 test_type=${1-all}
 
 first_third_sources="table"
-second_third_sources="gsheet file"
+second_third_sources="file"
 third_third_sources="recordsdir url"
 
 if [ "${test_type}" == ci_1 ]
@@ -156,7 +133,7 @@ fi
 
 for source in ${sources}
 do
-  for target in file table gsheet recordsdir url
+  for target in file table recordsdir url
   do
     setup
     eval "${source}2${target}"

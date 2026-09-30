@@ -1,6 +1,7 @@
 from mock import patch, Mock, call
 from records_mover import Session
 from records_mover.mover_types import PleaseInfer
+import os
 import unittest
 
 
@@ -10,6 +11,19 @@ import unittest
 @patch('records_mover.creds.base_creds.os')
 @patch('records_mover.creds.creds_via_env.os')
 class TestSession(unittest.TestCase):
+    def setUp(self):
+        # Don't depend on the real environment or on any config file
+        # (e.g., /etc/bluelabs/records_mover/app.ini) on the machine
+        # running the tests.
+        env_patcher = patch.dict('os.environ')
+        env_patcher.start()
+        self.addCleanup(env_patcher.stop)
+        os.environ.pop('RECORDS_MOVER_SESSION_TYPE', None)
+        session_get_config_patcher = patch('records_mover.session.get_config')
+        self.mock_session_get_config = session_get_config_patcher.start()
+        self.addCleanup(session_get_config_patcher.stop)
+        self.mock_session_get_config.return_value.config = {}
+
     @patch('records_mover.db.connect.engine_from_db_facts')
     def test_get_db_engine(self,
                            mock_engine_from_db_facts,
@@ -309,3 +323,52 @@ class TestSession(unittest.TestCase):
         )
 
         mock_google_auth_default.assert_called_once_with(scopes=expected_scopes)
+
+
+class TestSessionTypeInference(unittest.TestCase):
+    def setUp(self):
+        env_patcher = patch.dict('os.environ')
+        env_patcher.start()
+        self.addCleanup(env_patcher.stop)
+        os.environ.pop('RECORDS_MOVER_SESSION_TYPE', None)
+        patcher = patch('records_mover.session.get_config')
+        self.mock_get_config = patcher.start()
+        self.addCleanup(patcher.stop)
+        self.mock_get_config.return_value.config = {}
+
+    @patch('records_mover.session.CredsViaEnv')
+    def test_removed_types_from_config_fall_back_to_env(self, mock_CredsViaEnv):
+        for removed in ['lpass', 'airflow']:
+            self.mock_get_config.return_value.config = {
+                'session': {'session_type': removed}
+            }
+            mock_CredsViaEnv.reset_mock()
+            with self.assertLogs('records_mover.session', level='WARNING') as logs:
+                session = Session()
+            self.assertIn('no longer supported', logs.output[-1])
+            self.assertIn(removed, logs.output[-1])
+            self.assertEqual(session.creds, mock_CredsViaEnv.return_value)
+            mock_CredsViaEnv.assert_called_once()
+
+    @patch('records_mover.session.CredsViaEnv')
+    def test_removed_type_from_environment_falls_back_to_env(self, mock_CredsViaEnv):
+        os.environ['RECORDS_MOVER_SESSION_TYPE'] = 'lpass'
+        with self.assertLogs('records_mover.session', level='WARNING'):
+            session = Session()
+        self.assertEqual(session.creds, mock_CredsViaEnv.return_value)
+
+    @patch('records_mover.session.CredsViaEnv')
+    def test_removed_type_passed_explicitly_falls_back_to_env(self, mock_CredsViaEnv):
+        with self.assertLogs('records_mover.session', level='WARNING'):
+            session = Session(session_type='airflow')
+        self.assertEqual(session.creds, mock_CredsViaEnv.return_value)
+
+    def test_unknown_type_raises(self):
+        self.mock_get_config.return_value.config = {
+            'session': {'session_type': 'bogus'}
+        }
+        with self.assertRaises(ValueError) as cm:
+            Session()
+        self.assertIn("Unknown session type 'bogus'", str(cm.exception))
+        self.assertIn('cli, itest, env', str(cm.exception))
+        self.assertNotIn('upgrading', str(cm.exception))

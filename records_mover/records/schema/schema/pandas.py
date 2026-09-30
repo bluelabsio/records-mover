@@ -47,8 +47,12 @@ def refine_schema_from_dataframe(records_schema: 'RecordsSchema',
         sampled_df = df
     rows_sampled = len(sampled_df.index)
 
+    # Field names are always str, but DataFrame column labels may not
+    # be (e.g., integers when a CSV has no header row)
+    columns_by_name = {str(column): column for column in sampled_df.columns}
+
     fields = [
-        field.refine_from_series(sampled_df[field.name],
+        field.refine_from_series(sampled_df[columns_by_name[field.name]],
                                  total_rows=total_rows,
                                  rows_sampled=rows_sampled)
         for field in records_schema.fields
