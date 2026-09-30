@@ -7,7 +7,6 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   records_mover.airflow
    records_mover.records
 
 Module contents

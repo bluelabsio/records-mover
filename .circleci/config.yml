@@ -214,9 +214,6 @@ jobs:
             SQLALCHEMY_WARN_20: 1
     docker:
       - image: cimg/python:<<parameters.python_version>>
-      - image: jbfavre/vertica:8.1.1-16_centos-7
-        environment:
-          DATABASE_NAME: docker
       - image: postgres:latest
         environment:
           POSTGRES_PASSWORD: 'hunter2'
@@ -271,12 +268,6 @@ jobs:
             # just need to symlink.  Hurray!
             sudo ln -s /bin/zcat /bin/gzcat
       - run:
-          name: Install vsql
-          command: |
-            curl -O https://www.vertica.com/client_drivers/8.1.x/8.1.1-13/vertica-client-8.1.1-13.x86_64.tar.gz
-            tar zxvf vertica-client-8.1.1-13.x86_64.tar.gz opt/vertica/bin/vsql --strip-components=3
-            sudo mv ./vsql /usr/local/bin
-      - run:
           name: Install psql
           command: |
             sudo apt-get update -y && sudo apt-get install -y postgresql-client
@@ -284,9 +275,6 @@ jobs:
           name: Install mysql
           command: |
             sudo apt-get update -y && sudo apt-get install -y default-mysql-client
-      - wait_for_db:
-          db_name: Vertica
-          connect_command: vsql -h 127.0.0.1 -U dbadmin -c 'select 1;'
       - wait_for_db:
           db_name: MySQL
           connect_command: echo 'select 1;' | mysql --password=hunter2 --host=127.0.0.1 -u mysqluser mysqlitest
@@ -326,7 +314,7 @@ jobs:
         description: "Database to run inside"
       include_s3_scratch_bucket:
         type: boolean
-        description: "If true, pass in the env variable specifying an S3 scratch bucket to Records Mover (for Redshift/Vertica)"
+        description: "If true, pass in the env variable specifying an S3 scratch bucket to Records Mover (for Redshift)"
         default: true
       include_gcs_scratch_bucket:
         type: boolean
@@ -355,7 +343,7 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export PATH=${PATH}:${PWD}/tests/integration/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
@@ -529,34 +517,13 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
-          name: vertica-no-s3-itest
-          extras: '[vertica,itest]'
-          python_version: "3.9"
-          context: slack-secrets
-          command: |
-            . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export RECORDS_MOVER_SESSION_TYPE=env
-            mkdir -p test-reports/itest
-            cd tests/integration/records/single_db
-            #
-            # This is a no-s3 test, so let's disable AWS creds and
-            # scratch bucket config.
-            #
-            unset SCRATCH_S3_URL AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
-            with-db dockerized-vertica pytest -vv
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - integration_test_with_dbs:
           name: postgres-itest
           extras: '[postgres-binary,itest]'
           python_version: "3.9"
           context: slack-secrets
           command: |
             . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export PATH=${PATH}:${PWD}/tests/integration/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
@@ -572,7 +539,7 @@ workflows:
           context: slack-secrets
           command: |
             . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export PATH=${PATH}:${PWD}/tests/integration/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
@@ -582,29 +549,13 @@ workflows:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
-          name: vertica-s3-itest
-          extras: '[vertica,aws,itest]'
-          python_version: "3.9"
-          context: slack-secrets
-          command: |
-            . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
-            export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
-            export RECORDS_MOVER_SESSION_TYPE=env
-            mkdir -p test-reports/itest
-            cd tests/integration/records/single_db
-            with-db dockerized-vertica pytest -vv
-          filters:
-            tags:
-              only: /v\d+\.\d+\.\d+(-[\w]+)?/
-      - integration_test_with_dbs:
           name: cli-1-itest
-          extras: '[cli,gsheets,vertica]'
+          extras: '[cli,postgres-binary]'
           python_version: "3.9"
           context: slack-secrets
           command: |
             . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export PATH=${PATH}:${PWD}/tests/integration/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
@@ -615,12 +566,12 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-2-itest
-          extras: '[cli,gsheets,vertica]'
+          extras: '[cli,postgres-binary]'
           python_version: "3.9"
           context: slack-secrets
           command: |
             . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export PATH=${PATH}:${PWD}/tests/integration/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
@@ -631,12 +582,12 @@ workflows:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/
       - integration_test_with_dbs:
           name: cli-3-itest
-          extras: '[cli,gsheets,vertica]'
+          extras: '[cli,postgres-binary]'
           python_version: "3.9"
           context: slack-secrets
           command: |
             . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export PATH=${PATH}:${PWD}/tests/integration/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
@@ -694,7 +645,7 @@ workflows:
           context: slack-secrets
           command: |
             . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export PATH=${PATH}:${PWD}/tests/integration/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
@@ -708,7 +659,7 @@ workflows:
           context: slack-secrets
           command: |
             . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export PATH=${PATH}:${PWD}/tests/integration/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
@@ -721,7 +672,7 @@ workflows:
           context: slack-secrets
           command: |
             . venv/bin/activate
-            export PATH=${PATH}:${PWD}/tests/integration/bin:/opt/vertica/bin
+            export PATH=${PATH}:${PWD}/tests/integration/bin
             export DB_FACTS_PATH=${PWD}/tests/integration/circleci-dbfacts.yml
             export RECORDS_MOVER_SESSION_TYPE=env
             mkdir -p test-reports/itest
@@ -769,8 +720,6 @@ workflows:
             - cli-1-itest
             - cli-2-itest
             - cli-3-itest
-            - vertica-s3-itest
-            - vertica-no-s3-itest
           filters:
             tags:
               only: /v\d+\.\d+\.\d+(-[\w]+)?/

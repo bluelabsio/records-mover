@@ -11,15 +11,6 @@ dbs:
       bq_service_account_json: "{{ env('GCP_SERVICE_ACCOUNT_JSON_BASE64') | b64decode }}"
       bq_default_project_id: 'bluelabs-tools-dev'
       bq_default_dataset_id: 'bq_itest'
-  dockerized-vertica:
-    exports:
-      host: 127.0.0.1
-      port: 5433
-      database: docker
-      type: vertica
-      protocol: vertica
-      user: dbadmin
-      password: ""
   dockerized-postgres:
     exports:
       host: 127.0.0.1

@@ -11,8 +11,8 @@ Example:
 * `pip3 install records-mover` - Install minimal version.  Not able to
   connect to databases, deal with dataframes either as input or as an
   intermediary format, etc.  Generally not terribly useful.
-* `pip3 install records-mover[gsheets,pandas]` - Minimal install plus
-  libraries to access Google Sheets and manipulate Pandas DataFrames.
+* `pip3 install records-mover[pandas]` - Minimal install plus
+  libraries to manipulate Pandas DataFrames.
 * `pip3 install records-mover[cli,redshift-binary,pandas,parquet]` -
   Install enough things to be able to use the `mvrec` command line,
   talk to the Redshift database, and use Parquet internally and/or as

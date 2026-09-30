@@ -7,12 +7,9 @@ from .data_url import DataUrlTarget
 from typing import Callable, Optional, Union, Dict, List, IO, TYPE_CHECKING
 from ..existing_table_handling import ExistingTableHandling
 if TYPE_CHECKING:
-    # see the 'gsheets' extras_require option in setup.py - needed for this!
-    import google.auth.credentials  # noqa
     from sqlalchemy.engine import Engine, Connection  # noqa
     from ...db import DBDriver  # noqa
     from .spectrum import SpectrumRecordsTarget  # noqa
-    from .google_sheets import GoogleSheetsRecordsTarget  # noqa
     from .table import TableRecordsTarget  # noqa
     from .directory_from_url import DirectoryFromUrlRecordsTarget  # noqa
 
@@ -114,28 +111,6 @@ class RecordsTargets(object):
                                   add_user_perms_for=add_user_perms_for,
                                   add_group_perms_for=add_group_perms_for,
                                   db_conn=db_conn)
-
-    def google_sheet(self,
-                     spreadsheet_id: str,
-                     sheet_name: str,
-                     google_cloud_creds:
-                     'google.auth.credentials.Credentials') ->\
-            'GoogleSheetsRecordsTarget':
-        """Represents a sheet in a Google Sheets spreadsheet as a target, via
-        the Google Sheets API.
-
-        :param spreadsheet_id: This is the xyz in
-           https://docs.google.com/spreadsheets/d/xyz/edit?ts=5be5b383#gid=abc
-        :param sheet_name: This is the label of the particular tab within the Google Sheets
-           spreadsheet where the data should go.
-        :param google_cloud_creds: Credentials object for Google Cloud Platform access.
-
-        """
-        # see the 'gsheets' extras_require option in setup.py - needed for this!
-        from .google_sheets import GoogleSheetsRecordsTarget  # noqa
-        return GoogleSheetsRecordsTarget(spreadsheet_id=spreadsheet_id,
-                                         sheet_name=sheet_name,
-                                         google_cloud_creds=google_cloud_creds)
 
     def fileobj(self,
                 output_fileobj: IO[bytes],

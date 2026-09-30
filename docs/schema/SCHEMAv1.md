@@ -4,7 +4,7 @@
 
 We'd like to store and transfer data from a wide variety of source
 systems (different slightly incompatible SQL databases, CSV files,
-Pandas dataframes, Google Sheets spreadsheets, etc).
+Pandas dataframes, etc).
 
 Some of these sources provide some information about the types and
 constraints upon the data inside (e.g, a VARCHAR(12) within a SQL

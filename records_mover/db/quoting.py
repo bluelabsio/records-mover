@@ -14,7 +14,7 @@ def quote_schema_and_table(db: Optional[Union[Connection, Engine]],
     http://bobby-tables.com
     http://bobby-tables.com/about
 
-    e.g., for Vertica:
+    e.g.:
 
     bobby: Robert'); DROP TABLE Students;--
     quoted_bobby: "Robert'); DROP TABLE Students;--"
@@ -54,7 +54,7 @@ def quote_value(db: Optional[Union[Connection, Engine]],
     http://bobby-tables.com
     http://bobby-tables.com/about
 
-    e.g., for Vertica:
+    e.g.:
 
     bobby: Robert'); DROP TABLE Students;--
     quoted_bobby: 'Robert''); DROP TABLE Students;--'

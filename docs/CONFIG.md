@@ -4,7 +4,7 @@ There are key areas where records mover needs configuration:
 
 1. Database connection details
 2. Temporary locations
-3. Cloud credentials (e.g., S3/GCS/Google Sheets)
+3. Cloud credentials (e.g., S3/GCS)
 
 ## Database connection details
 
@@ -14,7 +14,6 @@ applicable only when using records mover as a Python library:
 1. Setting environment variables (Python only)
 2. Passing in pre-configured SQLAlchemy Engine objects (Python only)
 3. Configuring db-facts (Python and mvrec)
-4. Airflow connections (Python via Airflow)
 
 ### Setting environment variables (Python only)
 
@@ -62,14 +61,6 @@ SQLALchemy Engine to be passed in directly.
 project used to configure database credentials.  Please see
 [db-facts documentation](https://github.com/bluelabsio/db-facts/blob/master/CONFIGURATION.md)
 for details on configuration.
-
-### Airflow connections (Python via Airflow)
-
-If you are running under Airflow, the
-`session.creds.get_db_engine(name)` method will look up `name` in your
-Airflow connections rather than use `db-facts`.  This can be
-configured via the `session_type` parameter passed to the `Session()`
-constructor.
 
 ## Temporary locations
 
@@ -162,10 +153,10 @@ Example file:
 default_project = my_gcp_project_name
 ```
 
-## Cloud credentials (e.g., S3/GCS/Google Sheets)
+## Cloud credentials (e.g., S3/GCS)
 
-To be able to access cloud resources, including S3, GCS and Google
-Sheets, Records Mover requires credentials.
+To be able to access cloud resources, including S3 and GCS,
+Records Mover requires credentials.
 
 There are multiple ways to configure these:
 
@@ -173,7 +164,6 @@ There are multiple ways to configure these:
 2. Setting environment variables (Python only)
 3. Passing in pre-configured default credential objects (Python only)
 4. Using a third-party secrets manager (Python and mvrec)
-5. Airflow connections (Python via Airflow)
 
 ### Vendor system configuration (Python and mvrec)
 
@@ -208,25 +198,5 @@ To use a secrets manager of some type, you can instruct Records Mover
 to use a different instance of the 'BaseCreds' class which knows how
 to use your specific type of secrets manager.
 
-An [example implementation](https://github.com/bluelabsio/records-mover/blob/master/records_mover/creds/creds_via_lastpass.py)
-ships with Records Mover to use LastPass' CLI tool to fetch (for
-instance) GCP credentials via LastPass.
-
-You can either pass in a instance of a BaseCreds subclass as the
-'creds' argument to the Session() constructor in Python, pass in the
-string 'lpass' as the value of the 'session_type' parameter to the
-Session() constructor, or provide the following config in the `.ini`
-file referenced above:
-
-```ini
-[session]
-session_type = lpass
-```
-
-### Airflow connections (Python via Airflow)
-
-Similarly, Records Mover ships with a BaseCreds instance which knows
-how to fetch credentials using Airflow connections.  While Records
-Mover will attempt to auto-detect to determine if it is running under
-Airflow, you can explicitly tell Records Mover to use this mode by
-setting session_type to "airflow" using one of the above methods.
+You can pass in a instance of a BaseCreds subclass as the 'creds'
+argument to the Session() constructor in Python.

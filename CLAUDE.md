@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Records Mover is a Python library and CLI (`mvrec`) for moving "rectangular" data between databases (Redshift, Vertica, PostgreSQL well-supported; BigQuery and MySQL partially), CSV/Parquet files, Google Sheets, Pandas DataFrames, and "records directories" (a directory of data files plus JSON metadata describing format and schema; spec in `docs/RECORDS_SPEC.md`). It chooses the fastest available path between source and target, including native bulk load/unload such as Redshift `COPY`/`UNLOAD` via S3.
+Records Mover is a Python library and CLI (`mvrec`) for moving "rectangular" data between databases (Redshift and PostgreSQL well-supported; BigQuery and MySQL partially), CSV/Parquet files, Pandas DataFrames, and "records directories" (a directory of data files plus JSON metadata describing format and schema; spec in `docs/RECORDS_SPEC.md`). It chooses the fastest available path between source and target, including native bulk load/unload such as Redshift `COPY`/`UNLOAD` via S3.
 
-Intended scope (confirmed by leadership, 2026-09): this is an **internal-only** 14th tool, mainly for helping Data Science (DS) get data into and out of Redshift. It is not for client delivery. Prioritize the Redshift/S3/CSV/pandas path. Other backends (BigQuery, Vertica, MySQL, Google Sheets, Airflow) are secondary and may be dropped. See `docs/REVIVAL_ASSESSMENT.md`.
+Intended scope (confirmed by leadership, 2026-09): this is an **internal-only** 14th tool, mainly for helping Data Science (DS) get data into and out of Redshift. It is not for client delivery. Prioritize the Redshift/S3/CSV/pandas path. Vertica, Google Sheets, Airflow, LastPass and Airbyte support has been removed. Other backends (BigQuery, MySQL) are secondary and may be dropped. See `docs/REVIVAL_ASSESSMENT.md`.
 
 "BlueLabs" and "14th" are the same company. The company was renamed, so the two names are interchangeable. The `bluelabsio` GitHub org, the `bluelabs` config namespace (`get_config('records_mover', 'bluelabs')`), and the "BlueLabs" Redshift/BigQuery test accounts all belong to 14th. Don't rename `bluelabs` identifiers just because of the name change, since they are config and external interfaces.
 
@@ -33,9 +33,8 @@ Notes:
 - As of 2026-09 the dependency set is out of date, and a plain local setup breaks. See `docs/REVIVAL_ASSESSMENT.md` for details. Workarounds on Python 3.9:
   - Install with `pip install --only-binary libcst,pandas,numpy,pyarrow,psycopg2-binary -e '.[unittest,typecheck]' -r requirements.txt`, because `libcst` won't build from source on 3.9.
   - Run pytest with `-o filterwarnings=ignore::DeprecationWarning`. Without it, every test file fails to load on the `mypy_extensions.TypedDict` deprecation. Pass the option directly: zsh does not split an unquoted `$VAR`, so an option stored in a variable arrives as one malformed argument.
-  - Unless `apache-airflow` is capped `<3`, `test_session_choices.py::test_select_cli_session_by_default` fails in a full run because importing Airflow 3 sets `AIRFLOW__CORE__EXECUTOR`.
   - Python 3.12+ cannot install the pinned `pandas<2`.
-- Integration tests use docker-compose databases (MySQL, Postgres, Vertica). The Redshift and BigQuery suites need BlueLabs cloud accounts. `make quality` runs the `apiology/quality` Docker image.
+- Integration tests use docker-compose databases (MySQL, Postgres). The Redshift and BigQuery suites need BlueLabs cloud accounts. `make quality` runs the `apiology/quality` Docker image.
 
 ## Test suites (see `tests/README.md`)
 
@@ -45,7 +44,7 @@ Notes:
 
 ## Architecture
 
-**Entry points.** The public API is `records_mover.sources`, `records_mover.targets`, and `move`, along with `Session` (`records_mover/session.py`). `Session` builds DB engines, S3/GCS clients, and credentials. Credentials come from db-facts, env vars, LastPass, or Airflow connections (`records_mover/creds/`), and the session type is inferred from the environment. Anything not in `__all__` or prefixed `_` is not a stable interface.
+**Entry points.** The public API is `records_mover.sources`, `records_mover.targets`, and `move`, along with `Session` (`records_mover/session.py`). `Session` builds DB engines, S3/GCS clients, and credentials. Credentials come from db-facts and env vars (`records_mover/creds/`), and the session type is inferred from the environment. Anything not in `__all__` or prefixed `_` is not a stable interface.
 
 **Move negotiation (`records_mover/records/mover.py`).** `move(source, target, processing_instructions)` does not dispatch on concrete types. It walks an ordered chain of `isinstance` checks against capability ABCs in `records/sources/base.py` and `records/targets/base.py`, including `SupportsRecordsDirectory`, `SupportsMoveFromRecordsDirectory`, `MightSupportMoveFromFileobjsSource`, `SupportsMoveToRecordsDirectory`, `MightSupportMoveFromTempLocAfterFillingIt`, and `SupportsToDataframesSource`/`SupportsMoveFromDataframes`. It takes the first strategy the source and target both support, from fastest to slowest:
 1. The target loads directly from the source's records directory, for example Redshift COPY from S3.
@@ -61,7 +60,7 @@ To add a source or target, implement the capability mixins that fit and follow `
 
 **CLI (`records/cli.py`, `records/job/`, `cli/`).** `mvrec` subcommands such as `table2table` and `file2table` are generated from pairs of source and target factory methods. Each method's signature and docstring are turned into JSON Schema (`job/schema.py`, `utils/json_schema.py`, using `docstring_parser`), and the schema becomes argparse arguments (`cli/job_config_schema_as_args_parser.py`). Changing a factory method's parameters, type hints, or docstring therefore changes the CLI.
 
-**DB layer (`records_mover/db/`).** `db/factory.py:db_driver()` picks a `DBDriver` subclass by SQLAlchemy engine name (vertica, redshift, bigquery, postgresql, mysql, or `GenericDBDriver`). Each driver can provide a `loader()` (`LoaderFromRecordsDirectory`/`LoaderFromFileobj`, in `db/loader.py`) and an `unloader()` (`db/unloader.py`), along with type-mapping hooks (`type_for_integer`, `type_for_floating_point`, and so on) used to generate `CREATE TABLE`. Each database's subpackage turns records-format hints into native bulk load and unload options, for example Redshift COPY/UNLOAD and Postgres `COPY` options in `db/postgres/copy_options/`. `db/postgres/sqlalchemy_postgres_copy.py` is vendored code and is excluded from coverage.
+**DB layer (`records_mover/db/`).** `db/factory.py:db_driver()` picks a `DBDriver` subclass by SQLAlchemy engine name (redshift, bigquery, postgresql, mysql, or `GenericDBDriver`). Each driver can provide a `loader()` (`LoaderFromRecordsDirectory`/`LoaderFromFileobj`, in `db/loader.py`) and an `unloader()` (`db/unloader.py`), along with type-mapping hooks (`type_for_integer`, `type_for_floating_point`, and so on) used to generate `CREATE TABLE`. Each database's subpackage turns records-format hints into native bulk load and unload options, for example Redshift COPY/UNLOAD and Postgres `COPY` options in `db/postgres/copy_options/`. `db/postgres/sqlalchemy_postgres_copy.py` is vendored code and is excluded from coverage.
 
 **Delimited hints (`records/delimited/`).** CSV dialect is described by "hints": delimiter, quoting, escaping, compression, date formats, and so on. `sniff.py` infers hints from files, `hints.py`/`validated_records_hints.py` validate them, and `ProcessingInstructions` controls how unsupported hints are handled (fail vs. warn).
 

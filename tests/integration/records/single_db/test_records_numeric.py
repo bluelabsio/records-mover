@@ -96,7 +96,6 @@ class RecordsNumericIntegrationTest(BaseRecordsIntegrationTest):
         preferred_records_format = {
             'redshift': 'bluelabs',
             'bigquery': 'bigquery',
-            'vertica': 'vertica',
             'postgresql': 'bluelabs',
             'mysql': 'bluelabs',
         }

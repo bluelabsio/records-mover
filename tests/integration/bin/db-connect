@@ -2,10 +2,7 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [ "${DB_PROTOCOL:?}" == vertica ]
-then
-  ${CONNECT_PROXY} "${DIR:?}/db-vsql"
-elif [ "${DB_PROTOCOL:?}" == postgres ]
+if [ "${DB_PROTOCOL:?}" == postgres ]
 then
   ${CONNECT_PROXY} "${DIR:?}/db-psql"
 elif [ "${DB_PROTOCOL:?}" == mysql ]

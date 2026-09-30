@@ -5,8 +5,6 @@ from .records.records import Records
 from .url.base import BaseFileUrl, BaseDirectoryUrl
 from typing import Union, Optional, IO
 from .url.resolver import UrlResolver
-from records_mover.creds.creds_via_lastpass import CredsViaLastPass
-from records_mover.creds.creds_via_airflow import CredsViaAirflow
 from records_mover.creds.creds_via_env import CredsViaEnv
 from records_mover.logging import set_stream_logging
 from records_mover.mover_types import PleaseInfer
@@ -37,23 +35,7 @@ def _infer_session_type() -> str:
             logger.info(f"Using session_type={session_type} from config file")
             return session_type
 
-    if 'AIRFLOW__CORE__EXECUTOR' in os.environ:
-        # Guess based on an env variable sometimes set by Airflow
-        return 'airflow'
-
     return 'env'
-
-
-def _infer_default_aws_creds_name(session_type: str) -> Optional[str]:
-    if session_type == 'airflow':
-        return 'aws_default'
-    return None
-
-
-def _infer_default_gcp_creds_name(session_type: str) -> Optional[str]:
-    if session_type == 'airflow':
-        return 'google_cloud_default'
-    return None
 
 
 def _infer_creds(session_type: str,
@@ -76,17 +58,7 @@ def _infer_creds(session_type: str,
                  scratch_gcs_url: Union[PleaseInfer,
                                         str,
                                         None]) -> BaseCreds:
-    if session_type == 'airflow':
-        return CredsViaAirflow(default_db_creds_name=default_db_creds_name,
-                               default_aws_creds_name=default_aws_creds_name,
-                               default_gcp_creds_name=default_gcp_creds_name,
-                               default_db_facts=default_db_facts,
-                               default_boto3_session=default_boto3_session,
-                               default_gcp_creds=default_gcp_creds,
-                               default_gcs_client=default_gcs_client,
-                               scratch_s3_url=scratch_s3_url,
-                               scratch_gcs_url=scratch_gcs_url)
-    elif session_type == 'cli':
+    if session_type == 'cli':
         return CredsViaEnv(default_db_creds_name=default_db_creds_name,
                            default_aws_creds_name=default_aws_creds_name,
                            default_gcp_creds_name=default_gcp_creds_name,
@@ -94,16 +66,6 @@ def _infer_creds(session_type: str,
                            default_boto3_session=default_boto3_session,
                            default_gcp_creds=default_gcp_creds,
                            default_gcs_client=default_gcs_client)
-    elif session_type == 'lpass':
-        return CredsViaLastPass(default_db_creds_name=default_db_creds_name,
-                                default_aws_creds_name=default_aws_creds_name,
-                                default_gcp_creds_name=default_gcp_creds_name,
-                                default_db_facts=default_db_facts,
-                                default_boto3_session=default_boto3_session,
-                                default_gcp_creds=default_gcp_creds,
-                                default_gcs_client=default_gcs_client,
-                                scratch_s3_url=scratch_s3_url,
-                                scratch_gcs_url=scratch_gcs_url)
     elif session_type == 'itest':
         return CredsViaEnv(default_db_creds_name=default_db_creds_name,
                            default_aws_creds_name=default_aws_creds_name,
@@ -125,7 +87,7 @@ def _infer_creds(session_type: str,
                            scratch_s3_url=scratch_s3_url,
                            scratch_gcs_url=scratch_gcs_url)
     elif session_type is not None:
-        raise ValueError("Valid session types: cli, lpass, airflow, itest, env - "
+        raise ValueError("Valid session types: cli, itest, env - "
                          "consider upgrading records-mover if you're looking for "
                          f"{session_type}.")
 
@@ -157,11 +119,8 @@ class Session():
 
         Generally unless otherwise configured, this class will look up
         and use the default credentials for things like AWS and GCP if
-        they exist and are needed for an operation.  When running in a
-        managed environment like Apache Airflow (session_type =
-        "airflow"), that might mean looking up an Airflow Connection
-        via the Airflow Python API.  On the command line (session_type
-        = "cli"), that might mean using e.g., the AWS or GCP Python
+        they exist and are needed for an operation.  On the command
+        line (session_type = "cli"), that might mean using e.g., the AWS or GCP Python
         APIs to pull any default credentials which have been
         configured.  In other environments (e.g., containerized
         systems) you may way want to use environment variables
@@ -178,9 +137,8 @@ class Session():
            e.g. when reading or writing to an gs:// URL.  This will be inferred unless directly
            specified.
         :param session_type: What assumptions to use when inferring and/or looking up credentials.
-           Valid values of "airflow" (for code running in Apache Airflow), "cli" (for running on
-           the command-line", "lpass" (for using the LastPass password manager for credentials),
-           and 'env' (for looking up credentials via environment variables).  This will be inferred
+           Valid values of "cli" (for running on the command-line) and 'env' (for looking up
+           credentials via environment variables).  This will be inferred
            unless directly specified.
         :param scratch_s3_url: An s3:// URL used as a base directory where temporary
            files/directories can be created.  This is necessary for Amazon Redshift, which supports
@@ -205,10 +163,10 @@ class Session():
             session_type = _infer_session_type()
 
         if default_aws_creds_name is PleaseInfer.token:
-            default_aws_creds_name = _infer_default_aws_creds_name(session_type)
+            default_aws_creds_name = None
 
         if default_gcp_creds_name is PleaseInfer.token:
-            default_gcp_creds_name = _infer_default_gcp_creds_name(session_type)
+            default_gcp_creds_name = None
 
         if creds is PleaseInfer.token:
             creds = _infer_creds(session_type,

@@ -22,7 +22,6 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
              addl_hints: PartialRecordsHints = {}) -> None:
         variant_for_db = {
             'redshift': 'bluelabs',
-            'vertica': 'vertica',
             'postgresql': 'bluelabs',
             'mysql': 'bluelabs',
             'bigquery': 'bigquery',
@@ -76,7 +75,7 @@ class RecordsLoadDatetimeIntegrationTest(BaseRecordsIntegrationTest):
     def test_load_date(self) -> None:
         for dateformat in DATE_CASES:
             addl_hints: PartialRecordsHints = {}
-            if self.engine.name in ['vertica', 'mysql', 'redshift',
+            if self.engine.name in ['mysql', 'redshift',
                                     'bigquery']:
                 # Use something more compatible with Pandas that is
                 # still compatible when the above databases, which are

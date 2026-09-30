@@ -126,24 +126,6 @@ expected_column_types = {
         'fixed_38_9': 'NUMERIC(38, 9)',
         'fixed_100_4': 'DOUBLE_PRECISION'  # Redshift doesn't support fixed precision > 38
     },
-    'vertica': {
-        'int8': 'INTEGER',
-        'int16': 'INTEGER',
-        'int32': 'INTEGER',
-        'int64': 'INTEGER',
-        'ubyte': 'INTEGER',
-        'uint8': 'INTEGER',
-        'uint16': 'INTEGER',
-        'uint32': 'INTEGER',
-        'uint64': 'NUMERIC(20, 0)',
-        'float16': 'FLOAT',
-        'float32': 'FLOAT',
-        'float64': 'FLOAT',
-        'float128': 'FLOAT',  # Vertica doesn't support >float64 - all floats are float64
-        'fixed_6_2': 'NUMERIC(6, 2)',
-        'fixed_38_9': 'NUMERIC(38, 9)',
-        'fixed_100_4': 'NUMERIC(100, 4)'  # Vertica supports precision <= 1024
-    },
     'bigquery': {
         'int8': 'INTEGER',
         'int16': 'INTEGER',

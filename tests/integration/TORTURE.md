@@ -8,47 +8,6 @@ table to table records moves.
 We'll create a database table with as many of the databases' supported
 datatypes as is practical.
 
-Vertica:
-
-```sql
-DROP TABLE your_schema.multitest;
-CREATE TABLE your_schema.multitest AS
-SELECT
-      cast(1.2 as numeric) as numeric,
-      cast(1.2 as decimal) as decimal,
-      cast(1.2 as number) as number,
-      cast(1.2 as money) as money,
-      cast(1.2 as DOUBLE PRECISION) as double,
-      123 AS num,
-      cast(123 as integer) AS integer,
-      cast(1 as INT) as int,
-      cast(1 as BIGINT) as bigint,
-      cast(1 as INT8) as int8,
-      cast(1 as smallint) as smallint,
-      cast(1 as tinyint) as tinyint,
-      cast(1.2 as float) as float,
-      cast(1.2 as float(23)) as float23,
-      cast(1.2 as float8) as float8,
-      cast(1.2 as real) as real,
-      '123' AS numstr,
-      'foo' AS str,
-      ',' AS comma,
-      '"' AS doublequote,
-      '","' AS quotecommaquote,
-      E'* SQL unload would generate multiple files (one for each slice/part)\n* Filecat would produce a single data file' AS newlinestr,
-      '2000-01-01'::DATE AS date,
-      '00:00:00'::TIME AS "time",
-      '2000-01-02 12:34:56.789012'::TIMESTAMP AS timestamp,
-      '2000-01-02 12:34:56.789012'::DATETIME AS datetime,
-      '2000-01-02 12:34:56.789012'::SMALLDATETIME AS smalldatetime,
-      '2000-01-02 12:34:56.789012 EDT'::TIMESTAMPTZ as timestamptz,
-      cast('2000-01-02 12:34:56.789012 EDT' as timestamp with timezone) as timestamp_with_timezone,
-       cast(true as boolean) as boolean,
-       cast('a' as char) as CHAR,
-       cast('foo' as varchar) AS varchar,
-       cast('foo' as long varchar) AS long_varchar;
-```
-
 Redshift:
 
 ```sql

@@ -28,15 +28,6 @@ class RecordsNumericDatabaseFixture:
                      19223372036854775807.78::FLOAT AS float64;
 """  # noqa
                              ]
-        elif self.engine.name == 'vertica':
-            # Vertica only supports a few large numeric types
-            create_tables = [f"""
-              CREATE TABLE {self.quote_schema_and_table(self.schema_name, self.table_name)} AS
-              SELECT 9223372036854775807::BIGINT AS int64,
-                     1234.56::NUMERIC(6, 2) AS fixed_6_2,
-                     19223372036854775807.78::FLOAT AS float64;
-"""  # noqa
-                             ]
         elif self.engine.name == 'bigquery':
             # BigQuery only supports a few large numeric types
             create_tables = [f"""

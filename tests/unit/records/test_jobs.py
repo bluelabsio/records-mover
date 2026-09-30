@@ -19,11 +19,9 @@ class TestJobs(unittest.TestCase):
 
         def mysource(a: int,
                      schema_name: str,
-                     google_cloud_creds,
                      existing_table_handling=None,
                      spectrum_base_url=None):
             self.assertEqual(a, 1)
-            self.assertEqual(google_cloud_creds, mock_session.creds.google_sheets.return_value)
             self.assertEqual(schema_name, 'myschema')
             self.assertEqual(spectrum_base_url, 'spectrumschema')
             return mock_source
@@ -47,7 +45,6 @@ class TestJobs(unittest.TestCase):
             'source': {
                 'a': 1,
                 'db_name': 'mydbname',
-                'gcp_creds_name': 'mygcpcreds',
                 'existing_table': 'drop_and_recreate',
                 'schema_name': 'myschema'
             },

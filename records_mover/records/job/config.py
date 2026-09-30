@@ -64,11 +64,6 @@ class ConfigToArgs:
         else:
             kwargs['spectrum_base_url'] = db_facts[key]  # type: ignore
 
-    def fill_in_google_cloud_creds(self, kwargs: Dict[str, Any]) -> None:
-        kwargs['google_cloud_creds'] =\
-            self.session.creds.google_sheets(self.config['gcp_creds_name'])
-        del kwargs['gcp_creds_name']
-
     def fill_in_existing_table_handling(self, kwargs: Dict[str, Any]) -> None:
         kwargs['existing_table_handling'] =\
             ExistingTableHandling[kwargs['existing_table'].upper()]
@@ -129,8 +124,6 @@ class ConfigToArgs:
         for arg in self.missing_args:
             if arg == 'self':
                 continue
-            elif arg == 'google_cloud_creds':
-                self.fill_in_google_cloud_creds(kwargs)
             elif arg == 'db_engine':
                 self.fill_in_db_engine(kwargs)
             else:

@@ -4,7 +4,6 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.sql import text
 from sqlalchemy.sql.elements import TextClause
 from typing import Optional, Dict, Any, Union
-from .timezone import set_session_tz
 from .expected_column_types import (
     expected_single_database_column_types,
     expected_df_loaded_database_column_types,
@@ -147,8 +146,6 @@ class RecordsTableValidator:
         load_variant = self.tc.determine_load_variant()
 
         with self.target_db_engine.connect() as connection:
-            set_session_tz(connection)
-
             select_sql: Union[TextClause, str]
             if self.target_db_engine.name == 'bigquery':
                 #

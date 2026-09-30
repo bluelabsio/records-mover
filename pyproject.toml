@@ -69,12 +69,6 @@ itest = [
     "records-mover[pytest,google-api-client]",
 ]
 
-airflow = [
-    "apache-airflow>=2",
-    "apache-airflow-providers-amazon",
-    "apache-airflow-providers-google"
-]
-
 db = [
     "sqlalchemy>=1.4,<2",
     "sqlalchemy_privileges>=0.2.0",
@@ -100,13 +94,6 @@ aws = [
     "boto3",
     "s3-concat>=0.1.7",
     "records-mover[smart-open]",
-]
-
-gsheets = [
-    "google",
-    "google_auth_httplib2",
-    "PyOpenSSL",
-    "records-mover[google-api-client]",
 ]
 
 parquet = [
@@ -163,13 +150,8 @@ cli = [
     "requests",
 ]
 
-vertica = [
-    "sqlalchemy-vertica-python>=0.5.5",
-    "records-mover[db]",
-]
-
 alldb = [
-    "records-mover[vertica,postgres-binary,redshift-binary,bigquery,mysql]",
+    "records-mover[postgres-binary,redshift-binary,bigquery,mysql]",
 ]
 
 typecheck = [
@@ -184,7 +166,7 @@ typecheck = [
 unittest = [
     "coverage",
     "mock",
-    "records-mover[pytest,cli,airflow,gsheets,alldb,aws,pandas,gcs]"
+    "records-mover[pytest,cli,alldb,aws,pandas,gcs]"
 ]
 
 docs = [
@@ -195,5 +177,5 @@ docs = [
     "readthedocs-sphinx-ext>=2", # also used by readthedocs
     "recommonmark", # used to be able to use sphinx with markdown
     # Needed for readthedocs.io to evaluate modules and generate docs
-    "records-mover[db,airflow,aws,cli]",
+    "records-mover[db,aws,cli]",
 ]
