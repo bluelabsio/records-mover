@@ -32,6 +32,10 @@ component:
 	ENV=test pytest --cov=records_mover tests/component
 	mv .coverage .coverage-component
 
+live:
+	# Opt-in; needs RECORDS_MOVER_LIVE=1 plus env config (see tests/integration/live/README.md)
+	ENV=test pytest tests/integration/live -rs
+
 test: unit component
 	coverage combine .coverage-unit .coverage-component # https://stackoverflow.com/questions/7352319/pytest-combined-coverage
 	coverage html --directory=cover
