@@ -50,6 +50,11 @@ class DataUrlTarget(SupportsMoveFromDataframes,
                                     dfs_source: 'DataframesRecordsSource',
                                     processing_instructions:
                                     ProcessingInstructions) -> MoveResult:
+        # Fail before opening the output location, which would
+        # otherwise leave behind an empty file.
+        if not isinstance(self.records_format, DelimitedRecordsFormat):
+            raise NotImplementedError("Teach me to export from dataframe to "
+                                      f"{self.records_format.format_type}")
         with self.output_loc.open(mode='wb') as fileobj:
             fileobj_target = FileobjTarget(fileobj=fileobj, records_format=self.records_format)
             return fileobj_target.\

@@ -38,8 +38,8 @@ class TestSessionChoices(unittest.TestCase):
             session = self.mock_session()
             print(f"Got session: {session}")
         self.assertEqual(str(r.exception),
-                         'Valid session types: cli, itest, env - '
-                         "consider upgrading records-mover if you're looking for bogus.")
+                         "Unknown session type 'bogus'. "
+                         "Valid session types: cli, itest, env.")
 
     def test_select_cli_session_by_parameter(self,
                                              mock_get_config,
@@ -71,5 +71,5 @@ class TestSessionChoices(unittest.TestCase):
         with self.assertRaises(ValueError) as r:
             self.mock_session(session_type='bogus')
         self.assertEqual(str(r.exception),
-                         "Valid session types: cli, itest, env - "
-                         "consider upgrading records-mover if you're looking for bogus.")
+                         "Unknown session type 'bogus'. "
+                         "Valid session types: cli, itest, env.")

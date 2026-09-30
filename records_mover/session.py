@@ -22,9 +22,23 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+# Session types which used to exist but have been removed.  Existing
+# configuration (e.g., a system-wide config file) may still name them.
+REMOVED_SESSION_TYPES = ('lpass', 'airflow')
+VALID_SESSION_TYPES = ('cli', 'itest', 'env')
+
+
+def _handle_removed_session_type(session_type: str) -> str:
+    if session_type in REMOVED_SESSION_TYPES:
+        logger.warning(f"session_type={session_type} is no longer supported by "
+                       "records-mover; falling back to session_type=env.")
+        return 'env'
+    return session_type
+
+
 def _infer_session_type() -> str:
     if 'RECORDS_MOVER_SESSION_TYPE' in os.environ:
-        return os.environ['RECORDS_MOVER_SESSION_TYPE']
+        return _handle_removed_session_type(os.environ['RECORDS_MOVER_SESSION_TYPE'])
 
     config_result = get_config('records_mover', 'bluelabs')
     cfg = config_result.config
@@ -33,7 +47,7 @@ def _infer_session_type() -> str:
         session_type: Optional[str] = session_cfg.get('session_type')
         if session_type is not None:
             logger.info(f"Using session_type={session_type} from config file")
-            return session_type
+            return _handle_removed_session_type(session_type)
 
     return 'env'
 
@@ -87,9 +101,8 @@ def _infer_creds(session_type: str,
                            scratch_s3_url=scratch_s3_url,
                            scratch_gcs_url=scratch_gcs_url)
     elif session_type is not None:
-        raise ValueError("Valid session types: cli, itest, env - "
-                         "consider upgrading records-mover if you're looking for "
-                         f"{session_type}.")
+        raise ValueError(f"Unknown session type {session_type!r}. "
+                         f"Valid session types: {', '.join(VALID_SESSION_TYPES)}.")
 
 
 class Session():
@@ -161,6 +174,8 @@ class Session():
         """
         if session_type is PleaseInfer.token:
             session_type = _infer_session_type()
+        else:
+            session_type = _handle_removed_session_type(session_type)
 
         if default_aws_creds_name is PleaseInfer.token:
             default_aws_creds_name = None

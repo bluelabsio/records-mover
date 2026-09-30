@@ -80,7 +80,7 @@ smart-open = [
 
 gcs = [
     "google-cloud-storage",
-    "records-mover[smart-open]",
+    "records-mover[smart-open,google-api-client]",  # gcs_directory_url uses googleapiclient
 ]
 
 bigquery = [
