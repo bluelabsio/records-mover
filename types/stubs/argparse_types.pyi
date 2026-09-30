@@ -1,5 +1,5 @@
 from typing import Iterable, Any, Union
-from mypy_extensions import TypedDict
+from typing_extensions import TypedDict
 
 
 class ArgParseArgument(TypedDict, total=False):

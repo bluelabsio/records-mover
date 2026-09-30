@@ -7,8 +7,7 @@ from typing import Optional, Dict, Union, Any, cast, TYPE_CHECKING
 if TYPE_CHECKING:
     from sqlalchemy.engine.interfaces import Dialect
     from sqlalchemy import Column
-    from typing_extensions import Literal
-    from mypy_extensions import TypedDict
+    from typing_extensions import Literal, TypedDict
     import pandas
 
     class FieldRepresentationDict(TypedDict):

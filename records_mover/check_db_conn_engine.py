@@ -49,4 +49,4 @@ def check_db_conn_engine(db: Optional[Union[sqlalchemy.engine.Engine,
     if not db_engine:
         print("db_engine is not provided, so we're assigning db_engine to db_conn.engine")
         db_engine = db_conn.engine  # type: ignore[union-attr]
-    return (db, db_conn, db_engine)  # type: ignore[return-value]
+    return (db, db_conn, db_engine)

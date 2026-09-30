@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     import sqlalchemy
     import numpy as np
     from records_mover.db import DBDriver  # noqa
-    from mypy_extensions import TypedDict
+    from typing_extensions import TypedDict
 
     class MandatoryFieldConstraintsDict(TypedDict):
         required: bool

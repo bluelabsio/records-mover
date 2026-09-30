@@ -29,7 +29,7 @@ def purge_unnamed_unused_columns(df: DataFrame) -> DataFrame:
     # "unnamed: 1", or maybe "Unnamed: 1" (not sure why/when
     # that differs).  Let's clean those up.
     for column in df:
-        if type(column) == str:
+        if type(column) is str:
             if column.startswith('Unnamed: ') or column.startswith('unnamed: '):
                 if not df[column].notnull().any():
                     df = df.drop(column, axis=1)

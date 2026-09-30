@@ -1,6 +1,5 @@
 from typing import Any, List, IO, Union, Optional, Dict, Callable, overload
-from typing_extensions import Literal
-from mypy_extensions import TypedDict
+from typing_extensions import Literal, TypedDict
 import datetime
 from botocore.credentials import Credentials
 

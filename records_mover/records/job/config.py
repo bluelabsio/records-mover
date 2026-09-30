@@ -83,7 +83,7 @@ class ConfigToArgs:
 
         if 'records_format' in kwargs:
             existing_records_format = kwargs['records_format']
-            if type(records_format) != type(existing_records_format):
+            if type(records_format) is not type(existing_records_format):
                 raise NotImplementedError('Hints are not compatible '
                                           'with records format '
                                           f'{existing_records_format.format_type}')

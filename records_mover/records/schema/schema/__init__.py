@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ....db import DBDriver  # noqa
     from typing_extensions import Literal
 
-    from mypy_extensions import TypedDict
+    from typing_extensions import TypedDict
 
     from ..field import FieldDict
     from ..field.field_types import FieldType  # noqa
