@@ -46,7 +46,10 @@ def check_db_conn_engine(db: Optional[Union[sqlalchemy.engine.Engine,
         db_conn = db
     if isinstance(db, sqlalchemy.engine.Engine) and not db_engine:
         db_engine = db
-    if not db_engine:
+    if db_engine is None:
+        if db_conn is None:
+            raise ValueError("db must be an Engine or Connection when db_conn and db_engine "
+                             "are not provided")
         print("db_engine is not provided, so we're assigning db_engine to db_conn.engine")
-        db_engine = db_conn.engine  # type: ignore[union-attr]
+        db_engine = db_conn.engine
     return (db, db_conn, db_engine)
